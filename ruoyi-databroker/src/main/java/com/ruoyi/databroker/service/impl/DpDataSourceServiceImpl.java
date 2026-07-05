@@ -48,6 +48,8 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
     @Autowired
     private DataBrokerCryptoService cryptoService;
     @Autowired
+    private DpDataSourceServiceImpl self;
+    @Autowired
     private JdbcConnectionFactory connectionFactory;
     @Autowired
     private MySqlMetadataCollector metadataCollector;
@@ -301,7 +303,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
                     "{\"batchNo\":\"" + batchNo + "\"}");
 
         } catch (Exception e) {
-            recordSyncError(id, e.getMessage());
+            self.recordSyncError(id, e.getMessage());
             throw new RuntimeException("同步失败：" + e.getMessage(), e);
         }
 
@@ -387,7 +389,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    private void recordSyncError(Long datasourceId, String errorMsg) {
+    public void recordSyncError(Long datasourceId, String errorMsg) {
         DpDataSource ds = dataSourceMapper.selectDataSourceById(datasourceId);
         if (ds != null) {
             ds.setLastSyncStatus("2");
