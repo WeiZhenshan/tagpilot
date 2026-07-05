@@ -5,12 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson2.JSON;
-import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.databroker.domain.DpDataSource;
@@ -150,6 +149,9 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
     @Override
     @Transactional
     public int deleteDataSourceByIds(Long[] ids) {
+        if (ids == null || ids.length == 0) {
+            return 0;
+        }
         int rows = 0;
         for (Long id : ids) {
             DpDataSource ds = dataSourceMapper.selectDataSourceById(id);
@@ -188,7 +190,10 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
             throw new RuntimeException("数据源不存在");
         }
 
-        String password = cryptoService.decrypt(ds.getPasswordCipher());
+        String password = "";
+        if (ds.getPasswordCipher() != null && !ds.getPasswordCipher().isEmpty()) {
+            password = cryptoService.decrypt(ds.getPasswordCipher());
+        }
         String batchNo = "SYNC" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
 
         SyncResultVO result = new SyncResultVO();
@@ -296,11 +301,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
                     "{\"batchNo\":\"" + batchNo + "\"}");
 
         } catch (Exception e) {
-            ds.setLastSyncStatus("2");
-            ds.setLastErrorMsg(e.getMessage());
-            dataSourceMapper.updateDataSource(ds);
-
-            writeLog(id, "SYNC", "0", "同步失败：" + e.getMessage(), null);
+            recordSyncError(id, e.getMessage());
             throw new RuntimeException("同步失败：" + e.getMessage(), e);
         }
 
@@ -383,5 +384,22 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
         copy.setPassword("******");
         copy.setPasswordCipher("******");
         return JSON.toJSONString(copy);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void recordSyncError(Long datasourceId, String errorMsg) {
+        DpDataSource ds = dataSourceMapper.selectDataSourceById(datasourceId);
+        if (ds != null) {
+            ds.setLastSyncStatus("2");
+            ds.setLastErrorMsg(errorMsg != null && errorMsg.length() > 1000 ? errorMsg.substring(0, 1000) : errorMsg);
+            dataSourceMapper.updateDataSource(ds);
+        }
+        DpDataSourceLog log = new DpDataSourceLog();
+        log.setDatasourceId(datasourceId);
+        log.setLogType("SYNC");
+        log.setOperatorName(SecurityUtils.getUsername());
+        log.setResult("0");
+        log.setMessage("同步失败：" + errorMsg);
+        logMapper.insertLog(log);
     }
 }
