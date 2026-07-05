@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpDataSourceMapper">
+
+    <resultMap type="DpDataSource" id="DataSourceResult">
+        <id     property="datasourceId"   column="datasource_id"   />
+        <result property="catalogId"      column="catalog_id"      />
+        <result property="sourceName"     column="source_name"     />
+        <result property="sourceType"     column="source_type"     />
+        <result property="host"           column="host"            />
+        <result property="port"           column="port"            />
+        <result property="databaseName"   column="database_name"   />
+        <result property="username"       column="username"        />
+        <result property="passwordCipher" column="password_cipher" />
+        <result property="dbVersion"      column="db_version"      />
+        <result property="usePool"        column="use_pool"        />
+        <result property="useSsl"         column="use_ssl"         />
+        <result property="caCert"         column="ca_cert"         />
+        <result property="jdbcParams"     column="jdbc_params"     />
+        <result property="status"         column="status"          />
+        <result property="usageCount"     column="usage_count"     />
+        <result property="lastSyncTime"   column="last_sync_time"   />
+        <result property="lastSyncStatus" column="last_sync_status" />
+        <result property="lastErrorMsg"   column="last_error_msg"   />
+        <result property="delFlag"        column="del_flag"        />
+        <result property="createBy"       column="create_by"       />
+        <result property="createTime"     column="create_time"     />
+        <result property="updateBy"       column="update_by"       />
+        <result property="updateTime"     column="update_time"     />
+        <result property="remark"         column="remark"          />
+    </resultMap>
+
+    <sql id="selectVo">
+        select datasource_id, catalog_id, source_name, source_type, host, port, database_name,
+               username, password_cipher, db_version, use_pool, use_ssl, ca_cert, jdbc_params,
+               status, usage_count, last_sync_time, last_sync_status, last_error_msg, del_flag,
+               create_by, create_time, update_by, update_time, remark
+        from dp_datasource
+    </sql>
+
+    <select id="selectDataSourceList" parameterType="DpDataSource" resultMap="DataSourceResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="sourceName != null and sourceName != ''">and source_name like concat('%', #{sourceName}, '%')</if>
+            <if test="sourceType != null and sourceType != ''">and source_type = #{sourceType}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="catalogId != null">and catalog_id = #{catalogId}</if>
+            and del_flag = '0'
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectDataSourceById" parameterType="Long" resultMap="DataSourceResult">
+        <include refid="selectVo"/> where datasource_id = #{datasourceId} and del_flag = '0'
+    </select>
+
+    <select id="selectDataSourceByName" parameterType="String" resultMap="DataSourceResult">
+        <include refid="selectVo"/> where source_name = #{sourceName} and del_flag = '0'
+    </select>
+
+    <insert id="insertDataSource" parameterType="DpDataSource" useGeneratedKeys="true" keyProperty="datasourceId">
+        insert into dp_datasource (
+            catalog_id, source_name, source_type, host, port, database_name, username,
+            password_cipher, db_version, use_pool, use_ssl, ca_cert, jdbc_params, status,
+            create_by, create_time, remark
+        ) values (
+            #{catalogId}, #{sourceName}, #{sourceType}, #{host}, #{port}, #{databaseName},
+            #{username}, #{passwordCipher}, #{dbVersion}, #{usePool}, #{useSsl}, #{caCert},
+            #{jdbcParams}, #{status}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateDataSource" parameterType="DpDataSource">
+        update dp_datasource
+        <set>
+            <if test="catalogId != null">catalog_id = #{catalogId},</if>
+            <if test="sourceName != null">source_name = #{sourceName},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="host != null">host = #{host},</if>
+            <if test="port != null">port = #{port},</if>
+            <if test="databaseName != null">database_name = #{databaseName},</if>
+            <if test="username != null">username = #{username},</if>
+            <if test="passwordCipher != null and passwordCipher != ''">password_cipher = #{passwordCipher},</if>
+            <if test="dbVersion != null">db_version = #{dbVersion},</if>
+            <if test="usePool != null">use_pool = #{usePool},</if>
+            <if test="useSsl != null">use_ssl = #{useSsl},</if>
+            <if test="caCert != null">ca_cert = #{caCert},</if>
+            <if test="jdbcParams != null">jdbc_params = #{jdbcParams},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime},</if>
+            <if test="lastSyncStatus != null">last_sync_status = #{lastSyncStatus},</if>
+            <if test="lastErrorMsg != null">last_error_msg = #{lastErrorMsg},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where datasource_id = #{datasourceId}
+    </update>
+
+    <update id="deleteDataSourceById" parameterType="Long">
+        update dp_datasource set del_flag = '2', update_time = sysdate() where datasource_id = #{datasourceId}
+    </update>
+
+    <delete id="deleteDataSourceByIds" parameterType="Long">
+        update dp_datasource set del_flag = '2', update_time = sysdate()
+        where datasource_id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="incrementUsageCount" parameterType="Long">
+        update dp_datasource set usage_count = usage_count + 1 where datasource_id = #{datasourceId}
+    </update>
+
+</mapper>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpMetaColumnMapper">
+
+    <resultMap type="DpMetaColumn" id="ColumnResult">
+        <id     property="columnId"             column="column_id"              />
+        <result property="tableId"              column="table_id"               />
+        <result property="datasourceId"         column="datasource_id"          />
+        <result property="objectName"           column="object_name"            />
+        <result property="columnName"           column="column_name"            />
+        <result property="ordinalPosition"      column="ordinal_position"       />
+        <result property="columnType"           column="column_type"            />
+        <result property="dataType"             column="data_type"              />
+        <result property="isNullable"           column="is_nullable"            />
+        <result property="columnDefault"        column="column_default"         />
+        <result property="columnComment"        column="column_comment"         />
+        <result property="isPk"                 column="is_pk"                  />
+        <result property="isFk"                 column="is_fk"                  />
+        <result property="referencedTableName"  column="referenced_table_name"  />
+        <result property="referencedColumnName" column="referenced_column_name" />
+        <result property="syncBatchNo"          column="sync_batch_no"          />
+        <result property="createBy"             column="create_by"              />
+        <result property="createTime"           column="create_time"            />
+        <result property="updateBy"             column="update_by"              />
+        <result property="updateTime"           column="update_time"            />
+    </resultMap>
+
+    <sql id="selectVo">
+        select column_id, table_id, datasource_id, object_name, column_name, ordinal_position,
+               column_type, data_type, is_nullable, column_default, column_comment,
+               is_pk, is_fk, referenced_table_name, referenced_column_name, sync_batch_no,
+               create_by, create_time, update_by, update_time
+        from dp_meta_column
+    </sql>
+
+    <select id="selectColumnList" parameterType="DpMetaColumn" resultMap="ColumnResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="tableId != null">and table_id = #{tableId}</if>
+            <if test="datasourceId != null">and datasource_id = #{datasourceId}</if>
+            <if test="objectName != null and objectName != ''">and object_name = #{objectName}</if>
+        </where>
+        order by ordinal_position
+    </select>
+
+    <select id="selectColumnsByTableId" parameterType="Long" resultMap="ColumnResult">
+        <include refid="selectVo"/> where table_id = #{tableId} order by ordinal_position
+    </select>
+
+    <select id="selectColumnByTableAndName" resultMap="ColumnResult">
+        <include refid="selectVo"/> where table_id = #{param1} and column_name = #{param2}
+    </select>
+
+    <insert id="insertColumn" parameterType="DpMetaColumn" useGeneratedKeys="true" keyProperty="columnId">
+        insert into dp_meta_column (
+            table_id, datasource_id, object_name, column_name, ordinal_position,
+            column_type, data_type, is_nullable, column_default, column_comment,
+            is_pk, is_fk, referenced_table_name, referenced_column_name, sync_batch_no,
+            create_by, create_time
+        ) values (
+            #{tableId}, #{datasourceId}, #{objectName}, #{columnName}, #{ordinalPosition},
+            #{columnType}, #{dataType}, #{isNullable}, #{columnDefault}, #{columnComment},
+            #{isPk}, #{isFk}, #{referencedTableName}, #{referencedColumnName}, #{syncBatchNo},
+            #{createBy}, sysdate()
+        )
+    </insert>
+
+    <update id="updateColumn" parameterType="DpMetaColumn">
+        update dp_meta_column
+        <set>
+            <if test="ordinalPosition != null">ordinal_position = #{ordinalPosition},</if>
+            <if test="columnType != null">column_type = #{columnType},</if>
+            <if test="dataType != null">data_type = #{dataType},</if>
+            <if test="isNullable != null">is_nullable = #{isNullable},</if>
+            <if test="columnDefault != null">column_default = #{columnDefault},</if>
+            <if test="columnComment != null">column_comment = #{columnComment},</if>
+            <if test="isPk != null">is_pk = #{isPk},</if>
+            <if test="isFk != null">is_fk = #{isFk},</if>
+            <if test="referencedTableName != null">referenced_table_name = #{referencedTableName},</if>
+            <if test="referencedColumnName != null">referenced_column_name = #{referencedColumnName},</if>
+            <if test="syncBatchNo != null">sync_batch_no = #{syncBatchNo},</if>
+            update_time = sysdate()
+        </set>
+        where column_id = #{columnId}
+    </update>
+
+    <delete id="deleteColumnsByTableId" parameterType="Long">
+        delete from dp_meta_column where table_id = #{tableId}
+    </delete>
+
+    <delete id="deleteOrphanColumns">
+        delete from dp_meta_column
+        where datasource_id = #{param1} and sync_batch_no != #{param2} and sync_batch_no != ''
+    </delete>
+
+</mapper>

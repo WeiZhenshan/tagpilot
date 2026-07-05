@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpDataSourceLogMapper">
+
+    <resultMap type="DpDataSourceLog" id="LogResult">
+        <id     property="logId"        column="log_id"        />
+        <result property="datasourceId" column="datasource_id" />
+        <result property="logType"      column="log_type"      />
+        <result property="operatorName" column="operator_name" />
+        <result property="result"       column="result"        />
+        <result property="message"      column="message"       />
+        <result property="detailJson"   column="detail_json"   />
+        <result property="operTime"     column="oper_time"     />
+    </resultMap>
+
+    <sql id="selectVo">
+        select log_id, datasource_id, log_type, operator_name, result, message, detail_json, oper_time
+        from dp_datasource_log
+    </sql>
+
+    <select id="selectLogList" parameterType="DpDataSourceLog" resultMap="LogResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="datasourceId != null">and datasource_id = #{datasourceId}</if>
+            <if test="logType != null and logType != ''">and log_type = #{logType}</if>
+            <if test="result != null and result != ''">and result = #{result}</if>
+        </where>
+        order by oper_time desc
+    </select>
+
+    <insert id="insertLog" parameterType="DpDataSourceLog" useGeneratedKeys="true" keyProperty="logId">
+        insert into dp_datasource_log (
+            datasource_id, log_type, operator_name, result, message, detail_json, oper_time
+        ) values (
+            #{datasourceId}, #{logType}, #{operatorName}, #{result}, #{message}, #{detailJson}, sysdate()
+        )
+    </insert>
+
+</mapper>
