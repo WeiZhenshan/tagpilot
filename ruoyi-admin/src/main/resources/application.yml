@@ -133,4 +133,12 @@ xss:
   # 排除链接（多个用逗号分隔）
   excludes: /system/notice
   # 匹配链接
-  urlPatterns: /system/*,/monitor/*,/tool/*
+  urlPatterns: /system/*,/monitor/*,/tool/*,/databroker/*
+
+# 数据代理模块配置
+databroker:
+  crypto:
+    secret: ${DATABROKER_CRYPTO_SECRET:change-me-32-bytes-secret-key}
+  jdbc:
+    connectTimeout: 5000
+    socketTimeout: 10000
