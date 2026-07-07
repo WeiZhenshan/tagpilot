@@ -12,4 +12,7 @@ public interface DpDataSourceMapper {
     int deleteDataSourceById(Long datasourceId);
     int deleteDataSourceByIds(Long[] datasourceIds);
     int incrementUsageCount(Long datasourceId);
+
+    /** 统计某目录下的数据源数量（用于删除目录校验） */
+    int countByCatalogId(Long catalogId);
 }

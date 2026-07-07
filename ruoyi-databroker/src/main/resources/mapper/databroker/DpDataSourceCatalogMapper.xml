@@ -62,4 +62,23 @@
         delete from dp_datasource_catalog where catalog_id = #{catalogId}
     </delete>
 
+    <select id="hasChildByParentId" parameterType="Long" resultType="int">
+        select count(1) from dp_datasource_catalog where parent_id = #{parentId}
+    </select>
+
+    <select id="selectChildrenById" parameterType="Long" resultMap="CatalogResult">
+        <include refid="selectVo"/> where find_in_set(#{catalogId}, ancestors)
+    </select>
+
+    <update id="updateChildren" parameterType="java.util.List">
+        update dp_datasource_catalog set ancestors =
+        <foreach collection="list" item="item" index="index" separator=" " open="case catalog_id" close="end">
+            when #{item.catalogId} then #{item.ancestors}
+        </foreach>
+        where catalog_id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item.catalogId}
+        </foreach>
+    </update>
+
 </mapper>

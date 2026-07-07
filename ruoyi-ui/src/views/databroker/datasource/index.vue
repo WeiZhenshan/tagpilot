@@ -1,43 +1,90 @@
 <template>
-  <div class="app-container">
-    <el-row :gutter="16">
+  <div class="app-container datasource-page">
+    <div class="datasource-layout">
       <!-- Left: Tree Panel -->
-      <el-col :span="6">
-        <div class="tree-panel">
-          <div class="tree-header">
-            <span><i class="el-icon-connection" /> 数据连接</span>
-            <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAdd"
-              v-hasPermi="['databroker:datasource:add']">新增</el-button>
+      <aside class="datasource-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">
+            <span class="sidebar-title-icon"><i class="el-icon-connection" /></span>
+            <div class="sidebar-title-text">
+              <span>数据连接</span>
+              <small>目录与数据源管理</small>
+            </div>
           </div>
-          <el-input v-model="filterText" placeholder="输入名称过滤" size="small" clearable style="margin: 8px 0;" />
+        </div>
+        <div class="sidebar-actions">
+          <el-button type="success" size="mini" icon="el-icon-folder-add" plain @click="handleAddCatalog(null)"
+            v-hasPermi="['databroker:catalog:add']">新增目录</el-button>
+          <el-button type="primary" size="mini" icon="el-icon-plus" plain @click="handleAdd"
+            v-hasPermi="['databroker:datasource:add']">新增数据源</el-button>
+        </div>
+        <div class="sidebar-search">
+          <el-input v-model="filterText" placeholder="输入名称过滤" size="small" clearable prefix-icon="el-icon-search" />
+        </div>
+        <div class="sidebar-tree">
           <el-tree :data="treeData" :props="treeProps" node-key="id" :filter-node-method="filterNode"
             :expand-on-click-node="false" highlight-current ref="tree" @node-click="handleNodeClick">
             <span class="custom-tree-node" slot-scope="{ node, data }">
               <i :class="data.nodeType === 'catalog' ? 'el-icon-folder' : 'el-icon-coin'" />
-              <span>{{ node.label }}</span>
+              <span class="node-label" :title="node.label">{{ node.label }}</span>
             </span>
           </el-tree>
         </div>
-      </el-col>
+      </aside>
 
       <!-- Right: Detail Area -->
-      <el-col :span="18">
-        <div v-if="!selectedNode || selectedNode.nodeType === 'catalog'" class="empty-state">
-          <i class="el-icon-info" style="font-size:48px;color:#c0c4cc;" />
-          <p>请从左侧选择一个数据源查看详情</p>
+      <section class="datasource-content">
+        <div v-if="!selectedNode" class="empty-state">
+          <i class="el-icon-info" />
+          <p>请从左侧选择一个目录或数据源</p>
+        </div>
+
+        <!-- 选中目录：目录信息卡片 -->
+        <div v-else-if="selectedNode.nodeType === 'catalog'">
+          <div class="detail-header">
+            <div class="detail-title">
+              <span class="detail-icon"><i class="el-icon-folder" /></span>
+              <div class="detail-title-main">
+                <div class="detail-name">
+                  <span>{{ selectedNode.label }}</span>
+                  <el-tag type="info" size="mini">目录</el-tag>
+                </div>
+                <span class="detail-meta">可在此目录下继续创建子目录或数据源</span>
+              </div>
+            </div>
+            <div class="detail-actions">
+              <el-button size="mini" type="success" icon="el-icon-folder-add" @click="handleAddCatalog(selectedNode.catalogId)"
+                v-hasPermi="['databroker:catalog:add']">新增子目录</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleEditCatalog"
+                v-hasPermi="['databroker:catalog:edit']">编辑目录</el-button>
+              <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDeleteCatalog"
+                v-hasPermi="['databroker:catalog:remove']">删除目录</el-button>
+            </div>
+          </div>
+          <div class="catalog-tip">
+            <p>提示：在目录下可继续创建子目录或数据源。删除目录前需先移除其下的所有子目录与数据源。</p>
+          </div>
         </div>
 
         <div v-else>
           <!-- Info Bar -->
-          <div class="info-bar">
-            <span class="info-bar-icon"><i class="el-icon-coin" /></span>
-            <span class="info-bar-title">{{ datasource.sourceName }}</span>
-            <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleEdit"
-              v-hasPermi="['databroker:datasource:edit']" style="margin-left:12px;">编辑</el-button>
-            <el-tag v-if="datasource.sourceType" style="margin-left:8px;">{{ datasource.sourceType }}</el-tag>
-            <span style="margin-left:16px;color:#909399;font-size:12px;">
-              创建人：{{ datasource.createBy }} | 创建时间：{{ datasource.createTime }} | 使用量：{{ datasource.usageCount || 0 }}
-            </span>
+          <div class="detail-header">
+            <div class="detail-title">
+              <span class="detail-icon"><i class="el-icon-coin" /></span>
+              <div class="detail-title-main">
+                <div class="detail-name">
+                  <span>{{ datasource.sourceName }}</span>
+                  <el-tag v-if="datasource.sourceType" size="mini">{{ datasource.sourceType }}</el-tag>
+                </div>
+                <span class="detail-meta">
+                  创建人：{{ datasource.createBy || '-' }} / 创建时间：{{ datasource.createTime || '-' }} / 使用量：{{ datasource.usageCount || 0 }}
+                </span>
+              </div>
+            </div>
+            <div class="detail-actions">
+              <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleEdit"
+                v-hasPermi="['databroker:datasource:edit']">编辑</el-button>
+            </div>
           </div>
 
           <!-- Tabs -->
@@ -68,8 +115,8 @@
                   </el-col>
                 </el-row>
               </el-form>
-              <div style="text-align:right;padding-right:20px;">
-                <el-button size="small" type="primary" icon="el-icon-link" @click="handleTestFromDetail"
+              <div class="detail-form-actions">
+                <el-button size="small" type="primary" icon="el-icon-link" :loading="testLoading" @click="handleTestFromDetail"
                   v-hasPermi="['databroker:datasource:test']">测试连接</el-button>
                 <el-button size="small" type="success" icon="el-icon-refresh" @click="handleSync"
                   v-hasPermi="['databroker:datasource:sync']">同步元数据</el-button>
@@ -154,8 +201,8 @@
             </el-tab-pane>
           </el-tabs>
         </div>
-      </el-col>
-    </el-row>
+      </section>
+    </div>
 
     <!-- Add/Edit Dialog -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="650px" append-to-body @close="resetForm">
@@ -226,8 +273,51 @@
       </el-form>
       <div slot="footer">
         <el-button size="small" @click="dialogVisible = false">取消</el-button>
-        <el-button size="small" type="primary" icon="el-icon-link" @click="handleTestFromDialog">测试连接</el-button>
+        <el-button size="small" type="primary" icon="el-icon-link" :loading="testLoading" @click="handleTestFromDialog">测试连接</el-button>
         <el-button size="small" type="primary" @click="submitForm">保存</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- Catalog Add/Edit Dialog -->
+    <el-dialog :title="catalogDialogTitle" :visible.sync="catalogDialogVisible" width="600px" append-to-body @close="resetCatalogForm">
+      <el-form ref="catalogForm" :model="catalogForm" :rules="catalogRules" label-width="100px" size="small">
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="上级目录" prop="parentId">
+              <treeselect v-model="catalogForm.parentId" :options="catalogOptions" :normalizer="catalogNormalizer"
+                :show-count="true" placeholder="选择上级目录" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="目录名称" prop="catalogName">
+              <el-input v-model="catalogForm.catalogName" placeholder="请输入目录名称" maxlength="100" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="显示顺序" prop="orderNum">
+              <el-input-number v-model="catalogForm.orderNum" :min="0" controls-position="right" style="width:100%;" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="状态">
+              <el-radio-group v-model="catalogForm.status">
+                <el-radio label="0">正常</el-radio>
+                <el-radio label="1">停用</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="备注">
+          <el-input v-model="catalogForm.remark" type="textarea" :rows="2" placeholder="请输入备注" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button size="small" @click="catalogDialogVisible = false">取消</el-button>
+        <el-button size="small" type="primary" @click="submitCatalogForm">保存</el-button>
       </div>
     </el-dialog>
 
@@ -250,11 +340,15 @@
 </template>
 
 <script>
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { treeDataSource, getDataSource, addDataSource, updateDataSource, delDataSource,
   testDataSource, syncDataSource, listTables, listColumns, updateTableCnName, listLogs } from '@/api/databroker/datasource'
+import { listCatalog, getCatalog, addCatalog, updateCatalog, delCatalog } from '@/api/databroker/catalog'
 
 export default {
   name: 'DatabrokerDataSource',
+  components: { Treeselect },
   data() {
     return {
       filterText: '',
@@ -281,6 +375,7 @@ export default {
       // Dialog
       dialogTitle: '',
       dialogVisible: false,
+      testLoading: false,
       form: { catalogId: null, sourceName: '', sourceType: 'MYSQL', host: '', port: 3306, databaseName: '', username: '', password: '', usePool: '0', useSsl: '0', jdbcParams: '{}', remark: '' },
       rules: {
         catalogId: [{ required: true, message: '请选择目录', trigger: 'change' }],
@@ -292,6 +387,15 @@ export default {
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
       },
       catalogList: [],
+
+      // Catalog dialog
+      catalogDialogTitle: '',
+      catalogDialogVisible: false,
+      catalogOptions: [],
+      catalogForm: { catalogId: null, parentId: 0, catalogName: '', orderNum: 0, status: '0', remark: '' },
+      catalogRules: {
+        catalogName: [{ required: true, message: '请输入目录名称', trigger: 'blur' }]
+      },
 
       // Columns dialog
       columnsVisible: false,
@@ -322,6 +426,17 @@ export default {
       walk(this.treeData)
       this.catalogList = cats
     },
+    /** Treeselect 节点规范化 */
+    catalogNormalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children
+      }
+      return {
+        id: node.catalogId,
+        label: node.catalogName,
+        children: node.children
+      }
+    },
     filterNode(value, data) {
       if (!value) return true
       return data.label.indexOf(value) !== -1
@@ -342,6 +457,82 @@ export default {
       this.dialogTitle = '新增数据源'
       this.resetForm()
       this.dialogVisible = true
+    },
+    // ===== Catalog =====
+    handleAddCatalog(parentId) {
+      this.catalogDialogTitle = '新增目录'
+      this.resetCatalogForm()
+      this.catalogForm.parentId = parentId != null ? parentId : 0
+      this.loadCatalogOptionsExclude(null)
+      this.catalogDialogVisible = true
+    },
+    handleEditCatalog() {
+      if (!this.selectedNode || this.selectedNode.nodeType !== 'catalog') return
+      const catalogId = this.selectedNode.catalogId
+      getCatalog(catalogId).then(res => {
+        const d = res.data
+        this.catalogDialogTitle = '修改目录'
+        this.catalogForm = {
+          catalogId: d.catalogId,
+          parentId: d.parentId != null ? d.parentId : 0,
+          catalogName: d.catalogName,
+          orderNum: d.orderNum != null ? d.orderNum : 0,
+          status: d.status || '0',
+          remark: d.remark || ''
+        }
+        // 排除自身及子孙，防止把自己设为自己的父级
+        this.loadCatalogOptionsExclude(catalogId)
+        this.catalogDialogVisible = true
+      })
+    },
+    resetCatalogForm() {
+      this.catalogForm = { catalogId: null, parentId: 0, catalogName: '', orderNum: 0, status: '0', remark: '' }
+      this.$nextTick(() => { if (this.$refs.catalogForm) this.$refs.catalogForm.clearValidate() })
+    },
+    submitCatalogForm() {
+      this.$refs.catalogForm.validate(valid => {
+        if (!valid) return
+        if (this.catalogForm.catalogId) {
+          updateCatalog(this.catalogForm).then(() => {
+            this.$modal.msgSuccess('修改成功')
+            this.catalogDialogVisible = false
+            this.loadTree()
+          })
+        } else {
+          addCatalog(this.catalogForm).then(() => {
+            this.$modal.msgSuccess('新增成功')
+            this.catalogDialogVisible = false
+            this.loadTree()
+          })
+        }
+      })
+    },
+    handleDeleteCatalog() {
+      if (!this.selectedNode || this.selectedNode.nodeType !== 'catalog') return
+      const catalogId = this.selectedNode.catalogId
+      this.$modal.confirm('确认删除目录"' + this.selectedNode.label + '"？删除前需确保目录为空。').then(() => {
+        return delCatalog(catalogId)
+      }).then(() => {
+        this.$modal.msgSuccess('删除成功')
+        this.selectedNode = null
+        this.loadTree()
+      }).catch(() => {})
+    },
+    /** 加载上级目录选项树；excludeId 不为空时排除该节点及其子孙（编辑场景防自引用） */
+    loadCatalogOptionsExclude(excludeId) {
+      listCatalog().then(res => {
+        let list = res.data || []
+        if (excludeId != null) {
+          // 通过 ancestors 排除自身及子孙
+          list = list.filter(d => {
+            if (d.catalogId === excludeId) return false
+            const anc = (d.ancestors || '').split(',')
+            return anc.indexOf(String(excludeId)) === -1
+          })
+        }
+        const tree = this.handleTree(list, 'catalogId')
+        this.catalogOptions = [{ catalogId: 0, catalogName: '主目录', children: tree }]
+      })
     },
     handleEdit() {
       this.dialogTitle = '修改数据源'
@@ -370,31 +561,32 @@ export default {
       this.$refs.form.validate(valid => {
         if (!valid) return
         if (this.form.datasourceId) {
-          updateDataSource(this.form).then(() => { this.msgSuccess('修改成功'); this.dialogVisible = false; this.loadTree() })
+          updateDataSource(this.form).then(() => { this.$modal.msgSuccess('修改成功'); this.dialogVisible = false; this.loadTree() })
         } else {
-          addDataSource(this.form).then(() => { this.msgSuccess('新增成功'); this.dialogVisible = false; this.loadTree() })
+          addDataSource(this.form).then(() => { this.$modal.msgSuccess('新增成功'); this.dialogVisible = false; this.loadTree() })
         }
       })
     },
     handleTestFromDialog() {
       this.$refs.form.validate(valid => {
         if (!valid) return
+        this.testLoading = true
         testDataSource(this.form).then(res => {
-          this.msgSuccess('连接成功，数据库版本：' + (res.data && res.data.dbVersion ? res.data.dbVersion : 'unknown'))
-        })
+          this.$modal.msgSuccess('连接成功，数据库版本：' + (res.data && res.data.dbVersion ? res.data.dbVersion : 'unknown'))
+        }).finally(() => { this.testLoading = false })
       })
     },
     handleTestFromDetail() {
-      const params = { ...this.datasource, password: '******' }
-      testDataSource(params).then(res => {
-        this.msgSuccess('连接成功，数据库版本：' + (res.data && res.data.dbVersion ? res.data.dbVersion : 'unknown'))
-      })
+      this.testLoading = true
+      testDataSource(this.datasource).then(res => {
+        this.$modal.msgSuccess('连接成功，数据库版本：' + (res.data && res.data.dbVersion ? res.data.dbVersion : 'unknown'))
+      }).finally(() => { this.testLoading = false })
     },
     handleSync() {
       this.$confirm('确认同步元数据？', '提示', { type: 'warning' }).then(() => {
         syncDataSource(this.datasource.datasourceId).then(res => {
           const d = res.data
-          this.msgSuccess('同步成功：表' + d.tableCount + '个，视图' + d.viewCount + '个，字段' + d.columnCount + '个')
+          this.$modal.msgSuccess('同步成功：表' + d.tableCount + '个，视图' + d.viewCount + '个，字段' + d.columnCount + '个')
           getDataSource(this.datasource.datasourceId).then(r => { this.datasource = r.data })
           this.loadTableStats()
           this.loadTables()
@@ -422,8 +614,8 @@ export default {
       }).catch(() => { this.tableLoading = false })
     },
     saveCnName(row) {
-      if (!row.cnName || row.cnName.length > 60) { this.msgError('中文名最长60字符'); return }
-      updateTableCnName(row.tableId, { cnName: row.cnName }).then(() => { this.msgSuccess('中文名已更新') })
+      if (!row.cnName || row.cnName.length > 60) { this.$modal.msgError('中文名最长60字符'); return }
+      updateTableCnName(row.tableId, { cnName: row.cnName }).then(() => { this.$modal.msgSuccess('中文名已更新') })
     },
     showColumns(row) {
       listColumns(row.tableId).then(res => {
@@ -451,35 +643,353 @@ export default {
 </script>
 
 <style scoped>
-.tree-panel {
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  padding: 12px;
-  min-height: 500px;
-  background: #fff;
-}
-.tree-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ebeef5;
-  font-weight: bold;
-  font-size: 14px;
-}
-.tree-header i { margin-right: 4px; color: #409EFF; }
-.custom-tree-node { flex: 1; display: flex; align-items: center; font-size: 13px; }
-.custom-tree-node i { margin-right: 5px; color: #409EFF; }
-.empty-state { text-align: center; padding: 120px 0; color: #909399; }
-.info-bar {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
+.datasource-page {
+  padding: 16px;
   background: #f5f7fa;
-  border-radius: 4px;
-  margin-bottom: 8px;
+  min-height: calc(100vh - 120px);
 }
-.info-bar-icon { font-size: 24px; color: #409EFF; margin-right: 8px; }
-.info-bar-title { font-size: 16px; font-weight: 600; }
-.table-stats { padding: 8px 0; }
+
+.datasource-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  min-height: calc(100vh - 152px);
+}
+
+.datasource-sidebar,
+.datasource-content {
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+}
+
+.datasource-sidebar {
+  flex: 0 0 300px;
+  min-width: 280px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.sidebar-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.sidebar-title-icon {
+  width: 34px;
+  height: 34px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+  color: #409eff;
+  background: #ecf5ff;
+  font-size: 18px;
+}
+
+.sidebar-title-text {
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.sidebar-title-text span {
+  display: block;
+  color: #303133;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sidebar-title-text small {
+  display: block;
+  color: #606266;
+  font-size: 12px;
+}
+
+.sidebar-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #f0f2f5;
+  background: #fafbfc;
+}
+
+.sidebar-actions .el-button {
+  width: 100%;
+  margin: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.sidebar-actions .el-button + .el-button {
+  margin-left: 0;
+}
+
+.sidebar-actions .el-button--success.is-plain {
+  color: #1f7a3a;
+  background: #f0f9eb;
+  border-color: #b7e4c1;
+}
+
+.sidebar-actions .el-button--primary.is-plain {
+  color: #1d63b8;
+  background: #ecf5ff;
+  border-color: #b3d8ff;
+}
+
+.sidebar-search {
+  flex-shrink: 0;
+  padding: 12px 12px 8px;
+}
+
+::v-deep .sidebar-search .el-input__inner::placeholder {
+  color: #606266;
+}
+
+.sidebar-tree {
+  flex: 1;
+  min-height: 420px;
+  padding: 0 8px 12px;
+  overflow: auto;
+}
+
+.sidebar-tree::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-tree::-webkit-scrollbar-thumb {
+  background: #dcdfe6;
+  border-radius: 4px;
+}
+
+::v-deep .sidebar-tree .el-tree-node__content {
+  height: 32px;
+  border-radius: 4px;
+}
+
+::v-deep .sidebar-tree .el-tree-node__content:hover {
+  background: #f0f7ff;
+}
+
+::v-deep .sidebar-tree .el-tree-node.is-current > .el-tree-node__content {
+  background: #e6f0fd;
+  color: #409eff;
+  font-weight: 600;
+}
+
+.custom-tree-node {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+}
+
+.custom-tree-node i {
+  margin-right: 6px;
+  color: #409eff;
+  flex-shrink: 0;
+}
+
+.node-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.datasource-content {
+  flex: 1;
+  min-width: 0;
+  padding: 16px;
+  overflow: auto;
+}
+
+.empty-state {
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #606266;
+  text-align: center;
+}
+
+.empty-state i {
+  margin-bottom: 14px;
+  font-size: 48px;
+  color: #c0c4cc;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: #f7f9fc;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+}
+
+.detail-title {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.detail-icon {
+  width: 34px;
+  height: 34px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+  color: #409eff;
+  background: #ecf5ff;
+  font-size: 20px;
+}
+
+.detail-title-main {
+  min-width: 0;
+}
+
+.detail-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+  color: #303133;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.detail-name > span:first-child {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-meta {
+  display: block;
+  margin-top: 4px;
+  color: #606266;
+  font-size: 12px;
+  line-height: 18px;
+  word-break: break-all;
+}
+
+.detail-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.detail-actions .el-button + .el-button,
+.detail-form-actions .el-button + .el-button {
+  margin-left: 0;
+}
+
+.catalog-tip {
+  margin-top: 16px;
+  padding: 12px 14px;
+  color: #606266;
+  font-size: 13px;
+  line-height: 1.8;
+  background: #f8fafc;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+}
+
+.catalog-tip p {
+  margin: 0;
+}
+
+.detail-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-right: 20px;
+  flex-wrap: wrap;
+}
+
+.table-stats {
+  padding: 8px 0;
+}
+
+@media (max-width: 992px) {
+  .datasource-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .datasource-sidebar {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .sidebar-tree {
+    min-height: 280px;
+    max-height: 360px;
+  }
+
+  .datasource-content {
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 640px) {
+  .datasource-page {
+    padding: 10px;
+  }
+
+  .sidebar-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-header {
+    padding: 12px;
+    flex-direction: column;
+  }
+
+  .detail-title,
+  .detail-actions {
+    width: 100%;
+  }
+
+  .detail-actions,
+  .detail-form-actions {
+    justify-content: flex-start;
+  }
+
+  .detail-form-actions {
+    padding-right: 0;
+  }
+}
 </style>

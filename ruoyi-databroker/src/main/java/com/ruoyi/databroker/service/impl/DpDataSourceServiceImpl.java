@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -56,23 +58,34 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
 
     @Override
     public List<TreeNode> buildTree() {
-        List<TreeNode> tree = new ArrayList<>();
-
-        // Load catalogs
+        // Load catalogs and build a map keyed by "cat_<id>" for O(1) lookup
         List<DpDataSourceCatalog> catalogs = catalogMapper.selectCatalogList(new DpDataSourceCatalog());
+        Map<String, TreeNode> catalogNodeMap = new HashMap<>();
         for (DpDataSourceCatalog cat : catalogs) {
             TreeNode node = new TreeNode();
             node.setId("cat_" + cat.getCatalogId());
-            node.setParentId(cat.getParentId() != null ? String.valueOf(cat.getParentId()) : "0");
+            node.setParentId(cat.getParentId() != null && cat.getParentId() != 0L
+                ? "cat_" + cat.getParentId() : "0");
             node.setLabel(cat.getCatalogName());
             node.setNodeType("catalog");
             node.setCatalogId(cat.getCatalogId());
             node.setStatus(cat.getStatus());
             node.setChildren(new ArrayList<>());
-            tree.add(node);
+            catalogNodeMap.put(node.getId(), node);
         }
 
-        // Load datasources and attach to catalogs
+        // Build nested catalog tree: attach each catalog to its parent (if any)
+        List<TreeNode> tree = new ArrayList<>();
+        for (TreeNode catNode : catalogNodeMap.values()) {
+            TreeNode parent = catalogNodeMap.get(catNode.getParentId());
+            if (parent != null) {
+                parent.getChildren().add(catNode);
+            } else {
+                tree.add(catNode); // root catalog (parentId = 0)
+            }
+        }
+
+        // Load datasources and attach to their catalog leaf
         List<DpDataSource> sources = dataSourceMapper.selectDataSourceList(new DpDataSource());
         for (DpDataSource ds : sources) {
             TreeNode node = new TreeNode();
@@ -86,12 +99,9 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
             node.setStatus(ds.getStatus());
             node.setChildren(new ArrayList<>());
 
-            // Attach to parent catalog
-            for (TreeNode catNode : tree) {
-                if (("cat_" + ds.getCatalogId()).equals(catNode.getId())) {
-                    catNode.getChildren().add(node);
-                    break;
-                }
+            TreeNode parent = catalogNodeMap.get(node.getParentId());
+            if (parent != null) {
+                parent.getChildren().add(node);
             }
         }
 

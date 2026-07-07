@@ -113,4 +113,8 @@
         update dp_datasource set usage_count = usage_count + 1 where datasource_id = #{datasourceId}
     </update>
 
+    <select id="countByCatalogId" parameterType="Long" resultType="int">
+        select count(1) from dp_datasource where catalog_id = #{catalogId} and del_flag = '0'
+    </select>
+
 </mapper>
