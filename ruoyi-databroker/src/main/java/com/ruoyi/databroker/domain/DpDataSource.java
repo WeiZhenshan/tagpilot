@@ -11,6 +11,7 @@ public class DpDataSource extends BaseEntity {
 
     private Long datasourceId;
     private Long catalogId;
+    private Integer orderNum;
     private String sourceName;
     private String sourceType;
     private String host;
@@ -37,6 +38,8 @@ public class DpDataSource extends BaseEntity {
     public void setDatasourceId(Long datasourceId) { this.datasourceId = datasourceId; }
     public Long getCatalogId() { return catalogId; }
     public void setCatalogId(Long catalogId) { this.catalogId = catalogId; }
+    public Integer getOrderNum() { return orderNum; }
+    public void setOrderNum(Integer orderNum) { this.orderNum = orderNum; }
     public String getSourceName() { return sourceName; }
     public void setSourceName(String sourceName) { this.sourceName = sourceName; }
     public String getSourceType() { return sourceType; }

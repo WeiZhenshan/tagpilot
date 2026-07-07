@@ -81,4 +81,15 @@
         </foreach>
     </update>
 
+    <update id="updateCatalogOrder" parameterType="DpDataSourceCatalog">
+        update dp_datasource_catalog
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="ancestors != null">ancestors = #{ancestors},</if>
+            order_num = #{orderNum},
+            update_time = sysdate()
+        </set>
+        where catalog_id = #{catalogId}
+    </update>
+
 </mapper>

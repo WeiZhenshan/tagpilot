@@ -398,6 +398,28 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
         return JSON.toJSONString(copy);
     }
 
+    @Override
+    @Transactional
+    public int updateDataSourceOrder(DpDataSource dataSource) {
+        DpDataSource old = dataSourceMapper.selectDataSourceById(dataSource.getDatasourceId());
+        if (old == null) {
+            throw new RuntimeException("数据源不存在");
+        }
+
+        // If catalog changed, move to new catalog; otherwise just reorder
+        if (dataSource.getCatalogId() != null && !dataSource.getCatalogId().equals(old.getCatalogId())) {
+            int rows = dataSourceMapper.moveDataSource(dataSource);
+            writeLog(dataSource.getDatasourceId(), "UPDATE", "1",
+                    "移动数据源：" + old.getSourceName() + " 至目录 " + dataSource.getCatalogId(), null);
+            return rows;
+        }
+
+        int rows = dataSourceMapper.updateDataSourceOrder(dataSource);
+        writeLog(dataSource.getDatasourceId(), "UPDATE", "1",
+                "重排数据源：" + old.getSourceName(), null);
+        return rows;
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordSyncError(Long datasourceId, String errorMsg) {
         DpDataSource ds = dataSourceMapper.selectDataSourceById(datasourceId);

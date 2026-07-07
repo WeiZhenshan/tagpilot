@@ -3,6 +3,7 @@ package com.ruoyi.databroker.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.StringUtils;
@@ -98,5 +99,38 @@ public class DpDataSourceCatalogServiceImpl implements IDpDataSourceCatalogServi
             throw new ServiceException("该目录下存在数据源，不允许删除");
         }
         return catalogMapper.deleteCatalogById(catalogId);
+    }
+
+    /**
+     * 更新目录排序/父子关系（拖拽排序用）。
+     * 若 newParentId 与原 parentId 不同，则触发祖先链重算与级联更新。
+     */
+    @Override
+    @Transactional
+    public int updateCatalogOrder(DpDataSourceCatalog catalog) {
+        DpDataSourceCatalog old = catalogMapper.selectCatalogById(catalog.getCatalogId());
+        if (old == null) {
+            throw new ServiceException("目录不存在");
+        }
+
+        Long newParentId = catalog.getParentId();
+        boolean parentChanged = newParentId != null && !newParentId.equals(old.getParentId());
+
+        if (parentChanged) {
+            // Recalculate ancestors for the node itself
+            if (newParentId == 0L) {
+                catalog.setAncestors("0");
+            } else {
+                DpDataSourceCatalog newParent = catalogMapper.selectCatalogById(newParentId);
+                if (newParent == null) {
+                    throw new ServiceException("目标父目录不存在");
+                }
+                catalog.setAncestors(newParent.getAncestors() + "," + newParentId);
+            }
+            // Cascade to children
+            updateCatalogChildren(catalog.getCatalogId(), catalog.getAncestors(), old.getAncestors());
+        }
+
+        return catalogMapper.updateCatalogOrder(catalog);
     }
 }

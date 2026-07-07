@@ -18,4 +18,7 @@ public interface DpDataSourceCatalogMapper {
 
     /** 批量更新子孙目录的 ancestors（父级变更时级联） */
     int updateChildren(List<DpDataSourceCatalog> catalogs);
+
+    /** 更新目录排序（拖拽排序用） */
+    int updateCatalogOrder(DpDataSourceCatalog catalog);
 }

@@ -12,23 +12,50 @@
             </div>
           </div>
         </div>
-        <div class="sidebar-actions">
-          <el-button type="success" size="mini" icon="el-icon-folder-add" plain @click="handleAddCatalog(null)"
-            v-hasPermi="['databroker:catalog:add']">新增目录</el-button>
-          <el-button type="primary" size="mini" icon="el-icon-plus" plain @click="handleAdd"
-            v-hasPermi="['databroker:datasource:add']">新增数据源</el-button>
-        </div>
         <div class="sidebar-search">
           <el-input v-model="filterText" placeholder="输入名称过滤" size="small" clearable prefix-icon="el-icon-search" />
         </div>
-        <div class="sidebar-tree">
+        <div class="sidebar-tree" @contextmenu.prevent="onContextMenu($event, null, 'root')">
           <el-tree :data="treeData" :props="treeProps" node-key="id" :filter-node-method="filterNode"
-            :expand-on-click-node="false" highlight-current ref="tree" @node-click="handleNodeClick">
+            :expand-on-click-node="false" highlight-current ref="tree" draggable
+            :allow-drag="allowDrag" :allow-drop="allowDrop"
+            @node-click="handleNodeClick" @node-contextmenu="onNodeContextMenu" @node-drop="handleNodeDrop">
             <span class="custom-tree-node" slot-scope="{ node, data }">
+              <span class="drag-handle"><i class="el-icon-rank" /></span>
               <i :class="data.nodeType === 'catalog' ? 'el-icon-folder' : 'el-icon-coin'" />
               <span class="node-label" :title="node.label">{{ node.label }}</span>
             </span>
           </el-tree>
+          <!-- Context Menu -->
+          <ul v-show="contextMenu.visible" :style="{ left: contextMenu.left + 'px', top: contextMenu.top + 'px' }" class="contextmenu">
+            <li v-if="contextMenu.nodeType === 'root'" @click="handleAddCatalog(null)" v-hasPermi="['databroker:catalog:add']">
+              <i class="el-icon-folder-add" /> 新增根目录
+            </li>
+            <li v-if="contextMenu.nodeType === 'catalog'" @click="handleAddCatalog(contextMenu.node.catalogId)" v-hasPermi="['databroker:catalog:add']">
+              <i class="el-icon-folder-add" /> 新增子目录
+            </li>
+            <li v-if="contextMenu.nodeType === 'catalog'" @click="handleAddWithCatalog(contextMenu.node.catalogId)" v-hasPermi="['databroker:datasource:add']">
+              <i class="el-icon-plus" /> 新增数据源
+            </li>
+            <li v-if="contextMenu.nodeType === 'catalog'" @click="handleEditCatalogById(contextMenu.node.catalogId)" v-hasPermi="['databroker:catalog:edit']">
+              <i class="el-icon-edit" /> 编辑目录
+            </li>
+            <li v-if="contextMenu.nodeType === 'catalog'" @click="handleDeleteCatalogById(contextMenu.node.catalogId)" v-hasPermi="['databroker:catalog:remove']">
+              <i class="el-icon-delete" /> 删除目录
+            </li>
+            <li v-if="contextMenu.nodeType === 'datasource'" @click="handleEditDs(contextMenu.node.datasourceId)" v-hasPermi="['databroker:datasource:edit']">
+              <i class="el-icon-edit" /> 编辑
+            </li>
+            <li v-if="contextMenu.nodeType === 'datasource'" @click="handleDeleteDs(contextMenu.node.datasourceId)" v-hasPermi="['databroker:datasource:remove']">
+              <i class="el-icon-delete" /> 删除
+            </li>
+            <li v-if="contextMenu.nodeType === 'datasource'" @click="handleTestDs(contextMenu.node.datasourceId)" v-hasPermi="['databroker:datasource:test']">
+              <i class="el-icon-link" /> 测试连接
+            </li>
+            <li v-if="contextMenu.nodeType === 'datasource'" @click="handleSyncDs(contextMenu.node.datasourceId)" v-hasPermi="['databroker:datasource:sync']">
+              <i class="el-icon-refresh" /> 同步元数据
+            </li>
+          </ul>
         </div>
       </aside>
 
@@ -343,8 +370,9 @@
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { treeDataSource, getDataSource, addDataSource, updateDataSource, delDataSource,
-  testDataSource, syncDataSource, listTables, listColumns, updateTableCnName, listLogs } from '@/api/databroker/datasource'
-import { listCatalog, getCatalog, addCatalog, updateCatalog, delCatalog } from '@/api/databroker/catalog'
+  testDataSource, syncDataSource, listTables, listColumns, updateTableCnName, listLogs,
+  moveDataSource } from '@/api/databroker/datasource'
+import { listCatalog, getCatalog, addCatalog, updateCatalog, delCatalog, moveCatalog } from '@/api/databroker/catalog'
 
 export default {
   name: 'DatabrokerDataSource',
@@ -397,22 +425,50 @@ export default {
         catalogName: [{ required: true, message: '请输入目录名称', trigger: 'blur' }]
       },
 
+      // Context menu
+      contextMenu: { visible: false, left: 0, top: 0, node: null, nodeType: '' },
+
       // Columns dialog
       columnsVisible: false,
       columns: []
     }
   },
   watch: {
-    filterText(val) { this.$refs.tree.filter(val) }
+    filterText(val) { this.$refs.tree.filter(val) },
+    'contextMenu.visible'(value) {
+      if (value) {
+        document.body.addEventListener('click', this.closeContextMenu)
+      } else {
+        document.body.removeEventListener('click', this.closeContextMenu)
+      }
+    }
   },
   created() {
     this.loadTree()
   },
   methods: {
     loadTree() {
+      // Save expanded keys before reload
+      const expandedKeys = []
+      const tree = this.$refs.tree
+      if (tree && tree.store) {
+        tree.store.nodesMap.forEach((node, key) => {
+          if (node.expanded) expandedKeys.push(key)
+        })
+      }
+
       treeDataSource().then(res => {
         this.treeData = res.data
         this.loadCatalogsFromTree()
+        // Restore expanded keys after DOM update
+        this.$nextTick(() => {
+          if (this.$refs.tree) {
+            expandedKeys.forEach(key => {
+              const node = this.$refs.tree.getNode(key)
+              if (node) node.expand()
+            })
+          }
+        })
       })
     },
     loadCatalogsFromTree() {
@@ -453,6 +509,199 @@ export default {
         })
       }
     },
+
+    // ===== Context Menu =====
+    onNodeContextMenu(event, data) {
+      this.contextMenu = {
+        visible: true,
+        left: event.clientX,
+        top: event.clientY,
+        node: data,
+        nodeType: data.nodeType
+      }
+    },
+    onContextMenu(event, _data, nodeType) {
+      this.contextMenu = {
+        visible: true,
+        left: event.clientX,
+        top: event.clientY,
+        node: null,
+        nodeType: nodeType
+      }
+    },
+    closeContextMenu() {
+      this.contextMenu.visible = false
+    },
+    handleAddWithCatalog(catalogId) {
+      this.closeContextMenu()
+      this.dialogTitle = '新增数据源'
+      this.resetForm()
+      this.form.catalogId = catalogId
+      this.dialogVisible = true
+    },
+    handleEditDs(datasourceId) {
+      this.closeContextMenu()
+      getDataSource(datasourceId).then(res => {
+        const d = res.data
+        this.form = {
+          datasourceId: d.datasourceId,
+          catalogId: d.catalogId,
+          sourceName: d.sourceName,
+          sourceType: d.sourceType,
+          host: d.host,
+          port: d.port,
+          databaseName: d.databaseName,
+          username: d.username,
+          password: '******',
+          usePool: d.usePool || '0',
+          useSsl: d.useSsl || '0',
+          jdbcParams: d.jdbcParams || '{}',
+          remark: d.remark || ''
+        }
+        this.dialogTitle = '修改数据源'
+        this.dialogVisible = true
+      })
+    },
+    handleDeleteDs(datasourceId) {
+      this.closeContextMenu()
+      const node = this.contextMenu.node
+      this.$modal.confirm('确认删除数据源"' + (node ? node.label : '') + '"？').then(() => {
+        return delDataSource(datasourceId)
+      }).then(() => {
+        this.$modal.msgSuccess('删除成功')
+        this.selectedNode = null
+        this.datasource = {}
+        this.loadTree()
+      }).catch(() => {})
+    },
+    handleTestDs(datasourceId) {
+      this.closeContextMenu()
+      this.testLoading = true
+      getDataSource(datasourceId).then(res => {
+        return testDataSource(res.data)
+      }).then(res => {
+        this.$modal.msgSuccess('连接成功，数据库版本：' + (res.data && res.data.dbVersion ? res.data.dbVersion : 'unknown'))
+      }).finally(() => { this.testLoading = false })
+    },
+    handleSyncDs(datasourceId) {
+      this.closeContextMenu()
+      this.$confirm('确认同步元数据？', '提示', { type: 'warning' }).then(() => {
+        syncDataSource(datasourceId).then(res => {
+          const d = res.data
+          this.$modal.msgSuccess('同步成功：表' + d.tableCount + '个，视图' + d.viewCount + '个，字段' + d.columnCount + '个')
+          if (this.datasource.datasourceId === datasourceId) {
+            getDataSource(datasourceId).then(r => { this.datasource = r.data })
+            this.loadTableStats()
+            this.loadTables()
+          }
+        })
+      }).catch(() => {})
+    },
+    handleEditCatalogById(catalogId) {
+      this.closeContextMenu()
+      getCatalog(catalogId).then(res => {
+        const d = res.data
+        this.catalogDialogTitle = '修改目录'
+        this.catalogForm = {
+          catalogId: d.catalogId,
+          parentId: d.parentId != null ? d.parentId : 0,
+          catalogName: d.catalogName,
+          orderNum: d.orderNum != null ? d.orderNum : 0,
+          status: d.status || '0',
+          remark: d.remark || ''
+        }
+        this.loadCatalogOptionsExclude(catalogId)
+        this.catalogDialogVisible = true
+      })
+    },
+    handleDeleteCatalogById(catalogId) {
+      this.closeContextMenu()
+      const node = this.contextMenu.node
+      this.$modal.confirm('确认删除目录"' + (node ? node.label : '') + '"？删除前需确保目录为空。').then(() => {
+        return delCatalog(catalogId)
+      }).then(() => {
+        this.$modal.msgSuccess('删除成功')
+        this.selectedNode = null
+        this.loadTree()
+      }).catch(() => {})
+    },
+
+    // ===== Drag & Drop =====
+    allowDrag(node) {
+      // All nodes are draggable
+      return true
+    },
+    allowDrop(draggingNode, dropNode, type) {
+      const dragData = draggingNode.data
+      const dropData = dropNode.data
+
+      // Datasource can only be dropped inside a catalog (inner) or sorted among siblings
+      if (dragData.nodeType === 'datasource') {
+        if (type === 'inner') {
+          // Drop inside a catalog
+          return dropData.nodeType === 'catalog'
+        }
+        // prev/next: only among same-parent datasources
+        return dropData.nodeType === 'datasource' && draggingNode.parent.id === dropNode.parent.id
+      }
+
+      // Catalog can only be dropped inside another catalog (inner) or sorted among siblings
+      if (dragData.nodeType === 'catalog') {
+        if (type === 'inner') {
+          // Drop inside a catalog
+          return dropData.nodeType === 'catalog'
+        }
+        // prev/next: only among same-parent catalogs
+        return dropData.nodeType === 'catalog' && draggingNode.parent.id === dropNode.parent.id
+      }
+
+      return false
+    },
+    handleNodeDrop(draggingNode, dropNode, dropType) {
+      const dragData = draggingNode.data
+      const dropData = dropNode.data
+      const parentNode = dropType === 'inner' ? dropNode : dropNode.parent
+
+      // Compute new order based on drop position
+      const siblings = parentNode.childNodes || []
+      let newOrder = 0
+      if (dropType === 'prev') {
+        newOrder = Math.max(0, (dropData.orderNum || 0) - 1)
+      } else if (dropType === 'next') {
+        newOrder = (dropData.orderNum || 0) + 1
+      } else {
+        // inner: append to end
+        newOrder = siblings.length
+      }
+
+      if (dragData.nodeType === 'catalog') {
+        const newParentId = (parentNode && parentNode.data && parentNode.data.nodeType === 'catalog')
+          ? parentNode.data.catalogId : 0
+        moveCatalog({
+          catalogId: dragData.catalogId,
+          parentId: newParentId,
+          orderNum: newOrder
+        }).then(() => {
+          this.$modal.msgSuccess('排序已更新')
+          this.loadTree()
+        }).catch(() => {
+          this.loadTree() // revert on failure
+        })
+      } else if (dragData.nodeType === 'datasource') {
+        const newCatalogId = (parentNode && parentNode.data && parentNode.data.nodeType === 'catalog')
+          ? parentNode.data.catalogId : dragData.catalogId
+        moveDataSource(dragData.datasourceId, {
+          catalogId: newCatalogId,
+          orderNum: newOrder
+        }).then(() => {
+          this.$modal.msgSuccess('排序已更新')
+          this.loadTree()
+        }).catch(() => {
+          this.loadTree()
+        })
+      }
+    },
+
     handleAdd() {
       this.dialogTitle = '新增数据源'
       this.resetForm()
@@ -715,38 +964,6 @@ export default {
   font-size: 12px;
 }
 
-.sidebar-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  padding: 12px;
-  border-bottom: 1px solid #f0f2f5;
-  background: #fafbfc;
-}
-
-.sidebar-actions .el-button {
-  width: 100%;
-  margin: 0;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-.sidebar-actions .el-button + .el-button {
-  margin-left: 0;
-}
-
-.sidebar-actions .el-button--success.is-plain {
-  color: #1f7a3a;
-  background: #f0f9eb;
-  border-color: #b7e4c1;
-}
-
-.sidebar-actions .el-button--primary.is-plain {
-  color: #1d63b8;
-  background: #ecf5ff;
-  border-color: #b3d8ff;
-}
-
 .sidebar-search {
   flex-shrink: 0;
   padding: 12px 12px 8px;
@@ -793,6 +1010,18 @@ export default {
   display: flex;
   align-items: center;
   font-size: 13px;
+}
+
+.custom-tree-node .drag-handle {
+  margin-right: 4px;
+  color: #c0c4cc;
+  font-size: 14px;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.custom-tree-node .drag-handle:active {
+  cursor: grabbing;
 }
 
 .custom-tree-node i {
@@ -941,6 +1170,40 @@ export default {
   padding: 8px 0;
 }
 
+/* Context Menu */
+.contextmenu {
+  margin: 0;
+  background: #fff;
+  z-index: 3000;
+  position: fixed;
+  list-style-type: none;
+  padding: 5px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #333;
+  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
+  min-width: 140px;
+}
+
+.contextmenu li {
+  margin: 0;
+  padding: 7px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contextmenu li:hover {
+  background: #eee;
+}
+
+.contextmenu li i {
+  color: #909399;
+  width: 14px;
+}
+
 @media (max-width: 992px) {
   .datasource-layout {
     flex-direction: column;
@@ -967,10 +1230,6 @@ export default {
 @media (max-width: 640px) {
   .datasource-page {
     padding: 10px;
-  }
-
-  .sidebar-actions {
-    grid-template-columns: 1fr;
   }
 
   .detail-header {

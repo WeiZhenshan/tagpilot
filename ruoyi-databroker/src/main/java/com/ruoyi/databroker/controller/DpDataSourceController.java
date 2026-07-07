@@ -116,4 +116,12 @@ public class DpDataSourceController extends BaseController {
         List<DpDataSourceLog> list = dataSourceService.listLogs(id, query);
         return getDataTable(list);
     }
+
+    /** 移动/排序数据源（拖拽排序用） */
+    @PreAuthorize("@ss.hasPermi('databroker:datasource:edit')")
+    @PutMapping("/{id}/move")
+    public AjaxResult move(@PathVariable Long id, @RequestBody DpDataSource dataSource) {
+        dataSource.setDatasourceId(id);
+        return toAjax(dataSourceService.updateDataSourceOrder(dataSource));
+    }
 }

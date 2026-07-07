@@ -34,4 +34,7 @@ public interface IDpDataSourceService {
 
     // Logs
     List<DpDataSourceLog> listLogs(Long datasourceId, DpDataSourceLog query);
+
+    /** 更新数据源排序/所属目录（拖拽排序用） */
+    int updateDataSourceOrder(DpDataSource dataSource);
 }

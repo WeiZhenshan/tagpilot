@@ -42,3 +42,12 @@ export function delCatalog(catalogId) {
     method: 'delete'
   })
 }
+
+// 移动/排序目录（拖拽排序用）
+export function moveCatalog(data) {
+  return request({
+    url: '/databroker/catalog/move',
+    method: 'put',
+    data: data
+  })
+}

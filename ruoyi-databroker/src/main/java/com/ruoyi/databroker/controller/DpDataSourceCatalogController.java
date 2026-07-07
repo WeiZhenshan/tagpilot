@@ -63,4 +63,11 @@ public class DpDataSourceCatalogController extends BaseController {
     public AjaxResult remove(@PathVariable Long catalogId) {
         return toAjax(catalogService.deleteCatalogById(catalogId));
     }
+
+    /** 移动/排序目录（拖拽排序用） */
+    @PreAuthorize("@ss.hasPermi('databroker:catalog:edit')")
+    @PutMapping("/move")
+    public AjaxResult move(@RequestBody DpDataSourceCatalog catalog) {
+        return toAjax(catalogService.updateCatalogOrder(catalog));
+    }
 }

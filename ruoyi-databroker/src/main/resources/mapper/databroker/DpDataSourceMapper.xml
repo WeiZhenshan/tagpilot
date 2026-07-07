@@ -5,6 +5,7 @@
     <resultMap type="DpDataSource" id="DataSourceResult">
         <id     property="datasourceId"   column="datasource_id"   />
         <result property="catalogId"      column="catalog_id"      />
+        <result property="orderNum"       column="order_num"       />
         <result property="sourceName"     column="source_name"     />
         <result property="sourceType"     column="source_type"     />
         <result property="host"           column="host"            />
@@ -31,7 +32,7 @@
     </resultMap>
 
     <sql id="selectVo">
-        select datasource_id, catalog_id, source_name, source_type, host, port, database_name,
+        select datasource_id, catalog_id, order_num, source_name, source_type, host, port, database_name,
                username, password_cipher, db_version, use_pool, use_ssl, ca_cert, jdbc_params,
                status, usage_count, last_sync_time, last_sync_status, last_error_msg, del_flag,
                create_by, create_time, update_by, update_time, remark
@@ -47,7 +48,7 @@
             <if test="catalogId != null">and catalog_id = #{catalogId}</if>
             and del_flag = '0'
         </where>
-        order by create_time desc
+        order by catalog_id, order_num, create_time desc
     </select>
 
     <select id="selectDataSourceById" parameterType="Long" resultMap="DataSourceResult">
@@ -60,11 +61,11 @@
 
     <insert id="insertDataSource" parameterType="DpDataSource" useGeneratedKeys="true" keyProperty="datasourceId">
         insert into dp_datasource (
-            catalog_id, source_name, source_type, host, port, database_name, username,
+            catalog_id, order_num, source_name, source_type, host, port, database_name, username,
             password_cipher, db_version, use_pool, use_ssl, ca_cert, jdbc_params, status,
             create_by, create_time, remark
         ) values (
-            #{catalogId}, #{sourceName}, #{sourceType}, #{host}, #{port}, #{databaseName},
+            #{catalogId}, #{orderNum}, #{sourceName}, #{sourceType}, #{host}, #{port}, #{databaseName},
             #{username}, #{passwordCipher}, #{dbVersion}, #{usePool}, #{useSsl}, #{caCert},
             #{jdbcParams}, #{status}, #{createBy}, sysdate(), #{remark}
         )
@@ -74,6 +75,7 @@
         update dp_datasource
         <set>
             <if test="catalogId != null">catalog_id = #{catalogId},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
             <if test="sourceName != null">source_name = #{sourceName},</if>
             <if test="sourceType != null">source_type = #{sourceType},</if>
             <if test="host != null">host = #{host},</if>
@@ -116,5 +118,15 @@
     <select id="countByCatalogId" parameterType="Long" resultType="int">
         select count(1) from dp_datasource where catalog_id = #{catalogId} and del_flag = '0'
     </select>
+
+    <update id="updateDataSourceOrder">
+        update dp_datasource set order_num = #{orderNum}, update_time = sysdate()
+        where datasource_id = #{datasourceId}
+    </update>
+
+    <update id="moveDataSource">
+        update dp_datasource set catalog_id = #{catalogId}, order_num = #{orderNum}, update_time = sysdate()
+        where datasource_id = #{datasourceId}
+    </update>
 
 </mapper>

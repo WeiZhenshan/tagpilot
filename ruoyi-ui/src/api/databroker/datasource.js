@@ -85,6 +85,15 @@ export function updateTableCnName(tableId, data) {
   })
 }
 
+// 移动/排序数据源（拖拽排序用）
+export function moveDataSource(id, data) {
+  return request({
+    url: '/databroker/datasource/' + id + '/move',
+    method: 'put',
+    data: data
+  })
+}
+
 // 操作记录
 export function listLogs(id, query) {
   return request({
