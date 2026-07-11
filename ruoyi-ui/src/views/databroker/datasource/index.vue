@@ -15,16 +15,25 @@
         <div class="sidebar-search">
           <el-input v-model="filterText" placeholder="输入名称过滤" size="small" clearable prefix-icon="el-icon-search" />
         </div>
-        <div class="sidebar-tree" @contextmenu.prevent="onContextMenu($event, null, 'root')">
+        <div class="tree-guide" :class="{ 'is-dragging': dragState.active }">
+          <i :class="dragState.active ? 'el-icon-position' : 'el-icon-info'" />
+          <span>{{ dragState.active ? '放到目录中可移动层级，放到节点上下可调整顺序' : '拖动节点可调整层级或同级顺序' }}</span>
+        </div>
+        <div class="sidebar-tree" :class="{ 'is-dragging': dragState.active }"
+          @contextmenu.prevent="onContextMenu($event, null, 'root')">
           <el-tree :data="treeData" :props="treeProps" node-key="id" :filter-node-method="filterNode"
             :expand-on-click-node="false" highlight-current ref="tree" draggable
             :allow-drag="allowDrag" :allow-drop="allowDrop"
-            @node-click="handleNodeClick" @node-contextmenu="onNodeContextMenu" @node-drop="handleNodeDrop">
-            <span class="custom-tree-node" slot-scope="{ node, data }">
-              <span class="drag-handle"><i class="el-icon-rank" /></span>
-              <i :class="data.nodeType === 'catalog' ? 'el-icon-folder' : 'el-icon-coin'" />
-              <span class="node-label" :title="node.label">{{ node.label }}</span>
-            </span>
+            @node-click="handleNodeClick" @node-contextmenu="onNodeContextMenu"
+            @node-drag-start="handleNodeDragStart" @node-drag-end="handleNodeDragEnd"
+            @node-drop="handleNodeDrop">
+            <template #default="{ node, data }">
+              <span class="custom-tree-node">
+                <span class="drag-handle"><i class="el-icon-sort" /></span>
+                <i :class="data.nodeType === 'catalog' ? 'el-icon-folder' : 'el-icon-coin'" />
+                <span class="node-label" :title="node.label">{{ node.label }}</span>
+              </span>
+            </template>
           </el-tree>
           <!-- Context Menu -->
           <ul v-show="contextMenu.visible" :style="{ left: contextMenu.left + 'px', top: contextMenu.top + 'px' }" class="contextmenu">
@@ -168,10 +177,10 @@
               <el-table :data="tableList" v-loading="tableLoading" size="small">
                 <el-table-column prop="objectName" label="表/视图名称" min-width="180" />
                 <el-table-column prop="objectType" label="类型" width="80">
-                  <template slot-scope="scope">{{ scope.row.objectType === 'TABLE' ? '表' : '视图' }}</template>
+                  <template #default="scope">{{ scope.row.objectType === 'TABLE' ? '表' : '视图' }}</template>
                 </el-table-column>
                 <el-table-column prop="cnName" label="中文名" min-width="140">
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <el-input v-model="scope.row.cnName" size="mini" placeholder="输入中文名" maxlength="60"
                       @blur="saveCnName(scope.row)" @keyup.enter.native="saveCnName(scope.row)" />
                   </template>
@@ -179,7 +188,7 @@
                 <el-table-column prop="columnCount" label="字段数" width="80" />
                 <el-table-column prop="usageCount" label="使用量" width="80" />
                 <el-table-column label="操作" width="100">
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <el-button type="text" size="mini" @click="showColumns(scope.row)">字段信息</el-button>
                   </template>
                 </el-table-column>
@@ -207,11 +216,11 @@
               <el-table :data="logList" v-loading="logLoading" size="small">
                 <el-table-column prop="operTime" label="日期" width="170" />
                 <el-table-column prop="logType" label="日志类型" width="100">
-                  <template slot-scope="scope">{{ logTypeMap[scope.row.logType] || scope.row.logType }}</template>
+                  <template #default="scope">{{ logTypeMap[scope.row.logType] || scope.row.logType }}</template>
                 </el-table-column>
                 <el-table-column prop="operatorName" label="操作人" width="100" />
                 <el-table-column prop="result" label="结果" width="70">
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <el-tag :type="scope.row.result === '1' ? 'success' : 'danger'" size="mini">
                       {{ scope.row.result === '1' ? '成功' : '失败' }}
                     </el-tag>
@@ -219,7 +228,7 @@
                 </el-table-column>
                 <el-table-column prop="message" label="消息" min-width="200" />
                 <el-table-column label="详情" width="70">
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <el-button v-if="scope.row.detailJson" type="text" size="mini" @click="showDetail(scope.row)">查看</el-button>
                   </template>
                 </el-table-column>
@@ -356,10 +365,10 @@
         <el-table-column prop="columnType" label="类型" width="160" />
         <el-table-column prop="columnComment" label="备注" min-width="160" />
         <el-table-column prop="isPk" label="主键" width="60">
-          <template slot-scope="scope"><el-tag v-if="scope.row.isPk === '1'" type="danger" size="mini">是</el-tag><span v-else>-</span></template>
+          <template #default="scope"><el-tag v-if="scope.row.isPk === '1'" type="danger" size="mini">是</el-tag><span v-else>-</span></template>
         </el-table-column>
         <el-table-column prop="isFk" label="外键" width="60">
-          <template slot-scope="scope"><el-tag v-if="scope.row.isFk === '1'" type="warning" size="mini">是</el-tag><span v-else>-</span></template>
+          <template #default="scope"><el-tag v-if="scope.row.isFk === '1'" type="warning" size="mini">是</el-tag><span v-else>-</span></template>
         </el-table-column>
       </el-table>
     </el-dialog>
@@ -369,6 +378,7 @@
 <script>
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import hasPermi from '@/directive/permission/hasPermi'
 import { treeDataSource, getDataSource, addDataSource, updateDataSource, delDataSource,
   testDataSource, syncDataSource, listTables, listColumns, updateTableCnName, listLogs,
   moveDataSource } from '@/api/databroker/datasource'
@@ -377,6 +387,7 @@ import { listCatalog, getCatalog, addCatalog, updateCatalog, delCatalog, moveCat
 export default {
   name: 'DatabrokerDataSource',
   components: { Treeselect },
+  directives: { hasPermi },
   data() {
     return {
       filterText: '',
@@ -427,6 +438,7 @@ export default {
 
       // Context menu
       contextMenu: { visible: false, left: 0, top: 0, node: null, nodeType: '' },
+      dragState: { active: false },
 
       // Columns dialog
       columnsVisible: false,
@@ -451,8 +463,10 @@ export default {
       // Save expanded keys before reload
       const expandedKeys = []
       const tree = this.$refs.tree
+      const currentKey = tree ? tree.getCurrentKey() : null
       if (tree && tree.store) {
-        tree.store.nodesMap.forEach((node, key) => {
+        Object.keys(tree.store.nodesMap || {}).forEach(key => {
+          const node = tree.store.nodesMap[key]
           if (node.expanded) expandedKeys.push(key)
         })
       }
@@ -467,6 +481,7 @@ export default {
               const node = this.$refs.tree.getNode(key)
               if (node) node.expand()
             })
+            if (currentKey) this.$refs.tree.setCurrentKey(currentKey)
           }
         })
       })
@@ -627,7 +642,7 @@ export default {
     },
 
     // ===== Drag & Drop =====
-    allowDrag(node) {
+    allowDrag() {
       // All nodes are draggable
       return true
     },
@@ -657,49 +672,36 @@ export default {
 
       return false
     },
+    handleNodeDragStart() {
+      this.dragState.active = true
+      this.closeContextMenu()
+    },
+    handleNodeDragEnd() {
+      this.dragState.active = false
+    },
     handleNodeDrop(draggingNode, dropNode, dropType) {
       const dragData = draggingNode.data
-      const dropData = dropNode.data
       const parentNode = dropType === 'inner' ? dropNode : dropNode.parent
+      const siblings = (parentNode.childNodes || []).filter(node => node.data.nodeType === dragData.nodeType)
+      const parentCatalogId = parentNode.data && parentNode.data.nodeType === 'catalog'
+        ? parentNode.data.catalogId : 0
+      const requests = siblings.map((node, index) => {
+        const orderNum = (index + 1) * 10
+        if (node.data.nodeType === 'catalog') {
+          return moveCatalog({ catalogId: node.data.catalogId, parentId: parentCatalogId, orderNum })
+        }
+        return moveDataSource(node.data.datasourceId, { catalogId: parentCatalogId, orderNum })
+      })
 
-      // Compute new order based on drop position
-      const siblings = parentNode.childNodes || []
-      let newOrder = 0
-      if (dropType === 'prev') {
-        newOrder = Math.max(0, (dropData.orderNum || 0) - 1)
-      } else if (dropType === 'next') {
-        newOrder = (dropData.orderNum || 0) + 1
-      } else {
-        // inner: append to end
-        newOrder = siblings.length
-      }
-
-      if (dragData.nodeType === 'catalog') {
-        const newParentId = (parentNode && parentNode.data && parentNode.data.nodeType === 'catalog')
-          ? parentNode.data.catalogId : 0
-        moveCatalog({
-          catalogId: dragData.catalogId,
-          parentId: newParentId,
-          orderNum: newOrder
-        }).then(() => {
-          this.$modal.msgSuccess('排序已更新')
-          this.loadTree()
-        }).catch(() => {
-          this.loadTree() // revert on failure
-        })
-      } else if (dragData.nodeType === 'datasource') {
-        const newCatalogId = (parentNode && parentNode.data && parentNode.data.nodeType === 'catalog')
-          ? parentNode.data.catalogId : dragData.catalogId
-        moveDataSource(dragData.datasourceId, {
-          catalogId: newCatalogId,
-          orderNum: newOrder
-        }).then(() => {
-          this.$modal.msgSuccess('排序已更新')
-          this.loadTree()
-        }).catch(() => {
-          this.loadTree()
-        })
-      }
+      Promise.all(requests).then(() => {
+        if (dropType === 'inner') parentNode.expand()
+        this.$refs.tree.setCurrentKey(dragData.id)
+        this.$modal.msgSuccess(dropType === 'inner' ? '已移动到目标目录' : '顺序已更新')
+        this.loadTree()
+      }, () => {
+        this.$modal.msgError('调整失败，已恢复原有结构')
+        this.loadTree()
+      })
     },
 
     handleAdd() {
@@ -845,13 +847,10 @@ export default {
 
     // Tables
     loadTableStats() {
-      listTables(this.datasource.datasourceId, { pageNum: 1, pageSize: 1 }).then(res => {
-        // Count by type from all data
-        listTables(this.datasource.datasourceId, { pageNum: 1, pageSize: 999 }).then(r => {
-          const all = r.rows || []
-          this.tableStats.tableCount = all.filter(t => t.objectType === 'TABLE').length
-          this.tableStats.viewCount = all.filter(t => t.objectType === 'VIEW').length
-        })
+      listTables(this.datasource.datasourceId, { pageNum: 1, pageSize: 999 }).then(res => {
+        const all = res.rows || []
+        this.tableStats.tableCount = all.filter(t => t.objectType === 'TABLE').length
+        this.tableStats.viewCount = all.filter(t => t.objectType === 'VIEW').length
       })
     },
     loadTables() {
@@ -969,6 +968,31 @@ export default {
   padding: 12px 12px 8px;
 }
 
+.tree-guide {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 12px 8px;
+  padding: 7px 9px;
+  border-radius: 4px;
+  color: #606266;
+  background: #f5f7fa;
+  font-size: 12px;
+  line-height: 18px;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.tree-guide i {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.tree-guide.is-dragging {
+  color: #1f5f99;
+  background: #ecf5ff;
+}
+
+/*noinspection CssUnusedSymbol*/
 ::v-deep .sidebar-search .el-input__inner::placeholder {
   color: #606266;
 }
@@ -989,19 +1013,84 @@ export default {
   border-radius: 4px;
 }
 
+/*noinspection CssUnusedSymbol*/
 ::v-deep .sidebar-tree .el-tree-node__content {
-  height: 32px;
+  position: relative;
+  height: 36px;
   border-radius: 4px;
+  cursor: grab;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
 }
 
+/*noinspection CssUnusedSymbol*/
 ::v-deep .sidebar-tree .el-tree-node__content:hover {
   background: #f0f7ff;
 }
 
+/*noinspection CssUnusedSymbol*/
 ::v-deep .sidebar-tree .el-tree-node.is-current > .el-tree-node__content {
   background: #e6f0fd;
-  color: #409eff;
+  color: #1677c8;
   font-weight: 600;
+}
+
+/*noinspection CssUnusedSymbol*/
+::v-deep .sidebar-tree .el-tree-node__content:active {
+  cursor: grabbing;
+}
+
+/* 用细线串联同一分支，强化父子层级但不挤占节点内容 */
+/*noinspection CssUnusedSymbol*/
+::v-deep .sidebar-tree .el-tree-node__children {
+  position: relative;
+}
+
+/*noinspection CssUnusedSymbol*/
+::v-deep .sidebar-tree .el-tree-node__children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 8px;
+  left: 9px;
+  width: 1px;
+  background: #e4e7ed;
+}
+
+/* ── Drag-over visual feedback ── */
+
+/* 被拖拽的节点半透明 + 倾斜 */
+/*noinspection CssUnusedSymbol*/
+::v-deep .sidebar-tree .el-tree-node.is-dragging > .el-tree-node__content {
+  opacity: 0.62;
+  background: #f5f7fa;
+  box-shadow: inset 0 0 0 1px #c0c4cc;
+}
+
+/* 可放入（inner）：蓝色描边 + 浅蓝底 */
+/*noinspection CssUnusedSymbol*/
+::v-deep .sidebar-tree .el-tree-node.is-drop-inner > .el-tree-node__content {
+  background: #e6f7ff;
+  box-shadow: inset 0 0 0 1px #409eff;
+  border-radius: 4px;
+}
+
+/* 不可放入：浅红底 + 红色边框 */
+/*noinspection CssUnusedSymbol*/
+::v-deep .sidebar-tree .el-tree-node.is-drop-not-allow.is-drop-inner > .el-tree-node__content {
+  background: #fff1f0;
+  box-shadow: inset 0 0 0 1px #f56c6c;
+}
+
+/* Element UI 自带的 drop-indicator 细线加粗发光 */
+/*noinspection CssUnusedSymbol*/
+::v-deep .sidebar-tree .el-tree__drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #1890ff;
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px rgba(24, 144, 255, 0.12);
 }
 
 .custom-tree-node {
@@ -1010,6 +1099,7 @@ export default {
   display: flex;
   align-items: center;
   font-size: 13px;
+  position: relative;
 }
 
 .custom-tree-node .drag-handle {
@@ -1018,6 +1108,16 @@ export default {
   font-size: 14px;
   cursor: grab;
   flex-shrink: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+/* 仅在拖拽流程中显示排序手柄，静态状态保持隐藏且不改变文字对齐 */
+.sidebar-tree.is-dragging .custom-tree-node .drag-handle {
+  visibility: visible;
+  opacity: 1;
+  color: #409eff;
 }
 
 .custom-tree-node .drag-handle:active {
@@ -1035,6 +1135,14 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-guide,
+  .custom-tree-node .drag-handle,
+  ::v-deep .sidebar-tree .el-tree-node__content {
+    transition: none;
+  }
 }
 
 .datasource-content {
@@ -1138,8 +1246,8 @@ export default {
   flex-wrap: wrap;
 }
 
-.detail-actions .el-button + .el-button,
-.detail-form-actions .el-button + .el-button {
+.detail-actions > * + *,
+.detail-form-actions > * + * {
   margin-left: 0;
 }
 

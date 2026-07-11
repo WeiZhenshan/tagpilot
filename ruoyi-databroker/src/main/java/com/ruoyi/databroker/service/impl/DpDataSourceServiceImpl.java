@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,8 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
     public List<TreeNode> buildTree() {
         // Load catalogs and build a map keyed by "cat_<id>" for O(1) lookup
         List<DpDataSourceCatalog> catalogs = catalogMapper.selectCatalogList(new DpDataSourceCatalog());
-        Map<String, TreeNode> catalogNodeMap = new HashMap<>();
+        // 保留 SQL 的 order_num 顺序，避免 HashMap 遍历导致目录刷新后随机跳位
+        Map<String, TreeNode> catalogNodeMap = new LinkedHashMap<>();
         for (DpDataSourceCatalog cat : catalogs) {
             TreeNode node = new TreeNode();
             node.setId("cat_" + cat.getCatalogId());
@@ -69,6 +70,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
             node.setLabel(cat.getCatalogName());
             node.setNodeType("catalog");
             node.setCatalogId(cat.getCatalogId());
+            node.setOrderNum(cat.getOrderNum());
             node.setStatus(cat.getStatus());
             node.setChildren(new ArrayList<>());
             catalogNodeMap.put(node.getId(), node);
@@ -95,6 +97,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
             node.setNodeType("datasource");
             node.setDatasourceId(ds.getDatasourceId());
             node.setCatalogId(ds.getCatalogId());
+            node.setOrderNum(ds.getOrderNum());
             node.setSourceType(ds.getSourceType());
             node.setStatus(ds.getStatus());
             node.setChildren(new ArrayList<>());

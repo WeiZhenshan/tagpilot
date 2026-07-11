@@ -10,6 +10,7 @@ public class TreeNode {
     private String nodeType; // "catalog" or "datasource"
     private Long catalogId;
     private Long datasourceId;
+    private Integer orderNum;
     private String sourceType;
     private String status;
     private List<TreeNode> children = new ArrayList<>();
@@ -27,6 +28,8 @@ public class TreeNode {
     public void setCatalogId(Long catalogId) { this.catalogId = catalogId; }
     public Long getDatasourceId() { return datasourceId; }
     public void setDatasourceId(Long datasourceId) { this.datasourceId = datasourceId; }
+    public Integer getOrderNum() { return orderNum; }
+    public void setOrderNum(Integer orderNum) { this.orderNum = orderNum; }
     public String getSourceType() { return sourceType; }
     public void setSourceType(String sourceType) { this.sourceType = sourceType; }
     public String getStatus() { return status; }
