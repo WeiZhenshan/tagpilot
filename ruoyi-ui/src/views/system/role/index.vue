@@ -105,7 +105,16 @@
       <el-table-column label="显示顺序" prop="roleSort" width="100" />
       <el-table-column label="状态" align="center" width="100">
         <template slot-scope="scope">
+          <weather-toggle
+            v-if="Number(scope.row.roleId) === 2"
+            v-model="scope.row.status"
+            active-value="0"
+            inactive-value="1"
+            :aria-label="scope.row.roleName + '角色状态'"
+            @change="handleStatusChange(scope.row)"
+          />
           <el-switch
+            v-else
             v-model="scope.row.status"
             active-value="0"
             inactive-value="1"
@@ -254,9 +263,11 @@
 <script>
 import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect } from "@/api/system/role"
 import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu"
+import WeatherToggle from "@/components/WeatherToggle"
 
 export default {
   name: "Role",
+  components: { WeatherToggle },
   dicts: ['sys_normal_disable'],
   data() {
     return {

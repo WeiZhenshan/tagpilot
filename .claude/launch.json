@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vue-frontend:dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 1025,
+      "cwd": "ruoyi-ui"
+    },
+    {
+      "name": "spring-boot:backend",
+      "runtimeExecutable": "mvn",
+      "runtimeArgs": ["spring-boot:run", "-f", "ruoyi-admin/pom.xml", "-DskipTests"],
+      "port": 8080
+    }
+  ]
+}
