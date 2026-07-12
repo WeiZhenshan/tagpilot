@@ -106,20 +106,12 @@
       <el-table-column label="状态" align="center" width="100">
         <template slot-scope="scope">
           <weather-toggle
-            v-if="Number(scope.row.roleId) === 2"
             v-model="scope.row.status"
             active-value="0"
             inactive-value="1"
             :aria-label="scope.row.roleName + '角色状态'"
             @change="handleStatusChange(scope.row)"
           />
-          <el-switch
-            v-else
-            v-model="scope.row.status"
-            active-value="0"
-            inactive-value="1"
-            @change="handleStatusChange(scope.row)"
-          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -406,13 +398,12 @@ export default {
     },
     // 角色状态修改
     handleStatusChange(row) {
-      let text = row.status === "0" ? "启用" : "停用"
-      this.$modal.confirm('确认要"' + text + '""' + row.roleName + '"角色吗？').then(function() {
-        return changeRoleStatus(row.roleId, row.status)
-      }).then(() => {
+      const text = row.status === "0" ? "启用" : "停用"
+      const previousStatus = row.status === "0" ? "1" : "0"
+      changeRoleStatus(row.roleId, row.status).then(() => {
         this.$modal.msgSuccess(text + "成功")
-      }).catch(function() {
-        row.status = row.status === "0" ? "1" : "0"
+      }).catch(() => {
+        row.status = previousStatus
       })
     },
     // 取消按钮
