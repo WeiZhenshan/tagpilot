@@ -97,7 +97,7 @@
     </update>
 
     <update id="updateLibraryStatus">
-        update tl_tag_library set status = #{status}, update_time = sysdate()
+        update tl_tag_library set status = #{status}, update_by = #{updateBy}, update_time = sysdate()
         where library_id = #{id}
     </update>
 

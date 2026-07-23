@@ -18,10 +18,10 @@ public interface TlTagMapper {
     int updateTag(TlTag tag);
 
     /** 批量更新标签状态（提交/审批/下线） */
-    int updateTagStatusBatch(@Param("ids") Long[] ids, @Param("status") String status);
+    int updateTagStatusBatch(@Param("ids") Long[] ids, @Param("status") String status, @Param("updateBy") String updateBy);
 
     /** 批量移动标签到其他目录 */
-    int moveTagBatch(@Param("ids") Long[] ids, @Param("dirId") Long dirId);
+    int moveTagBatch(@Param("ids") Long[] ids, @Param("dirId") Long dirId, @Param("updateBy") String updateBy);
 
     /** 按标签库逻辑删除标签（级联删除用，del_flag='2'） */
     int deleteTagByLibraryIds(Long[] libraryIds);

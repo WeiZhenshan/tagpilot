@@ -188,7 +188,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         if (!STATUS_DRAFT.equals(library.getStatus()) && !STATUS_OFFLINE.equals(library.getStatus())) {
             throw new ServiceException("当前状态不允许该操作");
         }
-        int rows = libraryMapper.updateLibraryStatus(libraryId, STATUS_PENDING);
+        int rows = libraryMapper.updateLibraryStatus(libraryId, STATUS_PENDING, SecurityUtils.getUsername());
         writeAuditLog(libraryId, "提交", library.getStatus(), STATUS_PENDING, null);
         return rows;
     }
@@ -204,7 +204,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
             throw new ServiceException("当前状态不允许该操作");
         }
         String toStatus = pass ? STATUS_ONLINE : STATUS_DRAFT;
-        int rows = libraryMapper.updateLibraryStatus(libraryId, toStatus);
+        int rows = libraryMapper.updateLibraryStatus(libraryId, toStatus, SecurityUtils.getUsername());
         writeAuditLog(libraryId, pass ? "通过" : "驳回", library.getStatus(), toStatus, auditComment);
         return rows;
     }
@@ -219,7 +219,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         if (!STATUS_ONLINE.equals(library.getStatus())) {
             throw new ServiceException("当前状态不允许该操作");
         }
-        int rows = libraryMapper.updateLibraryStatus(libraryId, STATUS_OFFLINE);
+        int rows = libraryMapper.updateLibraryStatus(libraryId, STATUS_OFFLINE, SecurityUtils.getUsername());
         writeAuditLog(libraryId, "下线", library.getStatus(), STATUS_OFFLINE, null);
         return rows;
     }

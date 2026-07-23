@@ -21,7 +21,7 @@ public interface TlTagLibraryMapper {
     int deleteLibraryByIds(Long[] libraryIds);
 
     /** 状态机流转（草稿/待审批/已上线/已下线） */
-    int updateLibraryStatus(@Param("id") Long id, @Param("status") String status);
+    int updateLibraryStatus(@Param("id") Long id, @Param("status") String status, @Param("updateBy") String updateBy);
 
     /** 查询源表字段元数据（information_schema.columns） */
     List<MetaColumnVO> selectTableColumns(String tableName);

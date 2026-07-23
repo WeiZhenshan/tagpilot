@@ -102,7 +102,7 @@
     </update>
 
     <update id="updateTagStatusBatch">
-        update tl_tag set status = #{status}, update_time = sysdate()
+        update tl_tag set status = #{status}, update_by = #{updateBy}, update_time = sysdate()
         where tag_id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -110,7 +110,7 @@
     </update>
 
     <update id="moveTagBatch">
-        update tl_tag set dir_id = #{dirId}, update_time = sysdate()
+        update tl_tag set dir_id = #{dirId}, update_by = #{updateBy}, update_time = sysdate()
         where tag_id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}

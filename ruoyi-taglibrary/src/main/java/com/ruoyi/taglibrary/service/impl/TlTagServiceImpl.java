@@ -125,9 +125,10 @@ public class TlTagServiceImpl implements ITlTagService {
         if (old == null) {
             throw new ServiceException("标签不存在");
         }
-        // fieldName/dataType 为源字段快照，不允许修改
+        // fieldName/dataType 为源字段快照，不允许修改；status 只能走状态机流转
         tag.setFieldName(null);
         tag.setDataType(null);
+        tag.setStatus(null);
         tag.setVersion(old.getVersion() == null ? 1 : old.getVersion() + 1);
         tag.setUpdateBy(SecurityUtils.getUsername());
         return tagMapper.updateTag(tag);
@@ -138,7 +139,16 @@ public class TlTagServiceImpl implements ITlTagService {
         if (tagIds == null || tagIds.length == 0) {
             return 0;
         }
-        return tagMapper.moveTagBatch(tagIds, dirId);
+        // 目标目录必须存在且与标签同属一个标签库
+        TlTag first = tagMapper.selectTagById(tagIds[0]);
+        if (first == null) {
+            throw new ServiceException("标签不存在");
+        }
+        TlTagDir dir = dirMapper.selectDirById(dirId);
+        if (dir == null || !dir.getLibraryId().equals(first.getLibraryId())) {
+            throw new ServiceException("目标目录不存在或不属于该标签库");
+        }
+        return tagMapper.moveTagBatch(tagIds, dirId, SecurityUtils.getUsername());
     }
 
     @Override
@@ -158,7 +168,7 @@ public class TlTagServiceImpl implements ITlTagService {
             }
             tags.add(tag);
         }
-        int rows = tagMapper.updateTagStatusBatch(tagIds, STATUS_PENDING);
+        int rows = tagMapper.updateTagStatusBatch(tagIds, STATUS_PENDING, SecurityUtils.getUsername());
         for (TlTag tag : tags) {
             writeAuditLog(tag.getTagId(), "提交", tag.getStatus(), STATUS_PENDING, null);
         }
@@ -183,7 +193,7 @@ public class TlTagServiceImpl implements ITlTagService {
             tags.add(tag);
         }
         String toStatus = pass ? STATUS_ONLINE : STATUS_DRAFT;
-        int rows = tagMapper.updateTagStatusBatch(tagIds, toStatus);
+        int rows = tagMapper.updateTagStatusBatch(tagIds, toStatus, SecurityUtils.getUsername());
         for (TlTag tag : tags) {
             writeAuditLog(tag.getTagId(), pass ? "通过" : "驳回", tag.getStatus(), toStatus, auditComment);
         }
@@ -207,7 +217,7 @@ public class TlTagServiceImpl implements ITlTagService {
             }
             tags.add(tag);
         }
-        int rows = tagMapper.updateTagStatusBatch(tagIds, STATUS_OFFLINE);
+        int rows = tagMapper.updateTagStatusBatch(tagIds, STATUS_OFFLINE, SecurityUtils.getUsername());
         for (TlTag tag : tags) {
             writeAuditLog(tag.getTagId(), "下线", tag.getStatus(), STATUS_OFFLINE, null);
         }
