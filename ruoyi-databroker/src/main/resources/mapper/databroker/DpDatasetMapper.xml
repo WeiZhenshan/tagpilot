@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpDatasetMapper">
+
+    <resultMap type="DpDataset" id="DatasetResult">
+        <id     property="datasetId"        column="dataset_id"        />
+        <result property="catalogId"        column="catalog_id"        />
+        <result property="datasetCode"      column="dataset_code"      />
+        <result property="datasetName"      column="dataset_name"      />
+        <result property="datasourceId"     column="datasource_id"     />
+        <result property="defaultVersionId" column="default_version_id" />
+        <result property="latestVersionNo"  column="latest_version_no" />
+        <result property="ownerName"        column="owner_name"        />
+        <result property="status"           column="status"            />
+        <result property="delFlag"          column="del_flag"          />
+        <result property="createBy"         column="create_by"         />
+        <result property="createTime"       column="create_time"       />
+        <result property="updateBy"         column="update_by"         />
+        <result property="updateTime"       column="update_time"       />
+        <result property="remark"           column="remark"            />
+    </resultMap>
+
+    <sql id="selectVo">
+        select dataset_id, catalog_id, dataset_code, dataset_name, datasource_id,
+               default_version_id, latest_version_no, owner_name, status, del_flag,
+               create_by, create_time, update_by, update_time, remark
+        from dp_dataset
+    </sql>
+
+    <select id="selectDatasetList" parameterType="DpDataset" resultMap="DatasetResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="datasetName != null and datasetName != ''">and dataset_name like concat('%', #{datasetName}, '%')</if>
+            <if test="datasetCode != null and datasetCode != ''">and dataset_code like concat('%', #{datasetCode}, '%')</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="catalogId != null">and catalog_id = #{catalogId}</if>
+            <if test="datasourceId != null">and datasource_id = #{datasourceId}</if>
+            and del_flag = '0'
+        </where>
+        order by catalog_id, create_time desc
+    </select>
+
+    <select id="selectDatasetById" parameterType="Long" resultMap="DatasetResult">
+        <include refid="selectVo"/> where dataset_id = #{datasetId} and del_flag = '0'
+    </select>
+
+    <select id="selectDatasetByCode" parameterType="String" resultMap="DatasetResult">
+        <include refid="selectVo"/> where dataset_code = #{datasetCode} and del_flag = '0'
+    </select>
+
+    <insert id="insertDataset" parameterType="DpDataset" useGeneratedKeys="true" keyProperty="datasetId">
+        insert into dp_dataset (
+            catalog_id, dataset_code, dataset_name, datasource_id, latest_version_no,
+            owner_name, status, create_by, create_time, remark
+        ) values (
+            #{catalogId}, #{datasetCode}, #{datasetName}, #{datasourceId}, #{latestVersionNo},
+            #{ownerName}, #{status}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <!-- 仅允许修改名称/负责人/目录/状态/备注，编码与数据源不可改 -->
+    <update id="updateDataset" parameterType="DpDataset">
+        update dp_dataset
+        <set>
+            <if test="catalogId != null">catalog_id = #{catalogId},</if>
+            <if test="datasetName != null">dataset_name = #{datasetName},</if>
+            <if test="ownerName != null">owner_name = #{ownerName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where dataset_id = #{datasetId}
+    </update>
+
+    <update id="deleteDatasetById" parameterType="Long">
+        update dp_dataset set del_flag = '2', update_time = sysdate() where dataset_id = #{datasetId}
+    </update>
+
+    <select id="countByCatalogId" parameterType="Long" resultType="int">
+        select count(1) from dp_dataset where catalog_id = #{catalogId} and del_flag = '0'
+    </select>
+
+    <update id="updateLatestVersionNo" parameterType="DpDataset">
+        update dp_dataset set latest_version_no = #{latestVersionNo}, update_time = sysdate()
+        where dataset_id = #{datasetId}
+    </update>
+
+    <update id="updateDefaultVersionId">
+        update dp_dataset set default_version_id = #{param2}, update_time = sysdate()
+        where dataset_id = #{param1}
+    </update>
+
+    <update id="moveDataset">
+        update dp_dataset set catalog_id = #{catalogId}, update_time = sysdate()
+        where dataset_id = #{datasetId}
+    </update>
+
+</mapper>

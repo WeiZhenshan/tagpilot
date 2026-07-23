@@ -47,6 +47,10 @@
         <include refid="selectVo"/> where table_id = #{tableId} order by ordinal_position
     </select>
 
+    <select id="selectColumnById" parameterType="Long" resultMap="ColumnResult">
+        <include refid="selectVo"/> where column_id = #{columnId}
+    </select>
+
     <select id="selectColumnByTableAndName" resultMap="ColumnResult">
         <include refid="selectVo"/> where table_id = #{param1} and column_name = #{param2}
     </select>

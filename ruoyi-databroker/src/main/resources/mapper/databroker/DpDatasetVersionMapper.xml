@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpDatasetVersionMapper">
+
+    <resultMap type="DpDatasetVersion" id="VersionResult">
+        <id     property="versionId"         column="version_id"         />
+        <result property="datasetId"         column="dataset_id"         />
+        <result property="versionNo"         column="version_no"         />
+        <result property="versionName"       column="version_name"       />
+        <result property="definitionJson"    column="definition_json"    />
+        <result property="schemaVersion"     column="schema_version"     />
+        <result property="revision"          column="revision"           />
+        <result property="versionStatus"     column="version_status"     />
+        <result property="healthStatus"      column="health_status"      />
+        <result property="validationMessage" column="validation_message" />
+        <result property="releaseNote"       column="release_note"       />
+        <result property="publishBy"         column="publish_by"         />
+        <result property="publishTime"       column="publish_time"       />
+        <result property="createBy"          column="create_by"          />
+        <result property="createTime"        column="create_time"        />
+        <result property="updateBy"          column="update_by"          />
+        <result property="updateTime"        column="update_time"        />
+    </resultMap>
+
+    <sql id="selectVo">
+        select version_id, dataset_id, version_no, version_name, definition_json, schema_version,
+               revision, version_status, health_status, validation_message, release_note,
+               publish_by, publish_time, create_by, create_time, update_by, update_time
+        from dp_dataset_version
+    </sql>
+
+    <!-- 版本列表不返回 definition_json（大字段） -->
+    <select id="selectVersionListByDatasetId" parameterType="Long" resultMap="VersionResult">
+        select version_id, dataset_id, version_no, version_name, schema_version,
+               revision, version_status, health_status, validation_message, release_note,
+               publish_by, publish_time, create_by, create_time, update_by, update_time
+        from dp_dataset_version
+        where dataset_id = #{datasetId}
+        order by version_no desc
+    </select>
+
+    <select id="selectVersionById" parameterType="Long" resultMap="VersionResult">
+        <include refid="selectVo"/> where version_id = #{versionId}
+    </select>
+
+    <select id="selectDraftByDatasetId" parameterType="Long" resultMap="VersionResult">
+        <include refid="selectVo"/> where dataset_id = #{datasetId} and version_status = 'DRAFT'
+    </select>
+
+    <select id="countDraftByDatasetId" parameterType="Long" resultType="int">
+        select count(1) from dp_dataset_version where dataset_id = #{datasetId} and version_status = 'DRAFT'
+    </select>
+
+    <insert id="insertVersion" parameterType="DpDatasetVersion" useGeneratedKeys="true" keyProperty="versionId">
+        insert into dp_dataset_version (
+            dataset_id, version_no, version_name, definition_json, schema_version,
+            version_status, health_status, validation_message, create_by, create_time
+        ) values (
+            #{datasetId}, #{versionNo}, #{versionName}, #{definitionJson}, #{schemaVersion},
+            #{versionStatus}, #{healthStatus}, #{validationMessage}, #{createBy}, sysdate()
+        )
+    </insert>
+
+    <update id="updateVersion" parameterType="DpDatasetVersion">
+        update dp_dataset_version
+        <set>
+            <if test="versionName != null">version_name = #{versionName},</if>
+            <if test="definitionJson != null">definition_json = #{definitionJson},</if>
+            <if test="versionStatus != null">version_status = #{versionStatus},</if>
+            <if test="healthStatus != null">health_status = #{healthStatus},</if>
+            <if test="validationMessage != null">validation_message = #{validationMessage},</if>
+            <if test="releaseNote != null">release_note = #{releaseNote},</if>
+            <if test="publishBy != null">publish_by = #{publishBy},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where version_id = #{versionId}
+    </update>
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpDatasetFieldMapper">
+
+    <resultMap type="DpDatasetField" id="FieldResult">
+        <id     property="fieldId"          column="field_id"          />
+        <result property="versionId"        column="version_id"        />
+        <result property="fieldAlias"       column="field_alias"       />
+        <result property="fieldName"        column="field_name"        />
+        <result property="sourceTableId"    column="source_table_id"   />
+        <result property="sourceColumnId"   column="source_column_id"  />
+        <result property="dataType"         column="data_type"         />
+        <result property="expressionJson"   column="expression_json"   />
+        <result property="isObjectKey"      column="is_object_key"     />
+        <result property="sensitivityLevel" column="sensitivity_level" />
+        <result property="maskRule"         column="mask_rule"         />
+        <result property="enabled"          column="enabled"           />
+        <result property="orderNum"         column="order_num"         />
+    </resultMap>
+
+    <sql id="selectVo">
+        select field_id, version_id, field_alias, field_name, source_table_id, source_column_id,
+               data_type, expression_json, is_object_key, sensitivity_level, mask_rule, enabled, order_num
+        from dp_dataset_field
+    </sql>
+
+    <select id="selectFieldsByVersionId" parameterType="Long" resultMap="FieldResult">
+        <include refid="selectVo"/> where version_id = #{versionId} order by order_num
+    </select>
+
+    <insert id="insertFields" parameterType="java.util.List">
+        insert into dp_dataset_field (
+            version_id, field_alias, field_name, source_table_id, source_column_id,
+            data_type, enabled, order_num
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.versionId}, #{item.fieldAlias}, #{item.fieldName}, #{item.sourceTableId},
+             #{item.sourceColumnId}, #{item.dataType}, #{item.enabled}, #{item.orderNum})
+        </foreach>
+    </insert>
+
+    <delete id="deleteFieldsByVersionId" parameterType="Long">
+        delete from dp_dataset_field where version_id = #{versionId}
+    </delete>
+
+</mapper>

@@ -6,6 +6,7 @@ import com.ruoyi.databroker.domain.DpMetaColumn;
 public interface DpMetaColumnMapper {
     List<DpMetaColumn> selectColumnList(DpMetaColumn column);
     List<DpMetaColumn> selectColumnsByTableId(Long tableId);
+    DpMetaColumn selectColumnById(Long columnId);
     DpMetaColumn selectColumnByTableAndName(Long tableId, String columnName);
     int insertColumn(DpMetaColumn column);
     int updateColumn(DpMetaColumn column);

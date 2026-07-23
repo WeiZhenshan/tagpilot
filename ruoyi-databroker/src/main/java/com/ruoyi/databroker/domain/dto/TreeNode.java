@@ -7,9 +7,10 @@ public class TreeNode {
     private String id;       // "cat_10" or "ds_100"
     private String parentId; // "0" or "cat_10"
     private String label;
-    private String nodeType; // "catalog" or "datasource"
+    private String nodeType; // "catalog" or "datasource" or "dataset"
     private Long catalogId;
     private Long datasourceId;
+    private Long datasetId;
     private Integer orderNum;
     private String sourceType;
     private String status;
@@ -28,6 +29,8 @@ public class TreeNode {
     public void setCatalogId(Long catalogId) { this.catalogId = catalogId; }
     public Long getDatasourceId() { return datasourceId; }
     public void setDatasourceId(Long datasourceId) { this.datasourceId = datasourceId; }
+    public Long getDatasetId() { return datasetId; }
+    public void setDatasetId(Long datasetId) { this.datasetId = datasetId; }
     public Integer getOrderNum() { return orderNum; }
     public void setOrderNum(Integer orderNum) { this.orderNum = orderNum; }
     public String getSourceType() { return sourceType; }

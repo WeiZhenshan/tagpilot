@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpDatasetDependencyMapper">
+
+    <resultMap type="DpDatasetDependency" id="DependencyResult">
+        <id     property="dependencyId"   column="dependency_id"   />
+        <result property="datasetId"      column="dataset_id"      />
+        <result property="versionId"      column="version_id"      />
+        <result property="datasourceId"   column="datasource_id"   />
+        <result property="tableId"        column="table_id"        />
+        <result property="columnId"       column="column_id"       />
+        <result property="dependencyType" column="dependency_type" />
+        <result property="createTime"     column="create_time"     />
+    </resultMap>
+
+    <sql id="selectVo">
+        select dependency_id, dataset_id, version_id, datasource_id, table_id, column_id,
+               dependency_type, create_time
+        from dp_dataset_dependency
+    </sql>
+
+    <select id="selectDependenciesByVersionId" parameterType="Long" resultMap="DependencyResult">
+        <include refid="selectVo"/> where version_id = #{versionId}
+    </select>
+
+    <insert id="insertDependencies" parameterType="java.util.List">
+        insert into dp_dataset_dependency (
+            dataset_id, version_id, datasource_id, table_id, column_id, dependency_type, create_time
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.datasetId}, #{item.versionId}, #{item.datasourceId}, #{item.tableId},
+             #{item.columnId}, #{item.dependencyType}, sysdate())
+        </foreach>
+    </insert>
+
+    <delete id="deleteDependenciesByVersionId" parameterType="Long">
+        delete from dp_dataset_dependency where version_id = #{versionId}
+    </delete>
+
+</mapper>
