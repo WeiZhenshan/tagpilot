@@ -58,7 +58,7 @@
               <el-dropdown trigger="click" @command="cmd => handleMore(cmd, row)">
                 <el-button type="text">更多<i class="el-icon-arrow-down el-icon--right" /></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="fields" icon="el-icon-set-up" v-hasPermi="['taglibrary:tag:query']">字段管理</el-dropdown-item>
+                  <el-dropdown-item command="fields" icon="el-icon-set-up" v-hasPermi="['taglibrary:tag:list']">字段管理</el-dropdown-item>
                   <el-dropdown-item command="edit" icon="el-icon-edit" v-hasPermi="['taglibrary:library:edit']">编辑标签库</el-dropdown-item>
                   <el-dropdown-item v-if="row.status==='0'||row.status==='3'" command="submit" icon="el-icon-upload2" v-hasPermi="['taglibrary:library:submit']">提交上线</el-dropdown-item>
                   <el-dropdown-item v-if="row.status==='2'" command="offline" icon="el-icon-download" v-hasPermi="['taglibrary:library:offline']">下线</el-dropdown-item>
