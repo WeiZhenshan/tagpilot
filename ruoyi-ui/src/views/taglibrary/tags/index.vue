@@ -16,7 +16,7 @@
           <el-button type="text" size="mini" icon="el-icon-folder-add" @click="openDirDialog('add')" v-hasPermi="['taglibrary:dir:add']">新建目录</el-button>
           <el-button type="text" size="mini" icon="el-icon-edit" :disabled="!isDirSelected" @click="openDirDialog('edit')" v-hasPermi="['taglibrary:dir:edit']">重命名</el-button>
           <el-button type="text" size="mini" icon="el-icon-delete" :disabled="!isDirSelected" @click="handleDeleteDir" v-hasPermi="['taglibrary:dir:remove']">删除目录</el-button>
-          <el-button type="text" size="mini" icon="el-icon-position" :disabled="!isTagSelected" @click="openMoveDialog" v-hasPermi="['taglibrary:tag:move']">移动目录</el-button>
+          <el-button type="text" size="mini" icon="el-icon-position" :disabled="!isTagSelected" @click="openMoveDialog" v-hasPermi="['taglibrary:tag:move']">移动标签到目录</el-button>
           <el-button v-if="isTagSelected && (selectedNode.status === '0' || selectedNode.status === '3')" type="text" size="mini" icon="el-icon-upload2"
             @click="handleSubmitTag" v-hasPermi="['taglibrary:tag:submit']">提交审批</el-button>
           <el-button v-if="isTagSelected && selectedNode.status === '2'" type="text" size="mini" icon="el-icon-download"
@@ -311,7 +311,7 @@ export default {
         this.dirForm = {
           dirId: undefined,
           libraryId: this.currentLibraryId,
-          parentId: this.isDirSelected ? Number(this.parseNodeId(this.selectedNode.id)) : 0,
+          parentId: 0,
           dirName: undefined
         }
       } else {
