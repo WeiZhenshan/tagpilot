@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TlTagMapper">
+
+    <resultMap type="TlTag" id="TlTagResult">
+        <id     property="tagId"           column="tag_id"           />
+        <result property="libraryId"       column="library_id"       />
+        <result property="dirId"           column="dir_id"           />
+        <result property="fieldName"       column="field_name"       />
+        <result property="tagName"         column="tag_name"         />
+        <result property="dataType"        column="data_type"        />
+        <result property="tagType"         column="tag_type"         />
+        <result property="businessCaliber" column="business_caliber" />
+        <result property="techCaliber"     column="tech_caliber"     />
+        <result property="validPeriod"     column="valid_period"     />
+        <result property="updateCycle"     column="update_cycle"     />
+        <result property="createWay"       column="create_way"       />
+        <result property="status"          column="status"           />
+        <result property="version"         column="version"          />
+        <result property="delFlag"         column="del_flag"         />
+        <result property="createBy"        column="create_by"        />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateBy"        column="update_by"        />
+        <result property="updateTime"      column="update_time"      />
+        <result property="remark"          column="remark"           />
+    </resultMap>
+
+    <sql id="selectVo">
+        select tag_id, library_id, dir_id, field_name, tag_name, data_type, tag_type,
+               business_caliber, tech_caliber, valid_period, update_cycle, create_way,
+               status, version, del_flag, create_by, create_time, update_by, update_time, remark
+        from tl_tag
+    </sql>
+
+    <select id="selectTagList" parameterType="TlTag" resultMap="TlTagResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="libraryId != null">and library_id = #{libraryId}</if>
+            <if test="dirId != null">and dir_id = #{dirId}</if>
+            <if test="tagName != null and tagName != ''">and tag_name like concat('%', #{tagName}, '%')</if>
+            <if test="fieldName != null and fieldName != ''">and field_name like concat('%', #{fieldName}, '%')</if>
+            <if test="tagType != null and tagType != ''">and tag_type = #{tagType}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="createWay != null and createWay != ''">and create_way = #{createWay}</if>
+            and del_flag = '0'
+        </where>
+        order by tag_id
+    </select>
+
+    <select id="selectTagById" parameterType="Long" resultMap="TlTagResult">
+        <include refid="selectVo"/> where tag_id = #{tagId} and del_flag = '0'
+    </select>
+
+    <select id="selectTagByFieldName" resultMap="TlTagResult">
+        <include refid="selectVo"/> where library_id = #{libraryId} and field_name = #{fieldName} and del_flag = '0'
+    </select>
+
+    <insert id="insertTag" parameterType="TlTag" useGeneratedKeys="true" keyProperty="tagId">
+        insert into tl_tag (
+            library_id, dir_id, field_name, tag_name, data_type, tag_type,
+            business_caliber, tech_caliber, valid_period, update_cycle, create_way,
+            status, version, create_by, create_time, remark
+        ) values (
+            #{libraryId}, #{dirId}, #{fieldName}, #{tagName}, #{dataType}, #{tagType},
+            #{businessCaliber}, #{techCaliber}, #{validPeriod}, #{updateCycle}, #{createWay},
+            #{status}, #{version}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <insert id="insertTagBatch" parameterType="java.util.List">
+        insert into tl_tag (
+            library_id, dir_id, field_name, tag_name, data_type, tag_type,
+            business_caliber, tech_caliber, valid_period, update_cycle, create_way,
+            status, version, create_by, create_time, remark
+        ) values
+        <foreach collection="list" item="tag" separator=",">
+            (
+                #{tag.libraryId}, #{tag.dirId}, #{tag.fieldName}, #{tag.tagName}, #{tag.dataType}, #{tag.tagType},
+                #{tag.businessCaliber}, #{tag.techCaliber}, #{tag.validPeriod}, #{tag.updateCycle}, #{tag.createWay},
+                #{tag.status}, #{tag.version}, #{tag.createBy}, sysdate(), #{tag.remark}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateTag" parameterType="TlTag">
+        update tl_tag
+        <set>
+            <if test="dirId != null">dir_id = #{dirId},</if>
+            <if test="tagName != null">tag_name = #{tagName},</if>
+            <if test="tagType != null">tag_type = #{tagType},</if>
+            <if test="businessCaliber != null">business_caliber = #{businessCaliber},</if>
+            <if test="techCaliber != null">tech_caliber = #{techCaliber},</if>
+            <if test="validPeriod != null">valid_period = #{validPeriod},</if>
+            <if test="updateCycle != null">update_cycle = #{updateCycle},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where tag_id = #{tagId}
+    </update>
+
+    <update id="updateTagStatusBatch">
+        update tl_tag set status = #{status}, update_time = sysdate()
+        where tag_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="moveTagBatch">
+        update tl_tag set dir_id = #{dirId}, update_time = sysdate()
+        where tag_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="deleteTagByLibraryIds" parameterType="Long">
+        update tl_tag set del_flag = '2', update_time = sysdate()
+        where library_id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="countOnlineByLibraryId" parameterType="Long" resultType="int">
+        select count(1) from tl_tag where library_id = #{libraryId} and status = '2' and del_flag = '0'
+    </select>
+
+</mapper>

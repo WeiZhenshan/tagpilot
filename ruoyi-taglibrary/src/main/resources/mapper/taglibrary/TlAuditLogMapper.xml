@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TlAuditLogMapper">
+
+    <resultMap type="TlAuditLog" id="TlAuditLogResult">
+        <id     property="logId"        column="log_id"        />
+        <result property="bizType"      column="biz_type"      />
+        <result property="bizId"        column="biz_id"        />
+        <result property="action"       column="action"        />
+        <result property="fromStatus"   column="from_status"   />
+        <result property="toStatus"     column="to_status"     />
+        <result property="applyBy"      column="apply_by"      />
+        <result property="auditBy"      column="audit_by"      />
+        <result property="auditTime"    column="audit_time"    />
+        <result property="auditComment" column="audit_comment" />
+        <result property="createBy"     column="create_by"     />
+        <result property="createTime"   column="create_time"   />
+    </resultMap>
+
+    <sql id="selectVo">
+        select log_id, biz_type, biz_id, action, from_status, to_status,
+               apply_by, audit_by, audit_time, audit_comment, create_by, create_time
+        from tl_audit_log
+    </sql>
+
+    <insert id="insertAuditLog" parameterType="TlAuditLog" useGeneratedKeys="true" keyProperty="logId">
+        insert into tl_audit_log (
+            biz_type, biz_id, action, from_status, to_status,
+            apply_by, audit_by, audit_time, audit_comment, create_by, create_time
+        ) values (
+            #{bizType}, #{bizId}, #{action}, #{fromStatus}, #{toStatus},
+            #{applyBy}, #{auditBy}, #{auditTime}, #{auditComment}, #{createBy}, sysdate()
+        )
+    </insert>
+
+    <select id="selectAuditLogList" parameterType="TlAuditLog" resultMap="TlAuditLogResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="bizType != null and bizType != ''">and biz_type = #{bizType}</if>
+            <if test="bizId != null">and biz_id = #{bizId}</if>
+            <if test="action != null and action != ''">and action = #{action}</if>
+        </where>
+        order by log_id desc
+    </select>
+
+</mapper>
