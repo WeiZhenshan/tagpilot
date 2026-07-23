@@ -67,6 +67,12 @@
             <artifactId>ruoyi-databroker</artifactId>
         </dependency>
 
+        <!-- taglibrary标签库管理模块-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-taglibrary</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

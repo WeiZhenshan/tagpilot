@@ -225,6 +225,13 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 
+            <!-- 标签库管理模块-->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>ruoyi-taglibrary</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -236,6 +243,7 @@
         <module>ruoyi-generator</module>
         <module>ruoyi-common</module>
         <module>ruoyi-databroker</module>
+        <module>ruoyi-taglibrary</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -133,7 +133,7 @@ xss:
   # 排除链接（多个用逗号分隔）
   excludes: /system/notice
   # 匹配链接
-  urlPatterns: /system/*,/monitor/*,/tool/*,/databroker/*
+  urlPatterns: /system/*,/monitor/*,/tool/*,/databroker/*,/taglibrary/*
 
 # 数据代理模块配置
 databroker:
