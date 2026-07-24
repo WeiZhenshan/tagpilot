@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.taglibrary.domain.TlAuditLog;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagDir;
 import com.ruoyi.taglibrary.domain.TlTagLibrary;
-import com.ruoyi.taglibrary.domain.vo.MetaColumnVO;
+import com.ruoyi.taglibrary.domain.vo.DatasetFieldVO;
+import com.ruoyi.taglibrary.domain.vo.DatasetVO;
 import com.ruoyi.taglibrary.mapper.TlAuditLogMapper;
 import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryMapper;
@@ -42,7 +42,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
     private static final Set<String> DATE_TYPES =
             new HashSet<>(Arrays.asList("date", "datetime", "timestamp", "time", "year"));
     private static final Set<String> NUMBER_TYPES =
-            new HashSet<>(Arrays.asList("int", "bigint", "smallint", "decimal", "float", "double", "numeric", "mediumint"));
+            new HashSet<>(Arrays.asList("tinyint", "int", "bigint", "smallint", "mediumint", "decimal", "float", "double", "numeric"));
 
     @Autowired
     private TlTagLibraryMapper libraryMapper;
@@ -64,13 +64,16 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
     }
 
     @Override
-    public List<String> listBusinessTables() {
-        return libraryMapper.selectBusinessTables();
+    public List<DatasetVO> listOnlineDatasets() {
+        return libraryMapper.selectOnlineDatasets();
     }
 
     @Override
     @Transactional
     public int insertLibrary(TlTagLibrary library) {
+        if (library.getDatasetId() == null) {
+            throw new ServiceException("请选择关联数据集");
+        }
         if (libraryMapper.selectLibraryByCode(library.getLibraryCode()) != null) {
             throw new ServiceException("标签库编码已存在");
         }
@@ -81,10 +84,8 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         // 建默认目录
         createDefaultDir(library.getLibraryId());
 
-        // 关联了源表则同步字段快照（草稿）
-        if (StringUtils.isNotEmpty(library.getSourceTable())) {
-            syncFields(library.getLibraryId());
-        }
+        // 同步数据集启用字段快照（草稿）
+        syncFields(library.getLibraryId());
         return rows;
     }
 
@@ -130,12 +131,16 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         if (library == null) {
             throw new ServiceException("标签库不存在");
         }
-        if (StringUtils.isEmpty(library.getSourceTable())) {
-            throw new ServiceException("标签库未关联源表，无法同步字段");
+        if (library.getDatasetId() == null) {
+            throw new ServiceException("该标签库未关联数据集");
         }
-        List<MetaColumnVO> columns = libraryMapper.selectTableColumns(library.getSourceTable());
-        if (columns == null || columns.isEmpty()) {
-            throw new ServiceException("源表不存在或无字段");
+        Long versionId = libraryMapper.selectOnlineVersionId(library.getDatasetId());
+        if (versionId == null) {
+            throw new ServiceException("关联数据集不存在或未上线");
+        }
+        List<DatasetFieldVO> fields = libraryMapper.selectDatasetFields(versionId);
+        if (fields == null || fields.isEmpty()) {
+            throw new ServiceException("数据集无启用字段");
         }
 
         // 该库现有 field_name 集合，增量过滤
@@ -153,18 +158,17 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         String username = SecurityUtils.getUsername();
 
         List<TlTag> newTags = new ArrayList<>();
-        for (MetaColumnVO column : columns) {
-            if (existFields.contains(column.getColumnName())) {
+        for (DatasetFieldVO field : fields) {
+            if (existFields.contains(field.getFieldName())) {
                 continue;
             }
             TlTag tag = new TlTag();
             tag.setLibraryId(libraryId);
             tag.setDirId(defaultDirId);
-            tag.setFieldName(column.getColumnName());
-            tag.setTagName(StringUtils.isNotEmpty(column.getColumnComment())
-                    ? column.getColumnComment() : column.getColumnName());
-            tag.setDataType(column.getDataType());
-            tag.setTagType(inferTagType(column.getDataType(), column.getColumnComment()));
+            tag.setFieldName(field.getFieldName());
+            tag.setTagName(field.getFieldName());
+            tag.setDataType(field.getDataType());
+            tag.setTagType(inferTagType(field.getDataType()));
             tag.setCreateWay("同步");
             tag.setStatus(STATUS_DRAFT);
             tag.setVersion(1);
@@ -269,21 +273,14 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         return dir;
     }
 
-    /** 按源字段类型与注释推断标签类型 */
-    private static String inferTagType(String dataType, String comment) {
+    /** 按源字段数据类型推断标签类型 */
+    private static String inferTagType(String dataType) {
         String dt = dataType == null ? "" : dataType.toLowerCase();
-        String c = comment == null ? "" : comment;
         if (DATE_TYPES.contains(dt)) {
             return "日期型";
         }
-        if ("tinyint".equals(dt) && (c.contains("标志") || c.contains("是否"))) {
-            return "布尔型";
-        }
         if (NUMBER_TYPES.contains(dt)) {
             return "数值型";
-        }
-        if (("char".equals(dt) || "varchar".equals(dt)) && (c.contains("/") || c.contains("（"))) {
-            return "选项型";
         }
         return "文本型";
     }

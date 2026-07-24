@@ -9,10 +9,10 @@ export function listLibrary(query) {
   })
 }
 
-// 查询可同步业务表
-export function listBusinessTables() {
+// 查询已上线数据集列表
+export function listOnlineDatasets() {
   return request({
-    url: '/taglibrary/library/tables',
+    url: '/taglibrary/library/datasets',
     method: 'get'
   })
 }

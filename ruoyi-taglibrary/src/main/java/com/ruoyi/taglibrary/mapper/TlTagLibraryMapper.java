@@ -3,7 +3,8 @@ package com.ruoyi.taglibrary.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import com.ruoyi.taglibrary.domain.TlTagLibrary;
-import com.ruoyi.taglibrary.domain.vo.MetaColumnVO;
+import com.ruoyi.taglibrary.domain.vo.DatasetFieldVO;
+import com.ruoyi.taglibrary.domain.vo.DatasetVO;
 
 public interface TlTagLibraryMapper {
     /** 标签库列表（联表统计标签数量） */
@@ -23,9 +24,12 @@ public interface TlTagLibraryMapper {
     /** 状态机流转（草稿/待审批/已上线/已下线） */
     int updateLibraryStatus(@Param("id") Long id, @Param("status") String status, @Param("updateBy") String updateBy);
 
-    /** 查询源表字段元数据（information_schema.columns） */
-    List<MetaColumnVO> selectTableColumns(String tableName);
+    /** 已上线数据集列表（默认版本 ONLINE，新建弹窗选用） */
+    List<DatasetVO> selectOnlineDatasets();
 
-    /** 可选业务表列表（排除系统表，新建弹窗选表用） */
-    List<String> selectBusinessTables();
+    /** 数据集默认在线版本ID，未上线返回 null */
+    Long selectOnlineVersionId(Long datasetId);
+
+    /** 数据集指定版本的启用输出字段（按 order_num 排序） */
+    List<DatasetFieldVO> selectDatasetFields(Long versionId);
 }

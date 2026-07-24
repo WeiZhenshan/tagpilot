@@ -8,7 +8,7 @@ create table tl_tag_library (
   library_code varchar(64)  not null                comment '标签库编码',
   category     varchar(32)  default ''              comment '分类（字典 tag_library_category）',
   tag_object   varchar(16)  default ''              comment '标签对象（字典 tag_object）',
-  source_table varchar(64)  default ''              comment '关联数据表名',
+  dataset_id   bigint(20)   default null            comment '关联数据集ID',
   owner_name   varchar(30)  default ''              comment '负责人',
   status       char(1)      default '0'             comment '状态（0草稿 1待审批 2已上线 3已下线）',
   del_flag     char(1)      default '0'             comment '删除标志（0存在 2删除）',

@@ -68,7 +68,7 @@
               <div class="section-title">▎技术信息</div>
               <el-descriptions :column="2" border size="small">
                 <el-descriptions-item label="字段配置">{{ tagDetail.fieldName || '/' }}</el-descriptions-item>
-                <el-descriptions-item label="源数据表">{{ currentLibrary.sourceTable || '/' }}</el-descriptions-item>
+                <el-descriptions-item label="关联数据集">{{ currentLibrary.datasetName || '/' }}</el-descriptions-item>
               </el-descriptions>
             </el-col>
             <el-col :span="8">

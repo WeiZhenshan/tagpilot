@@ -27,8 +27,8 @@ public class TlTagLibrary extends BaseEntity {
     /** 标签对象（字典 tag_object） */
     private String tagObject;
 
-    /** 关联数据表名 */
-    private String sourceTable;
+    /** 关联数据集ID */
+    private Long datasetId;
 
     /** 负责人 */
     private String ownerName;
@@ -51,6 +51,9 @@ public class TlTagLibrary extends BaseEntity {
     /** 待处理标签数（非表字段，list联表统计回填） */
     private Long pendingCount;
 
+    /** 关联数据集名称（非表字段，联表回填） */
+    private String datasetName;
+
     public Long getLibraryId() { return libraryId; }
     public void setLibraryId(Long libraryId) { this.libraryId = libraryId; }
     public String getLibraryName() { return libraryName; }
@@ -61,8 +64,8 @@ public class TlTagLibrary extends BaseEntity {
     public void setCategory(String category) { this.category = category; }
     public String getTagObject() { return tagObject; }
     public void setTagObject(String tagObject) { this.tagObject = tagObject; }
-    public String getSourceTable() { return sourceTable; }
-    public void setSourceTable(String sourceTable) { this.sourceTable = sourceTable; }
+    public Long getDatasetId() { return datasetId; }
+    public void setDatasetId(Long datasetId) { this.datasetId = datasetId; }
     public String getOwnerName() { return ownerName; }
     public void setOwnerName(String ownerName) { this.ownerName = ownerName; }
     public String getStatus() { return status; }
@@ -77,6 +80,8 @@ public class TlTagLibrary extends BaseEntity {
     public void setOfflineCount(Long offlineCount) { this.offlineCount = offlineCount; }
     public Long getPendingCount() { return pendingCount; }
     public void setPendingCount(Long pendingCount) { this.pendingCount = pendingCount; }
+    public String getDatasetName() { return datasetName; }
+    public void setDatasetName(String datasetName) { this.datasetName = datasetName; }
 
     @Override
     public String toString() {
@@ -86,7 +91,7 @@ public class TlTagLibrary extends BaseEntity {
             .append("libraryCode", getLibraryCode())
             .append("category", getCategory())
             .append("tagObject", getTagObject())
-            .append("sourceTable", getSourceTable())
+            .append("datasetId", getDatasetId())
             .append("ownerName", getOwnerName())
             .append("status", getStatus())
             .toString();

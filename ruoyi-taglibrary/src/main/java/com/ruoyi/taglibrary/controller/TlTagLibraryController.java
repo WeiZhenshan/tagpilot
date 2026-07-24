@@ -37,11 +37,11 @@ public class TlTagLibraryController extends BaseController {
         return getDataTable(libraryService.selectLibraryList(query));
     }
 
-    /** 可选业务表列表（新建弹窗选表） */
+    /** 已上线数据集列表（新建弹窗选用） */
     @PreAuthorize("@ss.hasPermi('taglibrary:library:query')")
-    @GetMapping("/tables")
-    public AjaxResult tables() {
-        return success(libraryService.listBusinessTables());
+    @GetMapping("/datasets")
+    public AjaxResult datasets() {
+        return success(libraryService.listOnlineDatasets());
     }
 
     @PreAuthorize("@ss.hasPermi('taglibrary:library:query')")
@@ -68,7 +68,7 @@ public class TlTagLibraryController extends BaseController {
         return toAjax(libraryService.deleteLibraryByIds(libraryIds));
     }
 
-    /** 增量同步源表字段 */
+    /** 增量同步数据集字段 */
     @PreAuthorize("@ss.hasPermi('taglibrary:library:sync')")
     @PostMapping("/sync/{libraryId}")
     public AjaxResult sync(@PathVariable Long libraryId) {

@@ -8,7 +8,7 @@
         <result property="libraryCode"  column="library_code"  />
         <result property="category"     column="category"      />
         <result property="tagObject"    column="tag_object"    />
-        <result property="sourceTable"  column="source_table"  />
+        <result property="datasetId"    column="dataset_id"    />
         <result property="ownerName"    column="owner_name"    />
         <result property="status"       column="status"        />
         <result property="delFlag"      column="del_flag"      />
@@ -21,21 +21,26 @@
         <result property="onlineCount"  column="online_count"  />
         <result property="offlineCount" column="offline_count" />
         <result property="pendingCount" column="pending_count" />
+        <result property="datasetName"  column="dataset_name"  />
     </resultMap>
 
     <sql id="selectVo">
-        select library_id, library_name, library_code, category, tag_object, source_table, owner_name,
-               status, del_flag, create_by, create_time, update_by, update_time, remark
-        from tl_tag_library
+        select l.library_id, l.library_name, l.library_code, l.category, l.tag_object, l.dataset_id, l.owner_name,
+               l.status, l.del_flag, l.create_by, l.create_time, l.update_by, l.update_time, l.remark,
+               ds.dataset_name
+        from tl_tag_library l
+        left join dp_dataset ds on ds.dataset_id = l.dataset_id
     </sql>
 
     <select id="selectLibraryList" parameterType="TlTagLibrary" resultMap="TlTagLibraryResult">
         select l.*,
+               ds.dataset_name as dataset_name,
                coalesce(s.tag_count, 0)     as tag_count,
                coalesce(s.online_count, 0)  as online_count,
                coalesce(s.offline_count, 0) as offline_count,
                coalesce(s.pending_count, 0) as pending_count
         from tl_tag_library l
+        left join dp_dataset ds on ds.dataset_id = l.dataset_id
         left join (
             select library_id,
                    count(*) as tag_count,
@@ -54,19 +59,19 @@
     </select>
 
     <select id="selectLibraryById" parameterType="Long" resultMap="TlTagLibraryResult">
-        <include refid="selectVo"/> where library_id = #{libraryId} and del_flag = '0'
+        <include refid="selectVo"/> where l.library_id = #{libraryId} and l.del_flag = '0'
     </select>
 
     <select id="selectLibraryByCode" parameterType="String" resultMap="TlTagLibraryResult">
-        <include refid="selectVo"/> where library_code = #{libraryCode} and del_flag = '0'
+        <include refid="selectVo"/> where l.library_code = #{libraryCode} and l.del_flag = '0'
     </select>
 
     <insert id="insertLibrary" parameterType="TlTagLibrary" useGeneratedKeys="true" keyProperty="libraryId">
         insert into tl_tag_library (
-            library_name, library_code, category, tag_object, source_table, owner_name, status,
+            library_name, library_code, category, tag_object, dataset_id, owner_name, status,
             create_by, create_time, remark
         ) values (
-            #{libraryName}, #{libraryCode}, #{category}, #{tagObject}, #{sourceTable}, #{ownerName},
+            #{libraryName}, #{libraryCode}, #{category}, #{tagObject}, #{datasetId}, #{ownerName},
             #{status}, #{createBy}, sysdate(), #{remark}
         )
     </insert>
@@ -78,7 +83,7 @@
             <if test="libraryCode != null">library_code = #{libraryCode},</if>
             <if test="category != null">category = #{category},</if>
             <if test="tagObject != null">tag_object = #{tagObject},</if>
-            <if test="sourceTable != null">source_table = #{sourceTable},</if>
+            <if test="datasetId != null">dataset_id = #{datasetId},</if>
             <if test="ownerName != null">owner_name = #{ownerName},</if>
             <if test="status != null">status = #{status},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
@@ -101,21 +106,25 @@
         where library_id = #{id}
     </update>
 
-    <select id="selectTableColumns" parameterType="String" resultType="com.ruoyi.taglibrary.domain.vo.MetaColumnVO">
-        select column_name as columnName, data_type as dataType, column_comment as columnComment
-        from information_schema.columns
-        where table_schema = database() and table_name = #{tableName}
-        order by ordinal_position
+    <select id="selectOnlineDatasets" resultType="com.ruoyi.taglibrary.domain.vo.DatasetVO">
+        select d.dataset_id as datasetId, d.dataset_code as datasetCode, d.dataset_name as datasetName
+        from dp_dataset d
+        join dp_dataset_version v on v.version_id = d.default_version_id and v.version_status = 'ONLINE'
+        where d.del_flag = '0' and d.status = '0'
+        order by d.dataset_id
     </select>
 
-    <select id="selectBusinessTables" resultType="String">
-        select table_name from information_schema.tables
-        where table_schema = database() and table_type = 'BASE TABLE'
-          and table_name not like 'sys_%'
-          and table_name not like 'qrtz_%'
-          and table_name not like 'dp_%'
-          and table_name not like 'tl_%'
-          and table_name not like 'gen_%'
+    <select id="selectOnlineVersionId" parameterType="Long" resultType="Long">
+        select v.version_id from dp_dataset d
+        join dp_dataset_version v on v.version_id = d.default_version_id and v.version_status = 'ONLINE'
+        where d.dataset_id = #{datasetId} and d.del_flag = '0' and d.status = '0'
+    </select>
+
+    <select id="selectDatasetFields" parameterType="Long" resultType="com.ruoyi.taglibrary.domain.vo.DatasetFieldVO">
+        select f.field_alias as fieldName, f.data_type as dataType
+        from dp_dataset_field f
+        where f.version_id = #{versionId} and f.enabled = '1'
+        order by f.order_num
     </select>
 
 </mapper>

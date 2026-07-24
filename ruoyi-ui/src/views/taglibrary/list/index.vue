@@ -52,7 +52,7 @@
                 <div class="stat-label">下线</div>
               </div>
             </div>
-            <div class="card-line card-source">关联宽表：{{ row.sourceTable || '-' }}</div>
+            <div class="card-line card-source">关联数据集：{{ row.datasetName || '-' }}</div>
             <div class="card-footer">
               <el-button type="text" icon="el-icon-price-tag" @click="goTagManage(row)">标签管理</el-button>
               <el-dropdown trigger="click" @command="cmd => handleMore(cmd, row)">
@@ -87,6 +87,7 @@
           <dict-tag :options="dict.type.tag_object" :value="scope.row.tagObject" />
         </template>
       </el-table-column>
+      <el-table-column prop="datasetName" label="关联数据集" min-width="130" show-overflow-tooltip />
       <el-table-column prop="ownerName" label="负责人" width="90" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160" align="center" />
       <el-table-column label="统计" width="180" align="center">
@@ -127,9 +128,9 @@
         <el-form-item label="负责人" prop="ownerName">
           <el-input v-model="form.ownerName" placeholder="请输入负责人" maxlength="30" />
         </el-form-item>
-        <el-form-item label="关联宽表" prop="sourceTable">
-          <el-select v-model="form.sourceTable" placeholder="请选择关联数据表" filterable style="width: 100%;" :disabled="!!form.libraryId">
-            <el-option v-for="t in tableOptions" :key="t" :label="t" :value="t" />
+        <el-form-item label="关联数据集" prop="datasetId">
+          <el-select v-model="form.datasetId" placeholder="请选择关联数据集" filterable style="width: 100%;" :disabled="!!form.libraryId">
+            <el-option v-for="item in datasetOptions" :key="item.datasetId" :label="item.datasetName + '（' + item.datasetCode + '）'" :value="item.datasetId" />
           </el-select>
         </el-form-item>
         <el-form-item label="备注">
@@ -247,7 +248,7 @@
 </template>
 
 <script>
-import { listLibrary, listBusinessTables, getLibrary, addLibrary, updateLibrary, delLibrary,
+import { listLibrary, listOnlineDatasets, getLibrary, addLibrary, updateLibrary, delLibrary,
   syncLibrary, submitLibrary, auditLibrary, offlineLibrary, listAuditLogs } from '@/api/taglibrary/library'
 import { listDir } from '@/api/taglibrary/dir'
 import { listTag, updateTag } from '@/api/taglibrary/tag'
@@ -283,13 +284,13 @@ export default {
       // 新建/编辑弹窗
       open: false,
       title: '',
-      tableOptions: [],
+      datasetOptions: [],
       form: {},
       rules: {
         libraryName: [{ required: true, message: '标签库名称不能为空', trigger: 'blur' }],
         libraryCode: [{ required: true, message: '标签库编码不能为空', trigger: 'blur' }],
         tagObject: [{ required: true, message: '标签对象不能为空', trigger: 'change' }],
-        sourceTable: [{ required: true, message: '关联宽表不能为空', trigger: 'change' }]
+        datasetId: [{ required: true, message: '关联数据集不能为空', trigger: 'change' }]
       },
       // 字段管理抽屉
       drawerVisible: false,
@@ -351,22 +352,22 @@ export default {
         tagObject: undefined,
         category: undefined,
         ownerName: undefined,
-        sourceTable: undefined,
+        datasetId: undefined,
         remark: undefined
       }
       this.$nextTick(() => { if (this.$refs.form) this.$refs.form.clearValidate() })
     },
-    /** 加载可选业务表 */
-    loadTableOptions() {
-      listBusinessTables().then(response => {
-        this.tableOptions = response.data || []
+    /** 加载已上线数据集选项 */
+    loadDatasetOptions() {
+      listOnlineDatasets().then(response => {
+        this.datasetOptions = response.data || []
       })
     },
     /** 新增标签库 */
     handleAdd() {
       this.resetForm()
       this.title = '新建标签库'
-      this.loadTableOptions()
+      this.loadDatasetOptions()
       this.open = true
     },
     /** 修改标签库 */
@@ -375,7 +376,7 @@ export default {
       getLibrary(row.libraryId).then(response => {
         this.form = response.data
         this.title = '编辑标签库'
-        this.loadTableOptions()
+        this.loadDatasetOptions()
         this.open = true
       })
     },
@@ -464,7 +465,7 @@ export default {
     },
     /** 同步字段 */
     handleSyncFields() {
-      this.$confirm('确认从关联宽表同步字段？已存在的字段不会重复生成。', '提示', { type: 'warning' }).then(() => {
+      this.$confirm('确认从关联数据集同步字段？已存在的字段不会重复生成。', '提示', { type: 'warning' }).then(() => {
         return syncLibrary(this.currentLibrary.libraryId)
       }).then(response => {
         this.$modal.msgSuccess(response.msg || '同步完成')
