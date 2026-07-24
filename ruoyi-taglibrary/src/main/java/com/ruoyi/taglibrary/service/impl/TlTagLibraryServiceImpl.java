@@ -273,9 +273,14 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         return dir;
     }
 
-    /** 按源字段数据类型推断标签类型 */
+    /** 按源字段数据类型推断标签类型（先归一化：小写、截括号、去 unsigned/zerofill） */
     private static String inferTagType(String dataType) {
         String dt = dataType == null ? "" : dataType.toLowerCase();
+        int paren = dt.indexOf('(');
+        if (paren >= 0) {
+            dt = dt.substring(0, paren);
+        }
+        dt = dt.replace("unsigned", "").replace("zerofill", "").trim();
         if (DATE_TYPES.contains(dt)) {
             return "日期型";
         }
