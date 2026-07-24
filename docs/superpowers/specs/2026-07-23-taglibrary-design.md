@@ -1,7 +1,9 @@
 # 标签库管理模块设计文档
 
-日期：2026-07-23
+日期：2026-07-23（2026-07-24 修订）
 状态：已确认（用户逐节批准；经规格评审修订）
+
+> **2026-07-24 修订**：字段来源决策变更——标签库不再直接关联物理表，改为**关联数据集管理中已上线的数据集**（`dp_dataset` 默认 ONLINE 版本），字段快照取自该版本的启用输出字段（`dp_dataset_field`）。下文 §2/§3.1/§4/§5 已按新口径更新。
 
 ## 1. 背景与目标
 
@@ -13,11 +15,11 @@ RuoYi-Vue 项目中新增"标签库管理"模块（标签系统四大模块之�
 
 | 问题 | 决策 |
 |---|---|
-| 标签的数据模型 | **标签 = 宽表字段**：`ind_tag_data` 宽表的约 70 个业务字段作为标签来源 |
+| 标签的数据模型 | **标签 = 数据集输出字段**：已上线数据集发布版本的启用输出字段（`dp_dataset_field`）作为标签来源（2026-07-24 修订，原方案为直接读取 `ind_tag_data` 宽表列） |
 | 上下线/审批深度 | **状态机 + 轻量审批**：草稿→待审批→已上线⇄已下线；审批在弹窗/列表内完成，不建独立审批工作台页面 |
 | 页面范围 | **只做核心**：新建、搜索、分类/标签对象筛选、卡片/列表切换、卡片操作；不做数据概览面板、批量编辑、分类管理 |
 | 后端代码归属 | **新建 `ruoyi-taglibrary` Maven 模块**，与 `ruoyi-databroker` 平级 |
-| 字段来源 | **选表自动同步字段**：建库时选择关联数据表，读取该表列元数据生成候选标签快照 |
+| 字段来源 | **关联已上线数据集**：建库时选择数据集管理中已上线（默认版本 ONLINE）的数据集，读取其发布版本的启用输出字段生成候选标签快照 |
 | 总体方案 | **方案 A：元数据快照模式**——同步时列元数据快照进 `tl_tag` 表，与 databroker 的 `DpMetaColumn` 模式同构 |
 
 ## 3. 数据表设计
@@ -33,7 +35,7 @@ RuoYi-Vue 项目中新增"标签库管理"模块（标签系统四大模块之�
 | library_code | varchar(64) unique | 编码 |
 | category | varchar(32) | 分类，字典 `tag_library_category`（客户/产品/员工/交易/营销维度），不做独立分类管理表 |
 | tag_object | varchar(16) | 标签对象，字典 `tag_object`（客户/企业/机构/商户） |
-| source_table | varchar(64) | 关联数据表名（当前即 `ind_tag_data`） |
+| dataset_id | bigint | 关联数据集ID（`dp_dataset`，须为已上线数据集）；dataset_name 联表回填展示 |
 | owner_name | varchar(30) | 负责人 |
 | status | char(1) | `0`草稿 `1`待审批 `2`已上线 `3`已下线 |
 
@@ -98,9 +100,10 @@ RuoYi-Vue 项目中新增"标签库管理"模块（标签系统四大模块之�
 
 | 接口 | 权限 | 说明 |
 |---|---|---|
-| GET `/list` | `taglibrary:library:list` | 分页 + 搜索（名称/编码）+ category/tag_object 筛选；每行联表统计返回 `tag_count`（标签总数）、`online_count`（使用中/已上线）、`offline_count`（已下线）、`pending_count`（待发布=草稿+待审批） |
+| GET `/list` | `taglibrary:library:list` | 分页 + 搜索（名称/编码）+ category/tag_object 筛选；每行联表统计返回 `tag_count`（标签总数）、`online_count`（使用中/已上线）、`offline_count`（已下线）、`pending_count`（待发布=草稿+待审批），并联表回填 `datasetName` |
+| GET `/datasets` | `taglibrary:library:query` | 已上线数据集列表（新建弹窗选用）：`dp_dataset` join 默认 ONLINE 版本 |
 | GET `/{id}` | `taglibrary:library:query` | 详情 |
-| POST `/` | `taglibrary:library:add` | 新建：校验 code 唯一 → 建默认目录 → 同步源表字段快照（全部进默认目录、状态=草稿、create_way=同步） |
+| POST `/` | `taglibrary:library:add` | 新建：校验 datasetId 必填、code 唯一 → 建默认目录 → 同步数据集字段快照（全部进默认目录、状态=草稿、create_way=同步） |
 | PUT `/` | `taglibrary:library:edit` | 编辑基本信息 |
 | DELETE `/{ids}` | `taglibrary:library:remove` | 删除（级联删目录/标签；已上线/待审批禁止删） |
 | POST `/sync/{id}` | `taglibrary:library:sync` | 增量重新同步：新列补快照，不动已有标签状态；幂等 |
@@ -122,9 +125,9 @@ RuoYi-Vue 项目中新增"标签库管理"模块（标签系统四大模块之�
 | PUT `/move` | 批量移动目录 |
 | POST `/submit` `/audit` `/offline` | 支持批量 id 数组的状态流转（语义同 3.5，无独立 online 接口） |
 
-### 4.4 元数据同步
+### 4.4 字段快照同步
 
-复用 databroker 思路但简化：目标表就是本库业务表，直接用 MyBatis 查 `information_schema.columns`（不需要独立 JDBC 连接工厂），按列生成快照；列 comment → `tag_name`，列 data_type → `data_type` 并推断 `tag_type` 初始值（char/varchar/text→文本型，tinyint(1)或仅 0/1 语义的布尔字段→布尔型，数值→数值型，date/datetime→日期型，有枚举注释→选项型，无法判断默认文本型）。
+标签库通过 `dataset_id` 关联已上线数据集。同步流程：`dataset_id` → 取 `dp_dataset.default_version_id`（须 `version_status='ONLINE'`，否则报"关联数据集不存在或未上线"）→ 查 `dp_dataset_field`（`enabled='1'`，按 `order_num`）→ 增量生成快照：`field_name` = `field_alias`，`tag_name` 初始值 = `field_alias`（可人工改），`data_type` 原样快照，`tag_type` 按归一化后的 data_type 推断（小写、截括号、去 unsigned/zerofill；日期族→日期型，数值族含 tinyint→数值型，其余→文本型）。增量幂等：已有 field_name 不动。
 
 ## 5. 前端设计
 
@@ -133,11 +136,11 @@ RuoYi-Vue 项目中新增"标签库管理"模块（标签系统四大模块之�
 ### 5.1 `taglibrary/list/index.vue` 标签库管理（卡片列表）
 
 - 顶部工具栏：`+ 新建标签库` 主按钮（无批量编辑/数据概览）；右侧搜索框（名称/编码）+ 标签对象/分类两个字典下拉筛选 + 卡片/列表视图切换（默认卡片）
-- 卡片内容（截图2 版式）：库名、所属分类、标签对象、负责人、更新时间、统计行（直接使用 `/list` 返回的 `online_count` / `pending_count` / `offline_count`，如"上线 N / 待发布 N"）、关联宽表名
+- 卡片内容（截图2 版式）：库名、所属分类、标签对象、负责人、更新时间、统计行（直接使用 `/list` 返回的 `online_count` / `pending_count` / `offline_count`，如"上线 N / 待发布 N"）、关联数据集名
 - 卡片底部两个按钮：
   - 左：`标签管理` → `router.push('/taglibrary/tags?libraryId=xxx')`
   - 右：`更多` el-dropdown → 字段管理（抽屉内编辑字段中文名、目录、类型）｜上线/下线（按当前状态显示其一；上线对已下线对象调 submit 走审批流）｜审批管理（弹窗展示该库 `tl_audit_log` 记录 + 待审批时的通过/驳回操作）｜删除标签库（confirm 后调 DELETE）
-- 新建弹窗：名称、编码、标签对象、分类、负责人、关联数据表（下拉列出本库业务表，默认 `ind_tag_data`）；提交后自动同步字段并提示快照数量
+- 新建弹窗：名称、编码、标签对象、分类、负责人、关联数据集（下拉列出已上线数据集，必填）；提交后自动同步字段并提示快照数量
 
 ### 5.2 `taglibrary/tags/index.vue` 标签管理（截图3 版式）
 
