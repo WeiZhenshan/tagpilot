@@ -18,6 +18,15 @@ export function listTag(query) {
   })
 }
 
+// 查询待审批标签列表（审批管理页）
+export function listAuditTags(query) {
+  return request({
+    url: '/taglibrary/tag/auditList',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询标签详情
 export function getTag(tagId) {
   return request({

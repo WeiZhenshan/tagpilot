@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.taglibrary.domain.TlAuditLog;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.dto.AuditRequest;
@@ -47,6 +48,17 @@ public class TlTagController extends BaseController {
     @PreAuthorize("@ss.hasPermi('taglibrary:tag:list')")
     @GetMapping("/list")
     public TableDataInfo list(TlTag query) {
+        startPage();
+        return getDataTable(tagService.selectTagList(query));
+    }
+
+    /** 待审批标签列表（审批管理页，仅审批权限） */
+    @PreAuthorize("@ss.hasPermi('taglibrary:tag:audit')")
+    @GetMapping("/auditList")
+    public TableDataInfo auditList(TlTag query) {
+        if (!"1".equals(query.getStatus())) {
+            throw new ServiceException("仅支持查询待审批标签");
+        }
         startPage();
         return getDataTable(tagService.selectTagList(query));
     }

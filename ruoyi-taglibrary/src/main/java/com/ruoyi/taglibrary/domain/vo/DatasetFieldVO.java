@@ -13,11 +13,16 @@ public class DatasetFieldVO implements Serializable {
     /** 输出字段别名 */
     private String fieldName;
 
+    /** 源字段中文注释（标签中文名来源） */
+    private String fieldComment;
+
     /** 数据类型 */
     private String dataType;
 
     public String getFieldName() { return fieldName; }
     public void setFieldName(String fieldName) { this.fieldName = fieldName; }
+    public String getFieldComment() { return fieldComment; }
+    public void setFieldComment(String fieldComment) { this.fieldComment = fieldComment; }
     public String getDataType() { return dataType; }
     public void setDataType(String dataType) { this.dataType = dataType; }
 }

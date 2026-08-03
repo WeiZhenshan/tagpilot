@@ -5,6 +5,7 @@
 insert into sys_menu values('2100', '标签库管理', '0', '6', 'taglibrary', null, '', '', 1, 0, 'M', '0', '0', '', 'tag', 'admin', sysdate(), '', null, '标签库管理目录');
 insert into sys_menu values('2101', '标签库管理', '2100', '1', 'list', 'taglibrary/list/index', '', '', 1, 0, 'C', '0', '0', 'taglibrary:library:list', 'list', 'admin', sysdate(), '', null, '标签库管理菜单');
 insert into sys_menu values('2102', '标签管理', '2100', '2', 'tags', 'taglibrary/tags/index', '', '', 1, 0, 'C', '0', '0', 'taglibrary:tag:list', 'tag', 'admin', sysdate(), '', null, '标签管理菜单');
+insert into sys_menu values('2103', '审批管理', '2100', '3', 'audit', 'taglibrary/audit/index', '', '', 1, 0, 'C', '0', '0', 'taglibrary:library:audit', 'check', 'admin', sysdate(), '', null, '审批管理菜单');
 
 -- 标签库按钮
 insert into sys_menu values('2110', '标签库查询', '2101', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:library:query', '#', 'admin', sysdate(), '', null, '');

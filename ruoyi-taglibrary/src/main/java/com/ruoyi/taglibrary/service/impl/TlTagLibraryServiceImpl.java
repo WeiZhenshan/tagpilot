@@ -166,7 +166,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
             tag.setLibraryId(libraryId);
             tag.setDirId(defaultDirId);
             tag.setFieldName(field.getFieldName());
-            tag.setTagName(field.getFieldName());
+            tag.setTagName(tagNameFromComment(field.getFieldComment(), field.getFieldName()));
             tag.setDataType(field.getDataType());
             tag.setTagType(inferTagType(field.getDataType()));
             tag.setCreateWay("同步");
@@ -271,6 +271,19 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         dir.setCreateBy(SecurityUtils.getUsername());
         dirMapper.insertDir(dir);
         return dir;
+    }
+
+    /** 从源字段中文注释生成标签名：取括号前内容去空白，注释为空时回退字段名 */
+    private static String tagNameFromComment(String comment, String fieldName) {
+        if (comment == null || comment.trim().isEmpty()) {
+            return fieldName;
+        }
+        String name = comment.trim();
+        int paren = name.indexOf('(');
+        if (paren > 0) {
+            name = name.substring(0, paren);
+        }
+        return name.trim().isEmpty() ? fieldName : name.trim();
     }
 
     /** 按源字段数据类型推断标签类型（先归一化：小写、截括号、去 unsigned/zerofill） */

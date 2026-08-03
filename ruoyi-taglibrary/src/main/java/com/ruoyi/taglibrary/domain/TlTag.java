@@ -18,6 +18,9 @@ public class TlTag extends BaseEntity {
     /** 所属标签库ID */
     private Long libraryId;
 
+    /** 所属标签库名称（列表展示字段，非表列） */
+    private String libraryName;
+
     /** 所属目录ID */
     private Long dirId;
 
@@ -61,6 +64,8 @@ public class TlTag extends BaseEntity {
     public void setTagId(Long tagId) { this.tagId = tagId; }
     public Long getLibraryId() { return libraryId; }
     public void setLibraryId(Long libraryId) { this.libraryId = libraryId; }
+    public String getLibraryName() { return libraryName; }
+    public void setLibraryName(String libraryName) { this.libraryName = libraryName; }
     public Long getDirId() { return dirId; }
     public void setDirId(Long dirId) { this.dirId = dirId; }
     public String getFieldName() { return fieldName; }

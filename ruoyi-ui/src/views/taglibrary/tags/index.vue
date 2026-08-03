@@ -7,26 +7,25 @@
           <el-option v-for="lib in libraryOptions" :key="lib.libraryId" :label="lib.libraryName" :value="lib.libraryId" />
         </el-select>
         <el-input v-model="searchText" placeholder="搜索标签/目录" clearable size="small" prefix-icon="el-icon-search" style="margin-bottom: 8px;" />
-        <el-tabs v-model="activeTab" @tab-click="loadTree">
+        <el-tabs v-model="activeTab" @tab-click="handleTabChange">
           <el-tab-pane label="上线标签" name="online" />
-          <el-tab-pane label="下线标签" name="offline" />
+          <el-tab-pane label="未上线标签" name="offline" />
         </el-tabs>
-        <!-- 树操作按钮区 -->
+        <!-- 树操作按钮区：上线 Tab 批量下线，未上线 Tab 批量提交审批 -->
         <div class="tree-toolbar">
-          <el-button type="text" size="mini" icon="el-icon-folder-add" @click="openDirDialog('add')" v-hasPermi="['taglibrary:dir:add']">新建目录</el-button>
-          <el-button type="text" size="mini" icon="el-icon-edit" :disabled="!isDirSelected" @click="openDirDialog('edit')" v-hasPermi="['taglibrary:dir:edit']">重命名</el-button>
-          <el-button type="text" size="mini" icon="el-icon-delete" :disabled="!isDirSelected" @click="handleDeleteDir" v-hasPermi="['taglibrary:dir:remove']">删除目录</el-button>
-          <el-button type="text" size="mini" icon="el-icon-position" :disabled="!isTagSelected" @click="openMoveDialog" v-hasPermi="['taglibrary:tag:move']">移动标签到目录</el-button>
-          <el-button v-if="isTagSelected && (selectedNode.status === '0' || selectedNode.status === '3')" type="text" size="mini" icon="el-icon-upload2"
-            @click="handleSubmitTag" v-hasPermi="['taglibrary:tag:submit']">提交审批</el-button>
-          <el-button v-if="isTagSelected && selectedNode.status === '2'" type="text" size="mini" icon="el-icon-download"
-            @click="handleOfflineTag" v-hasPermi="['taglibrary:tag:offline']">下线</el-button>
+          <el-button v-if="activeTab === 'offline'" type="text" size="mini" icon="el-icon-upload2" :disabled="checkedTagIds.length === 0"
+            @click="handleSubmitTags()" v-hasPermi="['taglibrary:tag:submit']">提交审批<span v-if="checkedTagIds.length > 0">（{{ checkedTagIds.length }}）</span></el-button>
+          <el-button v-if="activeTab === 'online'" type="text" size="mini" icon="el-icon-download" :disabled="checkedTagIds.length === 0"
+            @click="handleOfflineTags()" v-hasPermi="['taglibrary:tag:offline']">下线<span v-if="checkedTagIds.length > 0">（{{ checkedTagIds.length }}）</span></el-button>
         </div>
         <el-tree ref="tree" :data="treeData" node-key="id" :props="treeProps" highlight-current v-loading="treeLoading"
-          :default-expanded-keys="defaultExpandedKeys" :filter-node-method="filterNode" @node-click="handleNodeClick">
+          :default-expanded-keys="defaultExpandedKeys" :filter-node-method="filterNode" @node-click="handleNodeClick"
+          @node-contextmenu="handleNodeContextMenu">
           <span class="custom-tree-node" slot-scope="{ data }">
+            <el-checkbox v-if="isTagNode(data)" :value="isTagChecked(data)" @change="val => toggleCheck(data, val)" @click.native.stop />
             <span v-if="data.tagType" class="tag-dot" :style="{background: tagTypeColor(data.tagType)}"></span>
             <span>{{ data.label }}</span>
+            <span v-if="isTagNode(data) && activeTab === 'offline'" class="tag-status" :class="'tag-status-' + data.status">{{ statusLabel(data.status) }}</span>
             <span v-if="data.count !== undefined" class="node-count">[{{ data.count }}]</span>
           </span>
         </el-tree>
@@ -46,7 +45,7 @@
             <el-button style="float: right; padding: 3px 0;" type="text" @click="openTagEdit" v-hasPermi="['taglibrary:tag:edit']">编辑</el-button>
           </div>
           <el-row :gutter="16">
-            <el-col :span="16">
+            <el-col :span="18">
               <div class="section-title">▎基础信息</div>
               <el-descriptions :column="3" border size="small">
                 <el-descriptions-item label="标签名称">{{ tagDetail.tagName || '/' }}</el-descriptions-item>
@@ -71,7 +70,7 @@
                 <el-descriptions-item label="关联数据集">{{ currentLibrary.datasetName || '/' }}</el-descriptions-item>
               </el-descriptions>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="6">
               <div class="section-title">▎版本信息</div>
               <el-descriptions :column="1" border size="small">
                 <el-descriptions-item label="所属子库">{{ currentLibrary.libraryName || '/' }}</el-descriptions-item>
@@ -98,21 +97,6 @@
       <div slot="footer">
         <el-button size="small" @click="dirOpen = false">取消</el-button>
         <el-button size="small" type="primary" @click="submitDirForm">确定</el-button>
-      </div>
-    </el-dialog>
-
-    <!-- 移动标签到目录弹窗 -->
-    <el-dialog title="移动标签到目录" :visible.sync="moveOpen" width="450px" append-to-body>
-      <el-form label-width="80px" size="small">
-        <el-form-item label="目标目录">
-          <el-select v-model="moveDirId" placeholder="请选择目标目录" style="width: 100%;">
-            <el-option v-for="d in dirOptions" :key="d.dirId" :label="d.dirName" :value="d.dirId" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer">
-        <el-button size="small" @click="moveOpen = false">取消</el-button>
-        <el-button size="small" type="primary" @click="submitMove">确定</el-button>
       </div>
     </el-dialog>
 
@@ -152,13 +136,22 @@
         <el-button size="small" type="primary" @click="submitTagForm">确定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 树节点右键菜单 -->
+    <ul v-show="contextMenuVisible" class="context-menu" :style="{left: contextMenuX + 'px', top: contextMenuY + 'px'}">
+      <li v-if="isDirNode(contextMenuNode)" @click="handleContextCommand('add')">新建目录</li>
+      <li v-if="isDirNode(contextMenuNode)" @click="handleContextCommand('rename')">重命名</li>
+      <li v-if="isDirNode(contextMenuNode)" @click="handleContextCommand('delete')">删除目录</li>
+      <li v-if="isTagNode(contextMenuNode) && activeTab === 'offline'" @click="handleContextCommand('submit')">提交审批</li>
+      <li v-if="isTagNode(contextMenuNode) && activeTab === 'online'" @click="handleContextCommand('offline')">下线</li>
+    </ul>
   </div>
 </template>
 
 <script>
 import { listLibrary } from '@/api/taglibrary/library'
 import { listDir, addDir, updateDir, delDir } from '@/api/taglibrary/dir'
-import { tagTree, getTag, updateTag, moveTag, submitTag, offlineTag } from '@/api/taglibrary/tag'
+import { tagTree, getTag, updateTag, submitTag, offlineTag } from '@/api/taglibrary/tag'
 
 export default {
   name: 'TagLibraryTags',
@@ -179,6 +172,13 @@ export default {
       defaultExpandedKeys: [],
       // 当前选中树节点
       selectedNode: null,
+      // 已勾选标签节点（多选提交审批）
+      checkedTagIds: [],
+      // 右键菜单
+      contextMenuVisible: false,
+      contextMenuX: 0,
+      contextMenuY: 0,
+      contextMenuNode: null,
       // 标签详情
       tagDetail: {},
       // 目录下拉选项
@@ -190,9 +190,6 @@ export default {
       dirRules: {
         dirName: [{ required: true, message: '目录名称不能为空', trigger: 'blur' }]
       },
-      // 移动目录弹窗
-      moveOpen: false,
-      moveDirId: undefined,
       // 标签编辑弹窗
       tagEditVisible: false,
       tagForm: {},
@@ -208,7 +205,14 @@ export default {
         { name: '数值型', color: '#409EFF' },
         { name: '文本型', color: '#909399' },
         { name: '日期型', color: '#F56C6C' }
-      ]
+      ],
+      // 状态文案
+      statusMap: {
+        '0': '草稿',
+        '1': '待审批',
+        '2': '已上线',
+        '3': '已下线'
+      }
     }
   },
   computed: {
@@ -232,6 +236,10 @@ export default {
   },
   created() {
     this.loadLibraries()
+    document.addEventListener('click', this.closeContextMenu)
+  },
+  beforeDestroy() {
+    document.removeEventListener('click', this.closeContextMenu)
   },
   methods: {
     /** 加载标签库下拉，按 query.libraryId 预选，无则默认第一个 */
@@ -252,9 +260,15 @@ export default {
     handleLibraryChange() {
       this.selectedNode = null
       this.tagDetail = {}
+      this.checkedTagIds = []
       this.searchText = ''
       this.loadTree()
       this.loadDirOptions()
+    },
+    /** 切换上线/下线 Tab：清空勾选 */
+    handleTabChange() {
+      this.checkedTagIds = []
+      this.loadTree()
     },
     /** 加载标签树 */
     loadTree() {
@@ -286,11 +300,68 @@ export default {
     parseNodeId(id) {
       return String(id).split('-')[1]
     },
+    /** 是否标签节点 */
+    isTagNode(data) {
+      return data && String(data.id).indexOf('tag-') === 0
+    },
+    /** 是否目录节点 */
+    isDirNode(data) {
+      return data && String(data.id).indexOf('dir-') === 0
+    },
+    /** 勾选状态 */
+    isTagChecked(data) {
+      return this.checkedTagIds.indexOf(data.id) !== -1
+    },
+    /** 切换勾选（online Tab 仅已上线可勾选；offline Tab 仅草稿/已下线可勾选） */
+    toggleCheck(data, val) {
+      const tagId = data.id
+      if (val) {
+        const expectOnline = this.activeTab === 'online'
+        if (expectOnline ? data.status !== '2' : (data.status !== '0' && data.status !== '3')) {
+          this.$modal.msgWarning(expectOnline ? '仅已上线标签可下线' : '仅草稿或已下线标签可提交审批')
+          return
+        }
+        if (this.checkedTagIds.indexOf(tagId) === -1) {
+          this.checkedTagIds.push(tagId)
+        }
+      } else {
+        this.checkedTagIds = this.checkedTagIds.filter(id => id !== tagId)
+      }
+    },
     /** 节点点击：标签节点加载详情 */
     handleNodeClick(data) {
       this.selectedNode = data
       if (String(data.id).indexOf('tag-') === 0) {
         this.loadTagDetail(this.parseNodeId(data.id))
+      }
+    },
+    /** 节点右键：记录坐标并展示菜单 */
+    handleNodeContextMenu(event, data) {
+      this.selectedNode = data
+      this.contextMenuNode = data
+      this.contextMenuX = event.clientX
+      this.contextMenuY = event.clientY
+      this.contextMenuVisible = true
+    },
+    /** 关闭右键菜单（点击页面任意处） */
+    closeContextMenu() {
+      this.contextMenuVisible = false
+      this.contextMenuNode = null
+    },
+    /** 右键菜单命令分发 */
+    handleContextCommand(cmd) {
+      this.closeContextMenu()
+      if (cmd === 'add') {
+        this.openDirDialog('add')
+      } else if (cmd === 'rename') {
+        this.openDirDialog('edit')
+      } else if (cmd === 'delete') {
+        this.handleDeleteDir()
+      } else if (cmd === 'submit') {
+        const tagId = Number(this.parseNodeId(this.contextMenuNode.id))
+        this.handleSubmitTags([this.contextMenuNode])
+      } else if (cmd === 'offline') {
+        this.handleOfflineTags([this.contextMenuNode])
       }
     },
     /** 加载标签详情 */
@@ -303,6 +374,10 @@ export default {
     tagTypeColor(tagType) {
       const item = this.legendList.find(l => l.name === tagType)
       return item ? item.color : '#909399'
+    },
+    /** 状态文案 */
+    statusLabel(status) {
+      return this.statusMap[status] || status || '-'
     },
     /** 打开目录弹窗（add 新建 / edit 重命名） */
     openDirDialog(mode) {
@@ -348,45 +423,54 @@ export default {
         this.loadDirOptions()
       }).catch(() => {})
     },
-    /** 打开移动目录弹窗 */
-    openMoveDialog() {
-      this.moveDirId = this.tagDetail.dirId || undefined
-      this.moveOpen = true
-    },
-    /** 提交移动 */
-    submitMove() {
-      if (!this.moveDirId) {
-        this.$modal.msgWarning('请选择目标目录')
+    /** 提交审批（多选：勾选节点；单选：右键菜单传入节点） */
+    handleSubmitTags(nodes) {
+      const targets = nodes || this.checkedTagIds.map(id => this.findNodeById(id))
+      if (targets.length === 0) {
         return
       }
-      const tagId = Number(this.parseNodeId(this.selectedNode.id))
-      moveTag({ tagIds: [tagId], dirId: this.moveDirId }).then(() => {
-        this.$modal.msgSuccess('移动成功')
-        this.moveOpen = false
-        this.loadTree()
-        this.loadTagDetail(tagId)
-      })
-    },
-    /** 提交审批 */
-    handleSubmitTag() {
-      const tagId = Number(this.parseNodeId(this.selectedNode.id))
-      this.$confirm('提交后将进入审批流，确认提交审批？', '提示', { type: 'warning' }).then(() => {
-        return submitTag({ ids: [tagId] })
+      const ids = targets.map(n => Number(this.parseNodeId(n.id)))
+      const names = targets.map(n => n.label).join('、')
+      this.$confirm('提交后将进入审批流，确认提交审批"' + names + '"？', '提示', { type: 'warning' }).then(() => {
+        return submitTag({ ids: ids })
       }).then(() => {
         this.$modal.msgSuccess('已提交审批')
+        this.checkedTagIds = []
         this.loadTree()
-        this.loadTagDetail(tagId)
+        if (this.selectedNode && this.isTagNode(this.selectedNode)) {
+          this.loadTagDetail(this.parseNodeId(this.selectedNode.id))
+        }
       }).catch(() => {})
     },
-    /** 下线标签 */
-    handleOfflineTag() {
-      const tagId = Number(this.parseNodeId(this.selectedNode.id))
-      this.$confirm('确认下线标签"' + this.selectedNode.label + '"？', '提示', { type: 'warning' }).then(() => {
-        return offlineTag({ ids: [tagId] })
+    /** 根据树节点 id 查找节点（深度遍历） */
+    findNodeById(id) {
+      const walk = nodes => {
+        for (const n of nodes || []) {
+          if (n.id === id) return n
+          const found = walk(n.children)
+          if (found) return found
+        }
+        return null
+      }
+      return walk(this.treeData)
+    },
+    /** 批量下线（勾选节点或右键菜单传入节点） */
+    handleOfflineTags(nodes) {
+      const targets = nodes || this.checkedTagIds.map(id => this.findNodeById(id)).filter(Boolean)
+      if (targets.length === 0) {
+        return
+      }
+      const ids = targets.map(n => Number(this.parseNodeId(n.id)))
+      const names = targets.map(n => n.label).join('、')
+      this.$confirm('确认下线标签"' + names + '"？', '提示', { type: 'warning' }).then(() => {
+        return offlineTag({ ids: ids })
       }).then(() => {
         this.$modal.msgSuccess('已下线')
+        this.checkedTagIds = []
         this.loadTree()
-        this.loadTagDetail(tagId)
+        if (this.selectedNode && this.isTagNode(this.selectedNode)) {
+          this.loadTagDetail(this.parseNodeId(this.selectedNode.id))
+        }
       }).catch(() => {})
     },
     /** 打开编辑标签弹窗 */
@@ -423,33 +507,173 @@ export default {
 </script>
 
 <style scoped>
-.tree-toolbar {
+/* 页面容器 */
+.app-container {
+  padding: 16px 20px;
+}
+
+/* 左右面板：统一卡片容器 */
+.el-col-6,
+.el-col-18 {
+  background: #fff;
+  border: 1px solid #e6ebf5;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+}
+
+.el-col-6 {
+  padding: 14px 12px 12px;
+}
+
+.el-col-18 {
+  padding: 0;
+}
+
+/* 标签库下拉与搜索 */
+.el-col-6 .el-select,
+.el-col-6 .el-input {
   margin-bottom: 8px;
-  line-height: 1.6;
 }
 
-.custom-tree-node {
+/* Tab 栏 */
+.el-col-6 .el-tabs {
+  margin-bottom: 6px;
+}
+
+.el-col-6 .el-tabs__item {
+  height: 36px;
+  line-height: 36px;
+  font-size: 13px;
+}
+
+/* 树工具栏按钮：包成有背景的按钮组 */
+.tree-toolbar {
   display: flex;
-  align-items: center;
+  gap: 8px;
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  background: #f5f7fa;
+  border-radius: 4px;
 }
 
+.tree-toolbar .el-button {
+  flex: 1;
+  padding: 7px 0;
+  margin: 0;
+  border: 1px solid #dcdfe6;
+  background: #fff;
+  color: #606266;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.tree-toolbar .el-button:not(.is-disabled):hover {
+  color: #409eff;
+  border-color: #c6e2ff;
+  background: #ecf5ff;
+}
+
+.tree-toolbar .el-button.is-disabled {
+  color: #c0c4cc;
+  border-color: #ebeef5;
+  background: #f5f7fa;
+}
+
+/* 类型圆点：基础样式（树节点与图例共用） */
 .tag-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  margin-right: 6px;
+  margin-right: 7px;
+  flex-shrink: 0;
 }
 
-.node-count {
+/* 树：节点统一行高与内边距，hover 状态 */
+.el-tree {
+  background: transparent;
+}
+
+.el-tree ::v-deep .el-tree-node__content {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 4px;
+  transition: background-color 0.15s;
+}
+
+.el-tree ::v-deep .el-tree-node__content:hover {
+  background-color: #f5f7fa;
+}
+
+.el-tree ::v-deep .el-tree-node.is-current > .el-tree-node__content {
+  background-color: #ecf5ff;
+  color: #409eff;
+}
+
+.el-tree ::v-deep .el-tree-node__expand-icon {
+  padding: 4px;
+  font-size: 12px;
+}
+
+/* 树节点自定义内容：flex 对齐，统一间距 */
+.custom-tree-node {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.custom-tree-node .el-checkbox {
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.custom-tree-node .el-checkbox__input {
+  margin-right: 0;
+  line-height: 1;
+}
+
+.custom-tree-node .el-checkbox__inner {
+  width: 14px;
+  height: 14px;
+}
+
+.custom-tree-node .el-checkbox__inner::after {
+  height: 7px;
+  left: 4px;
+  top: 1px;
+}
+
+.custom-tree-node > span:not(.tag-dot):not(.tag-status):not(.node-count) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-tree-node .tag-status {
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  line-height: 15px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.custom-tree-node .node-count {
   margin-left: 4px;
   font-size: 12px;
   color: #909399;
 }
 
+/* 图例 */
 .legend {
-  margin-top: 8px;
-  padding-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid #ebeef5;
   font-size: 12px;
   color: #606266;
@@ -458,17 +682,119 @@ export default {
 .legend-item {
   display: inline-flex;
   align-items: center;
-  margin-right: 10px;
+  margin-right: 12px;
+  margin-bottom: 4px;
 }
 
-.section-title {
+/* 右侧详情卡片：去掉默认卡片样式，融入面板 */
+.el-card {
+  border: none;
+  box-shadow: none;
+}
+
+.el-card ::v-deep .el-card__header {
+  padding: 14px 16px;
+  border-bottom: 1px solid #ebeef5;
   font-size: 14px;
   font-weight: 600;
   color: #303133;
-  margin: 16px 0 12px;
+  background: #fafbfc;
 }
 
-.el-col > .section-title:first-child {
+.el-card ::v-deep .el-card__header .el-button {
+  padding: 0;
+  font-size: 13px;
+}
+
+.el-card ::v-deep .el-card__body {
+  padding: 16px;
+}
+
+/* section-title：左侧竖线 + 标题 + 分割线 */
+.section-title {
+  display: flex;
+  align-items: center;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #303133;
+  line-height: 1;
+}
+
+.section-title::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  background: #409eff;
+  border-radius: 2px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #ebeef5;
+  margin-left: 12px;
+}
+
+.el-card__body .section-title:first-child {
   margin-top: 0;
+}
+
+.el-card ::v-deep .section-title + .el-descriptions {
+  margin-bottom: 18px;
+}
+
+/* 描述列表 */
+.el-card ::v-deep .el-descriptions {
+  font-size: 13px;
+}
+
+.el-card ::v-deep .el-descriptions-item__label {
+  color: #909399;
+}
+
+.el-card ::v-deep .el-descriptions-item__content {
+  color: #303133;
+}
+
+/* 右键菜单 */
+.context-menu {
+  position: fixed;
+  z-index: 3000;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.context-menu li {
+  padding: 7px 16px;
+  font-size: 13px;
+  color: #606266;
+  cursor: pointer;
+}
+
+.context-menu li:hover {
+  background: #f5f7fa;
+  color: #409eff;
+}
+
+/* 状态角标 */
+.tag-status-0 {
+  background: #909399;
+}
+
+.tag-status-1 {
+  background: #e6a23c;
+}
+
+.tag-status-3 {
+  background: #f56c6c;
 }
 </style>

@@ -211,45 +211,12 @@
         <el-button size="small" type="primary" @click="submitTagForm">确定</el-button>
       </div>
     </el-dialog>
-
-    <!-- 审批管理弹窗 -->
-    <el-dialog :title="'审批管理：' + (auditRow.libraryName || '')" :visible.sync="auditVisible" width="700px" append-to-body>
-      <div v-if="auditRow.status === '1'" class="audit-action">
-        <el-input v-model="auditComment" type="textarea" :rows="2" placeholder="请输入审批意见" maxlength="500" />
-        <div class="audit-buttons">
-          <el-button size="small" type="success" icon="el-icon-check" @click="handleAudit(true)" v-hasPermi="['taglibrary:library:audit']">通过</el-button>
-          <el-button size="small" type="danger" icon="el-icon-close" @click="handleAudit(false)" v-hasPermi="['taglibrary:library:audit']">驳回</el-button>
-        </div>
-      </div>
-      <el-table :data="auditLogs" v-loading="auditLoading" size="small" max-height="400">
-        <el-table-column prop="action" label="动作" width="70" align="center" />
-        <el-table-column label="变更前" width="80" align="center">
-          <template #default="scope">{{ statusLabel(scope.row.fromStatus) }}</template>
-        </el-table-column>
-        <el-table-column label="变更后" width="80" align="center">
-          <template #default="scope">{{ statusLabel(scope.row.toStatus) }}</template>
-        </el-table-column>
-        <el-table-column prop="applyBy" label="申请人" width="90" align="center" />
-        <el-table-column prop="auditBy" label="审批人" width="90" align="center">
-          <template #default="scope">{{ scope.row.auditBy || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="auditTime" label="审批时间" width="150" align="center">
-          <template #default="scope">{{ scope.row.auditTime || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="auditComment" label="意见" min-width="100" show-overflow-tooltip>
-          <template #default="scope">{{ scope.row.auditComment || '-' }}</template>
-        </el-table-column>
-      </el-table>
-      <div slot="footer">
-        <el-button size="small" @click="auditVisible = false">关闭</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import { listLibrary, listOnlineDatasets, getLibrary, addLibrary, updateLibrary, delLibrary,
-  syncLibrary, submitLibrary, auditLibrary, offlineLibrary, listAuditLogs } from '@/api/taglibrary/library'
+  syncLibrary, submitLibrary, offlineLibrary } from '@/api/taglibrary/library'
 import { listDir } from '@/api/taglibrary/dir'
 import { listTag, updateTag } from '@/api/taglibrary/tag'
 
@@ -307,13 +274,7 @@ export default {
         tagName: [{ required: true, message: '标签名不能为空', trigger: 'blur' }],
         dirId: [{ required: true, message: '所属目录不能为空', trigger: 'change' }],
         tagType: [{ required: true, message: '标签类型不能为空', trigger: 'change' }]
-      },
-      // 审批管理弹窗
-      auditVisible: false,
-      auditRow: {},
-      auditComment: '',
-      auditLogs: [],
-      auditLoading: false
+      }
     }
   },
   created() {
@@ -424,7 +385,7 @@ export default {
           this.getList()
         }).catch(() => {})
       } else if (cmd === 'audit') {
-        this.openAuditDialog(row)
+        this.goAuditPage()
       } else if (cmd === 'remove') {
         this.$confirm('确认删除标签库"' + row.libraryName + '"？', '警告', { type: 'warning' }).then(() => {
           return delLibrary(row.libraryId)
@@ -501,31 +462,9 @@ export default {
         })
       })
     },
-    /** 打开审批管理弹窗 */
-    openAuditDialog(row) {
-      this.auditRow = row
-      this.auditComment = ''
-      this.auditVisible = true
-      this.loadAuditLogs()
-    },
-    /** 加载审批记录 */
-    loadAuditLogs() {
-      this.auditLoading = true
-      listAuditLogs({ bizType: 'library', bizId: this.auditRow.libraryId, pageNum: 1, pageSize: 50 }).then(response => {
-        this.auditLogs = response.rows
-        this.auditLoading = false
-      }).catch(() => { this.auditLoading = false })
-    },
-    /** 审批（通过/驳回） */
-    handleAudit(pass) {
-      const text = pass ? '确认审批通过该标签库？' : '确认驳回该标签库？'
-      this.$confirm(text, '提示', { type: 'warning' }).then(() => {
-        return auditLibrary({ ids: [this.auditRow.libraryId], pass: pass, auditComment: this.auditComment })
-      }).then(() => {
-        this.$modal.msgSuccess(pass ? '已通过' : '已驳回')
-        this.auditVisible = false
-        this.getList()
-      }).catch(() => {})
+    /** 跳转审批管理页 */
+    goAuditPage() {
+      this.$router.push('/taglibrary/audit')
     }
   }
 }
@@ -619,17 +558,5 @@ export default {
 
 .drawer-toolbar {
   margin-bottom: 12px;
-}
-
-.audit-action {
-  margin-bottom: 16px;
-  padding: 12px;
-  background: #f5f7fa;
-  border-radius: 4px;
-}
-
-.audit-buttons {
-  margin-top: 8px;
-  text-align: right;
 }
 </style>

@@ -54,6 +54,7 @@
             <if test="libraryName != null and libraryName != ''"> and (l.library_name like concat('%', #{libraryName}, '%') or l.library_code like concat('%', #{libraryName}, '%')) </if>
             <if test="category != null and category != ''"> and l.category = #{category} </if>
             <if test="tagObject != null and tagObject != ''"> and l.tag_object = #{tagObject} </if>
+            <if test="status != null and status != ''"> and l.status = #{status} </if>
         </where>
         order by l.library_id
     </select>
@@ -121,8 +122,9 @@
     </select>
 
     <select id="selectDatasetFields" parameterType="Long" resultType="com.ruoyi.taglibrary.domain.vo.DatasetFieldVO">
-        select f.field_alias as fieldName, f.data_type as dataType
+        select f.field_alias as fieldName, c.column_comment as fieldComment, f.data_type as dataType
         from dp_dataset_field f
+        left join dp_meta_column c on c.column_id = f.source_column_id
         where f.version_id = #{versionId} and f.enabled = '1'
         order by f.order_num
     </select>

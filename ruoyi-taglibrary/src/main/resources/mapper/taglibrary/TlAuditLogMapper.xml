@@ -6,6 +6,7 @@
         <id     property="logId"        column="log_id"        />
         <result property="bizType"      column="biz_type"      />
         <result property="bizId"        column="biz_id"        />
+        <result property="bizName"      column="biz_name"      />
         <result property="action"       column="action"        />
         <result property="fromStatus"   column="from_status"   />
         <result property="toStatus"     column="to_status"     />
@@ -18,9 +19,12 @@
     </resultMap>
 
     <sql id="selectVo">
-        select log_id, biz_type, biz_id, action, from_status, to_status,
-               apply_by, audit_by, audit_time, audit_comment, create_by, create_time
-        from tl_audit_log
+        select al.log_id, al.biz_type, al.biz_id, al.action, al.from_status, al.to_status,
+               al.apply_by, al.audit_by, al.audit_time, al.audit_comment, al.create_by, al.create_time,
+               case when al.biz_type = 'library' then l.library_name else t.tag_name end as biz_name
+        from tl_audit_log al
+        left join tl_tag_library l on l.library_id = al.biz_id and l.del_flag = '0'
+        left join tl_tag t on t.tag_id = al.biz_id and t.del_flag = '0'
     </sql>
 
     <insert id="insertAuditLog" parameterType="TlAuditLog" useGeneratedKeys="true" keyProperty="logId">
@@ -36,11 +40,17 @@
     <select id="selectAuditLogList" parameterType="TlAuditLog" resultMap="TlAuditLogResult">
         <include refid="selectVo"/>
         <where>
-            <if test="bizType != null and bizType != ''">and biz_type = #{bizType}</if>
-            <if test="bizId != null">and biz_id = #{bizId}</if>
-            <if test="action != null and action != ''">and action = #{action}</if>
+            <if test="bizType != null and bizType != ''">and al.biz_type = #{bizType}</if>
+            <if test="bizId != null">and al.biz_id = #{bizId}</if>
+            <if test="action != null and action != ''">and al.action = #{action}</if>
+            <if test="bizName != null and bizName != ''">
+                and (case when al.biz_type = 'library' then l.library_name else t.tag_name end) like concat('%', #{bizName}, '%')
+            </if>
+            <if test="applyBy != null and applyBy != ''">and al.apply_by like concat('%', #{applyBy}, '%')</if>
+            <if test="params.beginTime != null and params.beginTime != ''">and al.create_time &gt;= #{params.beginTime}</if>
+            <if test="params.endTime != null and params.endTime != ''">and al.create_time &lt;= #{params.endTime}</if>
         </where>
-        order by log_id desc
+        order by al.log_id desc
     </select>
 
 </mapper>

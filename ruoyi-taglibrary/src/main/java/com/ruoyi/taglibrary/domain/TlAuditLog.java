@@ -23,6 +23,9 @@ public class TlAuditLog extends BaseEntity {
     /** 业务对象ID */
     private Long bizId;
 
+    /** 业务对象名称（库名/标签名，join 展示字段，非表列） */
+    private String bizName;
+
     /** 动作（提交/通过/驳回/上线/下线） */
     private String action;
 
@@ -51,6 +54,8 @@ public class TlAuditLog extends BaseEntity {
     public void setBizType(String bizType) { this.bizType = bizType; }
     public Long getBizId() { return bizId; }
     public void setBizId(Long bizId) { this.bizId = bizId; }
+    public String getBizName() { return bizName; }
+    public void setBizName(String bizName) { this.bizName = bizName; }
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
     public String getFromStatus() { return fromStatus; }
