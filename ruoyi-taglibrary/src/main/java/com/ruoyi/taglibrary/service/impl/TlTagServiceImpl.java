@@ -63,15 +63,16 @@ public class TlTagServiceImpl implements ITlTagService {
             throw new ServiceException("标签库不存在");
         }
 
-        // tab=online → 已上线；其余 → 草稿/待审批/已下线
+        // tab=online → 已上线；tab=offline → 草稿/待审批/已下线；tab=all → 全部状态
         TlTag query = new TlTag();
         query.setLibraryId(libraryId);
         List<TlTag> allTags = tagMapper.selectTagList(query);
         Set<String> offlineStatuses = new HashSet<>(Arrays.asList(STATUS_DRAFT, STATUS_PENDING, STATUS_OFFLINE));
         List<TlTag> tags = new ArrayList<>();
         for (TlTag tag : allTags) {
-            if ("online".equals(tab) ? STATUS_ONLINE.equals(tag.getStatus())
-                    : offlineStatuses.contains(tag.getStatus())) {
+            if ("all".equals(tab) ? true
+                    : "online".equals(tab) ? STATUS_ONLINE.equals(tag.getStatus())
+                            : offlineStatuses.contains(tag.getStatus())) {
                 tags.add(tag);
             }
         }
@@ -101,6 +102,9 @@ public class TlTagServiceImpl implements ITlTagService {
             node.put("label", tag.getTagName());
             node.put("tagType", tag.getTagType());
             node.put("status", tag.getStatus());
+            node.put("dataType", tag.getDataType());
+            node.put("fieldName", tag.getFieldName());
+            node.put("isObjectKey", tag.getIsObjectKey());
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> children = (List<Map<String, Object>>) dirNode.get("children");
             children.add(node);

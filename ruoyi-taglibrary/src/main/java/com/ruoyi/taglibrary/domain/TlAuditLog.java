@@ -48,6 +48,12 @@ public class TlAuditLog extends BaseEntity {
     /** 审批意见 */
     private String auditComment;
 
+    /** 关联请求ID（如元数据变更ID，可空） */
+    private String requestId;
+
+    /** 变更明细快照（JSON，可空） */
+    private String detailJson;
+
     public Long getLogId() { return logId; }
     public void setLogId(Long logId) { this.logId = logId; }
     public String getBizType() { return bizType; }
@@ -70,6 +76,10 @@ public class TlAuditLog extends BaseEntity {
     public void setAuditTime(Date auditTime) { this.auditTime = auditTime; }
     public String getAuditComment() { return auditComment; }
     public void setAuditComment(String auditComment) { this.auditComment = auditComment; }
+    public String getRequestId() { return requestId; }
+    public void setRequestId(String requestId) { this.requestId = requestId; }
+    public String getDetailJson() { return detailJson; }
+    public void setDetailJson(String detailJson) { this.detailJson = detailJson; }
 
     @Override
     public String toString() {

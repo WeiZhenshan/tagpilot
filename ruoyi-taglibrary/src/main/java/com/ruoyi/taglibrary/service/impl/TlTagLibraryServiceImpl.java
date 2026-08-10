@@ -20,6 +20,7 @@ import com.ruoyi.taglibrary.domain.vo.DatasetVO;
 import com.ruoyi.taglibrary.mapper.TlAuditLogMapper;
 import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryMapper;
+import com.ruoyi.taglibrary.mapper.TlTagLibraryDimensionMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
 import com.ruoyi.taglibrary.service.ITlTagLibraryService;
 
@@ -52,6 +53,8 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
     private TlTagMapper tagMapper;
     @Autowired
     private TlAuditLogMapper auditLogMapper;
+    @Autowired
+    private TlTagLibraryDimensionMapper dimensionMapper;
 
     @Override
     public List<TlTagLibrary> selectLibraryList(TlTagLibrary query) {
@@ -91,6 +94,16 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
 
     @Override
     public int updateLibrary(TlTagLibrary library) {
+        // 状态只能经 提交/审核/上下线 流程流转，禁止普通编辑直接改写，防止绕过审批
+        library.setStatus(null);
+        // 已设置默认码表的标签库禁止变更关联数据集（默认码表与数据集数据源绑定）
+        if (library.getDatasetId() != null) {
+            TlTagLibrary old = libraryMapper.selectLibraryById(library.getLibraryId());
+            if (old != null && !library.getDatasetId().equals(old.getDatasetId())
+                    && dimensionMapper.countByLibraryId(library.getLibraryId()) > 0) {
+                throw new ServiceException("已设置默认码表，请先清空默认码表后再变更关联数据集");
+            }
+        }
         library.setUpdateBy(SecurityUtils.getUsername());
         return libraryMapper.updateLibrary(library);
     }
@@ -160,6 +173,9 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
         List<TlTag> newTags = new ArrayList<>();
         for (DatasetFieldVO field : fields) {
             if (existFields.contains(field.getFieldName())) {
+                // 已存在字段：补写主键标记（客户号识别）
+                tagMapper.updateIsObjectKeyByField(libraryId, field.getFieldName(),
+                        "1".equals(field.getIsPk()) ? "1" : "0", username);
                 continue;
             }
             TlTag tag = new TlTag();
@@ -168,6 +184,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
             tag.setFieldName(field.getFieldName());
             tag.setTagName(tagNameFromComment(field.getFieldComment(), field.getFieldName()));
             tag.setDataType(field.getDataType());
+            tag.setIsObjectKey("1".equals(field.getIsPk()) ? "1" : "0");
             tag.setTagType(inferTagType(field.getDataType()));
             tag.setCreateWay("同步");
             tag.setStatus(STATUS_DRAFT);

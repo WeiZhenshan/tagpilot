@@ -34,6 +34,9 @@ public interface IDpDatasetService {
     int publishVersion(Long versionId, PublishRequest request);
     int offlineVersion(Long versionId);
 
+    /** 将已发布（ONLINE）版本设为默认版本 */
+    int setDefaultVersion(Long versionId);
+
     // 数据预览
     PreviewResultVO preview(PreviewRequest request);
 

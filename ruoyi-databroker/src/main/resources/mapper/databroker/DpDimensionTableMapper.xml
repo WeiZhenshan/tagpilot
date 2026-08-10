@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.databroker.mapper.DpDimensionTableMapper">
+
+    <resultMap type="DpDimensionTable" id="DimensionResult">
+        <id     property="dimensionId"     column="dimension_id"     />
+        <result property="dimensionName"   column="dimension_name"   />
+        <result property="dimensionCode"   column="dimension_code"   />
+        <result property="datasourceId"    column="datasource_id"    />
+        <result property="sourceTableId"   column="source_table_id"  />
+        <result property="sourceTableName" column="source_table_name"/>
+        <result property="status"          column="status"           />
+        <result property="delFlag"         column="del_flag"         />
+        <result property="createBy"        column="create_by"        />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateBy"        column="update_by"        />
+        <result property="updateTime"      column="update_time"      />
+        <result property="remark"          column="remark"           />
+        <result property="datasourceName"  column="datasource_name"  />
+    </resultMap>
+
+    <sql id="selectVo">
+        select d.dimension_id, d.dimension_name, d.dimension_code, d.datasource_id,
+               d.source_table_id, d.source_table_name, d.status, d.del_flag,
+               d.create_by, d.create_time, d.update_by, d.update_time, d.remark,
+               s.source_name as datasource_name
+        from dp_dimension_table d
+        left join dp_datasource s on s.datasource_id = d.datasource_id
+    </sql>
+
+    <select id="selectDimensionList" parameterType="DpDimensionTable" resultMap="DimensionResult">
+        <include refid="selectVo"/>
+        <where>
+            d.del_flag = '0'
+            <if test="dimensionName != null and dimensionName != ''">and d.dimension_name like concat('%', #{dimensionName}, '%')</if>
+            <if test="dimensionCode != null and dimensionCode != ''">and d.dimension_code like concat('%', #{dimensionCode}, '%')</if>
+            <if test="datasourceId != null">and d.datasource_id = #{datasourceId}</if>
+            <if test="status != null and status != ''">and d.status = #{status}</if>
+        </where>
+        order by d.dimension_id
+    </select>
+
+    <select id="selectDimensionById" parameterType="Long" resultMap="DimensionResult">
+        <include refid="selectVo"/>
+        where d.dimension_id = #{dimensionId} and d.del_flag = '0'
+    </select>
+
+    <select id="selectByCode" parameterType="String" resultMap="DimensionResult">
+        select dimension_id, dimension_name, dimension_code, datasource_id,
+               source_table_id, source_table_name, status, del_flag,
+               create_by, create_time, update_by, update_time, remark,
+               null as datasource_name
+        from dp_dimension_table
+        where dimension_code = #{dimensionCode}
+    </select>
+
+    <select id="selectBySource" resultMap="DimensionResult">
+        select dimension_id, dimension_name, dimension_code, datasource_id,
+               source_table_id, source_table_name, status, del_flag,
+               create_by, create_time, update_by, update_time, remark,
+               null as datasource_name
+        from dp_dimension_table
+        where datasource_id = #{param1} and source_table_id = #{param2}
+    </select>
+
+    <insert id="insertDimension" parameterType="DpDimensionTable" useGeneratedKeys="true" keyProperty="dimensionId">
+        insert into dp_dimension_table (
+            dimension_name, dimension_code, datasource_id, source_table_id, source_table_name,
+            status, del_flag, create_by, create_time, remark
+        ) values (
+            #{dimensionName}, #{dimensionCode}, #{datasourceId}, #{sourceTableId}, #{sourceTableName},
+            #{status}, '0', #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateDimension" parameterType="DpDimensionTable">
+        update dp_dimension_table
+        <set>
+            <if test="dimensionName != null">dimension_name = #{dimensionName},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where dimension_id = #{dimensionId}
+    </update>
+
+    <update id="restoreDimension" parameterType="DpDimensionTable">
+        update dp_dimension_table
+        set dimension_name = #{dimensionName},
+            dimension_code = #{dimensionCode},
+            source_table_name = #{sourceTableName},
+            status = '0',
+            del_flag = '0',
+            update_by = #{updateBy},
+            update_time = sysdate(),
+            remark = #{remark}
+        where dimension_id = #{dimensionId}
+    </update>
+
+    <update id="updateStatus">
+        update dp_dimension_table set status = #{param2}, update_time = sysdate()
+        where dimension_id = #{param1}
+    </update>
+
+    <update id="deleteDimensionByIds">
+        update dp_dimension_table set del_flag = '2', update_time = sysdate()
+        where dimension_id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="countLibraryReferences" parameterType="Long" resultType="int">
+        select count(*) from tl_tag_library_dimension where dimension_id = #{dimensionId}
+    </select>
+
+    <select id="selectAvailableDatasources" resultType="java.util.Map">
+        select datasource_id as datasourceId, source_name as sourceName
+        from dp_datasource
+        where status = '0' and del_flag = '0'
+        order by source_name
+    </select>
+
+    <select id="selectAvailableTables" parameterType="Long" resultType="java.util.Map">
+        select t.table_id as tableId, t.object_name as objectName, t.cn_name as cnName, t.object_type as objectType
+        from dp_meta_table t
+        where t.datasource_id = #{datasourceId} and t.status = '0'
+          and t.table_id not in (select source_table_id from dp_dimension_table where del_flag = '0')
+        order by t.object_name
+    </select>
+
+</mapper>

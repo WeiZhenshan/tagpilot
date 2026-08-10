@@ -447,7 +447,8 @@ public class DpDatasetServiceImpl implements IDpDatasetService {
     }
 
     /**
-     * 下线版本：ONLINE -> OFFLINE；若为默认版本则清空 default_version_id。
+     * 下线版本：ONLINE -> OFFLINE；若为默认版本则自动提升最新 ONLINE 版本为默认，
+     * 无其他在线版本时才清空 default_version_id。
      */
     @Override
     @Transactional
@@ -466,14 +467,47 @@ public class DpDatasetServiceImpl implements IDpDatasetService {
         upd.setUpdateBy(SecurityUtils.getUsername());
         int rows = versionMapper.updateVersion(upd);
 
-        // 若为默认版本则清空默认
+        // 若为默认版本：优先提升剩余最新 ONLINE 版本为默认，没有再清空
         DpDataset dataset = datasetMapper.selectDatasetById(version.getDatasetId());
         if (dataset != null && versionId.equals(dataset.getDefaultVersionId())) {
-            datasetMapper.updateDefaultVersionId(version.getDatasetId(), null);
+            Long successorId = versionMapper.selectLatestOnlineVersionId(version.getDatasetId(), versionId);
+            datasetMapper.updateDefaultVersionId(version.getDatasetId(), successorId);
+            if (successorId != null) {
+                DpDatasetVersion successor = versionMapper.selectVersionById(successorId);
+                writeLog(version.getDatasetId(), successorId, "SET_DEFAULT", "1",
+                        "下线默认版本 V" + version.getVersionNo() + "，自动提升 V"
+                            + (successor != null ? successor.getVersionNo() : successorId) + " 为默认版本", null);
+            }
         }
 
         writeLog(version.getDatasetId(), versionId, "OFFLINE", "1",
                 "下线版本：V" + version.getVersionNo(), null);
+        return rows;
+    }
+
+    /**
+     * 设为默认版本：仅 ONLINE 版本可设为默认，更新 dp_dataset.default_version_id。
+     */
+    @Override
+    @Transactional
+    public int setDefaultVersion(Long versionId) {
+        DpDatasetVersion version = versionMapper.selectVersionById(versionId);
+        if (version == null) {
+            throw new ServiceException("版本不存在");
+        }
+        if (!"ONLINE".equals(version.getVersionStatus())) {
+            throw new ServiceException("仅在线版本可设为默认");
+        }
+        DpDataset dataset = datasetMapper.selectDatasetById(version.getDatasetId());
+        if (dataset == null) {
+            throw new ServiceException("数据集不存在");
+        }
+        if (versionId.equals(dataset.getDefaultVersionId())) {
+            return 0;
+        }
+        int rows = datasetMapper.updateDefaultVersionId(version.getDatasetId(), versionId);
+        writeLog(version.getDatasetId(), versionId, "SET_DEFAULT", "1",
+                "设为默认版本：V" + version.getVersionNo(), null);
         return rows;
     }
 

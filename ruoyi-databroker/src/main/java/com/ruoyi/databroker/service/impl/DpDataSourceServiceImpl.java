@@ -261,9 +261,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
             // Mark tables not in this batch as invalid
             tableMapper.markTableInvalid(id, batchNo);
 
-            // Sync columns — delete orphan columns first (doc §12.3 rule)
-            columnMapper.deleteOrphanColumns(id, batchNo);
-
+            // Sync columns
             for (MetadataColumn mc : meta.getColumns()) {
                 DpMetaTable tbl = tableMapper.selectTableByDsAndName(id, mc.getTableName());
                 if (tbl == null) continue;
@@ -304,6 +302,12 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
                     columnMapper.insertColumn(newCol);
                 }
             }
+
+            // Delete orphan columns not refreshed by this batch (doc §12.3 rule).
+            // Must run AFTER the upsert loop above: deleting first would wipe all existing
+            // columns and reissue every column_id, breaking dataset field lineage.
+            columnMapper.deleteOrphanColumns(id, batchNo);
+            tableMapper.refreshColumnCount(id);
 
             // Update datasource sync status
             ds.setLastSyncTime(new Date());

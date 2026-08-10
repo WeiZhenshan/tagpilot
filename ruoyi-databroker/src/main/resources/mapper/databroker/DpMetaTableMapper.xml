@@ -80,4 +80,11 @@
         where datasource_id = #{param1} and sync_batch_no != #{param2} and sync_batch_no != ''
     </update>
 
+    <update id="refreshColumnCount">
+        update dp_meta_table t
+        set t.column_count = (select count(*) from dp_meta_column c where c.table_id = t.table_id),
+            t.update_time = sysdate()
+        where t.datasource_id = #{datasourceId}
+    </update>
+
 </mapper>

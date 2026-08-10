@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper">
+
+    <!-- 默认版本在线则取默认版本；默认版本为空或已下线时回退取最新 ONLINE 版本 -->
+    <select id="selectOnlineVersionId" parameterType="Long" resultType="Long">
+        select v.version_id from tl_tag_library l
+        join dp_dataset d on d.dataset_id = l.dataset_id and d.del_flag = '0' and d.status = '0'
+        join dp_dataset_version v on v.dataset_id = d.dataset_id and v.version_status = 'ONLINE'
+        where l.library_id = #{libraryId} and l.del_flag = '0'
+        order by (v.version_id = d.default_version_id) desc, v.version_no desc
+        limit 1
+    </select>
+
+    <select id="selectVersionDefinitionJson" parameterType="Long" resultType="String">
+        select definition_json from dp_dataset_version where version_id = #{versionId}
+    </select>
+
+    <select id="selectTableObjectName" parameterType="Long" resultType="String">
+        select object_name from dp_meta_table where table_id = #{tableId}
+    </select>
+
+    <select id="selectColumnNameByAlias" resultType="String">
+        select c.column_name
+        from dp_dataset_field f
+        join dp_meta_column c on c.column_id = f.source_column_id
+        where f.version_id = #{versionId} and f.field_alias = #{fieldAlias} and f.enabled = '1'
+        limit 1
+    </select>
+
+    <select id="selectObjectKeyColumn" parameterType="Long" resultType="String">
+        select c.column_name
+        from dp_dataset_field f
+        join dp_meta_column c on c.column_id = f.source_column_id
+        where f.version_id = #{versionId} and f.enabled = '1' and c.is_pk = '1'
+        limit 1
+    </select>
+
+    <select id="selectDatasetIdByLibrary" parameterType="Long" resultType="Long">
+        select dataset_id from tl_tag_library where library_id = #{libraryId} and del_flag = '0'
+    </select>
+
+    <!-- 列别名映射属性（mybatis-config 未开 mapUnderscoreToCamelCase，需显式别名） -->
+    <select id="selectDataSourceByDataset" parameterType="Long" resultType="com.ruoyi.databroker.domain.DpDataSource">
+        select ds.datasource_id as datasourceId, ds.catalog_id as catalogId, ds.order_num as orderNum,
+               ds.source_name as sourceName, ds.source_type as sourceType,
+               ds.host, ds.port, ds.database_name as databaseName, ds.username,
+               ds.password_cipher as passwordCipher, ds.db_version as dbVersion,
+               ds.use_pool as usePool, ds.use_ssl as useSsl, ds.ca_cert as caCert,
+               ds.jdbc_params as jdbcParams, ds.status, ds.usage_count as usageCount,
+               ds.last_sync_time as lastSyncTime, ds.last_sync_status as lastSyncStatus,
+               ds.last_error_msg as lastErrorMsg, ds.del_flag as delFlag,
+               ds.create_by as createBy, ds.create_time as createTime,
+               ds.update_by as updateBy, ds.update_time as updateTime, ds.remark
+        from dp_dataset d
+        join dp_datasource ds on ds.datasource_id = d.datasource_id and ds.del_flag = '0'
+        where d.dataset_id = #{datasetId}
+    </select>
+
+    <select id="selectTagNameByField" resultType="String">
+        select tag_name from tl_tag
+        where library_id = #{libraryId} and field_name = #{fieldName} and del_flag = '0'
+        limit 1
+    </select>
+
+    <select id="selectTagTypeByField" resultType="String">
+        select tag_type from tl_tag
+        where library_id = #{libraryId} and field_name = #{fieldName} and del_flag = '0'
+        limit 1
+    </select>
+
+    <!-- 标签库默认码表：已关联、启用、未删除且与标签库数据集同源的维表 -->
+    <select id="selectEnabledDimensionsByLibrary" parameterType="Long"
+            resultType="com.ruoyi.objectgroup.domain.DimensionTableRef">
+        select d.dimension_id as dimensionId, d.dimension_name as dimensionName,
+               d.source_table_name as sourceTableName, d.datasource_id as datasourceId
+        from tl_tag_library_dimension r
+        join dp_dimension_table d on d.dimension_id = r.dimension_id
+        join tl_tag_library l on l.library_id = r.library_id and l.del_flag = '0'
+        join dp_dataset ds on ds.dataset_id = l.dataset_id
+        where r.library_id = #{libraryId}
+          and d.status = '0' and d.del_flag = '0'
+          and d.datasource_id = ds.datasource_id
+        order by r.order_num, r.relation_id
+    </select>
+
+</mapper>

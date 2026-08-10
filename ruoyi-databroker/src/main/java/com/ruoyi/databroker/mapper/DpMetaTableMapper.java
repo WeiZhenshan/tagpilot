@@ -11,4 +11,5 @@ public interface DpMetaTableMapper {
     int updateTable(DpMetaTable table);
     int updateTableCnName(Long tableId, String cnName);
     int markTableInvalid(Long datasourceId, String syncBatchNo);
+    int refreshColumnCount(Long datasourceId);
 }

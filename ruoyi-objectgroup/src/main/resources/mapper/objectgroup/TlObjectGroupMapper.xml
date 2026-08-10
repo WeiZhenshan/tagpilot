@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.objectgroup.mapper.TlObjectGroupMapper">
+
+    <resultMap type="TlObjectGroup" id="TlObjectGroupResult">
+        <id     property="groupId"    column="group_id"    />
+        <result property="groupName"  column="group_name"  />
+        <result property="groupDesc"  column="group_desc"  />
+        <result property="libraryId"  column="library_id"  />
+        <result property="libraryName" column="library_name" />
+        <result property="ruleJson"   column="rule_json"   />
+        <result property="groupSql"   column="group_sql"   />
+        <result property="userCount"  column="user_count"  />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"   column="create_by"   />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy"   column="update_by"   />
+        <result property="updateTime" column="update_time" />
+        <result property="remark"     column="remark"      />
+    </resultMap>
+
+    <select id="selectObjectGroupList" parameterType="TlObjectGroup" resultMap="TlObjectGroupResult">
+        select g.*, l.library_name
+        from tl_object_group g
+        left join tl_tag_library l on l.library_id = g.library_id
+        <where>
+            g.del_flag = '0'
+            <if test="groupName != null and groupName != ''"> and g.group_name like concat('%', #{groupName}, '%') </if>
+            <if test="libraryId != null"> and g.library_id = #{libraryId} </if>
+        </where>
+        order by g.group_id desc
+    </select>
+
+    <select id="selectObjectGroupById" parameterType="Long" resultMap="TlObjectGroupResult">
+        select g.*, l.library_name
+        from tl_object_group g
+        left join tl_tag_library l on l.library_id = g.library_id
+        where g.group_id = #{groupId} and g.del_flag = '0'
+    </select>
+
+    <insert id="insertObjectGroup" parameterType="TlObjectGroup" useGeneratedKeys="true" keyProperty="groupId">
+        insert into tl_object_group (
+            group_name, group_desc, library_id, rule_json, group_sql, user_count,
+            del_flag, create_by, create_time, remark
+        ) values (
+            #{groupName}, #{groupDesc}, #{libraryId}, #{ruleJson}, #{groupSql}, #{userCount},
+            '0', #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateObjectGroup" parameterType="TlObjectGroup">
+        update tl_object_group
+        <set>
+            <if test="groupName != null">group_name = #{groupName},</if>
+            <if test="groupDesc != null">group_desc = #{groupDesc},</if>
+            <if test="libraryId != null">library_id = #{libraryId},</if>
+            <if test="ruleJson != null">rule_json = #{ruleJson},</if>
+            <if test="groupSql != null">group_sql = #{groupSql},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where group_id = #{groupId}
+    </update>
+
+    <update id="deleteObjectGroupByIds" parameterType="Long">
+        update tl_object_group set del_flag = '2', update_time = sysdate()
+        where group_id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateUserCount">
+        update tl_object_group set user_count = #{userCount}, update_time = sysdate()
+        where group_id = #{groupId}
+    </update>
+
+</mapper>

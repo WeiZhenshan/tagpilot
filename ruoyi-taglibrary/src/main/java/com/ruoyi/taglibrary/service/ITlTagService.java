@@ -15,7 +15,7 @@ public interface ITlTagService {
 
     TlTag selectTagById(Long tagId);
 
-    /** 标签管理页左侧树（tab=online 已上线 / offline 未上线） */
+    /** 标签管理页左侧树（tab=online 已上线 / offline 未上线 / all 全部状态） */
     List<Map<String, Object>> buildTree(Long libraryId, String tab);
 
     /** 编辑标签（version+1，fieldName/dataType 不可改） */

@@ -14,13 +14,16 @@
         <result property="auditBy"      column="audit_by"      />
         <result property="auditTime"    column="audit_time"    />
         <result property="auditComment" column="audit_comment" />
+        <result property="requestId"    column="request_id"    />
+        <result property="detailJson"   column="detail_json"   />
         <result property="createBy"     column="create_by"     />
         <result property="createTime"   column="create_time"   />
     </resultMap>
 
     <sql id="selectVo">
         select al.log_id, al.biz_type, al.biz_id, al.action, al.from_status, al.to_status,
-               al.apply_by, al.audit_by, al.audit_time, al.audit_comment, al.create_by, al.create_time,
+               al.apply_by, al.audit_by, al.audit_time, al.audit_comment, al.request_id, al.detail_json,
+               al.create_by, al.create_time,
                case when al.biz_type = 'library' then l.library_name else t.tag_name end as biz_name
         from tl_audit_log al
         left join tl_tag_library l on l.library_id = al.biz_id and l.del_flag = '0'
@@ -30,10 +33,16 @@
     <insert id="insertAuditLog" parameterType="TlAuditLog" useGeneratedKeys="true" keyProperty="logId">
         insert into tl_audit_log (
             biz_type, biz_id, action, from_status, to_status,
-            apply_by, audit_by, audit_time, audit_comment, create_by, create_time
+            apply_by, audit_by, audit_time, audit_comment,
+            <if test="requestId != null">request_id,</if>
+            <if test="detailJson != null">detail_json,</if>
+            create_by, create_time
         ) values (
             #{bizType}, #{bizId}, #{action}, #{fromStatus}, #{toStatus},
-            #{applyBy}, #{auditBy}, #{auditTime}, #{auditComment}, #{createBy}, sysdate()
+            #{applyBy}, #{auditBy}, #{auditTime}, #{auditComment},
+            <if test="requestId != null">#{requestId},</if>
+            <if test="detailJson != null">#{detailJson},</if>
+            #{createBy}, sysdate()
         )
     </insert>
 

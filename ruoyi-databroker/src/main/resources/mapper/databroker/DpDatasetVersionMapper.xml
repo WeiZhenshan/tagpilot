@@ -51,6 +51,14 @@
         select count(1) from dp_dataset_version where dataset_id = #{datasetId} and version_status = 'DRAFT'
     </select>
 
+    <select id="selectLatestOnlineVersionId" resultType="Long">
+        select version_id from dp_dataset_version
+        where dataset_id = #{datasetId} and version_status = 'ONLINE'
+        <if test="excludeVersionId != null">and version_id != #{excludeVersionId}</if>
+        order by version_no desc
+        limit 1
+    </select>
+
     <insert id="insertVersion" parameterType="DpDatasetVersion" useGeneratedKeys="true" keyProperty="versionId">
         insert into dp_dataset_version (
             dataset_id, version_no, version_name, definition_json, schema_version,

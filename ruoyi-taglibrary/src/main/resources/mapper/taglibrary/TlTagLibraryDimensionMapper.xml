@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TlTagLibraryDimensionMapper">
+
+    <resultMap type="TlTagLibraryDimension" id="TlTagLibraryDimensionResult">
+        <id     property="relationId"  column="relation_id"  />
+        <result property="libraryId"   column="library_id"   />
+        <result property="dimensionId" column="dimension_id" />
+        <result property="orderNum"    column="order_num"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+    </resultMap>
+
+    <resultMap type="com.ruoyi.databroker.domain.DpDimensionTable" id="DimensionCheckResult">
+        <id     property="dimensionId"     column="dimension_id"     />
+        <result property="dimensionName"   column="dimension_name"   />
+        <result property="datasourceId"    column="datasource_id"    />
+        <result property="sourceTableId"   column="source_table_id"  />
+        <result property="sourceTableName" column="source_table_name"/>
+        <result property="status"          column="status"           />
+        <result property="delFlag"         column="del_flag"         />
+    </resultMap>
+
+    <select id="selectByLibraryId" parameterType="Long" resultMap="TlTagLibraryDimensionResult">
+        select relation_id, library_id, dimension_id, order_num, create_by, create_time
+        from tl_tag_library_dimension
+        where library_id = #{libraryId}
+        order by order_num, relation_id
+    </select>
+
+    <select id="selectDimensionIdsByLibraryId" parameterType="Long" resultType="Long">
+        select dimension_id
+        from tl_tag_library_dimension
+        where library_id = #{libraryId}
+        order by order_num, relation_id
+    </select>
+
+    <delete id="deleteByLibraryId" parameterType="Long">
+        delete from tl_tag_library_dimension where library_id = #{libraryId}
+    </delete>
+
+    <insert id="batchInsert">
+        insert into tl_tag_library_dimension (library_id, dimension_id, order_num, create_by, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.libraryId}, #{item.dimensionId}, #{item.orderNum}, #{item.createBy}, sysdate())
+        </foreach>
+    </insert>
+
+    <select id="countByLibraryId" parameterType="Long" resultType="int">
+        select count(*) from tl_tag_library_dimension where library_id = #{libraryId}
+    </select>
+
+    <!-- 解析标签库数据源：跨表联查 dp_dataset，库或数据集无效时返回 null -->
+    <select id="selectLibraryDatasourceId" parameterType="Long" resultType="Long">
+        select d.datasource_id
+        from tl_tag_library l
+        join dp_dataset d on d.dataset_id = l.dataset_id and d.del_flag = '0'
+        where l.library_id = #{libraryId} and l.del_flag = '0'
+    </select>
+
+    <select id="selectCandidates" resultType="com.ruoyi.taglibrary.domain.vo.DimensionCandidateVO">
+        select d.dimension_id      as dimensionId,
+               d.dimension_name    as dimensionName,
+               d.dimension_code    as dimensionCode,
+               d.datasource_id     as datasourceId,
+               s.source_name       as datasourceName,
+               d.source_table_name as sourceTableName,
+               d.status            as status,
+               d.create_by         as createBy,
+               d.create_time       as createTime,
+               case when exists(select 1 from tl_tag_library_dimension r
+                                where r.library_id = #{libraryId} and r.dimension_id = d.dimension_id)
+                    then 1 else 0 end as selected,
+               case when d.datasource_id = #{libraryDatasourceId}
+                    then 1 else 0 end as sameSource
+        from dp_dimension_table d
+        left join dp_datasource s on s.datasource_id = d.datasource_id
+        <where>
+            d.del_flag = '0'
+            <if test="dimensionName != null and dimensionName != ''">and d.dimension_name like concat('%', #{dimensionName}, '%')</if>
+        </where>
+        order by d.dimension_id
+    </select>
+
+    <select id="selectLibrariesByDimensionId" parameterType="Long" resultType="com.ruoyi.taglibrary.domain.vo.DimensionLibraryVO">
+        select l.library_id as libraryId, l.library_name as libraryName, l.status as status
+        from tl_tag_library_dimension r
+        join tl_tag_library l on l.library_id = r.library_id and l.del_flag = '0'
+        where r.dimension_id = #{dimensionId}
+        order by r.relation_id
+    </select>
+
+    <select id="selectDimensionsForConflictCheck" resultMap="DimensionCheckResult">
+        select dimension_id, dimension_name, datasource_id, source_table_id, source_table_name, status, del_flag
+        from dp_dimension_table
+        where dimension_id in
+        <foreach collection="dimensionIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

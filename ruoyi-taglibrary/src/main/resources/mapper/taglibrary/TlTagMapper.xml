@@ -11,6 +11,7 @@
         <result property="tagName"         column="tag_name"         />
         <result property="dataType"        column="data_type"        />
         <result property="tagType"         column="tag_type"         />
+        <result property="isObjectKey"     column="is_object_key"    />
         <result property="businessCaliber" column="business_caliber" />
         <result property="techCaliber"     column="tech_caliber"     />
         <result property="validPeriod"     column="valid_period"     />
@@ -27,7 +28,7 @@
     </resultMap>
 
     <sql id="selectVo">
-        select t.tag_id, t.library_id, t.dir_id, t.field_name, t.tag_name, t.data_type, t.tag_type,
+        select t.tag_id, t.library_id, t.dir_id, t.field_name, t.tag_name, t.data_type, t.tag_type, t.is_object_key,
                t.business_caliber, t.tech_caliber, t.valid_period, t.update_cycle, t.create_way,
                t.status, t.version, t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark,
                l.library_name
@@ -60,11 +61,11 @@
 
     <insert id="insertTag" parameterType="TlTag" useGeneratedKeys="true" keyProperty="tagId">
         insert into tl_tag (
-            library_id, dir_id, field_name, tag_name, data_type, tag_type,
+            library_id, dir_id, field_name, tag_name, data_type, tag_type, is_object_key,
             business_caliber, tech_caliber, valid_period, update_cycle, create_way,
             status, version, create_by, create_time, remark
         ) values (
-            #{libraryId}, #{dirId}, #{fieldName}, #{tagName}, #{dataType}, #{tagType},
+            #{libraryId}, #{dirId}, #{fieldName}, #{tagName}, #{dataType}, #{tagType}, #{isObjectKey},
             #{businessCaliber}, #{techCaliber}, #{validPeriod}, #{updateCycle}, #{createWay},
             #{status}, #{version}, #{createBy}, sysdate(), #{remark}
         )
@@ -72,13 +73,13 @@
 
     <insert id="insertTagBatch" parameterType="java.util.List">
         insert into tl_tag (
-            library_id, dir_id, field_name, tag_name, data_type, tag_type,
+            library_id, dir_id, field_name, tag_name, data_type, tag_type, is_object_key,
             business_caliber, tech_caliber, valid_period, update_cycle, create_way,
             status, version, create_by, create_time, remark
         ) values
         <foreach collection="list" item="tag" separator=",">
             (
-                #{tag.libraryId}, #{tag.dirId}, #{tag.fieldName}, #{tag.tagName}, #{tag.dataType}, #{tag.tagType},
+                #{tag.libraryId}, #{tag.dirId}, #{tag.fieldName}, #{tag.tagName}, #{tag.dataType}, #{tag.tagType}, #{tag.isObjectKey},
                 #{tag.businessCaliber}, #{tag.techCaliber}, #{tag.validPeriod}, #{tag.updateCycle}, #{tag.createWay},
                 #{tag.status}, #{tag.version}, #{tag.createBy}, sysdate(), #{tag.remark}
             )
@@ -112,6 +113,11 @@
         </foreach>
     </update>
 
+    <update id="updateIsObjectKeyByField">
+        update tl_tag set is_object_key = #{isObjectKey}, update_by = #{updateBy}, update_time = sysdate()
+        where library_id = #{libraryId} and field_name = #{fieldName} and del_flag = '0'
+    </update>
+
     <update id="moveTagBatch">
         update tl_tag set dir_id = #{dirId}, update_by = #{updateBy}, update_time = sysdate()
         where tag_id in
@@ -131,5 +137,27 @@
     <select id="countOnlineByLibraryId" parameterType="Long" resultType="int">
         select count(1) from tl_tag where library_id = #{libraryId} and status = '2' and del_flag = '0'
     </select>
+
+    <select id="selectTagByIdForUpdate" parameterType="Long" resultMap="TlTagResult">
+        select t.tag_id, t.library_id, t.dir_id, t.field_name, t.tag_name, t.data_type, t.tag_type, t.is_object_key,
+               t.business_caliber, t.tech_caliber, t.valid_period, t.update_cycle, t.create_way,
+               t.status, t.version, t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark
+        from tl_tag t
+        where t.tag_id = #{tagId} and t.del_flag = '0'
+        for update
+    </select>
+
+    <update id="updateMetadataById" parameterType="TlTag">
+        update tl_tag
+        set tag_name = #{tagName},
+            tag_type = #{tagType},
+            dir_id = #{dirId},
+            tech_caliber = #{techCaliber},
+            business_caliber = #{businessCaliber},
+            version = #{version},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where tag_id = #{tagId}
+    </update>
 
 </mapper>

@@ -51,7 +51,7 @@ The dev server proxies `VUE_APP_BASE_API` (`/dev-api`) to the backend at `localh
 
 ## Critical gotchas
 
-- **No test suite.** There are **0** test files under any `src/test/`. `mvn test` passes vacuously — do not treat a green `mvn test` as verification. When asked to "test", compile + manually exercise the endpoint/flow instead, and say so explicitly.
+- **Tests exist only in the new feature modules.** `ruoyi-databroker`, `ruoyi-taglibrary`, `ruoyi-objectgroup` have JUnit 5 + Mockito unit tests under `src/test/` (service-layer, mocked mappers/JDBC, no Spring context); those three poms declare `spring-boot-starter-test` (test scope) and `maven-surefire-plugin` 2.22.2 (the Maven-default 2.12.4 silently skips JUnit 5 → "Tests run: 0"). All other modules still have **0** tests — a green `mvn test` only proves those three suites pass.
 - **Branch ≠ README claim.** `README.md` advertises `master` = Spring Boot 4.x, but this checkout (branch `dev`) is **Spring Boot 2.5.15 / Java 8**. Always trust `pom.xml` (`java.version`, `spring-boot.version`) over the README when the toolchain matters.
 - **Redis is mandatory.** Token storage, caching, rate-limiting, and login-session hydration all fail without a running Redis.
 - **DB init order:** `sql/ry_20260417.sql` first, then `sql/quartz.sql`, against the `ry` MySQL database.

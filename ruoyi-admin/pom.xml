@@ -73,6 +73,12 @@
             <artifactId>ruoyi-taglibrary</artifactId>
         </dependency>
 
+        <!-- objectgroup对象群管理模块-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-objectgroup</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

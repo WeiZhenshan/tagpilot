@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.objectgroup.mapper.TlObjectGroupImportMapper">
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into tl_object_group_import (import_batch, group_id, field_name, value, create_by, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.importBatch}, #{item.groupId}, #{item.fieldName}, #{item.value}, #{item.createBy}, sysdate())
+        </foreach>
+    </insert>
+
+    <select id="selectValuesByBatch" parameterType="String" resultType="String">
+        select value from tl_object_group_import where import_batch = #{importBatch}
+    </select>
+
+    <update id="bindGroup">
+        update tl_object_group_import set group_id = #{groupId}
+        where import_batch = #{importBatch} and group_id is null
+    </update>
+
+    <delete id="deleteByGroupId" parameterType="Long">
+        delete from tl_object_group_import where group_id = #{groupId}
+    </delete>
+
+</mapper>

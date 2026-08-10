@@ -104,6 +104,14 @@ export function offlineVersion(versionId) {
   })
 }
 
+// 设为默认版本
+export function setDefaultVersion(versionId) {
+  return request({
+    url: '/databroker/dataset/version/' + versionId + '/setDefault',
+    method: 'post'
+  })
+}
+
 // 数据预览
 export function previewDataset(data) {
   return request({

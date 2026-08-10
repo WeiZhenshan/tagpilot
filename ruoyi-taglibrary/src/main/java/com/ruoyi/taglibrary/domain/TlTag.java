@@ -36,6 +36,9 @@ public class TlTag extends BaseEntity {
     /** 标签类型（字典 tag_type） */
     private String tagType;
 
+    /** 是否对象键（0否 1是，源字段主键标记） */
+    private String isObjectKey;
+
     /** 业务口径 */
     private String businessCaliber;
 
@@ -76,6 +79,8 @@ public class TlTag extends BaseEntity {
     public void setDataType(String dataType) { this.dataType = dataType; }
     public String getTagType() { return tagType; }
     public void setTagType(String tagType) { this.tagType = tagType; }
+    public String getIsObjectKey() { return isObjectKey; }
+    public void setIsObjectKey(String isObjectKey) { this.isObjectKey = isObjectKey; }
     public String getBusinessCaliber() { return businessCaliber; }
     public void setBusinessCaliber(String businessCaliber) { this.businessCaliber = businessCaliber; }
     public String getTechCaliber() { return techCaliber; }

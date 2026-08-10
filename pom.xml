@@ -232,6 +232,13 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 
+            <!-- 对象群管理模块-->
+            <dependency>
+                <groupId>com.ruoyi</groupId>
+                <artifactId>ruoyi-objectgroup</artifactId>
+                <version>${ruoyi.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -244,6 +251,7 @@
         <module>ruoyi-common</module>
         <module>ruoyi-databroker</module>
         <module>ruoyi-taglibrary</module>
+        <module>ruoyi-objectgroup</module>
     </modules>
     <packaging>pom</packaging>
 

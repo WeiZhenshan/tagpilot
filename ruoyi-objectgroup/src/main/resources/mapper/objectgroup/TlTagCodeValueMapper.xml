@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.objectgroup.mapper.TlTagCodeValueMapper">
+
+    <resultMap type="TlTagCodeValue" id="TlTagCodeValueResult">
+        <id     property="valueId"        column="value_id"        />
+        <result property="libraryId"      column="library_id"      />
+        <result property="fieldName"      column="field_name"      />
+        <result property="tagName"        column="tag_name"        />
+        <result property="code"           column="code"            />
+        <result property="codeDefinition" column="code_definition" />
+        <result property="orderNum"       column="order_num"       />
+        <result property="createBy"       column="create_by"       />
+        <result property="createTime"     column="create_time"     />
+        <result property="updateBy"       column="update_by"       />
+        <result property="updateTime"     column="update_time"     />
+        <result property="remark"         column="remark"          />
+    </resultMap>
+
+    <select id="selectCodeValueList" parameterType="TlTagCodeValue" resultMap="TlTagCodeValueResult">
+        select * from tl_tag_code_value
+        <where>
+            <if test="libraryId != null">and library_id = #{libraryId}</if>
+            <if test="fieldName != null and fieldName != ''">and field_name = #{fieldName}</if>
+            <if test="codeDefinition != null and codeDefinition != ''">and code_definition like concat('%', #{codeDefinition}, '%')</if>
+        </where>
+        order by order_num, value_id
+    </select>
+
+    <select id="selectCodeValueByField" resultMap="TlTagCodeValueResult">
+        select * from tl_tag_code_value
+        where library_id = #{libraryId} and field_name = #{fieldName}
+        order by order_num, value_id
+    </select>
+
+    <select id="selectCodeValueById" parameterType="Long" resultMap="TlTagCodeValueResult">
+        select * from tl_tag_code_value where value_id = #{valueId}
+    </select>
+
+    <insert id="insertCodeValue" parameterType="TlTagCodeValue" useGeneratedKeys="true" keyProperty="valueId">
+        insert into tl_tag_code_value (
+            library_id, field_name, tag_name, code, code_definition, order_num,
+            create_by, create_time, update_by, update_time, remark
+        ) values (
+            #{libraryId}, #{fieldName}, #{tagName}, #{code}, #{codeDefinition}, #{orderNum},
+            #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateCodeValue" parameterType="TlTagCodeValue">
+        update tl_tag_code_value
+        <set>
+            <if test="tagName != null">tag_name = #{tagName},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="codeDefinition != null">code_definition = #{codeDefinition},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where value_id = #{valueId}
+    </update>
+
+    <update id="deleteCodeValueByIds" parameterType="Long">
+        delete from tl_tag_code_value where value_id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <insert id="upsertCodeValue" parameterType="TlTagCodeValue">
+        insert into tl_tag_code_value (
+            library_id, field_name, tag_name, code, code_definition, order_num,
+            create_by, create_time, update_by, update_time, remark
+        ) values (
+            #{libraryId}, #{fieldName}, #{tagName}, #{code}, #{codeDefinition}, #{orderNum},
+            #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark}
+        )
+        on duplicate key update
+            tag_name = values(tag_name),
+            order_num = values(order_num),
+            update_by = values(update_by),
+            update_time = sysdate()
+    </insert>
+
+</mapper>

@@ -122,6 +122,14 @@ public class DpDatasetController extends BaseController {
         return toAjax(datasetService.offlineVersion(versionId));
     }
 
+    /** 设为默认版本 */
+    @PreAuthorize("@ss.hasPermi('databroker:dataset:publish')")
+    @PostMapping("/version/{versionId}/setDefault")
+    public AjaxResult setDefault(@PathVariable Long versionId) {
+        datasetService.setDefaultVersion(versionId);
+        return success();
+    }
+
     /** 数据预览（重校验后 JDBC SELECT 启用字段 LIMIT 100） */
     @PreAuthorize("@ss.hasPermi('databroker:dataset:preview')")
     @PostMapping("/preview")

@@ -26,5 +26,27 @@
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-framework</artifactId>
         </dependency>
+        <!-- 数据代理（复用数据源连接、密码解密与维表登记元数据） -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-databroker</artifactId>
+        </dependency>
+        <!-- 单元测试（JUnit 5 + Mockito，版本由根 pom 的 spring-boot-dependencies 管理） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- 默认 surefire 2.12.4 不支持 JUnit 5，显式声明 2.22.2 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>

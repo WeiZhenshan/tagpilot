@@ -289,7 +289,7 @@
                 <el-table-column prop="releaseNote" label="发布说明" min-width="160" show-overflow-tooltip>
                   <template #default="scope">{{ scope.row.releaseNote || '-' }}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="250" align="center" fixed="right">
+                <el-table-column label="操作" width="330" align="center" fixed="right">
                   <template #default="scope">
                     <el-button type="text" size="mini" icon="el-icon-view" @click="handleViewVersion(scope.row)"
                       v-hasPermi="['databroker:dataset:query']">查看</el-button>
@@ -297,6 +297,9 @@
                       v-hasPermi="['databroker:dataset:edit']">复制为新版本</el-button>
                     <el-button v-if="scope.row.versionStatus === 'DRAFT'" type="text" size="mini" icon="el-icon-s-promotion"
                       @click="handleOpenPublish(scope.row)" v-hasPermi="['databroker:dataset:publish']">发布</el-button>
+                    <el-button v-if="scope.row.versionStatus === 'ONLINE' && !(scope.row.isDefault === '1' || scope.row.isDefault === true)"
+                      type="text" size="mini" icon="el-icon-star-off"
+                      @click="handleSetDefault(scope.row)" v-hasPermi="['databroker:dataset:publish']">设为默认</el-button>
                     <el-button v-if="scope.row.versionStatus === 'ONLINE'" type="text" size="mini" icon="el-icon-remove-outline"
                       @click="handleOfflineVersion(scope.row)" v-hasPermi="['databroker:dataset:offline']">下线</el-button>
                   </template>
@@ -343,6 +346,7 @@
                     <el-option label="删除" value="DELETE" /><el-option label="保存草稿" value="SAVE_DRAFT" />
                     <el-option label="发布" value="PUBLISH" /><el-option label="下线" value="OFFLINE" />
                     <el-option label="预览" value="PREVIEW" /><el-option label="复制版本" value="COPY" />
+                    <el-option label="设为默认" value="SET_DEFAULT" />
                   </el-select>
                 </el-form-item>
                 <el-form-item label="结果">
@@ -499,7 +503,7 @@ import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import hasPermi from '@/directive/permission/hasPermi'
 import { treeDataset, getDataset, addDataset, updateDataset, delDataset, moveDataset,
-  listVersions, getVersion, saveVersion, copyVersion, publishVersion, offlineVersion,
+  listVersions, getVersion, saveVersion, copyVersion, publishVersion, offlineVersion, setDefaultVersion,
   previewDataset, listLogs, listTables, listColumns,
   listCatalog, getCatalog, addCatalog, updateCatalog, delCatalog, moveCatalog } from '@/api/databroker/dataset'
 import { treeDataSource } from '@/api/databroker/datasource'
@@ -554,7 +558,7 @@ export default {
       logList: [],
       logLoading: false,
       logTotal: 0,
-      operTypeMap: { INSERT: '新增', UPDATE: '修改', DELETE: '删除', SAVE_DRAFT: '保存草稿', PUBLISH: '发布', OFFLINE: '下线', PREVIEW: '预览', COPY: '复制版本' },
+      operTypeMap: { INSERT: '新增', UPDATE: '修改', DELETE: '删除', SAVE_DRAFT: '保存草稿', PUBLISH: '发布', OFFLINE: '下线', PREVIEW: '预览', COPY: '复制版本', SET_DEFAULT: '设为默认' },
 
       // Dataset add dialog
       datasetDialogTitle: '',
@@ -989,10 +993,19 @@ export default {
       }).finally(() => { this.publishLoading = false })
     },
     handleOfflineVersion(row) {
-      this.$modal.confirm('确认下线版本 V' + row.versionNo + '？若为默认版本将取消默认。').then(() => {
+      this.$modal.confirm('确认下线版本 V' + row.versionNo + '？若为默认版本将自动把最新在线版本提升为默认。').then(() => {
         return offlineVersion(row.versionId)
       }).then(() => {
         this.$modal.msgSuccess('已下线')
+        this.loadVersions()
+        this.loadDataset(this.dataset.datasetId)
+      }).catch(() => {})
+    },
+    handleSetDefault(row) {
+      this.$modal.confirm('确认将版本 V' + row.versionNo + ' 设为默认版本？').then(() => {
+        return setDefaultVersion(row.versionId)
+      }).then(() => {
+        this.$modal.msgSuccess('已设为默认版本')
         this.loadVersions()
         this.loadDataset(this.dataset.datasetId)
       }).catch(() => {})

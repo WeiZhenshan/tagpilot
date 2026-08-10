@@ -99,6 +99,48 @@ export const constantRoutes = [
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
   {
+    path: '/objectgroup/group-edit',
+    component: Layout,
+    hidden: true,
+    permissions: ['objectgroup:group:add', 'objectgroup:group:edit'],
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/objectgroup/edit/index'),
+        name: 'ObjectGroupEdit',
+        meta: { title: '对象群编辑', activeMenu: '/objectgroup/group' }
+      }
+    ]
+  },
+  {
+    path: '/taglibrary/library-dimension',
+    component: Layout,
+    hidden: true,
+    permissions: ['taglibrary:library:dimension:list'],
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/taglibrary/dimension/index'),
+        name: 'LibraryDimension',
+        meta: { title: '设置默认码表', activeMenu: '/taglibrary/list' }
+      }
+    ]
+  },
+  {
+    path: '/taglibrary/tag-mapping',
+    component: Layout,
+    hidden: true,
+    permissions: ['taglibrary:tag:mapping:list'],
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/taglibrary/mapping/index'),
+        name: 'TagMapping',
+        meta: { title: '批量映射', activeMenu: '/taglibrary/list' }
+      }
+    ]
+  },
+  {
     path: '/system/user-auth',
     component: Layout,
     hidden: true,
