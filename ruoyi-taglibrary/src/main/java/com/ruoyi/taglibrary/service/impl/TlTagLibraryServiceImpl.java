@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.taglibrary.domain.TlAuditLog;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagDir;
@@ -172,6 +173,10 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
 
         List<TlTag> newTags = new ArrayList<>();
         for (DatasetFieldVO field : fields) {
+            // 字段别名（引用名）为空时无法生成有效标签，跳过
+            if (StringUtils.isEmpty(field.getFieldName())) {
+                continue;
+            }
             if (existFields.contains(field.getFieldName())) {
                 // 已存在字段：补写主键标记（客户号识别）
                 tagMapper.updateIsObjectKeyByField(libraryId, field.getFieldName(),

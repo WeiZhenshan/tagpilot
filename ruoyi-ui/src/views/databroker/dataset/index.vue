@@ -295,7 +295,7 @@
                       v-hasPermi="['databroker:dataset:query']">查看</el-button>
                     <el-button type="text" size="mini" icon="el-icon-document-copy" @click="handleCopyVersion(scope.row)"
                       v-hasPermi="['databroker:dataset:edit']">复制为新版本</el-button>
-                    <el-button v-if="scope.row.versionStatus === 'DRAFT'" type="text" size="mini" icon="el-icon-s-promotion"
+                    <el-button v-if="scope.row.versionStatus === 'DRAFT' || scope.row.versionStatus === 'OFFLINE'" type="text" size="mini" icon="el-icon-s-promotion"
                       @click="handleOpenPublish(scope.row)" v-hasPermi="['databroker:dataset:publish']">发布</el-button>
                     <el-button v-if="scope.row.versionStatus === 'ONLINE' && !(scope.row.isDefault === '1' || scope.row.isDefault === true)"
                       type="text" size="mini" icon="el-icon-star-off"

@@ -9,6 +9,14 @@ export function mappingList(query) {
   })
 }
 
+// 进入批量映射：增量同步标签库关联数据集的字段为标签（服务端尽力而为，失败不阻塞）
+export function syncMappingFields(libraryId) {
+  return request({
+    url: '/taglibrary/tag/mapping/sync/' + libraryId,
+    method: 'post'
+  })
+}
+
 // 批量保存映射草稿（原子事务）
 export function saveMappingDraft(items) {
   return request({

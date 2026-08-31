@@ -12,7 +12,8 @@
       "name": "spring-boot:backend",
       "runtimeExecutable": "mvn",
       "runtimeArgs": ["spring-boot:run", "-f", "ruoyi-admin/pom.xml", "-DskipTests"],
-      "port": 8080
+      "port": 8080,
+      "autoPort": true
     }
   ]
 }

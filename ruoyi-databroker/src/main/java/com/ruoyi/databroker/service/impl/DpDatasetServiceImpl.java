@@ -400,8 +400,8 @@ public class DpDatasetServiceImpl implements IDpDatasetService {
     }
 
     /**
-     * 发布版本：仅 DRAFT 且重校验必须 VALID；写 release_note/publish_by/publish_time；
-     * setDefault 时更新 dp_dataset.default_version_id。
+     * 发布版本：仅 DRAFT 或 OFFLINE（已下线重新上线）可发布，且重校验必须 VALID；
+     * 写 release_note/publish_by/publish_time；setDefault 时更新 dp_dataset.default_version_id。
      */
     @Override
     @Transactional
@@ -410,8 +410,8 @@ public class DpDatasetServiceImpl implements IDpDatasetService {
         if (version == null) {
             throw new ServiceException("版本不存在");
         }
-        if (!"DRAFT".equals(version.getVersionStatus())) {
-            throw new ServiceException("仅草稿版本可发布");
+        if (!"DRAFT".equals(version.getVersionStatus()) && !"OFFLINE".equals(version.getVersionStatus())) {
+            throw new ServiceException("仅草稿或已下线版本可发布");
         }
         DpDataset dataset = datasetMapper.selectDatasetById(version.getDatasetId());
         if (dataset == null) {

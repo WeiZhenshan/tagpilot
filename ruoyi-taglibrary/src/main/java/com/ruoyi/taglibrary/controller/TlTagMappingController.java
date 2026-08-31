@@ -17,6 +17,7 @@ import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagMetadataChange;
 import com.ruoyi.taglibrary.domain.dto.DraftSaveRequest;
 import com.ruoyi.taglibrary.domain.dto.MetadataChangeRequest;
+import com.ruoyi.taglibrary.service.ITlTagLibraryService;
 import com.ruoyi.taglibrary.service.ITlTagMappingService;
 
 /**
@@ -31,6 +32,9 @@ public class TlTagMappingController extends BaseController {
     @Autowired
     private ITlTagMappingService mappingService;
 
+    @Autowired
+    private ITlTagLibraryService libraryService;
+
     /** 批量映射分页列表（合并草稿/待审核状态） */
     @PreAuthorize("@ss.hasPermi('taglibrary:tag:mapping:list')")
     @GetMapping("/list")
@@ -40,6 +44,19 @@ public class TlTagMappingController extends BaseController {
         }
         startPage();
         return getDataTable(mappingService.selectMappingList(query));
+    }
+
+    /** 进入批量映射：增量同步标签库创建时关联数据集的所有字段为标签（幂等，尽力而为不阻塞映射查看） */
+    @PreAuthorize("@ss.hasPermi('taglibrary:tag:mapping:list')")
+    @PostMapping("/sync/{libraryId}")
+    public AjaxResult syncFields(@PathVariable Long libraryId) {
+        try {
+            int count = libraryService.syncFields(libraryId);
+            return AjaxResult.success("同步完成，新增" + count + "个字段标签", count);
+        } catch (ServiceException e) {
+            // 数据集未上线/无启用字段等业务异常不阻塞进入页面，仍可查看现有映射
+            return AjaxResult.success(e.getMessage());
+        }
     }
 
     /** 批量保存草稿 */

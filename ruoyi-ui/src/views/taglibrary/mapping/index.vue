@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { mappingList, saveMappingDraft, submitMapping } from '@/api/taglibrary/mapping'
+import { mappingList, saveMappingDraft, submitMapping, syncMappingFields } from '@/api/taglibrary/mapping'
 import { listDir } from '@/api/taglibrary/dir'
 
 export default {
@@ -168,9 +168,22 @@ export default {
     this.libraryName = this.$route.query.libraryName || ''
     this.queryParams.libraryId = this.libraryId
     this.loadDirOptions()
-    this.getList()
+  },
+  activated() {
+    // keep-alive 复用组件时 created 不再执行，进入/返回本页都在此先同步关联数据集字段再加载列表
+    this.enterAndSync()
   },
   methods: {
+    /** 进入页面：先增量同步关联数据集的所有字段为标签，再加载映射列表（同步失败仍展示现有数据） */
+    enterAndSync() {
+      if (!this.libraryId) {
+        this.getList()
+        return
+      }
+      syncMappingFields(this.libraryId)
+        .then(() => this.getList())
+        .catch(() => this.getList())
+    },
     /** 查询批量映射标签分页列表 */
     getList() {
       this.loading = true

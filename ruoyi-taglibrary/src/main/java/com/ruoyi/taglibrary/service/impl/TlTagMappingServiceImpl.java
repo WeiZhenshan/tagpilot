@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.github.pagehelper.Page;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -80,7 +81,14 @@ public class TlTagMappingServiceImpl implements ITlTagMappingService {
         String username = SecurityUtils.getUsername();
         // 过滤口径与 /taglibrary/tag/list 一致（del_flag='0' + 入参条件）
         List<TlTag> tags = tagMapper.selectTagList(query);
-        List<TagMappingVO> rows = new ArrayList<>();
+        // 用 Page 承载结果以保留分页 total（重新包装成普通 List 会使 total 退化为当前页行数）
+        Page<TagMappingVO> rows = new Page<>();
+        if (tags instanceof Page) {
+            Page<TlTag> page = (Page<TlTag>) tags;
+            rows.setTotal(page.getTotal());
+            rows.setPageNum(page.getPageNum());
+            rows.setPageSize(page.getPageSize());
+        }
         if (tags.isEmpty()) {
             return rows;
         }
