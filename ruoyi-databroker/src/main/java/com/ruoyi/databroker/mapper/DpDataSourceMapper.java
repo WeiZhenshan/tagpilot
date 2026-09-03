@@ -16,6 +16,12 @@ public interface DpDataSourceMapper {
     /** 统计某目录下的数据源数量（用于删除目录校验） */
     int countByCatalogId(Long catalogId);
 
+    /** 统计引用该数据源且未删除的数据集数量（删除数据源前校验） */
+    int countDatasetsByDatasourceId(Long datasourceId);
+
+    /** 统计引用该数据源且未删除的维表登记数量（删除数据源前校验） */
+    int countDimensionsByDatasourceId(Long datasourceId);
+
     /** 更新数据源排序（同目录内拖拽排序） */
     int updateDataSourceOrder(DpDataSource dataSource);
 

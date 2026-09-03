@@ -14,6 +14,9 @@ public interface DpDatasetMapper {
     /** 统计某目录下的数据集数量（用于删除目录校验） */
     int countByCatalogId(Long catalogId);
 
+    /** 统计关联该数据集且未删除的标签库数量（删除数据集前校验） */
+    int countLibrariesByDatasetId(Long datasetId);
+
     /** 更新最新版本号（复制版本时递增） */
     int updateLatestVersionNo(DpDataset dataset);
 

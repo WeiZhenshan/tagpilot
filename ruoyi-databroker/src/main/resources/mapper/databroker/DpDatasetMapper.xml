@@ -81,6 +81,10 @@
         select count(1) from dp_dataset where catalog_id = #{catalogId} and del_flag = '0'
     </select>
 
+    <select id="countLibrariesByDatasetId" parameterType="Long" resultType="int">
+        select count(1) from tl_tag_library where dataset_id = #{datasetId} and del_flag = '0'
+    </select>
+
     <update id="updateLatestVersionNo" parameterType="DpDataset">
         update dp_dataset set latest_version_no = #{latestVersionNo}, update_time = sysdate()
         where dataset_id = #{datasetId}

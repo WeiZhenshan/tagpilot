@@ -167,6 +167,19 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
         if (ids == null || ids.length == 0) {
             return 0;
         }
+        // 阻断式保护：仍被数据集/维表引用的数据源拒绝删除，防止引用悬空后下游运行期报错
+        for (Long id : ids) {
+            DpDataSource ds = dataSourceMapper.selectDataSourceById(id);
+            if (ds == null) {
+                continue;
+            }
+            int datasetCount = dataSourceMapper.countDatasetsByDatasourceId(id);
+            int dimensionCount = dataSourceMapper.countDimensionsByDatasourceId(id);
+            if (datasetCount > 0 || dimensionCount > 0) {
+                throw new RuntimeException("数据源[" + ds.getSourceName() + "]仍被 " + datasetCount
+                        + " 个数据集、" + dimensionCount + " 个维表引用，不能删除");
+            }
+        }
         int rows = 0;
         for (Long id : ids) {
             DpDataSource ds = dataSourceMapper.selectDataSourceById(id);

@@ -211,6 +211,18 @@ public class DpDatasetServiceImpl implements IDpDatasetService {
         if (datasetIds == null || datasetIds.length == 0) {
             return 0;
         }
+        // 阻断式保护：仍被标签库关联的数据集拒绝删除，防止标签库 dataset_id 悬空
+        for (Long id : datasetIds) {
+            DpDataset ds = datasetMapper.selectDatasetById(id);
+            if (ds == null) {
+                continue;
+            }
+            int libraryCount = datasetMapper.countLibrariesByDatasetId(id);
+            if (libraryCount > 0) {
+                throw new ServiceException("数据集[" + ds.getDatasetName() + "]仍被 " + libraryCount
+                        + " 个标签库关联，不能删除");
+            }
+        }
         int rows = 0;
         for (Long id : datasetIds) {
             DpDataset ds = datasetMapper.selectDatasetById(id);
