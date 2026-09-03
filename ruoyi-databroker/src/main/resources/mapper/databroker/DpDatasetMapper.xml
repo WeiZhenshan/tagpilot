@@ -74,7 +74,8 @@
     </update>
 
     <update id="deleteDatasetById" parameterType="Long">
-        update dp_dataset set del_flag = '2', update_time = sysdate() where dataset_id = #{datasetId}
+        update dp_dataset set del_flag = concat(dataset_id, ''), update_time = sysdate()
+        where dataset_id = #{datasetId}
     </update>
 
     <select id="countByCatalogId" parameterType="Long" resultType="int">

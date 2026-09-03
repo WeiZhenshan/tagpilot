@@ -203,7 +203,7 @@ public class DpDatasetServiceImpl implements IDpDatasetService {
     }
 
     /**
-     * 删除数据集：逻辑删除（del_flag = '2'）。
+     * 删除数据集：逻辑删除（del_flag 置为主键ID，兼容 uk(dataset_code, del_flag) 的重复删除）。
      */
     @Override
     @Transactional
