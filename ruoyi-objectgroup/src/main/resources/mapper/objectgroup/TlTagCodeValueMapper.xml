@@ -67,6 +67,10 @@
         </foreach>
     </update>
 
+    <delete id="deleteByLibraryId" parameterType="Long">
+        delete from tl_tag_code_value where library_id = #{libraryId}
+    </delete>
+
     <insert id="upsertCodeValue" parameterType="TlTagCodeValue">
         insert into tl_tag_code_value (
             library_id, field_name, tag_name, code, code_definition, order_num,

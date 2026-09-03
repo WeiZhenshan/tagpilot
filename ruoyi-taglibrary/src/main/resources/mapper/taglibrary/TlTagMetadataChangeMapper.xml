@@ -123,4 +123,12 @@
         delete from tl_tag_metadata_change where change_id = #{changeId} and status = 'DRAFT'
     </delete>
 
+    <delete id="deleteUnfinalByLibraryId">
+        delete from tl_tag_metadata_change
+        where library_id = #{libraryId} and status in
+        <foreach collection="statuses" item="status" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+    </delete>
+
 </mapper>

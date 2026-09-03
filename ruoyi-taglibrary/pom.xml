@@ -31,6 +31,11 @@
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-databroker</artifactId>
         </dependency>
+        <!-- 对象群（码值表/对象群引用清理与删除阻断） -->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-objectgroup</artifactId>
+        </dependency>
         <!-- 单元测试（JUnit 5 + Mockito，版本由根 pom 的 spring-boot-dependencies 管理） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

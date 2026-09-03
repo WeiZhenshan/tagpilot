@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.objectgroup.mapper.TlObjectGroupMapper;
+import com.ruoyi.objectgroup.mapper.TlTagCodeValueMapper;
 import com.ruoyi.taglibrary.domain.TlAuditLog;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagDir;
@@ -23,6 +25,7 @@ import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryDimensionMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
+import com.ruoyi.taglibrary.mapper.TlTagMetadataChangeMapper;
 import com.ruoyi.taglibrary.service.ITlTagLibraryService;
 
 /**
@@ -46,6 +49,9 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
     private static final Set<String> NUMBER_TYPES =
             new HashSet<>(Arrays.asList("tinyint", "int", "bigint", "smallint", "mediumint", "decimal", "float", "double", "numeric"));
 
+    /** 元数据变更未终态状态：草稿与待审核（删除标签库时清理，终态留作审批留痕） */
+    private static final List<String> UNFINAL_CHANGE_STATUSES = Arrays.asList("DRAFT", "PENDING");
+
     @Autowired
     private TlTagLibraryMapper libraryMapper;
     @Autowired
@@ -56,6 +62,12 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
     private TlAuditLogMapper auditLogMapper;
     @Autowired
     private TlTagLibraryDimensionMapper dimensionMapper;
+    @Autowired
+    private TlObjectGroupMapper objectGroupMapper;
+    @Autowired
+    private TlTagCodeValueMapper codeValueMapper;
+    @Autowired
+    private TlTagMetadataChangeMapper metadataChangeMapper;
 
     @Override
     public List<TlTagLibrary> selectLibraryList(TlTagLibrary query) {
@@ -126,14 +138,21 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
             if (tagMapper.countOnlineByLibraryId(id) > 0) {
                 throw new ServiceException("库内存在已上线标签，不能删除");
             }
+            int groupCount = objectGroupMapper.countActiveByLibraryId(id);
+            if (groupCount > 0) {
+                throw new ServiceException("标签库[" + library.getLibraryName() + "]仍被 " + groupCount
+                        + " 个对象群使用，不能删除");
+            }
         }
-        // 级联逻辑删目录+标签，并物理清理默认码表关系（物理表无 del_flag，不清理会永久阻塞维表删除）
+        // 级联逻辑删目录+标签，物理清理默认码表关系/码值/未终态元数据变更
         for (Long id : libraryIds) {
             List<TlTagDir> dirs = dirMapper.selectDirList(id);
             for (TlTagDir dir : dirs) {
                 dirMapper.deleteDirById(dir.getDirId());
             }
             dimensionMapper.deleteByLibraryId(id);
+            codeValueMapper.deleteByLibraryId(id);
+            metadataChangeMapper.deleteUnfinalByLibraryId(id, UNFINAL_CHANGE_STATUSES);
         }
         tagMapper.deleteTagByLibraryIds(libraryIds);
         return libraryMapper.deleteLibraryByIds(libraryIds);

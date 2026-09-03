@@ -18,6 +18,9 @@ public interface TlTagCodeValueMapper {
 
     int deleteCodeValueByIds(Long[] valueIds);
 
+    /** 物理删除某标签库全部码值（删除标签库时级联清理） */
+    int deleteByLibraryId(Long libraryId);
+
     /** 幂等写入（唯一键冲突时更新定义/排序） */
     int upsertCodeValue(TlTagCodeValue codeValue);
 }

@@ -30,4 +30,7 @@ public interface TlTagMetadataChangeMapper {
 
     /** 删除草稿 */
     int deleteById(Long changeId);
+
+    /** 删除某标签库下未终态（DRAFT/PENDING）的变更记录（删除标签库时级联清理，终态留作审批留痕） */
+    int deleteUnfinalByLibraryId(@Param("libraryId") Long libraryId, @Param("statuses") List<String> statuses);
 }

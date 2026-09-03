@@ -75,4 +75,8 @@
         where group_id = #{groupId}
     </update>
 
+    <select id="countActiveByLibraryId" parameterType="Long" resultType="int">
+        select count(*) from tl_object_group where library_id = #{libraryId} and del_flag = '0'
+    </select>
+
 </mapper>
