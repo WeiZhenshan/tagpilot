@@ -142,8 +142,6 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
     @Override
     @Transactional
     public int updateDataSource(DpDataSource dataSource) {
-        DpDataSource old = dataSourceMapper.selectDataSourceById(dataSource.getDatasourceId());
-
         // Handle password: empty or ****** means keep old
         if (dataSource.getPassword() != null && !dataSource.getPassword().isEmpty()
                 && !"******".equals(dataSource.getPassword())) {

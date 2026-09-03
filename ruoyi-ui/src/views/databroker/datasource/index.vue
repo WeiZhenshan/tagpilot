@@ -140,7 +140,6 @@
                   <el-col :span="12">
                     <el-form-item label="数据库版本">{{ datasource.dbVersion || '-' }}</el-form-item>
                     <el-form-item label="连接池">{{ datasource.usePool === '1' ? '是' : '否' }}</el-form-item>
-                    <el-form-item label="SSL">{{ datasource.useSsl === '1' ? '是' : '否' }}</el-form-item>
                     <el-form-item label="最近同步">
                       {{ datasource.lastSyncTime || '-' }}
                       <el-tag v-if="datasource.lastSyncStatus === '1'" type="success" size="mini">成功</el-tag>
@@ -299,9 +298,6 @@
           <el-col :span="12">
             <el-form-item label="连接池"><el-radio-group v-model="form.usePool"><el-radio label="0">否</el-radio><el-radio label="1">是</el-radio></el-radio-group></el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="SSL"><el-radio-group v-model="form.useSsl"><el-radio label="0">否</el-radio><el-radio label="1">是</el-radio></el-radio-group></el-form-item>
-          </el-col>
         </el-row>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="请输入备注" />
@@ -415,7 +411,7 @@ export default {
       dialogTitle: '',
       dialogVisible: false,
       testLoading: false,
-      form: { catalogId: null, sourceName: '', sourceType: 'MYSQL', host: '', port: 3306, databaseName: '', username: '', password: '', usePool: '0', useSsl: '0', jdbcParams: '{}', remark: '' },
+      form: { catalogId: null, sourceName: '', sourceType: 'MYSQL', host: '', port: 3306, databaseName: '', username: '', password: '', usePool: '0', remark: '' },
       rules: {
         catalogId: [{ required: true, message: '请选择目录', trigger: 'change' }],
         sourceName: [{ required: true, message: '请输入名称', trigger: 'blur' }],
@@ -569,8 +565,6 @@ export default {
           username: d.username,
           password: '******',
           usePool: d.usePool || '0',
-          useSsl: d.useSsl || '0',
-          jdbcParams: d.jdbcParams || '{}',
           remark: d.remark || ''
         }
         this.dialogTitle = '修改数据源'
@@ -798,23 +792,23 @@ export default {
         username: this.datasource.username,
         password: '******',
         usePool: this.datasource.usePool || '0',
-        useSsl: this.datasource.useSsl || '0',
-        jdbcParams: this.datasource.jdbcParams || '{}',
         remark: this.datasource.remark || ''
       }
       this.dialogVisible = true
     },
     resetForm() {
-      this.form = { catalogId: null, sourceName: '', sourceType: 'MYSQL', host: '', port: 3306, databaseName: '', username: '', password: '', usePool: '0', useSsl: '0', jdbcParams: '{}', remark: '' }
+      this.form = { catalogId: null, sourceName: '', sourceType: 'MYSQL', host: '', port: 3306, databaseName: '', username: '', password: '', usePool: '0', remark: '' }
       this.$nextTick(() => { if (this.$refs.form) this.$refs.form.clearValidate() })
     },
     submitForm() {
       this.$refs.form.validate(valid => {
         if (!valid) return
+        // 已弃用字段（use_ssl/jdbc_params）前端已隐藏；保存时回写默认值，保证新记录不落 NULL（ca_cert 不传，存量记录保留）
+        const payload = Object.assign({}, this.form, { useSsl: '0', jdbcParams: '{}' })
         if (this.form.datasourceId) {
-          updateDataSource(this.form).then(() => { this.$modal.msgSuccess('修改成功'); this.dialogVisible = false; this.loadTree() })
+          updateDataSource(payload).then(() => { this.$modal.msgSuccess('修改成功'); this.dialogVisible = false; this.loadTree() })
         } else {
-          addDataSource(this.form).then(() => { this.$modal.msgSuccess('新增成功'); this.dialogVisible = false; this.loadTree() })
+          addDataSource(payload).then(() => { this.$modal.msgSuccess('新增成功'); this.dialogVisible = false; this.loadTree() })
         }
       })
     },
