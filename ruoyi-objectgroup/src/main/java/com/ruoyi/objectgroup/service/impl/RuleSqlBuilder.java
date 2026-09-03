@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
-import com.ruoyi.objectgroup.mapper.TlObjectGroupImportMapper;
 import com.ruoyi.objectgroup.service.IRuleSqlBuilder;
 
 /**
@@ -29,7 +28,17 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
     public static final String MODE_SELECT = "SELECT";
 
     private static final int PREVIEW_LIMIT = 100;
-    private static final int MAX_IMPORT_VALUES = 50000;
+
+    /** 导入批次号：parseImportFile 生成的 32 位小写十六进制 UUID（无连字符） */
+    private static final Pattern IMPORT_BATCH_PATTERN = Pattern.compile("^[0-9a-fA-F]{32}$");
+
+    /** 导入批次对应的目标库 session 临时表（已反引号），供运行期建表/装载与规则 SQL 引用共用 */
+    public static String importTempTableRef(String batchNo) {
+        if (batchNo == null || !IMPORT_BATCH_PATTERN.matcher(batchNo).matches()) {
+            throw new ServiceException("客户号导入批次不合法");
+        }
+        return "`tmp_og_imp_" + batchNo + "`";
+    }
 
     /** 日期型条件允许的取值格式：yyyy-MM-dd，可带可选时间部分 */
     private static final Pattern DATE_VALUE_PATTERN =
@@ -37,8 +46,6 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
 
     @Autowired
     private TlObjectGroupExtMapper extMapper;
-    @Autowired
-    private TlObjectGroupImportMapper importMapper;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -178,18 +185,8 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
                 if (c.getImportBatchNo() == null || c.getImportBatchNo().isEmpty()) {
                     throw new ServiceException("客户号导入批次缺失");
                 }
-                List<String> values = importMapper.selectValuesByBatch(c.getImportBatchNo());
-                if (values == null || values.isEmpty()) {
-                    throw new ServiceException("导入批次无数据，请重新导入");
-                }
-                if (values.size() > MAX_IMPORT_VALUES) {
-                    throw new ServiceException("导入值超过上限（5万条），请拆分后重新导入");
-                }
-                List<String> quoted = new ArrayList<>();
-                for (String v : values) {
-                    quoted.add(quote(v));
-                }
-                return column + " in (" + String.join(", ", quoted) + ")";
+                // 导入值由运行期装载进 session 临时表后 join，避免 5 万条值内联成巨型 IN
+                return column + " in (select `v` from " + importTempTableRef(c.getImportBatchNo()) + ")";
             }
             String value = valueAt(c.getValues(), 0);
             if ("like".equals(c.getMatchType())) {

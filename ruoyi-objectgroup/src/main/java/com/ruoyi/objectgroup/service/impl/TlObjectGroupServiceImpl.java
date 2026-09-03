@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -45,7 +46,14 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     private static final Logger log = LoggerFactory.getLogger(TlObjectGroupServiceImpl.class);
 
     private static final long MAX_FILE_SIZE = 5L * 1024 * 1024;
+    /** 单批次导入值上限（与 tl_object_group_import.value 列宽 64 配套的语义上限） */
     private static final int MAX_IMPORT_COUNT = 50000;
+    /** 值长度上限：tl_object_group_import.value 为 varchar(64) */
+    private static final int MAX_VALUE_LENGTH = 64;
+    /** 本地导入表分片写入行数（避免单条巨型 insert 超 max_allowed_packet） */
+    private static final int IMPORT_INSERT_CHUNK = 1000;
+    /** 目标库 session 临时表分片装载行数 */
+    private static final int TEMP_LOAD_CHUNK = 1000;
 
     @Autowired
     private TlObjectGroupMapper groupMapper;
@@ -134,7 +142,7 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             }
         }
         String sql = ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_COUNT);
-        long count = executeCount(sql, libraryId);
+        long count = executeCount(sql, libraryId, rule);
         if (groupId != null) {
             groupMapper.updateUserCount(groupId, count);
             TlObjectGroup group = groupMapper.selectObjectGroupById(groupId);
@@ -162,7 +170,7 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             }
         }
         String sql = ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_SELECT);
-        return executeSelect(sql, libraryId);
+        return executeSelect(sql, libraryId, rule);
     }
 
     @Override
@@ -179,10 +187,18 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         }
 
         Set<String> values = new LinkedHashSet<>();
+        boolean firstLine = true;
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false;
+                    // UTF-8 BOM 仅出现在文件首行，不剥离会导致首个客户号匹配不到
+                    if (!line.isEmpty() && line.charAt(0) == '\uFEFF') {
+                        line = line.substring(1);
+                    }
+                }
                 String v = line.trim();
                 if (v.isEmpty()) {
                     continue;
@@ -192,6 +208,10 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
                     v = v.substring(0, v.indexOf(',')).trim();
                 }
                 if (!v.isEmpty()) {
+                    if (v.length() > MAX_VALUE_LENGTH) {
+                        throw new ServiceException("客户号[" + v.substring(0, 20) + "...]长度超过 "
+                                + MAX_VALUE_LENGTH + " 字符，请检查文件内容");
+                    }
                     values.add(v);
                 }
                 if (values.size() > MAX_IMPORT_COUNT) {
@@ -218,7 +238,9 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             item.setCreateBy(username);
             imports.add(item);
         }
-        importMapper.insertBatch(imports);
+        for (int i = 0; i < imports.size(); i += IMPORT_INSERT_CHUNK) {
+            importMapper.insertBatch(imports.subList(i, Math.min(i + IMPORT_INSERT_CHUNK, imports.size())));
+        }
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("batchNo", batchNo);
@@ -275,36 +297,54 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     }
 
     /** 执行 COUNT 查询 */
-    private long executeCount(String sql, Long libraryId) {
-        try (Connection conn = openConnection(libraryId); Statement stmt = conn.createStatement()) {
-            stmt.setQueryTimeout(Math.max(1, properties.getJdbc().getSocketTimeout() / 1000));
-            try (ResultSet rs = stmt.executeQuery(sql)) {
-                return rs.next() ? rs.getLong(1) : 0L;
+    private long executeCount(String sql, Long libraryId, RulePayload rule) {
+        try (Connection conn = openConnection(libraryId)) {
+            try {
+                hydrateImportTempTables(conn, rule);
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.setQueryTimeout(Math.max(1, properties.getJdbc().getSocketTimeout() / 1000));
+                    try (ResultSet rs = stmt.executeQuery(sql)) {
+                        return rs.next() ? rs.getLong(1) : 0L;
+                    }
+                }
+            } finally {
+                dropImportTempTables(conn, rule);
             }
+        } catch (ServiceException e) {
+            throw e;
         } catch (Exception e) {
             throw new ServiceException("规则运行失败：" + e.getMessage());
         }
     }
 
     /** 执行 SELECT 预览（客户号 + 预览列） */
-    private Map<String, Object> executeSelect(String sql, Long libraryId) {
+    private Map<String, Object> executeSelect(String sql, Long libraryId, RulePayload rule) {
         List<String> columns = new ArrayList<>();
         List<Map<String, Object>> rows = new ArrayList<>();
-        try (Connection conn = openConnection(libraryId); Statement stmt = conn.createStatement()) {
-            stmt.setQueryTimeout(Math.max(1, properties.getJdbc().getSocketTimeout() / 1000));
-            try (ResultSet rs = stmt.executeQuery(sql)) {
-                int colCount = rs.getMetaData().getColumnCount();
-                for (int i = 1; i <= colCount; i++) {
-                    columns.add(rs.getMetaData().getColumnLabel(i));
-                }
-                while (rs.next()) {
-                    Map<String, Object> row = new LinkedHashMap<>();
-                    for (int i = 1; i <= colCount; i++) {
-                        row.put(columns.get(i - 1), rs.getObject(i));
+        try (Connection conn = openConnection(libraryId)) {
+            try {
+                hydrateImportTempTables(conn, rule);
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.setQueryTimeout(Math.max(1, properties.getJdbc().getSocketTimeout() / 1000));
+                    try (ResultSet rs = stmt.executeQuery(sql)) {
+                        int colCount = rs.getMetaData().getColumnCount();
+                        for (int i = 1; i <= colCount; i++) {
+                            columns.add(rs.getMetaData().getColumnLabel(i));
+                        }
+                        while (rs.next()) {
+                            Map<String, Object> row = new LinkedHashMap<>();
+                            for (int i = 1; i <= colCount; i++) {
+                                row.put(columns.get(i - 1), rs.getObject(i));
+                            }
+                            rows.add(row);
+                        }
                     }
-                    rows.add(row);
                 }
+            } finally {
+                dropImportTempTables(conn, rule);
             }
+        } catch (ServiceException e) {
+            throw e;
         } catch (Exception e) {
             throw new ServiceException("样例预览失败：" + e.getMessage());
         }
@@ -312,6 +352,76 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         result.put("columns", columns);
         result.put("rows", rows);
         return result;
+    }
+
+    /**
+     * 把规则中的导入批次值装载进目标库 session 临时表（须与主查询同一连接），
+     * 替代把数万条值内联成巨型 IN 的旧方案
+     */
+    private void hydrateImportTempTables(Connection conn, RulePayload rule) throws Exception {
+        if (rule == null || rule.getConditions() == null) {
+            return;
+        }
+        for (RulePayload.Condition c : rule.getConditions()) {
+            if (!"import".equals(c.getMatchType())) {
+                continue;
+            }
+            String batchNo = c.getImportBatchNo();
+            if (batchNo == null || batchNo.isEmpty()) {
+                throw new ServiceException("客户号导入批次缺失");
+            }
+            String tableRef = RuleSqlBuilder.importTempTableRef(batchNo);
+            List<String> values = importMapper.selectValuesByBatch(batchNo);
+            if (values == null || values.isEmpty()) {
+                throw new ServiceException("导入批次无数据，请重新导入");
+            }
+            if (values.size() > MAX_IMPORT_COUNT) {
+                throw new ServiceException("导入值超过上限（5万条），请拆分后重新导入");
+            }
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute("drop temporary table if exists " + tableRef);
+                stmt.execute("create temporary table " + tableRef
+                        + " (`v` varchar(64) not null, key `idx_v` (`v`))");
+            }
+            String insertHead = "insert into " + tableRef + " (`v`) values ";
+            for (int i = 0; i < values.size(); i += TEMP_LOAD_CHUNK) {
+                int end = Math.min(i + TEMP_LOAD_CHUNK, values.size());
+                StringBuilder sb = new StringBuilder(insertHead);
+                for (int j = i; j < end; j++) {
+                    if (j > i) {
+                        sb.append(",");
+                    }
+                    sb.append("(?)");
+                }
+                try (PreparedStatement ps = conn.prepareStatement(sb.toString())) {
+                    for (int j = i; j < end; j++) {
+                        ps.setString(j - i + 1, values.get(j));
+                    }
+                    ps.executeUpdate();
+                }
+            }
+        }
+    }
+
+    /** 释放本连接上装载的导入临时表（连接可能被池化复用，session 表需显式清理） */
+    private void dropImportTempTables(Connection conn, RulePayload rule) {
+        if (conn == null || rule == null || rule.getConditions() == null) {
+            return;
+        }
+        for (RulePayload.Condition c : rule.getConditions()) {
+            if (!"import".equals(c.getMatchType())) {
+                continue;
+            }
+            String batchNo = c.getImportBatchNo();
+            if (batchNo == null || batchNo.isEmpty()) {
+                continue;
+            }
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute("drop temporary table if exists " + RuleSqlBuilder.importTempTableRef(batchNo));
+            } catch (Exception e) {
+                log.warn("清理导入临时表失败: batch={}, {}", batchNo, e.getMessage());
+            }
+        }
     }
 
     /** 打开目标数据源连接（复用数据代理链路） */
