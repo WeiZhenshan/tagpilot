@@ -17,7 +17,6 @@ import com.ruoyi.taglibrary.domain.TlAuditLog;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagDir;
 import com.ruoyi.taglibrary.domain.TlTagLibrary;
-import com.ruoyi.taglibrary.mapper.TlAuditLogMapper;
 import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
@@ -44,7 +43,7 @@ public class TlTagServiceImpl implements ITlTagService {
     @Autowired
     private TlTagLibraryMapper libraryMapper;
     @Autowired
-    private TlAuditLogMapper auditLogMapper;
+    private AuditLogService auditLogService;
 
     @Override
     public List<TlTag> selectTagList(TlTag query) {
@@ -246,6 +245,6 @@ public class TlTagServiceImpl implements ITlTagService {
             log.setAuditComment(auditComment);
         }
         log.setCreateBy(username);
-        auditLogMapper.insertAuditLog(log);
+        auditLogService.record(log);
     }
 }

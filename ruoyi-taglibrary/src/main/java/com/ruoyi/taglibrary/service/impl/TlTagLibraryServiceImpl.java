@@ -20,7 +20,6 @@ import com.ruoyi.taglibrary.domain.TlTagDir;
 import com.ruoyi.taglibrary.domain.TlTagLibrary;
 import com.ruoyi.taglibrary.domain.vo.DatasetFieldVO;
 import com.ruoyi.taglibrary.domain.vo.DatasetVO;
-import com.ruoyi.taglibrary.mapper.TlAuditLogMapper;
 import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryDimensionMapper;
@@ -59,7 +58,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
     @Autowired
     private TlTagMapper tagMapper;
     @Autowired
-    private TlAuditLogMapper auditLogMapper;
+    private AuditLogService auditLogService;
     @Autowired
     private TlTagLibraryDimensionMapper dimensionMapper;
     @Autowired
@@ -288,7 +287,7 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
             log.setAuditComment(auditComment);
         }
         log.setCreateBy(username);
-        auditLogMapper.insertAuditLog(log);
+        auditLogService.record(log);
     }
 
     /** 取默认目录（parent_id=0 且 dir_name='默认目录' 的第一条），没有则建 */

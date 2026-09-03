@@ -27,7 +27,6 @@ import com.ruoyi.taglibrary.domain.TlTagDir;
 import com.ruoyi.taglibrary.domain.TlTagMetadataChange;
 import com.ruoyi.taglibrary.domain.dto.MetadataChangeDTO;
 import com.ruoyi.taglibrary.domain.vo.TagMappingVO;
-import com.ruoyi.taglibrary.mapper.TlAuditLogMapper;
 import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMetadataChangeMapper;
@@ -74,7 +73,7 @@ public class TlTagMappingServiceImpl implements ITlTagMappingService {
     @Autowired
     private TlTagMetadataChangeMapper changeMapper;
     @Autowired
-    private TlAuditLogMapper auditLogMapper;
+    private AuditLogService auditLogService;
 
     @Override
     public List<TagMappingVO> selectMappingList(TlTag query) {
@@ -442,6 +441,6 @@ public class TlTagMappingServiceImpl implements ITlTagMappingService {
             log.setAuditComment(auditComment);
         }
         log.setCreateBy(username);
-        auditLogMapper.insertAuditLog(log);
+        auditLogService.record(log);
     }
 }

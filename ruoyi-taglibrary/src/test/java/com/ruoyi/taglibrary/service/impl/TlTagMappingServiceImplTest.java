@@ -30,7 +30,6 @@ import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagDir;
 import com.ruoyi.taglibrary.domain.TlTagMetadataChange;
 import com.ruoyi.taglibrary.domain.dto.MetadataChangeDTO;
-import com.ruoyi.taglibrary.mapper.TlAuditLogMapper;
 import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMetadataChangeMapper;
@@ -54,7 +53,7 @@ class TlTagMappingServiceImplTest extends BaseServiceTest {
     @Mock
     private TlTagMetadataChangeMapper changeMapper;
     @Mock
-    private TlAuditLogMapper auditLogMapper;
+    private AuditLogService auditLogService;
 
     @InjectMocks
     private TlTagMappingServiceImpl mappingService;
@@ -182,7 +181,7 @@ class TlTagMappingServiceImplTest extends BaseServiceTest {
                 () -> mappingService.submit(new Long[]{1L}));
         assertTrue(e.getMessage().contains("只能提交本人"));
         verify(changeMapper, never()).updateChange(any());
-        verify(auditLogMapper, never()).insertAuditLog(any());
+        verify(auditLogService, never()).record(any());
     }
 
     /** 提交校验：changeIds 含非 DRAFT 记录 → ServiceException，整批不处理 */
@@ -196,7 +195,7 @@ class TlTagMappingServiceImplTest extends BaseServiceTest {
                 () -> mappingService.submit(new Long[]{1L}));
         assertTrue(e.getMessage().contains("不是草稿状态"));
         verify(changeMapper, never()).updateChange(any());
-        verify(auditLogMapper, never()).insertAuditLog(any());
+        verify(auditLogService, never()).record(any());
     }
 
     /** 提交成功：本人 DRAFT 且版本一致 → 置 PENDING 并写审计日志 */
@@ -215,7 +214,7 @@ class TlTagMappingServiceImplTest extends BaseServiceTest {
         assertEquals("PENDING", changeCaptor.getValue().getStatus());
         assertNotNull(changeCaptor.getValue().getSubmitTime());
         ArgumentCaptor<TlAuditLog> logCaptor = ArgumentCaptor.forClass(TlAuditLog.class);
-        verify(auditLogMapper).insertAuditLog(logCaptor.capture());
+        verify(auditLogService).record(logCaptor.capture());
         TlAuditLog log = logCaptor.getValue();
         assertEquals("提交", log.getAction());
         assertEquals("DRAFT", log.getFromStatus());
@@ -250,7 +249,7 @@ class TlTagMappingServiceImplTest extends BaseServiceTest {
         assertEquals(USERNAME, changeCaptor.getValue().getAuditBy());
         assertEquals("同意", changeCaptor.getValue().getAuditComment());
         ArgumentCaptor<TlAuditLog> logCaptor = ArgumentCaptor.forClass(TlAuditLog.class);
-        verify(auditLogMapper).insertAuditLog(logCaptor.capture());
+        verify(auditLogService).record(logCaptor.capture());
         assertEquals("通过", logCaptor.getValue().getAction());
     }
 
@@ -270,7 +269,7 @@ class TlTagMappingServiceImplTest extends BaseServiceTest {
         verify(changeMapper).updateChange(changeCaptor.capture());
         assertEquals("REJECTED", changeCaptor.getValue().getStatus());
         ArgumentCaptor<TlAuditLog> logCaptor = ArgumentCaptor.forClass(TlAuditLog.class);
-        verify(auditLogMapper).insertAuditLog(logCaptor.capture());
+        verify(auditLogService).record(logCaptor.capture());
         assertEquals("驳回", logCaptor.getValue().getAction());
     }
 
@@ -288,7 +287,7 @@ class TlTagMappingServiceImplTest extends BaseServiceTest {
         assertTrue(e.getMessage().contains("已被他人修改"));
         verify(tagMapper, never()).updateMetadataById(any());
         verify(changeMapper, never()).updateChange(any());
-        verify(auditLogMapper, never()).insertAuditLog(any());
+        verify(auditLogService, never()).record(any());
     }
 
     // ---- 测试辅助 ----
