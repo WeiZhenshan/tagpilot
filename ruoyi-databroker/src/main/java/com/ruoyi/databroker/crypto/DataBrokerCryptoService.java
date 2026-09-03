@@ -18,6 +18,8 @@ public class DataBrokerCryptoService {
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH = 128;
+    /** application.yml 中 databroker.crypto.secret 的默认占位值 */
+    private static final String DEFAULT_PLACEHOLDER_SECRET = "change-me-32-bytes-secret-key";
 
     @Autowired
     private DataBrokerProperties properties;
@@ -27,6 +29,13 @@ public class DataBrokerCryptoService {
     @PostConstruct
     public void init() {
         String secret = properties.getCrypto().getSecret();
+        // 密钥公开/缺失时库中密码密文可被解密，启动即失败强制部署方配置
+        if (secret == null || secret.isEmpty()) {
+            throw new IllegalStateException("databroker.crypto.secret 未配置，请设置环境变量 DATABROKER_CRYPTO_SECRET 或在 application.yml 中配置");
+        }
+        if (DEFAULT_PLACEHOLDER_SECRET.equals(secret)) {
+            throw new IllegalStateException("databroker.crypto.secret 仍为默认占位值，请更换为自定义密钥（环境变量 DATABROKER_CRYPTO_SECRET）");
+        }
         // Ensure key is 16 bytes (128-bit) for AES
         byte[] keyBytes = new byte[16];
         byte[] secretBytes = secret.getBytes(StandardCharsets.UTF_8);
