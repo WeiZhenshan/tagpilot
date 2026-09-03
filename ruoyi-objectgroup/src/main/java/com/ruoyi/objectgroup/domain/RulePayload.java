@@ -13,6 +13,9 @@ public class RulePayload {
     /** 客户号字段名（别名） */
     private String objectKeyField;
 
+    /** 规则保存/生成时的数据集版本ID（运行期用于版本漂移告警） */
+    private Long datasetVersionId;
+
     /** 条件行 */
     private List<Condition> conditions;
 
@@ -99,6 +102,8 @@ public class RulePayload {
     public void setSchemaVersion(Integer schemaVersion) { this.schemaVersion = schemaVersion; }
     public String getObjectKeyField() { return objectKeyField; }
     public void setObjectKeyField(String objectKeyField) { this.objectKeyField = objectKeyField; }
+    public Long getDatasetVersionId() { return datasetVersionId; }
+    public void setDatasetVersionId(Long datasetVersionId) { this.datasetVersionId = datasetVersionId; }
     public List<Condition> getConditions() { return conditions; }
     public void setConditions(List<Condition> conditions) { this.conditions = conditions; }
     public List<PreviewColumn> getPreviewColumns() { return previewColumns; }

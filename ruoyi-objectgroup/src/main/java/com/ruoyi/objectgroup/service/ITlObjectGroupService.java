@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.objectgroup.domain.TlObjectGroup;
+import com.ruoyi.objectgroup.domain.vo.RuleRunResultVO;
 
 public interface ITlObjectGroupService {
 
@@ -21,8 +22,8 @@ public interface ITlObjectGroupService {
     /** 生成规则 SQL（预览弹窗） */
     String buildRuleSql(Long libraryId, RulePayload rule);
 
-    /** 执行 COUNT 并返回用户数；有 groupId 时回写 */
-    long runRule(Long groupId, Long libraryId, RulePayload rule);
+    /** 执行 COUNT 并返回用户数与提示；有 groupId 时回写 */
+    RuleRunResultVO runRule(Long groupId, Long libraryId, RulePayload rule);
 
     /** 样例预览：客户号 + 预览列，LIMIT 100 */
     Map<String, Object> previewRule(Long groupId, Long libraryId, RulePayload rule);

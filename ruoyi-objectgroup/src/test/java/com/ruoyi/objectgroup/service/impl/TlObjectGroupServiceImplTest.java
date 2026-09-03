@@ -2,11 +2,14 @@ package com.ruoyi.objectgroup.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -29,10 +32,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.ServiceException;
@@ -42,7 +47,9 @@ import com.ruoyi.databroker.domain.DpDataSource;
 import com.ruoyi.databroker.mapper.DpDataSourceMapper;
 import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
 import com.ruoyi.objectgroup.domain.RulePayload;
+import com.ruoyi.objectgroup.domain.TlObjectGroup;
 import com.ruoyi.objectgroup.domain.TlObjectGroupImport;
+import com.ruoyi.objectgroup.domain.vo.RuleRunResultVO;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupImportMapper;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupMapper;
@@ -76,6 +83,9 @@ class TlObjectGroupServiceImplTest {
     private DataBrokerProperties properties;
     @Mock
     private DataBrokerProperties.Jdbc jdbc;
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private TlObjectGroupServiceImpl service;
@@ -203,9 +213,10 @@ class TlObjectGroupServiceImplTest {
         when(ruleSqlBuilder.buildSql(LIBRARY_ID, rule, IRuleSqlBuilder.MODE_COUNT))
                 .thenReturn("select count(*) from `wide` where `cust_no` in (select `v` from `tmp_og_imp_" + BATCH + "`)");
 
-        long count = service.runRule(null, LIBRARY_ID, rule);
+        RuleRunResultVO result = service.runRule(null, LIBRARY_ID, rule);
 
-        assertEquals(42L, count);
+        assertEquals(42L, result.getCount());
+        assertNull(result.getWarning());
         // 主查询引用临时表，而非内联导入值
         ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
         verify(stmt).executeQuery(queryCaptor.capture());
@@ -276,5 +287,80 @@ class TlObjectGroupServiceImplTest {
         List<Map<String, Object>> rows = (List<Map<String, Object>>) result.get("rows");
         assertEquals(1, rows.size());
         assertEquals("C001", rows.get(0).get("cust_no"));
+    }
+
+    // ==================== 数据集版本基线（保存盖章 + 运行期漂移告警） ====================
+
+    @Test
+    void 保存对象群时把在线数据集版本写入规则基线() throws Exception {
+        TlObjectGroup group = new TlObjectGroup();
+        group.setGroupName("白金客户");
+        group.setLibraryId(LIBRARY_ID);
+        group.setRuleJson("{\"objectKeyField\":\"cust\",\"conditions\":[]}");
+        when(extMapper.selectOnlineVersionId(LIBRARY_ID)).thenReturn(9L);
+
+        service.insertObjectGroup(group);
+
+        verify(groupMapper).insertObjectGroup(group);
+        RulePayload saved = objectMapper.readValue(group.getRuleJson(), RulePayload.class);
+        assertEquals(9L, saved.getDatasetVersionId().longValue(), "保存时应盖章当前在线版本");
+    }
+
+    @Test
+    void 刷新计数时在线版本已切换返回告警且不改写规则基线() throws Exception {
+        TlObjectGroup saved = new TlObjectGroup();
+        saved.setGroupId(1L);
+        saved.setGroupName("白金客户");
+        saved.setLibraryId(LIBRARY_ID);
+        saved.setRuleJson("{\"objectKeyField\":\"cust\",\"datasetVersionId\":11,\"conditions\":[]}");
+        when(groupMapper.selectObjectGroupById(1L)).thenReturn(saved);
+        when(extMapper.selectOnlineVersionId(LIBRARY_ID)).thenReturn(12L);
+        Connection conn = mockOpenConnection();
+        Statement stmt = mock(Statement.class);
+        ResultSet rs = mock(ResultSet.class);
+        when(conn.createStatement()).thenReturn(stmt);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.next()).thenReturn(true);
+        when(rs.getLong(1)).thenReturn(88L);
+        when(jdbc.getSocketTimeout()).thenReturn(30000);
+        when(properties.getJdbc()).thenReturn(jdbc);
+        when(ruleSqlBuilder.buildSql(eq(LIBRARY_ID), any(RulePayload.class), eq(IRuleSqlBuilder.MODE_COUNT)))
+                .thenReturn("select count(*) from `wide`");
+
+        RuleRunResultVO result = service.runRule(1L, null, null);
+
+        assertEquals(88L, result.getCount());
+        assertNotNull(result.getWarning(), "版本切换时应返回告警");
+        assertTrue(result.getWarning().contains("重发布"), result.getWarning());
+        // 告警仅提示，回写 group_sql 时不得把新版本写成规则基线
+        ArgumentCaptor<TlObjectGroup> captor = ArgumentCaptor.forClass(TlObjectGroup.class);
+        verify(groupMapper).updateObjectGroup(captor.capture());
+        assertTrue(captor.getValue().getRuleJson().contains("\"datasetVersionId\":11"));
+        assertFalse(captor.getValue().getRuleJson().contains("\"datasetVersionId\":12"));
+    }
+
+    @Test
+    void 运行规则在线版本未切换不返回告警() throws Exception {
+        Connection conn = mockOpenConnection();
+        Statement stmt = mock(Statement.class);
+        ResultSet rs = mock(ResultSet.class);
+        when(conn.createStatement()).thenReturn(stmt);
+        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(rs.next()).thenReturn(true);
+        when(rs.getLong(1)).thenReturn(5L);
+        when(jdbc.getSocketTimeout()).thenReturn(30000);
+        when(properties.getJdbc()).thenReturn(jdbc);
+        RulePayload rule = new RulePayload();
+        rule.setObjectKeyField("cust");
+        rule.setDatasetVersionId(11L);
+        rule.setConditions(Collections.emptyList());
+        when(extMapper.selectOnlineVersionId(LIBRARY_ID)).thenReturn(11L);
+        when(ruleSqlBuilder.buildSql(LIBRARY_ID, rule, IRuleSqlBuilder.MODE_COUNT))
+                .thenReturn("select count(*) from `wide`");
+
+        RuleRunResultVO result = service.runRule(null, LIBRARY_ID, rule);
+
+        assertEquals(5L, result.getCount());
+        assertNull(result.getWarning());
     }
 }

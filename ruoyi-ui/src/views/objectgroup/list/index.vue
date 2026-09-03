@@ -90,8 +90,13 @@ export default {
     },
     handleRefreshCount(row) {
       runGroup({ groupId: row.groupId }).then(response => {
-        row.userCount = response.data
-        this.$modal.msgSuccess('已刷新，当前用户数 ' + row.userCount)
+        row.userCount = response.data.count
+        const warning = response.data.warning
+        if (warning) {
+          this.$modal.msgWarning('已刷新，当前用户数 ' + row.userCount + '；' + warning)
+        } else {
+          this.$modal.msgSuccess('已刷新，当前用户数 ' + row.userCount)
+        }
       }).catch(() => {})
     }
   }

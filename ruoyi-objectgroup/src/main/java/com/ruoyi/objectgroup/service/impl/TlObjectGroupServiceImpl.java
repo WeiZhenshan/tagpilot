@@ -31,6 +31,7 @@ import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.objectgroup.domain.TlObjectGroup;
 import com.ruoyi.objectgroup.domain.TlObjectGroupImport;
+import com.ruoyi.objectgroup.domain.vo.RuleRunResultVO;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupImportMapper;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupMapper;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
@@ -98,6 +99,7 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             throw new ServiceException("请选择关联标签库");
         }
         group.setCreateBy(SecurityUtils.getUsername());
+        group.setRuleJson(stampDatasetVersion(group.getRuleJson(), group.getLibraryId()));
         int rows = groupMapper.insertObjectGroup(group);
         bindImportBatches(group.getRuleJson(), group.getGroupId());
         return rows;
@@ -107,6 +109,12 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     @Transactional
     public int updateObjectGroup(TlObjectGroup group) {
         group.setUpdateBy(SecurityUtils.getUsername());
+        Long libraryId = group.getLibraryId();
+        if (libraryId == null) {
+            TlObjectGroup saved = groupMapper.selectObjectGroupById(group.getGroupId());
+            libraryId = saved == null ? null : saved.getLibraryId();
+        }
+        group.setRuleJson(stampDatasetVersion(group.getRuleJson(), libraryId));
         int rows = groupMapper.updateObjectGroup(group);
         bindImportBatches(group.getRuleJson(), group.getGroupId());
         return rows;
@@ -127,20 +135,14 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     }
 
     @Override
-    public long runRule(Long groupId, Long libraryId, RulePayload rule) {
+    public RuleRunResultVO runRule(Long groupId, Long libraryId, RulePayload rule) {
         // 列表页刷新按钮只传 groupId：从库中加载规则
         if (groupId != null && (rule == null || rule.getConditions() == null)) {
-            TlObjectGroup group = groupMapper.selectObjectGroupById(groupId);
-            if (group == null) {
-                throw new ServiceException("对象群不存在");
-            }
+            TlObjectGroup group = requireGroup(groupId);
             libraryId = group.getLibraryId();
-            try {
-                rule = objectMapper.readValue(group.getRuleJson(), RulePayload.class);
-            } catch (Exception e) {
-                throw new ServiceException("对象群规则解析失败");
-            }
+            rule = parseRule(group.getRuleJson());
         }
+        String warning = checkVersionDrift(groupId, libraryId, rule);
         String sql = ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_COUNT);
         long count = executeCount(sql, libraryId, rule);
         if (groupId != null) {
@@ -152,25 +154,23 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
                 groupMapper.updateObjectGroup(group);
             }
         }
-        return count;
+        return new RuleRunResultVO(count, warning);
     }
 
     @Override
     public Map<String, Object> previewRule(Long groupId, Long libraryId, RulePayload rule) {
         if (groupId != null && (rule == null || rule.getConditions() == null)) {
-            TlObjectGroup group = groupMapper.selectObjectGroupById(groupId);
-            if (group == null) {
-                throw new ServiceException("对象群不存在");
-            }
+            TlObjectGroup group = requireGroup(groupId);
             libraryId = group.getLibraryId();
-            try {
-                rule = objectMapper.readValue(group.getRuleJson(), RulePayload.class);
-            } catch (Exception e) {
-                throw new ServiceException("对象群规则解析失败");
-            }
+            rule = parseRule(group.getRuleJson());
         }
-        String sql = ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_SELECT);
-        return executeSelect(sql, libraryId, rule);
+        String warning = checkVersionDrift(groupId, libraryId, rule);
+        Map<String, Object> result = executeSelect(ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_SELECT),
+                libraryId, rule);
+        if (warning != null) {
+            result.put("warning", warning);
+        }
+        return result;
     }
 
     @Override
@@ -249,6 +249,77 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     }
 
     // ---- private ----
+
+    /** 按 groupId 加载对象群，不存在时抛业务异常 */
+    private TlObjectGroup requireGroup(Long groupId) {
+        TlObjectGroup group = groupMapper.selectObjectGroupById(groupId);
+        if (group == null) {
+            throw new ServiceException("对象群不存在");
+        }
+        return group;
+    }
+
+    /** 解析 rule_json；解析失败视为规则损坏 */
+    private RulePayload parseRule(String ruleJson) {
+        try {
+            return objectMapper.readValue(ruleJson, RulePayload.class);
+        } catch (Exception e) {
+            throw new ServiceException("对象群规则解析失败");
+        }
+    }
+
+    /** 保存时把当前在线数据集版本写入 rule_json，作为运行期版本漂移告警的基线 */
+    private String stampDatasetVersion(String ruleJson, Long libraryId) {
+        if (ruleJson == null || ruleJson.isEmpty() || libraryId == null) {
+            return ruleJson;
+        }
+        try {
+            RulePayload rule = objectMapper.readValue(ruleJson, RulePayload.class);
+            if (rule == null) {
+                return ruleJson;
+            }
+            Long online = extMapper.selectOnlineVersionId(libraryId);
+            if (online == null) {
+                return ruleJson; // 数据集未上线，无法确定基线，保持原样
+            }
+            rule.setDatasetVersionId(online);
+            return objectMapper.writeValueAsString(rule);
+        } catch (Exception e) {
+            log.warn("写入规则版本基线失败: {}", e.getMessage());
+            return ruleJson;
+        }
+    }
+
+    /**
+     * 版本漂移检测：规则基于的版本与当前在线版本不一致时返回告警。
+     * 前端提交的规则通常不带版本基线，此时回退读取库中已保存规则的基线。
+     */
+    private String checkVersionDrift(Long groupId, Long libraryId, RulePayload rule) {
+        if (rule == null) {
+            return null;
+        }
+        Long baseline = rule.getDatasetVersionId();
+        if (baseline == null && groupId != null) {
+            TlObjectGroup saved = groupMapper.selectObjectGroupById(groupId);
+            if (saved != null && saved.getRuleJson() != null) {
+                try {
+                    RulePayload savedRule = objectMapper.readValue(saved.getRuleJson(), RulePayload.class);
+                    baseline = savedRule == null ? null : savedRule.getDatasetVersionId();
+                } catch (Exception e) {
+                    log.warn("解析已保存规则失败: {}", e.getMessage());
+                }
+            }
+        }
+        if (baseline == null) {
+            return null; // 历史规则无基线，不告警
+        }
+        Long online = extMapper.selectOnlineVersionId(libraryId);
+        if (online == null || online.equals(baseline)) {
+            return null;
+        }
+        return "数据集已重发布（规则基于版本 " + baseline + "，当前在线版本 " + online
+                + "），运行口径可能已变化，请确认规则字段后重新保存";
+    }
 
     /** 保存/更新后按 rule_json 里的批次号回填 group_id */
     private void bindImportBatches(String ruleJson, Long groupId) {

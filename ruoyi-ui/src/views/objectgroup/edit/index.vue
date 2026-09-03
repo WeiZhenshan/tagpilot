@@ -566,8 +566,13 @@ export default {
     handleRun() {
       if (!this.validateRule()) return
       runGroup({ groupId: this.groupId, libraryId: this.libraryId, rule: this.buildRule() }).then(response => {
-        this.userCount = response.data
-        this.$modal.msgSuccess('运行完成，用户数 ' + this.userCount)
+        this.userCount = response.data.count
+        const warning = response.data.warning
+        if (warning) {
+          this.$modal.msgWarning('运行完成，用户数 ' + this.userCount + '；' + warning)
+        } else {
+          this.$modal.msgSuccess('运行完成，用户数 ' + this.userCount)
+        }
       }).catch(() => {})
     },
     handleSqlPreview() {

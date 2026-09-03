@@ -87,8 +87,7 @@ public class TlObjectGroupController extends BaseController {
     @PreAuthorize("@ss.hasPermi('objectgroup:group:run')")
     @PostMapping("/run")
     public AjaxResult run(@RequestBody RuleRequest request) {
-        long count = groupService.runRule(request.getGroupId(), request.getLibraryId(), request.getRule());
-        return success(count);
+        return success(groupService.runRule(request.getGroupId(), request.getLibraryId(), request.getRule()));
     }
 
     /** 样例预览（客户号 + 预览列 LIMIT 100） */
