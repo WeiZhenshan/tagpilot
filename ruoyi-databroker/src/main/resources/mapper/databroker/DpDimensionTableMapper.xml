@@ -111,7 +111,10 @@
     </update>
 
     <select id="countLibraryReferences" parameterType="Long" resultType="int">
-        select count(*) from tl_tag_library_dimension where dimension_id = #{dimensionId}
+        select count(*)
+        from tl_tag_library_dimension r
+        join tl_tag_library l on l.library_id = r.library_id and l.del_flag = '0'
+        where r.dimension_id = #{dimensionId}
     </select>
 
     <select id="selectAvailableDatasources" resultType="java.util.Map">

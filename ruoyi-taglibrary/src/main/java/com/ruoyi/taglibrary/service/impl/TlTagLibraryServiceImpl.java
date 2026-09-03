@@ -127,12 +127,13 @@ public class TlTagLibraryServiceImpl implements ITlTagLibraryService {
                 throw new ServiceException("库内存在已上线标签，不能删除");
             }
         }
-        // 级联逻辑删目录+标签
+        // 级联逻辑删目录+标签，并物理清理默认码表关系（物理表无 del_flag，不清理会永久阻塞维表删除）
         for (Long id : libraryIds) {
             List<TlTagDir> dirs = dirMapper.selectDirList(id);
             for (TlTagDir dir : dirs) {
                 dirMapper.deleteDirById(dir.getDirId());
             }
+            dimensionMapper.deleteByLibraryId(id);
         }
         tagMapper.deleteTagByLibraryIds(libraryIds);
         return libraryMapper.deleteLibraryByIds(libraryIds);
