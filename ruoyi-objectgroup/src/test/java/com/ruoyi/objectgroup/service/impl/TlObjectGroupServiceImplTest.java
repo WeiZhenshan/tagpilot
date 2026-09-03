@@ -363,4 +363,50 @@ class TlObjectGroupServiceImplTest {
         assertEquals(5L, result.getCount());
         assertNull(result.getWarning());
     }
+
+    // ==================== 外部 SQL 异常脱敏 ====================
+
+    @Test
+    void 运行规则外部SQL异常脱敏为通用提示() throws Exception {
+        Connection conn = mockOpenConnection();
+        Statement stmt = mock(Statement.class);
+        when(conn.createStatement()).thenReturn(stmt);
+        when(jdbc.getSocketTimeout()).thenReturn(30000);
+        when(properties.getJdbc()).thenReturn(jdbc);
+        when(stmt.executeQuery(anyString()))
+                .thenThrow(new java.sql.SQLException("Table 'dw.wide' doesn't exist"));
+        RulePayload rule = new RulePayload();
+        rule.setObjectKeyField("cust");
+        rule.setConditions(Collections.emptyList());
+        when(ruleSqlBuilder.buildSql(LIBRARY_ID, rule, IRuleSqlBuilder.MODE_COUNT))
+                .thenReturn("select count(*) from `wide`");
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.runRule(null, LIBRARY_ID, rule));
+
+        assertTrue(e.getMessage().contains("查询数据源失败"), e.getMessage());
+        assertFalse(e.getMessage().contains("wide"), "外部库表名不得泄露给前端");
+    }
+
+    @Test
+    void 样例预览外部SQL异常脱敏为通用提示() throws Exception {
+        Connection conn = mockOpenConnection();
+        Statement stmt = mock(Statement.class);
+        when(conn.createStatement()).thenReturn(stmt);
+        when(jdbc.getSocketTimeout()).thenReturn(30000);
+        when(properties.getJdbc()).thenReturn(jdbc);
+        when(stmt.executeQuery(anyString()))
+                .thenThrow(new java.sql.SQLException("Unknown column 'cust_no' in 'field list'"));
+        RulePayload rule = new RulePayload();
+        rule.setObjectKeyField("cust");
+        rule.setConditions(Collections.emptyList());
+        when(ruleSqlBuilder.buildSql(LIBRARY_ID, rule, IRuleSqlBuilder.MODE_SELECT))
+                .thenReturn("select `cust_no` from `wide`");
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.previewRule(null, LIBRARY_ID, rule));
+
+        assertTrue(e.getMessage().contains("查询数据源失败"), e.getMessage());
+        assertFalse(e.getMessage().contains("cust_no"), "外部库列名不得泄露给前端");
+    }
 }

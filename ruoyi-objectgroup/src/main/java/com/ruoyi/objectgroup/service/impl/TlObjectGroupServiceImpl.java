@@ -384,7 +384,9 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
-            throw new ServiceException("规则运行失败：" + e.getMessage());
+            // 外部库 SQL 异常原文含库表/列名等内部细节，只进服务端日志，前端给通用提示
+            log.error("对象群规则 COUNT 查询失败, libraryId={}", libraryId, e);
+            throw new ServiceException("查询数据源失败，请检查外部数据源后重试");
         }
     }
 
@@ -417,7 +419,9 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
-            throw new ServiceException("样例预览失败：" + e.getMessage());
+            // 外部库 SQL 异常原文含库表/列名等内部细节，只进服务端日志，前端给通用提示
+            log.error("对象群样例预览查询失败, libraryId={}", libraryId, e);
+            throw new ServiceException("查询数据源失败，请检查外部数据源后重试");
         }
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("columns", columns);
