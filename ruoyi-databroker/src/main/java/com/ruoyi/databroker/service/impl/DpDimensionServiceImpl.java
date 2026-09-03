@@ -272,8 +272,7 @@ public class DpDimensionServiceImpl implements IDpDimensionService {
 
         long total = 0;
         List<Map<String, Object>> rows = new ArrayList<>();
-        try (Connection conn = connectionFactory.createConnection(
-                ds.getHost(), ds.getPort(), ds.getDatabaseName(), ds.getUsername(), password)) {
+        try (Connection conn = connectionFactory.createConnection(ds, password)) {
             int timeout = Math.max(1, properties.getJdbc().getSocketTimeout() / 1000);
             // 总数
             try (PreparedStatement countStmt = conn.prepareStatement("SELECT COUNT(*) FROM " + tableName)) {
@@ -343,8 +342,7 @@ public class DpDimensionServiceImpl implements IDpDimensionService {
         String password = StringUtils.isNotEmpty(ds.getPasswordCipher())
                 ? cryptoService.decrypt(ds.getPasswordCipher()) : "";
         Set<String> columns = new HashSet<>();
-        try (Connection conn = connectionFactory.createConnection(
-                ds.getHost(), ds.getPort(), ds.getDatabaseName(), ds.getUsername(), password);
+        try (Connection conn = connectionFactory.createConnection(ds, password);
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT column_name FROM information_schema.COLUMNS WHERE table_schema = ? AND table_name = ?")) {
             stmt.setQueryTimeout(Math.max(1, properties.getJdbc().getSocketTimeout() / 1000));

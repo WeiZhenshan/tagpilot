@@ -142,3 +142,4 @@ databroker:
   jdbc:
     connectTimeout: 5000
     socketTimeout: 10000
+    poolMaxSize: 5

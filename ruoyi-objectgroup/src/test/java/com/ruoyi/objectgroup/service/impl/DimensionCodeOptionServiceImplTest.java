@@ -3,6 +3,7 @@ package com.ruoyi.objectgroup.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.lenient;
@@ -84,7 +85,7 @@ class DimensionCodeOptionServiceImplTest {
         ds.setPasswordCipher("cipher");
         when(extMapper.selectDataSourceByDataset(10L)).thenReturn(ds);
         when(cryptoService.decrypt("cipher")).thenReturn("pwd");
-        when(connectionFactory.createConnection("127.0.0.1", 3306, "dim_db", "root", "pwd")).thenReturn(conn);
+        when(connectionFactory.createConnection(any(DpDataSource.class), anyString())).thenReturn(conn);
     }
 
     /** mock 某张维表的参数化查询，返回给定的码值行（每行：tag_code, code_definition, tag_name_cn, code_sort, last_update_time） */

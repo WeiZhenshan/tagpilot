@@ -24,9 +24,12 @@ public class DataBrokerProperties {
     public static class Jdbc {
         private int connectTimeout = 5000;
         private int socketTimeout = 10000;
+        private int poolMaxSize = 5;
         public int getConnectTimeout() { return connectTimeout; }
         public void setConnectTimeout(int connectTimeout) { this.connectTimeout = connectTimeout; }
         public int getSocketTimeout() { return socketTimeout; }
         public void setSocketTimeout(int socketTimeout) { this.socketTimeout = socketTimeout; }
+        public int getPoolMaxSize() { return poolMaxSize; }
+        public void setPoolMaxSize(int poolMaxSize) { this.poolMaxSize = poolMaxSize; }
     }
 }

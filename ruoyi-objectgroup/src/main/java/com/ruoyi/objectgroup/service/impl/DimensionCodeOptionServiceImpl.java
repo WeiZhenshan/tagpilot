@@ -162,8 +162,7 @@ public class DimensionCodeOptionServiceImpl implements IDimensionCodeOptionServi
             password = cryptoService.decrypt(ds.getPasswordCipher());
         }
         try {
-            return connectionFactory.createConnection(
-                    ds.getHost(), ds.getPort(), ds.getDatabaseName(), ds.getUsername(), password);
+            return connectionFactory.createConnection(ds, password);
         } catch (Exception e) {
             throw new ServiceException("连接数据源失败：" + e.getMessage());
         }

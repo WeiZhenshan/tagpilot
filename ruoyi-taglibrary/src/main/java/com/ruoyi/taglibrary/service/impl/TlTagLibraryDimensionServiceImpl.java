@@ -169,8 +169,7 @@ public class TlTagLibraryDimensionServiceImpl implements ITlTagLibraryDimensionS
 
         // key=(tag_name_en, tag_code) -> [code_definition, tag_name_cn, 来源维表名]
         Map<String, String[]> codeMap = new HashMap<>();
-        try (Connection conn = connectionFactory.createConnection(
-                ds.getHost(), ds.getPort(), ds.getDatabaseName(), ds.getUsername(), password)) {
+        try (Connection conn = connectionFactory.createConnection(ds, password)) {
             for (DpDimensionTable dim : dims) {
                 String tableName = dim.getSourceTableName();
                 if (tableName == null || !TABLE_NAME_PATTERN.matcher(tableName).matches()) {

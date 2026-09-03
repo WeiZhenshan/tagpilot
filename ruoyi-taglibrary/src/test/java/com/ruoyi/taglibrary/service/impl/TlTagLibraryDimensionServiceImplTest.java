@@ -3,6 +3,7 @@ package com.ruoyi.taglibrary.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -200,7 +201,7 @@ class TlTagLibraryDimensionServiceImplTest extends BaseServiceTest {
 
         Connection conn = mock(Connection.class);
         Statement stmt = mock(Statement.class);
-        when(connectionFactory.createConnection(anyString(), anyInt(), anyString(), anyString(), anyString()))
+        when(connectionFactory.createConnection(any(DpDataSource.class), anyString()))
                 .thenReturn(conn);
         when(conn.createStatement()).thenReturn(stmt);
         for (Map.Entry<String, List<String[]>> entry : tableRows.entrySet()) {

@@ -313,7 +313,7 @@ public class DpDimensionServiceImplTest {
         Connection conn = mock(Connection.class);
         PreparedStatement stmt = mock(PreparedStatement.class);
         ResultSet rs = mock(ResultSet.class);
-        when(connectionFactory.createConnection(anyString(), anyInt(), anyString(), anyString(), anyString()))
+        when(connectionFactory.createConnection(any(DpDataSource.class), anyString()))
                 .thenReturn(conn);
         when(conn.prepareStatement(contains("information_schema"))).thenReturn(stmt);
         when(stmt.executeQuery()).thenReturn(rs);

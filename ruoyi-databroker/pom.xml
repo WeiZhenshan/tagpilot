@@ -15,6 +15,12 @@
     </description>
 
     <dependencies>
+        <!-- 连接池，供 use_pool='1' 的数据源按数据源缓存使用 -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+
         <!-- MySQL驱动，供目标库元数据采集使用 -->
         <dependency>
             <groupId>mysql</groupId>

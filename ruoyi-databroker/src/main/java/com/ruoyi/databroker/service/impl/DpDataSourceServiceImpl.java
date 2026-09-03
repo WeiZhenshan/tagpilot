@@ -155,6 +155,9 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
         dataSource.setUpdateBy(SecurityUtils.getUsername());
         int rows = dataSourceMapper.updateDataSource(dataSource);
 
+        // 连接参数可能已变化，释放按旧配置缓存的连接池
+        connectionFactory.evictPool(dataSource.getDatasourceId());
+
         writeLog(dataSource.getDatasourceId(), "UPDATE", "1",
                 "修改数据源：" + dataSource.getSourceName(),
                 maskDetail(dataSource));
@@ -185,6 +188,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
             DpDataSource ds = dataSourceMapper.selectDataSourceById(id);
             if (ds != null) {
                 rows += dataSourceMapper.deleteDataSourceById(id);
+                connectionFactory.evictPool(id);
                 writeLog(id, "DELETE", "1", "删除数据源：" + ds.getSourceName(), null);
             }
         }
@@ -196,9 +200,9 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
         TestResultVO result = new TestResultVO();
         String password = resolvePassword(dataSource);
 
-        try (Connection conn = connectionFactory.createConnection(
-                dataSource.getHost(), dataSource.getPort(),
-                dataSource.getDatabaseName(), dataSource.getUsername(), password)) {
+        // 显式测试应反映表单中的最新配置：先释放可能按旧配置缓存的连接池
+        connectionFactory.evictPool(dataSource.getDatasourceId());
+        try (Connection conn = connectionFactory.createConnection(dataSource, password)) {
 
             String version = metadataCollector.fetchVersion(conn);
             result.setDbVersion(version);
@@ -227,8 +231,7 @@ public class DpDataSourceServiceImpl implements IDpDataSourceService {
         SyncResultVO result = new SyncResultVO();
         result.setSyncBatchNo(batchNo);
 
-        try (Connection conn = connectionFactory.createConnection(
-                ds.getHost(), ds.getPort(), ds.getDatabaseName(), ds.getUsername(), password)) {
+        try (Connection conn = connectionFactory.createConnection(ds, password)) {
 
             // Fetch version
             String version = metadataCollector.fetchVersion(conn);

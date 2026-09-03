@@ -588,8 +588,7 @@ public class DpDatasetServiceImpl implements IDpDatasetService {
         PreviewResultVO result = new PreviewResultVO();
         result.setColumns(columns);
         List<Map<String, Object>> rows = new ArrayList<>();
-        try (Connection conn = connectionFactory.createConnection(
-                ds.getHost(), ds.getPort(), ds.getDatabaseName(), ds.getUsername(), password);
+        try (Connection conn = connectionFactory.createConnection(ds, password);
              Statement stmt = conn.createStatement()) {
             stmt.setQueryTimeout(Math.max(1, properties.getJdbc().getSocketTimeout() / 1000));
             try (ResultSet rs = stmt.executeQuery(sql.toString())) {
