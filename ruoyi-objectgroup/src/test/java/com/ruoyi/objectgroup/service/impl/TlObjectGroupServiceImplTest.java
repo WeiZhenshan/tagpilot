@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -46,6 +47,7 @@ import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.databroker.domain.DpDataSource;
 import com.ruoyi.databroker.mapper.DpDataSourceMapper;
 import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
+import com.ruoyi.framework.web.service.PermissionService;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.objectgroup.domain.TlObjectGroup;
 import com.ruoyi.objectgroup.domain.TlObjectGroupImport;
@@ -83,6 +85,8 @@ class TlObjectGroupServiceImplTest {
     private DataBrokerProperties properties;
     @Mock
     private DataBrokerProperties.Jdbc jdbc;
+    @Mock
+    private PermissionService permissionService;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -132,6 +136,8 @@ class TlObjectGroupServiceImplTest {
         when(extMapper.selectDataSourceByDataset(100L)).thenReturn(ds);
         when(cryptoService.decrypt("cipher")).thenReturn("pwd");
         when(connectionFactory.createConnection(any(DpDataSource.class), anyString())).thenReturn(conn);
+        // 直接携带 libraryId+规则 的运行/预览默认放行；组内规则刷新路径不触发该权限点
+        lenient().when(permissionService.hasAnyPermi(anyString())).thenReturn(true);
         return conn;
     }
 
@@ -332,6 +338,8 @@ class TlObjectGroupServiceImplTest {
         assertEquals(88L, result.getCount());
         assertNotNull(result.getWarning(), "版本切换时应返回告警");
         assertTrue(result.getWarning().contains("重发布"), result.getWarning());
+        // 仅回传 groupId 的刷新执行群内已保存规则，不做请求级标签库可见性校验
+        verify(permissionService, never()).hasAnyPermi(anyString());
         // 告警仅提示，回写 group_sql 时不得把新版本写成规则基线
         ArgumentCaptor<TlObjectGroup> captor = ArgumentCaptor.forClass(TlObjectGroup.class);
         verify(groupMapper).updateObjectGroup(captor.capture());
@@ -408,5 +416,49 @@ class TlObjectGroupServiceImplTest {
 
         assertTrue(e.getMessage().contains("查询数据源失败"), e.getMessage());
         assertFalse(e.getMessage().contains("cust_no"), "外部库列名不得泄露给前端");
+    }
+
+    // ==================== 请求携带规则的标签库可见性校验（越权收敛） ====================
+
+    @Test
+    void 无标签库查看权限时请求携带规则的运行被拒绝且不连外部库() throws Exception {
+        when(permissionService.hasAnyPermi(anyString())).thenReturn(false);
+        RulePayload rule = new RulePayload();
+        rule.setObjectKeyField("cust");
+        rule.setConditions(Collections.emptyList());
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.runRule(null, LIBRARY_ID, rule));
+
+        assertTrue(e.getMessage().contains("无权"), e.getMessage());
+        verify(connectionFactory, never()).createConnection(any(DpDataSource.class), anyString());
+        verify(importMapper, never()).selectValuesByBatch(anyString());
+    }
+
+    @Test
+    void 无标签库查看权限时请求携带规则的预览被拒绝() throws Exception {
+        when(permissionService.hasAnyPermi(anyString())).thenReturn(false);
+        RulePayload rule = new RulePayload();
+        rule.setObjectKeyField("cust");
+        rule.setConditions(Collections.emptyList());
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.previewRule(null, LIBRARY_ID, rule));
+
+        assertTrue(e.getMessage().contains("无权"), e.getMessage());
+        verify(connectionFactory, never()).createConnection(any(DpDataSource.class), anyString());
+    }
+
+    @Test
+    void 缺libraryId时请求携带规则的运行给出明确提示() throws Exception {
+        RulePayload rule = new RulePayload();
+        rule.setObjectKeyField("cust");
+        rule.setConditions(Collections.emptyList());
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.runRule(null, null, rule));
+
+        assertTrue(e.getMessage().contains("缺少关联标签库"), e.getMessage());
+        verify(connectionFactory, never()).createConnection(any(DpDataSource.class), anyString());
     }
 }

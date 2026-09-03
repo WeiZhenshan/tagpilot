@@ -28,6 +28,7 @@ import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.databroker.domain.DpDataSource;
 import com.ruoyi.databroker.mapper.DpDataSourceMapper;
 import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
+import com.ruoyi.framework.web.service.PermissionService;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.objectgroup.domain.TlObjectGroup;
 import com.ruoyi.objectgroup.domain.TlObjectGroupImport;
@@ -74,6 +75,8 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     private DataBrokerProperties properties;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private PermissionService permissionService;
 
     @Override
     public List<TlObjectGroup> selectObjectGroupList(TlObjectGroup query) {
@@ -136,11 +139,17 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
 
     @Override
     public RuleRunResultVO runRule(Long groupId, Long libraryId, RulePayload rule) {
+        boolean ruleFromRequest = true;
         // 列表页刷新按钮只传 groupId：从库中加载规则
         if (groupId != null && (rule == null || rule.getConditions() == null)) {
             TlObjectGroup group = requireGroup(groupId);
             libraryId = group.getLibraryId();
             rule = parseRule(group.getRuleJson());
+            ruleFromRequest = false;
+        }
+        if (ruleFromRequest) {
+            // 请求直接携带 libraryId + 规则：校验当前用户对该标签库可见，收敛任意库探测
+            checkLibraryVisible(libraryId);
         }
         String warning = checkVersionDrift(groupId, libraryId, rule);
         String sql = ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_COUNT);
@@ -159,10 +168,16 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
 
     @Override
     public Map<String, Object> previewRule(Long groupId, Long libraryId, RulePayload rule) {
+        boolean ruleFromRequest = true;
         if (groupId != null && (rule == null || rule.getConditions() == null)) {
             TlObjectGroup group = requireGroup(groupId);
             libraryId = group.getLibraryId();
             rule = parseRule(group.getRuleJson());
+            ruleFromRequest = false;
+        }
+        if (ruleFromRequest) {
+            // 请求直接携带 libraryId + 规则：校验当前用户对该标签库可见，收敛任意库探测
+            checkLibraryVisible(libraryId);
         }
         String warning = checkVersionDrift(groupId, libraryId, rule);
         Map<String, Object> result = executeSelect(ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_SELECT),
@@ -257,6 +272,19 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             throw new ServiceException("对象群不存在");
         }
         return group;
+    }
+
+    /**
+     * 规则与 libraryId 直接来自请求时校验标签库可见：要求具备标签库读权限
+     * （对象群编辑页加载候选库/标签树本就依赖该权限；仅回传 groupId 的刷新不受限）
+     */
+    private void checkLibraryVisible(Long libraryId) {
+        if (libraryId == null) {
+            throw new ServiceException("缺少关联标签库");
+        }
+        if (!permissionService.hasAnyPermi("taglibrary:library:list,taglibrary:library:query")) {
+            throw new ServiceException("无权访问该标签库数据，请联系管理员授予标签库查看权限");
+        }
     }
 
     /** 解析 rule_json；解析失败视为规则损坏 */
