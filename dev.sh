@@ -7,6 +7,7 @@
 #   ./dev.sh status     查看状态
 #   ./dev.sh build      强制重新编译后端 (mvn clean package -DskipTests)
 #   PORT=8081 ./dev.sh start   指定前端端口 (默认 80)
+#   DATABROKER_CRYPTO_SECRET=xxx ./dev.sh start   指定数据代理加密密钥 (默认读取/生成本机 .databroker-crypto-secret)
 AppName=ruoyi-admin.jar
 
 # JVM参数
@@ -20,6 +21,9 @@ UI_DIR="$ROOT_DIR/ruoyi-ui"
 BACKEND_PORT=8080
 FRONTEND_PORT="${PORT:-80}"
 
+# 数据代理加密密钥文件（本机持久化，不入库不入 git；外部环境变量优先）
+SECRET_FILE="$ROOT_DIR/.databroker-crypto-secret"
+
 # 后端/前端进程识别模式
 BACKEND_PAT="ruoyi-admin.jar"
 FRONTEND_PAT="vue-cli-service"
@@ -29,7 +33,7 @@ green() { printf '\033[0;32m%s\033[0m\n' "$*"; }
 blue()  { printf '\033[0;34m%s\033[0m\n' "$*"; }
 
 if [ "$1" = "" ]; then
-    sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
 fi
 
@@ -45,6 +49,21 @@ select_java() {
         export JAVA_HOME="$JAVA8_HOME"
         export PATH="$JAVA_HOME/bin:$PATH"
     fi
+}
+
+# 数据代理模块要求自定义加密密钥（P2-16：拒绝默认占位值）。
+# 外部未设置时读取本机密钥文件，缺失则随机生成一次并持久化，避免每次重启都换钥导致存量密文不可解
+ensure_crypto_secret() {
+    [ -n "$DATABROKER_CRYPTO_SECRET" ] && return 0
+    if [ -f "$SECRET_FILE" ]; then
+        DATABROKER_CRYPTO_SECRET=$(cat "$SECRET_FILE")
+    else
+        DATABROKER_CRYPTO_SECRET=$(openssl rand -hex 32) || { red "生成加密密钥失败（缺少 openssl）"; exit 1; }
+        printf '%s' "$DATABROKER_CRYPTO_SECRET" > "$SECRET_FILE"
+        chmod 600 "$SECRET_FILE"
+        blue "已生成本机数据代理加密密钥文件: $SECRET_FILE"
+    fi
+    export DATABROKER_CRYPTO_SECRET
 }
 
 check_env() {
@@ -95,6 +114,7 @@ start()
     compile_backend_if_stale
 
     # 2. 启动后端
+    ensure_crypto_secret
     mkdir -p "$ROOT_DIR/logs"
     blue "启动后端 (端口 $BACKEND_PORT，日志: $BACKEND_LOG)..."
     nohup java $JVM_OPTS -jar "$JAR_PATH" > "$BACKEND_LOG" 2>&1 &

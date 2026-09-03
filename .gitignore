@@ -48,6 +48,9 @@ nbdist/
 # Redis 快照
 dump.rdb
 
+# 本机数据代理加密密钥（dev.sh 自动生成）
+.databroker-crypto-secret
+
 # Windows 上传路径误建目录（RuoYi 默认 uploadPath）
 /D:/
 
