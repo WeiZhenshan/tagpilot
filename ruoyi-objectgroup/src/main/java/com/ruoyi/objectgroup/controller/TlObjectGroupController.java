@@ -19,6 +19,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.objectgroup.domain.TlObjectGroup;
 import com.ruoyi.objectgroup.domain.TlTagCodeValue;
+import com.ruoyi.objectgroup.domain.vo.CodeValueSyncVO;
 import com.ruoyi.objectgroup.service.ICodeValueService;
 import com.ruoyi.objectgroup.service.IDimensionCodeOptionService;
 import com.ruoyi.objectgroup.service.ITlObjectGroupService;
@@ -126,8 +127,12 @@ public class TlObjectGroupController extends BaseController {
     @PreAuthorize("@ss.hasPermi('objectgroup:codevalue:sync')")
     @PostMapping("/codevalue/sync")
     public AjaxResult codeValueSync(@RequestBody TlTagCodeValue query) {
-        int count = codeValueService.syncCodeValue(query.getLibraryId(), query.getFieldName());
-        return success("同步 " + count + " 个码值");
+        CodeValueSyncVO result = codeValueService.syncCodeValue(query.getLibraryId(), query.getFieldName());
+        if (result.isTruncated()) {
+            return success("宽表码值超出同步上限，已同步前 " + result.getSyncedCount()
+                    + " 个（未清理其余码值）");
+        }
+        return success("同步 " + result.getSyncedCount() + " 个码值，并清理宽表中已不存在的码值");
     }
 
     /** 码值新增 */

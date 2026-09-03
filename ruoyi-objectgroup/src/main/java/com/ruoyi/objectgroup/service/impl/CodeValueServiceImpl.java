@@ -15,6 +15,7 @@ import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.databroker.domain.DpDataSource;
 import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
 import com.ruoyi.objectgroup.domain.TlTagCodeValue;
+import com.ruoyi.objectgroup.domain.vo.CodeValueSyncVO;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
 import com.ruoyi.objectgroup.mapper.TlTagCodeValueMapper;
 import com.ruoyi.objectgroup.service.ICodeValueService;
@@ -63,22 +64,29 @@ public class CodeValueServiceImpl implements ICodeValueService {
 
     @Override
     @Transactional
-    public int syncCodeValue(Long libraryId, String fieldName) {
+    public CodeValueSyncVO syncCodeValue(Long libraryId, String fieldName) {
         if (fieldName == null || fieldName.trim().isEmpty()) {
             throw new ServiceException("请选择要同步的标签");
         }
         String columnName = resolveColumnName(libraryId, fieldName);
         String tableName = resolveTableName(libraryId);
 
+        // 多读一行用于截断检测；ORDER BY 保证截断窗口稳定
         String sql = "select distinct `" + columnName.replace("`", "``") + "` from `"
-                + tableName.replace("`", "``") + "` limit " + MAX_CODE_COUNT;
+                + tableName.replace("`", "``") + "` order by `" + columnName.replace("`", "``")
+                + "` limit " + (MAX_CODE_COUNT + 1);
 
         List<String> codes = new ArrayList<>();
         try (Connection conn = openConnection(libraryId); Statement stmt = conn.createStatement()) {
             stmt.setQueryTimeout(Math.max(1, properties.getJdbc().getSocketTimeout() / 1000));
             try (ResultSet rs = stmt.executeQuery(sql)) {
                 while (rs.next()) {
-                    codes.add(String.valueOf(rs.getObject(1)));
+                    Object value = rs.getObject(1);
+                    // SQL NULL 跳过，避免落成字符串 "null"
+                    if (value == null) {
+                        continue;
+                    }
+                    codes.add(String.valueOf(value));
                 }
             }
         } catch (Exception e) {
@@ -87,6 +95,14 @@ public class CodeValueServiceImpl implements ICodeValueService {
 
         if (codes.isEmpty()) {
             throw new ServiceException("宽表该列无数据");
+        }
+
+        boolean truncated = codes.size() > MAX_CODE_COUNT;
+        if (truncated) {
+            codes = new ArrayList<>(codes.subList(0, MAX_CODE_COUNT));
+        } else {
+            // 全量对齐：宽表中已不存在的码值清理掉；截断时看不到完整码值集，保留其余行
+            codeValueMapper.deleteNotInCodes(libraryId, fieldName, codes);
         }
 
         String username = SecurityUtils.getUsername();
@@ -103,7 +119,7 @@ public class CodeValueServiceImpl implements ICodeValueService {
             cv.setUpdateBy(username);
             codeValueMapper.upsertCodeValue(cv);
         }
-        return count;
+        return new CodeValueSyncVO(count, truncated);
     }
 
     // ---- private ----
