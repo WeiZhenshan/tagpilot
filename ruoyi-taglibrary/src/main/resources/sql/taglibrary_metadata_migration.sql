@@ -4,7 +4,7 @@
 --   1. tl_tag_library_dimension 标签库默认码表关系表
 --   2. tl_tag_metadata_change 标签元数据变更表
 --   3. tl_audit_log 增加 request_id / detail_json 列
---   4. 默认码表与批量映射权限按钮（menu_id 2130-2135）
+--   4. 默认码表与批量映射权限按钮（menu_id 2130-2137）
 -- ----------------------------
 
 -- 标签库默认码表关系表（全部记录共同构成标签库的默认码表集合）
@@ -25,9 +25,13 @@ create table if not exists tl_tag_metadata_change (
     library_id    bigint(20)   not null                   comment '标签库ID',
     tag_id        bigint(20)   not null                   comment '标签ID',
     base_version  int(11)      not null default 0         comment '创建草稿时的 tl_tag.version',
+    change_type   varchar(16)  not null default 'METADATA' comment '变更类型（FIRST首次建档 METADATA元数据修改 SOURCE来源变更确认）',
     before_json   varchar(2000)         default null      comment '变更前快照（JSON，仅五个可改字段）',
     after_json    varchar(2000)         default null      comment '变更后快照（JSON，仅五个可改字段）',
+    source_before varchar(1000)         default null      comment '变更前来源快照JSON',
+    source_after  varchar(1000)         default null      comment '变更后来源快照JSON',
     status        varchar(16)  not null default 'DRAFT'   comment '状态（DRAFT草稿 PENDING待审核 APPROVED已通过 REJECTED已驳回）',
+    revision      int(11)      not null default 1         comment '草稿修订号（保存草稿递增，提交/审核校验）',
     apply_by      varchar(64)           default ''        comment '申请人',
     submit_time   datetime              default null      comment '提交时间',
     audit_by      varchar(64)           default ''        comment '审核人',
@@ -78,3 +82,11 @@ insert into sys_menu values('2132', '批量映射查询', '2102', '11', '#', '',
 insert into sys_menu values('2133', '映射草稿保存', '2102', '12', '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:save', '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('2134', '映射提交审核', '2102', '13', '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:submit', '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('2135', '元数据变更审批', '2103', '1',  '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:audit', '#', 'admin', sysdate(), '', null, '');
+
+-- 批量映射新增权限按钮（守卫可重复执行；存量库授权见 sql/tag_mapping_sync_upgrade_migration.sql）
+insert into sys_menu
+select '2136', '映射重新同步', '2102', '14', '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:sync', '#', 'admin', sysdate(), '', null, ''
+from dual where not exists (select 1 from sys_menu where menu_id = '2136');
+insert into sys_menu
+select '2137', '映射撤回申请', '2102', '15', '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:withdraw', '#', 'admin', sysdate(), '', null, ''
+from dual where not exists (select 1 from sys_menu where menu_id = '2137');
