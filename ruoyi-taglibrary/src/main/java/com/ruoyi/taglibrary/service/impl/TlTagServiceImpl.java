@@ -38,6 +38,8 @@ public class TlTagServiceImpl implements ITlTagService {
     private static final String STATUS_ONLINE = "2";
     private static final String STATUS_OFFLINE = "3";
     private static final String STATUS_INCOMPLETE = "4";
+    /** 元数据变更申请的待审核状态（tl_tag_metadata_change.status，与标签状态值域不同） */
+    private static final String CHANGE_PENDING = "PENDING";
 
     /** 创建方式：同步建档（其五项元数据只能走批量映射变更流程） */
     private static final String CREATE_WAY_SYNC = "同步";
@@ -219,7 +221,7 @@ public class TlTagServiceImpl implements ITlTagService {
             }
             // 元数据审核中的标签不能同时提交上线审核，避免两个审核针对不同内容
             if (!metadataChangeMapper.selectByTagIdAndStatusIn(tag.getTagId(),
-                    Collections.singletonList(STATUS_PENDING)).isEmpty()) {
+                    Collections.singletonList(CHANGE_PENDING)).isEmpty()) {
                 throw new ServiceException("标签「" + tag.getTagName() + "」存在待审核的元数据申请，不能提交上线审核");
             }
             tags.add(tag);

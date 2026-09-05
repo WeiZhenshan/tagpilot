@@ -166,6 +166,21 @@ class RuleTagValidatorTest {
     }
 
     @Test
+    void 客户号伪类型不参与类型一致性比较() {
+        // 前端按 isObjectKey 派生的"客户号"是伪类型，库中 cust_id 实际为数值型，不应误判变更
+        mockUsable(tag("cust", "客户号", "数值型", "2", "AVAILABLE"));
+        RulePayload.Condition c = condition("cust", "客户号");
+        c.setDataType("bigint");
+        // bigint 与库中快照 varchar 不一致时仍应报数据类型变更
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> validator.validateRule(LIBRARY_ID, VERSION_ID, ruleWith(c)));
+        assertTrue(e.getMessage().contains("数据类型已变更"), e.getMessage());
+        // dataType 一致时通过
+        c.setDataType("varchar");
+        assertDoesNotThrow(() -> validator.validateRule(LIBRARY_ID, VERSION_ID, ruleWith(c)));
+    }
+
+    @Test
     void 预览列与客户号纳入校验() {
         mockUsable(tag("sex", "性别", "选项型", "2", "AVAILABLE"));
         RulePayload rule = ruleWith();

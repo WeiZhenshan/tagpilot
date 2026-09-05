@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -161,6 +162,11 @@ class TlTagServiceImplTest extends BaseServiceTest {
                 () -> tagService.submit(new Long[]{TAG_ID}));
         assertTrue(e.getMessage().contains("待审核的元数据申请"));
         verify(tagMapper, never()).updateTagStatusBatch(any(), any(), any());
+        // 必须以变更申请的状态值域（PENDING）查询，而非标签状态值域（1）
+        ArgumentCaptor<List<String>> statusCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataChangeMapper).selectByTagIdAndStatusIn(eq(TAG_ID), statusCaptor.capture());
+        assertTrue(statusCaptor.getValue().contains("PENDING"),
+                "应查询变更状态 PENDING，实际：" + statusCaptor.getValue());
     }
 
     /** 正常提交上线：草稿状态且无元数据申请 → 置待审批并留痕 */

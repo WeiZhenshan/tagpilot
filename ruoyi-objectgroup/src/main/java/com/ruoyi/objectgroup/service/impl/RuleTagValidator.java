@@ -174,7 +174,9 @@ public class RuleTagValidator {
     /** 规则中声明的类型与库中实际类型一致性（旧规则缺省字段时跳过） */
     private void validateTypeConsistent(TagStatusRef tag, String declaredTagType, String declaredDataType) {
         String label = tag.getTagName() != null ? tag.getTagName() : tag.getFieldName();
-        if (declaredTagType != null && !declaredTagType.isEmpty() && !declaredTagType.equals(tag.getTagType())) {
+        // “客户号”是前端按 isObjectKey 派生的伪类型，库中记录的是实际类型（数值型/文本型），不参与比较
+        if (declaredTagType != null && !declaredTagType.isEmpty() && !"客户号".equals(declaredTagType)
+                && !declaredTagType.equals(tag.getTagType())) {
             throw new ServiceException("标签[" + label + "]的类型已变更（规则中为" + declaredTagType
                     + "，库中实际为" + tag.getTagType() + "），请修正规则");
         }
