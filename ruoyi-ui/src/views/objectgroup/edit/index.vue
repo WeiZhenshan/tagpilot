@@ -9,16 +9,20 @@
       <el-tree ref="tree" :data="treeData" node-key="id" :props="treeProps" highlight-current v-loading="treeLoading"
         default-expand-all :filter-node-method="filterNode">
         <span class="tree-node" slot-scope="{ data }">
-          <draggable v-if="isTagNode(data)" :list="[data]" :group="dragGroup" :clone="cloneCondition" :sort="false" class="tree-drag">
+          <draggable v-if="isTagDraggable(data)" :list="[data]" :group="dragGroup" :clone="cloneCondition" :sort="false" class="tree-drag">
             <span class="node-content">
               <span v-if="data.tagType" class="tag-dot" :style="{background: tagTypeColor(data.tagType)}"></span>
               <span>{{ data.label }}</span>
               <span v-if="data.isObjectKey === '1'" class="obj-key-badge">客户号</span>
             </span>
           </draggable>
-          <span v-else class="node-content">
+          <span v-else class="node-content" :class="{ 'node-disabled': isTagNode(data) }">
+            <span v-if="isTagNode(data) && data.tagType" class="tag-dot" :style="{background: tagTypeColor(data.tagType)}"></span>
             <span>{{ data.label }}</span>
-            <span v-if="data.count !== undefined" class="node-count">[{{ data.count }}]</span>
+            <el-tooltip v-if="isTagNode(data)" :content="tagDragBlockReason(data)" placement="top">
+              <span class="node-status-badge">{{ tagDragBlockReason(data) }}</span>
+            </el-tooltip>
+            <span v-else-if="data.count !== undefined" class="node-count">[{{ data.count }}]</span>
           </span>
         </span>
       </el-tree>
@@ -146,7 +150,17 @@
         <div v-show="sampleVisible" class="sample-panel">
           <div class="sample-panel-header">
             <span class="sample-panel-title">样例预览（前 100 行）</span>
+            <el-radio-group v-model="sampleDisplay" size="mini" style="margin-right: 10px;">
+              <el-radio-button :label="true">中文显示</el-radio-button>
+              <el-radio-button :label="false">原始编码</el-radio-button>
+            </el-radio-group>
             <el-button size="mini" icon="el-icon-top" title="上卷" @click="sampleVisible = false" />
+          </div>
+          <div v-if="sampleNotes.length > 0" class="sample-notes">
+            <div v-for="(note, i) in sampleNotes" :key="i" class="sample-note-item">
+              <i class="el-icon-warning-outline"></i>
+              <span>{{ note.column }}：{{ note.message }}</span>
+            </div>
           </div>
           <div class="preview-col-area">
             <span class="area-label">预览列</span>
@@ -230,15 +244,21 @@ export default {
       activeConditionId: undefined,
       objectKeyField: undefined,
       userCount: 0,
-      // 码值缓存 { fieldName: [options] }
+      // 码值缓存 { 'libraryId:fieldName': [options] }，键含标签库避免切库串数据
       codeCache: {},
+      // 码值请求序号 { 'libraryId:fieldName': n }，丢弃过期响应
+      codeReqSeq: {},
       // 弹窗
       sqlVisible: false,
       sqlText: '',
       sampleVisible: false,
       sampleLoading: false,
       sampleColumns: [],
-      sampleRows: [],
+      sampleRawRows: [],
+      sampleCnRows: [],
+      // true 展示中文副本 displayRows，false 展示原始编码 rows
+      sampleDisplay: true,
+      sampleNotes: [],
       formatVisible: false,
       formatText: '',
       // 保存弹窗
@@ -269,6 +289,9 @@ export default {
     activeCondName() {
       const c = this.conditions[this.activeIndex]
       return c ? c.tagName : ''
+    },
+    sampleRows() {
+      return this.sampleDisplay ? this.sampleCnRows : this.sampleRawRows
     }
   },
   watch: {
@@ -306,6 +329,7 @@ export default {
       this.objectKeyField = undefined
       this.userCount = 0
       this.codeCache = {}
+      this.codeReqSeq = {}
     },
     loadLibraries() {
       listLibrary({ pageNum: 1, pageSize: 100 }).then(response => {
@@ -338,6 +362,7 @@ export default {
       this.userCount = 0
       this.objectKeyField = undefined
       this.codeCache = {}
+      this.codeReqSeq = {}
       this.loadTree()
     },
     loadTree() {
@@ -347,10 +372,10 @@ export default {
       tagTree(this.libraryId, 'all').then(response => {
         this.treeData = response.data || []
         this.treeLoading = false
-        // 识别客户号字段
+        // 识别客户号字段（仅已上线且来源可用的标签）
         const walk = nodes => {
           for (const n of nodes || []) {
-            if (this.isTagNode(n) && n.isObjectKey === '1') {
+            if (this.isTagDraggable(n) && n.isObjectKey === '1') {
               this.objectKeyField = n.fieldName
               return
             }
@@ -368,31 +393,69 @@ export default {
         }
       })
     },
+    /** 码值缓存键：标签库 + 字段别名，切库后互不干扰 */
+    codeKey(fieldName) {
+      return this.libraryId + ':' + fieldName
+    },
     fetchCodeOptions(cond) {
       // 新码值链路：维表合并后的码值选项（无关联维表时返回空数组）
-      getCodeOptions({ libraryId: this.libraryId, fieldName: cond.fieldName }).then(response => {
-        this.$set(this.codeCache, cond.fieldName, response.data || [])
-      })
+      const libraryId = this.libraryId
+      const key = libraryId + ':' + cond.fieldName
+      const seq = (this.codeReqSeq[key] || 0) + 1
+      this.$set(this.codeReqSeq, key, seq)
+      getCodeOptions({ libraryId: libraryId, fieldName: cond.fieldName }).then(response => {
+        // 切库或同字段有新请求时丢弃过期响应
+        if (libraryId !== this.libraryId || this.codeReqSeq[key] !== seq) return
+        this.$set(this.codeCache, key, response.data || [])
+      }).catch(() => {})
     },
     codeOptions(cond) {
-      const options = this.codeCache[cond.fieldName] || []
-      // 旧规则兼容：已保存但当前选项中不存在的 code 补伪选项，回退展示原始 code
+      const options = this.codeCache[this.codeKey(cond.fieldName)] || []
+      // 旧规则兼容：已保存但当前选项中不存在的 code 补伪选项，用快照中文回显并标注失效
       const missing = this.invalidCodes(cond)
       if (missing.length === 0) return options
-      return options.concat(missing.map(v => ({ code: v })))
+      return options.concat(missing.map(v => {
+        const snapshot = (cond.selectedCodeOptions || []).find(s => String(s.code) === String(v))
+        const label = snapshot && snapshot.label ? snapshot.label : String(v)
+        return { code: v, codeDefinition: label + '（已失效）' }
+      }))
     },
     /** 已保存 values 中不在当前码值选项里的 code（码值未加载完成前不判定） */
     invalidCodes(cond) {
       if (cond.tagType !== '选项型' && cond.tagType !== '布尔型') return []
-      if (!(cond.fieldName in this.codeCache)) return []
-      const options = this.codeCache[cond.fieldName] || []
+      const key = this.codeKey(cond.fieldName)
+      if (!(key in this.codeCache)) return []
+      const options = this.codeCache[key] || []
       return (cond.values || []).filter(v =>
         v !== undefined && v !== null && v !== '' && !options.some(o => String(o.code) === String(v))
       )
     },
+    /** 码值中文显示：优先码表定义，回退已选快照，最后原码 */
+    codeLabel(cond, code) {
+      const options = this.codeCache[this.codeKey(cond.fieldName)] || []
+      const opt = options.find(o => String(o.code) === String(code))
+      if (opt) return opt.codeDefinition || opt.code
+      const snapshot = (cond.selectedCodeOptions || []).find(s => String(s.code) === String(code))
+      return snapshot && snapshot.label ? snapshot.label : String(code)
+    },
     // ==================== 树 ====================
     isTagNode(data) {
       return data && String(data.id).indexOf('tag-') === 0
+    },
+    /** 仅已上线且来源可用的标签允许拖入规则区/预览列 */
+    isTagDraggable(data) {
+      return this.isTagNode(data) && data.status === '2'
+        && (!data.sourceStatus || data.sourceStatus === 'AVAILABLE')
+    },
+    /** 不可拖拽标签的原因说明 */
+    tagDragBlockReason(data) {
+      if (data.status !== '2') {
+        const map = { '0': '未上线', '1': '上线审核中', '3': '已下线' }
+        return map[data.status] || '未上线'
+      }
+      if (data.sourceStatus === 'MISSING') return '来源缺失'
+      if (data.sourceStatus === 'CHANGED') return '来源变更待确认'
+      return '不可用'
     },
     parseNodeId(id) {
       return String(id).split('-')[1]
@@ -427,11 +490,11 @@ export default {
         importedCount: undefined
       }
     },
-    onRuleAdd() {
-      // 克隆语义下 vuedraggable 已 append；补码值加载
-      const last = this.conditions[this.conditions.length - 1]
-      if (last && (last.tagType === '选项型' || last.tagType === '布尔型')) {
-        this.fetchCodeOptions(last)
+    onRuleAdd(evt) {
+      // 克隆语义下 vuedraggable 已插入到 evt.newIndex；针对实际新增行加载码值选项
+      const item = this.conditions[evt.newIndex]
+      if (item && (item.tagType === '选项型' || item.tagType === '布尔型')) {
+        this.fetchCodeOptions(item)
       }
     },
     // ==================== 规则行操作 ====================
@@ -504,10 +567,10 @@ export default {
             expr += ' 在 ' + (c.values[0] || '无下限') + ' 至 ' + (c.values[1] || '无上限') + ' 之间'
             break
           case '选项型':
-            expr += ' 属于 ' + (c.values || []).join('/')
+            expr += ' 属于 ' + (c.values || []).map(v => this.codeLabel(c, v)).join('/')
             break
           case '布尔型':
-            expr += ' 为 ' + (c.values[0] || '?')
+            expr += ' 为 ' + (c.values && c.values[0] !== undefined && c.values[0] !== '' ? this.codeLabel(c, c.values[0]) : '?')
             break
           case '文本型':
             expr += ' ' + (c.operator === 'like' ? '模糊匹配' : '精准匹配') + ' ' + (c.values[0] || '?')
@@ -544,12 +607,21 @@ export default {
     /** 选项型/布尔型条件补 selectedCodeOptions（label 取当前选项显示文字，values 仍存真实 code） */
     buildCondition(c) {
       if (c.tagType !== '选项型' && c.tagType !== '布尔型') return c
-      const options = this.codeCache[c.fieldName] || []
+      const options = this.codeCache[this.codeKey(c.fieldName)] || []
       const selectedCodeOptions = (c.values || []).map(code => {
         const opt = options.find(o => String(o.code) === String(code))
         return { code: code, label: opt ? (opt.codeDefinition || opt.code) : String(code) }
       })
       return Object.assign({}, c, { selectedCodeOptions: selectedCodeOptions })
+    },
+    /** 失效编码检查：已保存码值不在当前码表中的条件，修正前禁止保存/运行 */
+    checkInvalidCodes() {
+      const stale = this.conditions.filter(c => this.invalidCodes(c).length > 0)
+      if (stale.length > 0) {
+        this.$modal.msgWarning('存在已失效码值，请修正后再操作：' + stale.map(c => c.tagName).join('、'))
+        return false
+      }
+      return true
     },
     validateRule() {
       if (this.conditions.length === 0) {
@@ -561,7 +633,7 @@ export default {
         this.$modal.msgWarning('存在未填写完整的规则行：' + invalid.map(c => c.tagName).join('、'))
         return false
       }
-      return true
+      return this.checkInvalidCodes()
     },
     handleRun() {
       if (!this.validateRule()) return
@@ -591,15 +663,18 @@ export default {
       this.sampleLoading = true
       previewGroup({ groupId: this.groupId, libraryId: this.libraryId, rule: this.buildRule() }).then(response => {
         this.sampleColumns = response.data.columns || []
-        this.sampleRows = response.data.rows || []
+        this.sampleRawRows = response.data.rows || []
+        // 后端中文副本；缺省（旧接口）回退原始编码
+        this.sampleCnRows = response.data.displayRows || this.sampleRawRows
+        this.sampleNotes = response.data.mappingNotes || []
         this.sampleLoading = false
       }).catch(() => { this.sampleLoading = false })
     },
     onPreviewColAdd(evt) {
-      // 拖入的是 cloneCondition 产出的规则对象，归一化为预览列 { tagId, fieldName, tagName }
+      // 拖入的是 cloneCondition 产出的规则对象，归一化为预览列 { tagId, fieldName, tagName, tagType, dataType }
       const item = this.previewColumns[evt.newIndex]
       if (!item) return
-      const col = { tagId: item.tagId, fieldName: item.fieldName, tagName: item.tagName }
+      const col = { tagId: item.tagId, fieldName: item.fieldName, tagName: item.tagName, tagType: item.tagType, dataType: item.dataType }
       this.previewColumns.splice(evt.newIndex, 1, col)
       const dupIndex = this.previewColumns.findIndex((c, i) => i !== evt.newIndex && c.tagId === col.tagId)
       if (dupIndex !== -1) {
@@ -625,6 +700,8 @@ export default {
         this.$modal.msgWarning('请选择标签库')
         return
       }
+      // 失效编码未修正前禁止保存
+      if (!this.checkInvalidCodes()) return
       // 编辑已有对象群：名称/描述已存在，直接保存；新建时才弹窗录入
       if (this.groupId) {
         this.doSave(this.groupName, this.groupDesc)
@@ -750,6 +827,39 @@ export default {
   background: #f56c6c;
   color: #fff;
   flex-shrink: 0;
+}
+
+/* 不可拖拽标签（未上线/来源不可用） */
+.node-disabled {
+  color: #c0c4cc;
+  cursor: not-allowed;
+}
+
+.node-status-badge {
+  margin-left: 6px;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 15px;
+  border-radius: 8px;
+  background: #f0f2f5;
+  color: #909399;
+  flex-shrink: 0;
+}
+
+/* 样例预览映射提示 */
+.sample-notes {
+  padding: 8px 14px;
+  background: #fdf6ec;
+  border-bottom: 1px solid #faecd8;
+  font-size: 12px;
+  color: #e6a23c;
+}
+
+.sample-note-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 20px;
 }
 
 /* 右侧面板 */
