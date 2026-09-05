@@ -26,7 +26,7 @@ create table dp_dataset (
   latest_version_no  int(8)        default 0                comment '最新版本号',
   owner_name         varchar(64)   default ''               comment '负责人',
   status             char(1)       default '0'              comment '状态（0正常 1停用）',
-  del_flag           char(1)       default '0'              comment '删除标志（0存在 2删除）',
+  del_flag           varchar(64)   default '0'              comment '删除标志（0存在 其他=删除时的记录ID）',
   create_by          varchar(64)   default ''               comment '创建者',
   create_time        datetime                               comment '创建时间',
   update_by          varchar(64)   default ''               comment '更新者',

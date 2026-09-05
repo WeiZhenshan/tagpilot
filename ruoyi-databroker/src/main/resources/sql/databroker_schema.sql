@@ -35,7 +35,7 @@ create table dp_datasource (
   last_sync_time   datetime                              comment '最近同步时间',
   last_sync_status char(1)       default '0'              comment '最近同步状态（0未同步 1成功 2失败）',
   last_error_msg   varchar(1000) default ''               comment '最近错误信息',
-  del_flag         char(1)       default '0'              comment '删除标志（0存在 2删除）',
+  del_flag         varchar(64)   default '0'              comment '删除标志（0存在 其他=删除时的记录ID）',
   create_by        varchar(64)   default ''               comment '创建者',
   create_time      datetime                              comment '创建时间',
   update_by        varchar(64)   default ''               comment '更新者',
