@@ -1,5 +1,7 @@
 package com.ruoyi.taglibrary.domain;
 
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -36,6 +38,13 @@ public class TlTagLibrary extends BaseEntity {
     /** 状态（0草稿 1待审批 2已上线 3已下线） */
     private String status;
 
+    /** 最近同步的数据集版本ID */
+    private Long lastSyncVersionId;
+
+    /** 最近同步时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date lastSyncTime;
+
     /** 删除标志（0存在 2删除） */
     private String delFlag;
 
@@ -70,6 +79,10 @@ public class TlTagLibrary extends BaseEntity {
     public void setOwnerName(String ownerName) { this.ownerName = ownerName; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public Long getLastSyncVersionId() { return lastSyncVersionId; }
+    public void setLastSyncVersionId(Long lastSyncVersionId) { this.lastSyncVersionId = lastSyncVersionId; }
+    public Date getLastSyncTime() { return lastSyncTime; }
+    public void setLastSyncTime(Date lastSyncTime) { this.lastSyncTime = lastSyncTime; }
     public String getDelFlag() { return delFlag; }
     public void setDelFlag(String delFlag) { this.delFlag = delFlag; }
     public Long getTagCount() { return tagCount; }

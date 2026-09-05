@@ -26,9 +26,12 @@ public interface TlTagMapper {
     /** 按标签库逻辑删除标签（级联删除用，del_flag 写主键ID，避开复合唯一键冲突） */
     int deleteTagByLibraryIds(Long[] libraryIds);
 
-    /** 更新字段的主键标记（同步字段时写入 is_object_key） */
-    int updateIsObjectKeyByField(@Param("libraryId") Long libraryId, @Param("fieldName") String fieldName,
-                                 @Param("isObjectKey") String isObjectKey, @Param("updateBy") String updateBy);
+    /** 同步对账刷新来源观测（来源版本/快照/指纹/状态 + is_object_key 补写），不动五项人工元数据与 version */
+    int updateSourceById(TlTag tag);
+
+    /** 批量标记来源状态（字段消失/停用时置 MISSING） */
+    int updateSourceStatusBatch(@Param("ids") Long[] ids, @Param("sourceStatus") String sourceStatus,
+                                @Param("updateBy") String updateBy);
 
     /** 统计库内已上线标签数（删除校验用） */
     int countOnlineByLibraryId(Long libraryId);

@@ -19,6 +19,11 @@
         <result property="createWay"       column="create_way"       />
         <result property="status"          column="status"           />
         <result property="version"         column="version"          />
+        <result property="sourceVersionId"     column="source_version_id"     />
+        <result property="sourceSnapshot"      column="source_snapshot"       />
+        <result property="sourceFingerprint"   column="source_fingerprint"    />
+        <result property="confirmedFingerprint" column="confirmed_fingerprint" />
+        <result property="sourceStatus"        column="source_status"         />
         <result property="delFlag"         column="del_flag"         />
         <result property="createBy"        column="create_by"        />
         <result property="createTime"      column="create_time"      />
@@ -30,7 +35,9 @@
     <sql id="selectVo">
         select t.tag_id, t.library_id, t.dir_id, t.field_name, t.tag_name, t.data_type, t.tag_type, t.is_object_key,
                t.business_caliber, t.tech_caliber, t.valid_period, t.update_cycle, t.create_way,
-               t.status, t.version, t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark,
+               t.status, t.version, t.source_version_id, t.source_snapshot, t.source_fingerprint,
+               t.confirmed_fingerprint, t.source_status,
+               t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark,
                l.library_name
         from tl_tag t
         left join tl_tag_library l on l.library_id = t.library_id
@@ -63,11 +70,13 @@
         insert into tl_tag (
             library_id, dir_id, field_name, tag_name, data_type, tag_type, is_object_key,
             business_caliber, tech_caliber, valid_period, update_cycle, create_way,
-            status, version, create_by, create_time, remark
+            status, version, source_version_id, source_snapshot, source_fingerprint, confirmed_fingerprint,
+            source_status, create_by, create_time, remark
         ) values (
             #{libraryId}, #{dirId}, #{fieldName}, #{tagName}, #{dataType}, #{tagType}, #{isObjectKey},
             #{businessCaliber}, #{techCaliber}, #{validPeriod}, #{updateCycle}, #{createWay},
-            #{status}, #{version}, #{createBy}, sysdate(), #{remark}
+            #{status}, #{version}, #{sourceVersionId}, #{sourceSnapshot}, #{sourceFingerprint}, #{confirmedFingerprint},
+            #{sourceStatus}, #{createBy}, sysdate(), #{remark}
         )
     </insert>
 
@@ -75,13 +84,15 @@
         insert into tl_tag (
             library_id, dir_id, field_name, tag_name, data_type, tag_type, is_object_key,
             business_caliber, tech_caliber, valid_period, update_cycle, create_way,
-            status, version, create_by, create_time, remark
+            status, version, source_version_id, source_snapshot, source_fingerprint, confirmed_fingerprint,
+            source_status, create_by, create_time, remark
         ) values
         <foreach collection="list" item="tag" separator=",">
             (
                 #{tag.libraryId}, #{tag.dirId}, #{tag.fieldName}, #{tag.tagName}, #{tag.dataType}, #{tag.tagType}, #{tag.isObjectKey},
                 #{tag.businessCaliber}, #{tag.techCaliber}, #{tag.validPeriod}, #{tag.updateCycle}, #{tag.createWay},
-                #{tag.status}, #{tag.version}, #{tag.createBy}, sysdate(), #{tag.remark}
+                #{tag.status}, #{tag.version}, #{tag.sourceVersionId}, #{tag.sourceSnapshot}, #{tag.sourceFingerprint},
+                #{tag.confirmedFingerprint}, #{tag.sourceStatus}, #{tag.createBy}, sysdate(), #{tag.remark}
             )
         </foreach>
     </insert>
@@ -113,9 +124,24 @@
         </foreach>
     </update>
 
-    <update id="updateIsObjectKeyByField">
-        update tl_tag set is_object_key = #{isObjectKey}, update_by = #{updateBy}, update_time = sysdate()
-        where library_id = #{libraryId} and field_name = #{fieldName} and del_flag = '0'
+    <update id="updateSourceById" parameterType="TlTag">
+        update tl_tag
+        set source_version_id = #{sourceVersionId},
+            source_snapshot = #{sourceSnapshot},
+            source_fingerprint = #{sourceFingerprint},
+            source_status = #{sourceStatus},
+            is_object_key = #{isObjectKey},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where tag_id = #{tagId}
+    </update>
+
+    <update id="updateSourceStatusBatch">
+        update tl_tag set source_status = #{sourceStatus}, update_by = #{updateBy}, update_time = sysdate()
+        where tag_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </update>
 
     <update id="moveTagBatch">
@@ -144,7 +170,9 @@
     <select id="selectTagByIdForUpdate" parameterType="Long" resultMap="TlTagResult">
         select t.tag_id, t.library_id, t.dir_id, t.field_name, t.tag_name, t.data_type, t.tag_type, t.is_object_key,
                t.business_caliber, t.tech_caliber, t.valid_period, t.update_cycle, t.create_way,
-               t.status, t.version, t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark
+               t.status, t.version, t.source_version_id, t.source_snapshot, t.source_fingerprint,
+               t.confirmed_fingerprint, t.source_status,
+               t.del_flag, t.create_by, t.create_time, t.update_by, t.update_time, t.remark
         from tl_tag t
         where t.tag_id = #{tagId} and t.del_flag = '0'
         for update

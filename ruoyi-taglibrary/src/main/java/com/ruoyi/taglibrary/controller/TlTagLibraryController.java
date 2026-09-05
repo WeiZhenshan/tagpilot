@@ -68,11 +68,11 @@ public class TlTagLibraryController extends BaseController {
         return toAjax(libraryService.deleteLibraryByIds(libraryIds));
     }
 
-    /** 增量同步数据集字段 */
+    /** 同步数据集字段（按当前在线版本对账，返回版本信息与统计） */
     @PreAuthorize("@ss.hasPermi('taglibrary:library:sync')")
     @PostMapping("/sync/{libraryId}")
     public AjaxResult sync(@PathVariable Long libraryId) {
-        return success("新增 " + libraryService.syncFields(libraryId) + " 个字段快照");
+        return AjaxResult.success("同步完成", libraryService.syncFields(libraryId));
     }
 
     /** 提交审批（草稿/已下线→待审批） */

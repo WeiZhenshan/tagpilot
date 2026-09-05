@@ -3,6 +3,7 @@ package com.ruoyi.taglibrary.service;
 import java.util.List;
 import com.ruoyi.taglibrary.domain.TlTagLibrary;
 import com.ruoyi.taglibrary.domain.vo.DatasetVO;
+import com.ruoyi.taglibrary.domain.vo.TagSyncResultVO;
 
 /**
  * 标签库Service接口
@@ -27,8 +28,8 @@ public interface ITlTagLibraryService {
     /** 批量删除（校验：已上线/待审批拒绝、含已上线标签拒绝；级联逻辑删目录+标签） */
     int deleteLibraryByIds(Long[] libraryIds);
 
-    /** 增量同步数据集字段，返回新增快照数 */
-    int syncFields(Long libraryId);
+    /** 同步数据集当前在线版本字段并对账（新增/缺失/恢复/来源变更），返回版本信息与对账统计 */
+    TagSyncResultVO syncFields(Long libraryId);
 
     /** 提交审批（草稿/已下线→待审批） */
     int submit(Long libraryId);

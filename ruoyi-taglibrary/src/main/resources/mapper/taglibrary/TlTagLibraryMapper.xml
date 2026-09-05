@@ -11,6 +11,8 @@
         <result property="datasetId"    column="dataset_id"    />
         <result property="ownerName"    column="owner_name"    />
         <result property="status"       column="status"        />
+        <result property="lastSyncVersionId" column="last_sync_version_id" />
+        <result property="lastSyncTime"      column="last_sync_time"       />
         <result property="delFlag"      column="del_flag"      />
         <result property="createBy"     column="create_by"     />
         <result property="createTime"   column="create_time"   />
@@ -26,7 +28,8 @@
 
     <sql id="selectVo">
         select l.library_id, l.library_name, l.library_code, l.category, l.tag_object, l.dataset_id, l.owner_name,
-               l.status, l.del_flag, l.create_by, l.create_time, l.update_by, l.update_time, l.remark,
+               l.status, l.last_sync_version_id, l.last_sync_time,
+               l.del_flag, l.create_by, l.create_time, l.update_by, l.update_time, l.remark,
                ds.dataset_name
         from tl_tag_library l
         left join dp_dataset ds on ds.dataset_id = l.dataset_id
@@ -61,6 +64,16 @@
 
     <select id="selectLibraryById" parameterType="Long" resultMap="TlTagLibraryResult">
         <include refid="selectVo"/> where l.library_id = #{libraryId} and l.del_flag = '0'
+    </select>
+
+    <!-- 行锁查询（不带联表，避免 for update 锁到 dp_dataset 行） -->
+    <select id="selectLibraryByIdForUpdate" parameterType="Long" resultMap="TlTagLibraryResult">
+        select l.library_id, l.library_name, l.library_code, l.category, l.tag_object, l.dataset_id, l.owner_name,
+               l.status, l.last_sync_version_id, l.last_sync_time,
+               l.del_flag, l.create_by, l.create_time, l.update_by, l.update_time, l.remark
+        from tl_tag_library l
+        where l.library_id = #{libraryId} and l.del_flag = '0'
+        for update
     </select>
 
     <select id="selectLibraryByCode" parameterType="String" resultMap="TlTagLibraryResult">
@@ -115,21 +128,11 @@
         order by d.dataset_id
     </select>
 
-    <!-- 默认版本在线则取默认版本；默认版本为空或已下线时回退取最新 ONLINE 版本 -->
-    <select id="selectOnlineVersionId" parameterType="Long" resultType="Long">
-        select v.version_id from dp_dataset d
-        join dp_dataset_version v on v.dataset_id = d.dataset_id and v.version_status = 'ONLINE'
-        where d.dataset_id = #{datasetId} and d.del_flag = '0' and d.status = '0'
-        order by (v.version_id = d.default_version_id) desc, v.version_no desc
-        limit 1
-    </select>
-
-    <select id="selectDatasetFields" parameterType="Long" resultType="com.ruoyi.taglibrary.domain.vo.DatasetFieldVO">
-        select f.field_alias as fieldName, c.column_comment as fieldComment, c.is_pk as isPk, f.data_type as dataType
-        from dp_dataset_field f
-        left join dp_meta_column c on c.column_id = f.source_column_id
-        where f.version_id = #{versionId} and f.enabled = '1'
-        order by f.order_num
-    </select>
+    <update id="updateLastSync">
+        update tl_tag_library
+        set last_sync_version_id = #{versionId}, last_sync_time = sysdate(),
+            update_by = #{updateBy}, update_time = sysdate()
+        where library_id = #{libraryId}
+    </update>
 
 </mapper>

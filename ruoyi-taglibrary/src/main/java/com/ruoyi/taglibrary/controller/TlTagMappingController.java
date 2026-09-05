@@ -17,6 +17,7 @@ import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagMetadataChange;
 import com.ruoyi.taglibrary.domain.dto.DraftSaveRequest;
 import com.ruoyi.taglibrary.domain.dto.MetadataChangeRequest;
+import com.ruoyi.taglibrary.domain.vo.TagSyncResultVO;
 import com.ruoyi.taglibrary.service.ITlTagLibraryService;
 import com.ruoyi.taglibrary.service.ITlTagMappingService;
 
@@ -46,17 +47,14 @@ public class TlTagMappingController extends BaseController {
         return getDataTable(mappingService.selectMappingList(query));
     }
 
-    /** 进入批量映射：增量同步标签库创建时关联数据集的所有字段为标签（幂等，尽力而为不阻塞映射查看） */
-    @PreAuthorize("@ss.hasPermi('taglibrary:tag:mapping:list')")
+    /** 进入/重新同步批量映射：按当前在线版本对账字段，返回版本信息与对账统计；业务失败返回真实失败原因 */
+    @PreAuthorize("@ss.hasPermi('taglibrary:tag:mapping:sync')")
     @PostMapping("/sync/{libraryId}")
     public AjaxResult syncFields(@PathVariable Long libraryId) {
-        try {
-            int count = libraryService.syncFields(libraryId);
-            return AjaxResult.success("同步完成，新增" + count + "个字段标签", count);
-        } catch (ServiceException e) {
-            // 数据集未上线/无启用字段等业务异常不阻塞进入页面，仍可查看现有映射
-            return AjaxResult.success(e.getMessage());
-        }
+        TagSyncResultVO result = libraryService.syncFields(libraryId);
+        return AjaxResult.success(String.format("同步完成：新增%d 失效%d 恢复%d 来源变更%d",
+                result.getAddedCount(), result.getMissingCount(),
+                result.getRestoredCount(), result.getChangedCount()), result);
     }
 
     /** 批量保存草稿 */

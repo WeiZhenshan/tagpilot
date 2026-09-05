@@ -54,11 +54,26 @@ public class TlTag extends BaseEntity {
     /** 创建方式（同步/自建） */
     private String createWay;
 
-    /** 状态（0草稿 1待审批 2已上线 3已下线） */
+    /** 状态（0草稿 1待审批 2已上线 3已下线 4待完善） */
     private String status;
 
     /** 版本号 */
     private Integer version;
+
+    /** 来源数据集版本ID（最近一次同步解析的版本） */
+    private Long sourceVersionId;
+
+    /** 来源字段快照JSON */
+    private String sourceSnapshot;
+
+    /** 来源指纹（最近同步观察值） */
+    private String sourceFingerprint;
+
+    /** 已确认来源指纹（元数据审核通过时写入） */
+    private String confirmedFingerprint;
+
+    /** 来源状态（AVAILABLE当前版本可用 MISSING来源缺失 CHANGED来源变更待确认） */
+    private String sourceStatus;
 
     /** 删除标志（0存在 2删除） */
     private String delFlag;
@@ -95,6 +110,16 @@ public class TlTag extends BaseEntity {
     public void setStatus(String status) { this.status = status; }
     public Integer getVersion() { return version; }
     public void setVersion(Integer version) { this.version = version; }
+    public Long getSourceVersionId() { return sourceVersionId; }
+    public void setSourceVersionId(Long sourceVersionId) { this.sourceVersionId = sourceVersionId; }
+    public String getSourceSnapshot() { return sourceSnapshot; }
+    public void setSourceSnapshot(String sourceSnapshot) { this.sourceSnapshot = sourceSnapshot; }
+    public String getSourceFingerprint() { return sourceFingerprint; }
+    public void setSourceFingerprint(String sourceFingerprint) { this.sourceFingerprint = sourceFingerprint; }
+    public String getConfirmedFingerprint() { return confirmedFingerprint; }
+    public void setConfirmedFingerprint(String confirmedFingerprint) { this.confirmedFingerprint = confirmedFingerprint; }
+    public String getSourceStatus() { return sourceStatus; }
+    public void setSourceStatus(String sourceStatus) { this.sourceStatus = sourceStatus; }
     public String getDelFlag() { return delFlag; }
     public void setDelFlag(String delFlag) { this.delFlag = delFlag; }
 
