@@ -3,6 +3,7 @@ package com.ruoyi.databroker.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import com.ruoyi.databroker.domain.DpDatasetVersion;
+import com.ruoyi.databroker.domain.vo.DpResolvedVersion;
 
 public interface DpDatasetVersionMapper {
     /** 版本列表（不含 definition_json） */
@@ -18,6 +19,9 @@ public interface DpDatasetVersionMapper {
     /** 查询数据集最新的 ONLINE 版本 ID，可排除指定版本 */
     Long selectLatestOnlineVersionId(@Param("datasetId") Long datasetId,
                                      @Param("excludeVersionId") Long excludeVersionId);
+
+    /** 解析在线版本（默认版本在线优先，否则版本号最大），无在线版本或数据集不可用返回 null */
+    DpResolvedVersion selectResolvedOnlineVersion(Long datasetId);
 
     int insertVersion(DpDatasetVersion version);
     int updateVersion(DpDatasetVersion version);

@@ -28,6 +28,23 @@
         <include refid="selectVo"/> where version_id = #{versionId} order by order_num
     </select>
 
+    <!-- 启用字段联查来源物理表名/列注释/主键标记及数据集数据源，供来源指纹与快照使用 -->
+    <select id="selectEnabledResolvedFields" parameterType="Long"
+            resultType="com.ruoyi.databroker.domain.vo.DpResolvedField">
+        select f.field_id as fieldId, f.field_alias as fieldAlias, f.field_name as fieldName,
+               f.data_type as dataType, f.is_object_key as isObjectKey,
+               c.is_pk as isPk, c.column_comment as columnComment,
+               f.source_table_id as sourceTableId, f.source_column_id as sourceColumnId,
+               t.object_name as tableName, d.datasource_id as datasourceId
+        from dp_dataset_field f
+        join dp_dataset_version v on v.version_id = f.version_id
+        join dp_dataset d on d.dataset_id = v.dataset_id
+        left join dp_meta_column c on c.column_id = f.source_column_id
+        left join dp_meta_table t on t.table_id = f.source_table_id
+        where f.version_id = #{versionId} and f.enabled = '1'
+        order by f.order_num
+    </select>
+
     <insert id="insertFields" parameterType="java.util.List">
         insert into dp_dataset_field (
             version_id, field_alias, field_name, source_table_id, source_column_id,
