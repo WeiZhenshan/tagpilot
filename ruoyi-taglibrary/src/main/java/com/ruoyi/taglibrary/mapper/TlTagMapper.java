@@ -23,7 +23,7 @@ public interface TlTagMapper {
     /** 批量移动标签到其他目录 */
     int moveTagBatch(@Param("ids") Long[] ids, @Param("dirId") Long dirId, @Param("updateBy") String updateBy);
 
-    /** 按标签库逻辑删除标签（级联删除用，del_flag='2'） */
+    /** 按标签库逻辑删除标签（级联删除用，del_flag 写主键ID，避开复合唯一键冲突） */
     int deleteTagByLibraryIds(Long[] libraryIds);
 
     /** 更新字段的主键标记（同步字段时写入 is_object_key） */

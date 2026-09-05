@@ -18,7 +18,7 @@ public interface TlTagLibraryMapper {
 
     int updateLibrary(TlTagLibrary library);
 
-    /** 逻辑删除（del_flag='2'） */
+    /** 逻辑删除（del_flag 写主键ID，避开 uk(library_code, del_flag) 复合唯一键冲突） */
     int deleteLibraryByIds(Long[] libraryIds);
 
     /** 状态机流转（草稿/待审批/已上线/已下线） */

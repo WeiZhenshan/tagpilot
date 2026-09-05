@@ -126,12 +126,15 @@
         </foreach>
     </update>
 
+    <!-- 逻辑删除写主键ID而非固定'2'：uk_tl_tag_field(library_id, field_name, del_flag) 复合唯一键，
+         固定'2'会导致同名字段标签删除一次后重建、再整库删除时撞键；只置存活行，已删行保持原标记 -->
     <update id="deleteTagByLibraryIds" parameterType="Long">
-        update tl_tag set del_flag = '2', update_time = sysdate()
+        update tl_tag set del_flag = tag_id, update_time = sysdate()
         where library_id in
         <foreach collection="array" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+        and del_flag = '0'
     </update>
 
     <select id="countOnlineByLibraryId" parameterType="Long" resultType="int">
