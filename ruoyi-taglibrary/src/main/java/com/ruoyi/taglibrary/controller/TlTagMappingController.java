@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -16,6 +17,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagMetadataChange;
 import com.ruoyi.taglibrary.domain.dto.DraftSaveRequest;
+import com.ruoyi.taglibrary.domain.dto.MetadataChangeDTO;
 import com.ruoyi.taglibrary.domain.dto.MetadataChangeRequest;
 import com.ruoyi.taglibrary.domain.vo.TagSyncResultVO;
 import com.ruoyi.taglibrary.service.ITlTagLibraryService;
@@ -57,12 +59,19 @@ public class TlTagMappingController extends BaseController {
                 result.getRestoredCount(), result.getChangedCount()), result);
     }
 
-    /** 批量保存草稿 */
+    /** 批量保存草稿（返回每条保存后的申请标识与修订号） */
     @PreAuthorize("@ss.hasPermi('taglibrary:tag:mapping:save')")
     @PutMapping("/draft")
     public AjaxResult saveDraft(@RequestBody DraftSaveRequest request) {
-        int saved = mappingService.saveDraft(request.getItems());
-        return AjaxResult.success("草稿保存成功，共保存" + saved + "条");
+        List<MetadataChangeDTO> saved = mappingService.saveDraft(request.getItems());
+        return AjaxResult.success("草稿保存成功，共保存" + saved.size() + "条", saved);
+    }
+
+    /** 申请人撤回待审申请为草稿（保留操作记录） */
+    @PreAuthorize("@ss.hasPermi('taglibrary:tag:mapping:withdraw')")
+    @PostMapping("/withdraw")
+    public AjaxResult withdraw(@RequestBody MetadataChangeRequest request) {
+        return toAjax(mappingService.withdraw(request.getChangeIds()));
     }
 
     /** 批量提交审核 */

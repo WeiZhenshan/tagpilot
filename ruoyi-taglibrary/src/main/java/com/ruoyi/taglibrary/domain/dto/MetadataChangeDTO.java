@@ -28,6 +28,15 @@ public class MetadataChangeDTO implements Serializable {
     /** 业务口径 */
     private String businessCaliber;
 
+    /** 元数据基线版本（保存时须等于 tl_tag.version） */
+    private Integer baseVersion;
+
+    /** 草稿修订号（刷新已有草稿时须等于当前草稿 revision） */
+    private Integer revision;
+
+    /** 保存后的变更记录ID（响应回填） */
+    private Long changeId;
+
     public Long getTagId() { return tagId; }
     public void setTagId(Long tagId) { this.tagId = tagId; }
     public String getTagName() { return tagName; }
@@ -40,4 +49,10 @@ public class MetadataChangeDTO implements Serializable {
     public void setTechCaliber(String techCaliber) { this.techCaliber = techCaliber; }
     public String getBusinessCaliber() { return businessCaliber; }
     public void setBusinessCaliber(String businessCaliber) { this.businessCaliber = businessCaliber; }
+    public Integer getBaseVersion() { return baseVersion; }
+    public void setBaseVersion(Integer baseVersion) { this.baseVersion = baseVersion; }
+    public Integer getRevision() { return revision; }
+    public void setRevision(Integer revision) { this.revision = revision; }
+    public Long getChangeId() { return changeId; }
+    public void setChangeId(Long changeId) { this.changeId = changeId; }
 }

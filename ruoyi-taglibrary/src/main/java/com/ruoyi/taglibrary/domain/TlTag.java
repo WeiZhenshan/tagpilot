@@ -78,6 +78,12 @@ public class TlTag extends BaseEntity {
     /** 删除标志（0存在 2删除） */
     private String delFlag;
 
+    /** 关键字（列表过滤用，匹配标签名/字段名，非表列） */
+    private String keyword;
+
+    /** 是否排除待完善标签（标签管理查询用，批量映射不过滤，非表列） */
+    private Boolean excludeIncomplete;
+
     public Long getTagId() { return tagId; }
     public void setTagId(Long tagId) { this.tagId = tagId; }
     public Long getLibraryId() { return libraryId; }
@@ -122,6 +128,10 @@ public class TlTag extends BaseEntity {
     public void setSourceStatus(String sourceStatus) { this.sourceStatus = sourceStatus; }
     public String getDelFlag() { return delFlag; }
     public void setDelFlag(String delFlag) { this.delFlag = delFlag; }
+    public String getKeyword() { return keyword; }
+    public void setKeyword(String keyword) { this.keyword = keyword; }
+    public Boolean getExcludeIncomplete() { return excludeIncomplete; }
+    public void setExcludeIncomplete(Boolean excludeIncomplete) { this.excludeIncomplete = excludeIncomplete; }
 
     @Override
     public String toString() {

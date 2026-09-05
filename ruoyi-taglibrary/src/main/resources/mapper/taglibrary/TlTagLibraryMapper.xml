@@ -50,7 +50,7 @@
                    sum(case when status = '2' then 1 else 0 end) as online_count,
                    sum(case when status = '3' then 1 else 0 end) as offline_count,
                    sum(case when status in ('0','1') then 1 else 0 end) as pending_count
-            from tl_tag where del_flag = '0' group by library_id
+            from tl_tag where del_flag = '0' and status != '4' group by library_id
         ) s on s.library_id = l.library_id
         <where>
             l.del_flag = '0'

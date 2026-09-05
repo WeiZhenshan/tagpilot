@@ -25,6 +25,15 @@ public class TagMappingVO extends TlTag {
     /** 是否本人草稿（草稿存在且申请人=当前用户） */
     private Boolean ownDraft;
 
+    /** 变更类型（FIRST首次建档 METADATA元数据修改 SOURCE来源变更确认） */
+    private String changeType;
+
+    /** 草稿修订号 */
+    private Integer revision;
+
+    /** 变更基线版本 */
+    private Integer baseVersion;
+
     public Long getChangeId() { return changeId; }
     public void setChangeId(Long changeId) { this.changeId = changeId; }
     public String getChangeStatus() { return changeStatus; }
@@ -35,4 +44,10 @@ public class TagMappingVO extends TlTag {
     public void setAfterJson(String afterJson) { this.afterJson = afterJson; }
     public Boolean getOwnDraft() { return ownDraft; }
     public void setOwnDraft(Boolean ownDraft) { this.ownDraft = ownDraft; }
+    public String getChangeType() { return changeType; }
+    public void setChangeType(String changeType) { this.changeType = changeType; }
+    public Integer getRevision() { return revision; }
+    public void setRevision(Integer revision) { this.revision = revision; }
+    public Integer getBaseVersion() { return baseVersion; }
+    public void setBaseVersion(Integer baseVersion) { this.baseVersion = baseVersion; }
 }

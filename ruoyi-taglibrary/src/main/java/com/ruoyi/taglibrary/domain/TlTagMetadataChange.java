@@ -26,11 +26,23 @@ public class TlTagMetadataChange extends BaseEntity {
     /** 创建草稿时的 tl_tag.version */
     private Integer baseVersion;
 
+    /** 变更类型（FIRST首次建档 METADATA元数据修改 SOURCE来源变更确认） */
+    private String changeType;
+
     /** 变更前快照（JSON，仅五个可改字段） */
     private String beforeJson;
 
     /** 变更后快照（JSON，仅五个可改字段） */
     private String afterJson;
+
+    /** 变更前来源快照JSON（已确认来源，无已确认则为 null） */
+    private String sourceBefore;
+
+    /** 变更后来源快照JSON（申请时的观测来源） */
+    private String sourceAfter;
+
+    /** 草稿修订号（保存草稿递增，提交/审核校验） */
+    private Integer revision;
 
     /** 状态（DRAFT草稿 PENDING待审核 APPROVED已通过 REJECTED已驳回） */
     private String status;
@@ -72,10 +84,18 @@ public class TlTagMetadataChange extends BaseEntity {
     public void setTagId(Long tagId) { this.tagId = tagId; }
     public Integer getBaseVersion() { return baseVersion; }
     public void setBaseVersion(Integer baseVersion) { this.baseVersion = baseVersion; }
+    public String getChangeType() { return changeType; }
+    public void setChangeType(String changeType) { this.changeType = changeType; }
     public String getBeforeJson() { return beforeJson; }
     public void setBeforeJson(String beforeJson) { this.beforeJson = beforeJson; }
     public String getAfterJson() { return afterJson; }
     public void setAfterJson(String afterJson) { this.afterJson = afterJson; }
+    public String getSourceBefore() { return sourceBefore; }
+    public void setSourceBefore(String sourceBefore) { this.sourceBefore = sourceBefore; }
+    public String getSourceAfter() { return sourceAfter; }
+    public void setSourceAfter(String sourceAfter) { this.sourceAfter = sourceAfter; }
+    public Integer getRevision() { return revision; }
+    public void setRevision(Integer revision) { this.revision = revision; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public String getApplyBy() { return applyBy; }

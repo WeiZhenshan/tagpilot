@@ -52,6 +52,9 @@
             <if test="fieldName != null and fieldName != ''">and t.field_name like concat('%', #{fieldName}, '%')</if>
             <if test="tagType != null and tagType != ''">and t.tag_type = #{tagType}</if>
             <if test="status != null and status != ''">and t.status = #{status}</if>
+            <if test="sourceStatus != null and sourceStatus != ''">and t.source_status = #{sourceStatus}</if>
+            <if test="keyword != null and keyword != ''">and (t.tag_name like concat('%', #{keyword}, '%') or t.field_name like concat('%', #{keyword}, '%'))</if>
+            <if test="excludeIncomplete == true">and t.status != '4'</if>
             <if test="createWay != null and createWay != ''">and t.create_way = #{createWay}</if>
             and t.del_flag = '0'
         </where>
@@ -178,6 +181,8 @@
         for update
     </select>
 
+    <!-- 审核通过回写五个可改字段，version 由 service 传入（旧值+1）；
+         FIRST/SOURCE 类型额外确认来源指纹并恢复来源可用，FIRST 同时将状态 4→0；来源列不置空 -->
     <update id="updateMetadataById" parameterType="TlTag">
         update tl_tag
         set tag_name = #{tagName},
@@ -186,6 +191,9 @@
             tech_caliber = #{techCaliber},
             business_caliber = #{businessCaliber},
             version = #{version},
+            <if test="status != null">status = #{status},</if>
+            <if test="confirmedFingerprint != null">confirmed_fingerprint = #{confirmedFingerprint},</if>
+            <if test="sourceStatus != null">source_status = #{sourceStatus},</if>
             update_by = #{updateBy},
             update_time = sysdate()
         where tag_id = #{tagId}
