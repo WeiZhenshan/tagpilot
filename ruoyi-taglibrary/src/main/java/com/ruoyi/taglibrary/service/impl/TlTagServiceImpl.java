@@ -118,6 +118,7 @@ public class TlTagServiceImpl implements ITlTagService {
             node.put("label", tag.getTagName());
             node.put("tagType", tag.getTagType());
             node.put("status", tag.getStatus());
+            node.put("sourceStatus", tag.getSourceStatus());
             node.put("dataType", tag.getDataType());
             node.put("fieldName", tag.getFieldName());
             node.put("isObjectKey", tag.getIsObjectKey());

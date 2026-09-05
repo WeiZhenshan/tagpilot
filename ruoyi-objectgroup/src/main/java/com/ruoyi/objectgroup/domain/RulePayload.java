@@ -86,6 +86,7 @@ public class RulePayload {
         private Long tagId;
         private String fieldName;
         private String tagName;
+        private String tagType;        // 布尔型/选项型/数值型/文本型/日期型/客户号（缺省不做中文翻译，兼容旧规则）
         private String dataType;
 
         public Long getTagId() { return tagId; }
@@ -94,6 +95,8 @@ public class RulePayload {
         public void setFieldName(String fieldName) { this.fieldName = fieldName; }
         public String getTagName() { return tagName; }
         public void setTagName(String tagName) { this.tagName = tagName; }
+        public String getTagType() { return tagType; }
+        public void setTagType(String tagType) { this.tagType = tagType; }
         public String getDataType() { return dataType; }
         public void setDataType(String dataType) { this.dataType = dataType; }
     }

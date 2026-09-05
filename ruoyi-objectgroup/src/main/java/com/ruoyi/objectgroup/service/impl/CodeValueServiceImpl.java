@@ -38,6 +38,8 @@ public class CodeValueServiceImpl implements ICodeValueService {
     private DataBrokerCryptoService cryptoService;
     @Autowired
     private DataBrokerProperties properties;
+    @Autowired
+    private com.ruoyi.databroker.service.DpOnlineVersionResolver onlineVersionResolver;
 
     @Override
     public List<TlTagCodeValue> selectCodeValueList(TlTagCodeValue query) {
@@ -68,8 +70,9 @@ public class CodeValueServiceImpl implements ICodeValueService {
         if (fieldName == null || fieldName.trim().isEmpty()) {
             throw new ServiceException("请选择要同步的标签");
         }
-        String columnName = resolveColumnName(libraryId, fieldName);
-        String tableName = resolveTableName(libraryId);
+        Long versionId = resolveOnlineVersionId(libraryId);
+        String columnName = resolveColumnName(versionId, fieldName);
+        String tableName = resolveTableName(versionId);
 
         // 多读一行用于截断检测；ORDER BY 保证截断窗口稳定
         String sql = "select distinct `" + columnName.replace("`", "``") + "` from `"
@@ -124,11 +127,20 @@ public class CodeValueServiceImpl implements ICodeValueService {
 
     // ---- private ----
 
-    private String resolveColumnName(Long libraryId, String fieldName) {
-        Long versionId = extMapper.selectOnlineVersionId(libraryId);
-        if (versionId == null) {
+    /** 经 databroker 共用解析服务取在线版本ID（与对象群运行链路同一解析规则） */
+    private Long resolveOnlineVersionId(Long libraryId) {
+        Long datasetId = extMapper.selectDatasetIdByLibrary(libraryId);
+        if (datasetId == null) {
+            throw new ServiceException("标签库未关联数据集");
+        }
+        com.ruoyi.databroker.domain.vo.DpResolvedVersion version = onlineVersionResolver.resolve(datasetId);
+        if (version == null) {
             throw new ServiceException("关联标签库的数据集不存在或未上线");
         }
+        return version.getVersionId();
+    }
+
+    private String resolveColumnName(Long versionId, String fieldName) {
         String column = extMapper.selectColumnNameByAlias(versionId, fieldName);
         if (column == null) {
             throw new ServiceException("字段[" + fieldName + "]未在数据集中启用");
@@ -136,11 +148,7 @@ public class CodeValueServiceImpl implements ICodeValueService {
         return column;
     }
 
-    private String resolveTableName(Long libraryId) {
-        Long versionId = extMapper.selectOnlineVersionId(libraryId);
-        if (versionId == null) {
-            throw new ServiceException("关联标签库的数据集不存在或未上线");
-        }
+    private String resolveTableName(Long versionId) {
         String definitionJson = extMapper.selectVersionDefinitionJson(versionId);
         if (definitionJson == null || definitionJson.isEmpty()) {
             throw new ServiceException("数据集定义为空");

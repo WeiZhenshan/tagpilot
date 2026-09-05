@@ -26,8 +26,10 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.databroker.config.DataBrokerProperties;
 import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.databroker.domain.DpDataSource;
+import com.ruoyi.databroker.domain.vo.DpResolvedVersion;
 import com.ruoyi.databroker.mapper.DpDataSourceMapper;
 import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
+import com.ruoyi.databroker.service.DpOnlineVersionResolver;
 import com.ruoyi.framework.web.service.PermissionService;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.objectgroup.domain.TlObjectGroup;
@@ -36,6 +38,7 @@ import com.ruoyi.objectgroup.domain.vo.RuleRunResultVO;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupImportMapper;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupMapper;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
+import com.ruoyi.objectgroup.service.IDimensionCodeOptionService;
 import com.ruoyi.objectgroup.service.ITlObjectGroupService;
 import com.ruoyi.objectgroup.service.IRuleSqlBuilder;
 
@@ -77,6 +80,12 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     private ObjectMapper objectMapper;
     @Autowired
     private PermissionService permissionService;
+    @Autowired
+    private DpOnlineVersionResolver onlineVersionResolver;
+    @Autowired
+    private RuleTagValidator ruleTagValidator;
+    @Autowired
+    private IDimensionCodeOptionService dimensionCodeOptionService;
 
     @Override
     public List<TlObjectGroup> selectObjectGroupList(TlObjectGroup query) {
@@ -102,7 +111,7 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             throw new ServiceException("请选择关联标签库");
         }
         group.setCreateBy(SecurityUtils.getUsername());
-        group.setRuleJson(stampDatasetVersion(group.getRuleJson(), group.getLibraryId()));
+        group.setRuleJson(validateAndStampRule(group.getRuleJson(), group.getLibraryId()));
         int rows = groupMapper.insertObjectGroup(group);
         bindImportBatches(group.getRuleJson(), group.getGroupId());
         return rows;
@@ -117,7 +126,7 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             TlObjectGroup saved = groupMapper.selectObjectGroupById(group.getGroupId());
             libraryId = saved == null ? null : saved.getLibraryId();
         }
-        group.setRuleJson(stampDatasetVersion(group.getRuleJson(), libraryId));
+        group.setRuleJson(validateAndStampRule(group.getRuleJson(), libraryId));
         int rows = groupMapper.updateObjectGroup(group);
         bindImportBatches(group.getRuleJson(), group.getGroupId());
         return rows;
@@ -134,7 +143,12 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
 
     @Override
     public String buildRuleSql(Long libraryId, RulePayload rule) {
-        return ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_COUNT);
+        // 规则直接来自请求：与运行/预览同样收敛标签库可见性
+        checkLibraryVisible(libraryId);
+        Long datasetId = requireDatasetId(libraryId);
+        Long versionId = resolveOnlineVersionId(datasetId);
+        ruleTagValidator.validateRule(libraryId, versionId, rule);
+        return ruleSqlBuilder.buildSql(versionId, rule, IRuleSqlBuilder.MODE_COUNT);
     }
 
     @Override
@@ -151,9 +165,13 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             // 请求直接携带 libraryId + 规则：校验当前用户对该标签库可见，收敛任意库探测
             checkLibraryVisible(libraryId);
         }
-        String warning = checkVersionDrift(groupId, libraryId, rule);
-        String sql = ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_COUNT);
-        long count = executeCount(sql, libraryId, rule);
+        Long datasetId = requireDatasetId(libraryId);
+        Long versionId = resolveOnlineVersionId(datasetId);
+        String warning = checkVersionDrift(groupId, rule, versionId);
+        ruleTagValidator.validateRule(libraryId, versionId, rule);
+        ruleTagValidator.validateCodeValues(libraryId, rule);
+        String sql = ruleSqlBuilder.buildSql(versionId, rule, IRuleSqlBuilder.MODE_COUNT);
+        long count = executeCount(sql, datasetId, rule);
         if (groupId != null) {
             groupMapper.updateUserCount(groupId, count);
             TlObjectGroup group = groupMapper.selectObjectGroupById(groupId);
@@ -179,9 +197,13 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             // 请求直接携带 libraryId + 规则：校验当前用户对该标签库可见，收敛任意库探测
             checkLibraryVisible(libraryId);
         }
-        String warning = checkVersionDrift(groupId, libraryId, rule);
-        Map<String, Object> result = executeSelect(ruleSqlBuilder.buildSql(libraryId, rule, IRuleSqlBuilder.MODE_SELECT),
-                libraryId, rule);
+        Long datasetId = requireDatasetId(libraryId);
+        Long versionId = resolveOnlineVersionId(datasetId);
+        String warning = checkVersionDrift(groupId, rule, versionId);
+        ruleTagValidator.validateRule(libraryId, versionId, rule);
+        Map<String, Object> result = executeSelect(ruleSqlBuilder.buildSql(versionId, rule, IRuleSqlBuilder.MODE_SELECT),
+                datasetId, rule);
+        appendDisplayRows(result, libraryId, rule);
         if (warning != null) {
             result.put("warning", warning);
         }
@@ -296,33 +318,75 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         }
     }
 
-    /** 保存时把当前在线数据集版本写入 rule_json，作为运行期版本漂移告警的基线 */
-    private String stampDatasetVersion(String ruleJson, Long libraryId) {
+    /** 标签库关联的数据集ID，未关联时报错 */
+    private Long requireDatasetId(Long libraryId) {
+        Long datasetId = extMapper.selectDatasetIdByLibrary(libraryId);
+        if (datasetId == null) {
+            throw new ServiceException("标签库未关联数据集");
+        }
+        return datasetId;
+    }
+
+    /** 经 databroker 共用解析服务取在线版本ID，每次操作只解析一次并贯穿校验、SQL 生成与执行 */
+    private Long resolveOnlineVersionId(Long datasetId) {
+        DpResolvedVersion version = onlineVersionResolver.resolve(datasetId);
+        if (version == null) {
+            throw new ServiceException("关联标签库的数据集不存在或未上线");
+        }
+        return version.getVersionId();
+    }
+
+    /**
+     * 保存前统一校验规则并把当前在线数据集版本写入 rule_json，作为运行期版本漂移告警的基线。
+     * 规则为空时保持原样；数据集未上线且规则未引用字段时无法确定基线，保持原样。
+     */
+    private String validateAndStampRule(String ruleJson, Long libraryId) {
         if (ruleJson == null || ruleJson.isEmpty() || libraryId == null) {
             return ruleJson;
         }
+        RulePayload rule;
         try {
-            RulePayload rule = objectMapper.readValue(ruleJson, RulePayload.class);
-            if (rule == null) {
-                return ruleJson;
-            }
-            Long online = extMapper.selectOnlineVersionId(libraryId);
-            if (online == null) {
-                return ruleJson; // 数据集未上线，无法确定基线，保持原样
-            }
-            rule.setDatasetVersionId(online);
-            return objectMapper.writeValueAsString(rule);
+            rule = objectMapper.readValue(ruleJson, RulePayload.class);
         } catch (Exception e) {
-            log.warn("写入规则版本基线失败: {}", e.getMessage());
+            throw new ServiceException("对象群规则格式不正确");
+        }
+        if (rule == null) {
             return ruleJson;
         }
+        Long datasetId = extMapper.selectDatasetIdByLibrary(libraryId);
+        DpResolvedVersion version = datasetId == null ? null : onlineVersionResolver.resolve(datasetId);
+        if (version == null) {
+            if (ruleUsesFields(rule)) {
+                throw new ServiceException("关联标签库的数据集不存在或未上线");
+            }
+            return ruleJson; // 数据集未上线，无法确定基线，保持原样
+        }
+        ruleTagValidator.validateRule(libraryId, version.getVersionId(), rule);
+        ruleTagValidator.validateCodeValues(libraryId, rule);
+        rule.setDatasetVersionId(version.getVersionId());
+        try {
+            return objectMapper.writeValueAsString(rule);
+        } catch (Exception e) {
+            throw new ServiceException("对象群规则序列化失败");
+        }
+    }
+
+    /** 规则是否引用了字段（条件/预览列/客户号），决定数据集未上线时是否允许保存 */
+    private boolean ruleUsesFields(RulePayload rule) {
+        if (rule.getObjectKeyField() != null && !rule.getObjectKeyField().isEmpty()) {
+            return true;
+        }
+        if (rule.getConditions() != null && !rule.getConditions().isEmpty()) {
+            return true;
+        }
+        return rule.getPreviewColumns() != null && !rule.getPreviewColumns().isEmpty();
     }
 
     /**
      * 版本漂移检测：规则基于的版本与当前在线版本不一致时返回告警。
      * 前端提交的规则通常不带版本基线，此时回退读取库中已保存规则的基线。
      */
-    private String checkVersionDrift(Long groupId, Long libraryId, RulePayload rule) {
+    private String checkVersionDrift(Long groupId, RulePayload rule, Long onlineVersionId) {
         if (rule == null) {
             return null;
         }
@@ -341,11 +405,10 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         if (baseline == null) {
             return null; // 历史规则无基线，不告警
         }
-        Long online = extMapper.selectOnlineVersionId(libraryId);
-        if (online == null || online.equals(baseline)) {
+        if (onlineVersionId.equals(baseline)) {
             return null;
         }
-        return "数据集已重发布（规则基于版本 " + baseline + "，当前在线版本 " + online
+        return "数据集已重发布（规则基于版本 " + baseline + "，当前在线版本 " + onlineVersionId
                 + "），运行口径可能已变化，请确认规则字段后重新保存";
     }
 
@@ -396,8 +459,8 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     }
 
     /** 执行 COUNT 查询 */
-    private long executeCount(String sql, Long libraryId, RulePayload rule) {
-        try (Connection conn = openConnection(libraryId)) {
+    private long executeCount(String sql, Long datasetId, RulePayload rule) {
+        try (Connection conn = openConnection(datasetId)) {
             try {
                 hydrateImportTempTables(conn, rule);
                 try (Statement stmt = conn.createStatement()) {
@@ -413,16 +476,16 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             throw e;
         } catch (Exception e) {
             // 外部库 SQL 异常原文含库表/列名等内部细节，只进服务端日志，前端给通用提示
-            log.error("对象群规则 COUNT 查询失败, libraryId={}", libraryId, e);
+            log.error("对象群规则 COUNT 查询失败, datasetId={}", datasetId, e);
             throw new ServiceException("查询数据源失败，请检查外部数据源后重试");
         }
     }
 
     /** 执行 SELECT 预览（客户号 + 预览列） */
-    private Map<String, Object> executeSelect(String sql, Long libraryId, RulePayload rule) {
+    private Map<String, Object> executeSelect(String sql, Long datasetId, RulePayload rule) {
         List<String> columns = new ArrayList<>();
         List<Map<String, Object>> rows = new ArrayList<>();
-        try (Connection conn = openConnection(libraryId)) {
+        try (Connection conn = openConnection(datasetId)) {
             try {
                 hydrateImportTempTables(conn, rule);
                 try (Statement stmt = conn.createStatement()) {
@@ -448,13 +511,107 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             throw e;
         } catch (Exception e) {
             // 外部库 SQL 异常原文含库表/列名等内部细节，只进服务端日志，前端给通用提示
-            log.error("对象群样例预览查询失败, libraryId={}", libraryId, e);
+            log.error("对象群样例预览查询失败, datasetId={}", datasetId, e);
             throw new ServiceException("查询数据源失败，请检查外部数据源后重试");
         }
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("columns", columns);
         result.put("rows", rows);
         return result;
+    }
+
+    /**
+     * 生成中文显示副本 displayRows：选项型/布尔型预览列按维表码值翻译，
+     * 原始 rows 保留编码不动；空值保持空值，未映射的值显示原码并附提示，翻译失败不影响 rows
+     */
+    private void appendDisplayRows(Map<String, Object> result, Long libraryId, RulePayload rule) {
+        @SuppressWarnings("unchecked")
+        List<String> columns = (List<String>) result.get("columns");
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> rows = (List<Map<String, Object>>) result.get("rows");
+
+        // 需要翻译的列：结果列标签（tagName 或 fieldName）→ fieldName
+        Map<String, String> translateCols = new LinkedHashMap<>();
+        if (rule != null && rule.getPreviewColumns() != null) {
+            for (RulePayload.PreviewColumn pc : rule.getPreviewColumns()) {
+                if (pc.getFieldName() == null) {
+                    continue;
+                }
+                if (!"选项型".equals(pc.getTagType()) && !"布尔型".equals(pc.getTagType())) {
+                    continue;
+                }
+                String label = pc.getTagName() != null ? pc.getTagName() : pc.getFieldName();
+                if (columns.contains(label)) {
+                    translateCols.put(label, pc.getFieldName());
+                }
+            }
+        }
+
+        List<Map<String, String>> notes = new ArrayList<>();
+        // 各翻译列的 码值→中文定义 映射；null 表示该列翻译不可用
+        Map<String, Map<String, String>> mappings = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : translateCols.entrySet()) {
+            String label = entry.getKey();
+            try {
+                List<Map<String, Object>> options = dimensionCodeOptionService.listCodeOptions(libraryId, entry.getValue());
+                Map<String, String> map = new LinkedHashMap<>();
+                for (Map<String, Object> option : options) {
+                    Object code = option.get("code");
+                    Object def = option.get("codeDefinition");
+                    // 空中文定义视为未映射
+                    if (code != null && def != null && !String.valueOf(def).isEmpty()) {
+                        map.putIfAbsent(String.valueOf(code), String.valueOf(def));
+                    }
+                }
+                mappings.put(label, map);
+                if (map.isEmpty()) {
+                    notes.add(note(label, "未找到可用的码表映射，该列显示原始编码"));
+                }
+            } catch (Exception e) {
+                mappings.put(label, null);
+                log.warn("预览列[{}]码值翻译失败: {}", label, e.getMessage());
+                notes.add(note(label, "码表查询失败，该列显示原始编码"));
+            }
+        }
+
+        List<Map<String, Object>> displayRows = new ArrayList<>(rows.size());
+        Map<String, Set<String>> unmappedByCol = new LinkedHashMap<>();
+        for (Map<String, Object> row : rows) {
+            Map<String, Object> display = new LinkedHashMap<>(row);
+            for (String label : translateCols.keySet()) {
+                Object raw = row.get(label);
+                if (raw == null || String.valueOf(raw).isEmpty()) {
+                    continue; // 空值保持空值
+                }
+                Map<String, String> map = mappings.get(label);
+                if (map == null) {
+                    continue; // 翻译不可用，保留原码
+                }
+                String code = String.valueOf(raw);
+                String def = map.get(code);
+                if (def != null) {
+                    display.put(label, def);
+                } else {
+                    display.put(label, code + "（未映射）");
+                    unmappedByCol.computeIfAbsent(label, k -> new LinkedHashSet<>()).add(code);
+                }
+            }
+            displayRows.add(display);
+        }
+        for (Map.Entry<String, Set<String>> entry : unmappedByCol.entrySet()) {
+            notes.add(note(entry.getKey(), "码值 " + String.join("、", entry.getValue()) + " 无中文映射，已显示原码"));
+        }
+        result.put("displayRows", displayRows);
+        if (!notes.isEmpty()) {
+            result.put("mappingNotes", notes);
+        }
+    }
+
+    private Map<String, String> note(String column, String message) {
+        Map<String, String> note = new LinkedHashMap<>();
+        note.put("column", column);
+        note.put("message", message);
+        return note;
     }
 
     /**
@@ -528,11 +685,7 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     }
 
     /** 打开目标数据源连接（复用数据代理链路） */
-    private Connection openConnection(Long libraryId) {
-        Long datasetId = extMapper.selectDatasetIdByLibrary(libraryId);
-        if (datasetId == null) {
-            throw new ServiceException("标签库未关联数据集");
-        }
+    private Connection openConnection(Long datasetId) {
         DpDataSource ds = extMapper.selectDataSourceByDataset(datasetId);
         if (ds == null) {
             throw new ServiceException("数据集的数据源不存在");

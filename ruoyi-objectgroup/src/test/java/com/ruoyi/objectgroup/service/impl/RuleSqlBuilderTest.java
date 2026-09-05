@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,12 +19,13 @@ import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
 import com.ruoyi.objectgroup.service.IRuleSqlBuilder;
 
 /**
- * RuleSqlBuilder 单元测试：客户号导入条件必须生成临时表 join 而非巨型 IN
+ * RuleSqlBuilder 单元测试：客户号导入条件必须生成临时表 join 而非巨型 IN；
+ * 在线版本由调用方解析后传入，预览列失效不得静默跳过
  */
 @ExtendWith(MockitoExtension.class)
 class RuleSqlBuilderTest {
 
-    private static final Long LIBRARY_ID = 3L;
+    private static final Long VERSION_ID = 10L;
     private static final String BATCH = "0123456789abcdef0123456789abcdef";
 
     @Mock
@@ -38,11 +40,10 @@ class RuleSqlBuilderTest {
         ReflectionTestUtils.setField(builder, "objectMapper", new ObjectMapper());
     }
 
-    private void mockOnlineVersion() {
-        when(extMapper.selectOnlineVersionId(LIBRARY_ID)).thenReturn(10L);
-        when(extMapper.selectVersionDefinitionJson(10L)).thenReturn("{\"tableId\":5}");
+    private void mockVersion() {
+        when(extMapper.selectVersionDefinitionJson(VERSION_ID)).thenReturn("{\"tableId\":5}");
         when(extMapper.selectTableObjectName(5L)).thenReturn("wide_tbl");
-        when(extMapper.selectColumnNameByAlias(10L, "cust")).thenReturn("cust_no");
+        when(extMapper.selectColumnNameByAlias(VERSION_ID, "cust")).thenReturn("cust_no");
     }
 
     private RulePayload importRule(String batchNo) {
@@ -59,9 +60,9 @@ class RuleSqlBuilderTest {
 
     @Test
     void 导入条件生成临时表子查询且SQL保持短小() {
-        mockOnlineVersion();
+        mockVersion();
 
-        String sql = builder.buildSql(LIBRARY_ID, importRule(BATCH), IRuleSqlBuilder.MODE_COUNT);
+        String sql = builder.buildSql(VERSION_ID, importRule(BATCH), IRuleSqlBuilder.MODE_COUNT);
 
         assertTrue(sql.startsWith("select count(*) from `wide_tbl`"), sql);
         assertTrue(sql.contains("where `cust_no` in (select `v` from `tmp_og_imp_" + BATCH + "`)"), sql);
@@ -70,19 +71,61 @@ class RuleSqlBuilderTest {
 
     @Test
     void 非法批次号拒绝生成SQL() {
-        mockOnlineVersion();
+        mockVersion();
 
         ServiceException e = assertThrows(ServiceException.class,
-                () -> builder.buildSql(LIBRARY_ID, importRule("x'; drop table t; --"), IRuleSqlBuilder.MODE_COUNT));
+                () -> builder.buildSql(VERSION_ID, importRule("x'; drop table t; --"), IRuleSqlBuilder.MODE_COUNT));
         assertTrue(e.getMessage().contains("不合法"), e.getMessage());
     }
 
     @Test
     void 缺失批次号拒绝生成SQL() {
-        mockOnlineVersion();
+        mockVersion();
 
         ServiceException e = assertThrows(ServiceException.class,
-                () -> builder.buildSql(LIBRARY_ID, importRule(null), IRuleSqlBuilder.MODE_COUNT));
+                () -> builder.buildSql(VERSION_ID, importRule(null), IRuleSqlBuilder.MODE_COUNT));
         assertTrue(e.getMessage().contains("批次缺失"), e.getMessage());
+    }
+
+    @Test
+    void 版本为空拒绝生成SQL() {
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> builder.buildSql(null, importRule(BATCH), IRuleSqlBuilder.MODE_COUNT));
+        assertTrue(e.getMessage().contains("未上线"), e.getMessage());
+    }
+
+    @Test
+    void 失效预览列报错而非静默跳过() {
+        mockVersion();
+        when(extMapper.selectColumnNameByAlias(VERSION_ID, "sex")).thenReturn(null);
+        RulePayload rule = importRule(BATCH);
+        RulePayload.PreviewColumn pc = new RulePayload.PreviewColumn();
+        pc.setFieldName("sex");
+        pc.setTagName("性别");
+        rule.setPreviewColumns(Collections.singletonList(pc));
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> builder.buildSql(VERSION_ID, rule, IRuleSqlBuilder.MODE_SELECT));
+        assertTrue(e.getMessage().contains("性别"), e.getMessage());
+        assertTrue(e.getMessage().contains("未在数据集中启用"), e.getMessage());
+    }
+
+    @Test
+    void 预览列与客户号同列时跳过且正常出列() {
+        mockVersion();
+        when(extMapper.selectColumnNameByAlias(VERSION_ID, "sex")).thenReturn("sex_code");
+        RulePayload rule = importRule(BATCH);
+        RulePayload.PreviewColumn same = new RulePayload.PreviewColumn();
+        same.setFieldName("cust");
+        same.setTagName("客户号");
+        RulePayload.PreviewColumn pc = new RulePayload.PreviewColumn();
+        pc.setFieldName("sex");
+        pc.setTagName("性别");
+        rule.setPreviewColumns(Arrays.asList(same, pc));
+
+        String sql = builder.buildSql(VERSION_ID, rule, IRuleSqlBuilder.MODE_SELECT);
+
+        assertTrue(sql.startsWith("select `cust_no`, `sex_code` as `性别` from `wide_tbl`"), sql);
+        assertTrue(sql.endsWith("limit 100"), sql);
     }
 }

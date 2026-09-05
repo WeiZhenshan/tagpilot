@@ -12,13 +12,13 @@ public interface IRuleSqlBuilder {
 
     /**
      * 生成查询 SQL
-     * @param libraryId 标签库ID
+     * @param versionId 数据集在线版本ID（由调用方经 DpOnlineVersionResolver 单次解析后传入）
      * @param rule      规则载荷（conditions + objectKeyField + previewColumns）
      * @param mode      COUNT / SELECT
      * @return SQL 字符串
      */
-    String buildSql(Long libraryId, RulePayload rule, String mode);
+    String buildSql(Long versionId, RulePayload rule, String mode);
 
     /** 客户号物理列名（rule.objectKeyField 优先，回退库内 is_object_key） */
-    String resolveObjectKeyColumn(Long libraryId, RulePayload rule);
+    String resolveObjectKeyColumn(Long versionId, RulePayload rule);
 }

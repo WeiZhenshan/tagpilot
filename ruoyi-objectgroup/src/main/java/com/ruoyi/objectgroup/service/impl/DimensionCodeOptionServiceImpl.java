@@ -16,6 +16,7 @@ import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.databroker.domain.DpDataSource;
 import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
 import com.ruoyi.objectgroup.domain.DimensionTableRef;
+import com.ruoyi.objectgroup.domain.TagStatusRef;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
 import com.ruoyi.objectgroup.service.IDimensionCodeOptionService;
 
@@ -32,6 +33,17 @@ public class DimensionCodeOptionServiceImpl implements IDimensionCodeOptionServi
     private static final String TAG_TYPE_OPTION = "选项型";
     private static final String TAG_TYPE_BOOL = "布尔型";
 
+    /** 发布状态：已上线 */
+    private static final String STATUS_ONLINE = "2";
+    /** 发布状态：待完善（未通过首次元数据审核） */
+    private static final String STATUS_PENDING = "4";
+    /** 来源状态：可用 */
+    private static final String SOURCE_AVAILABLE = "AVAILABLE";
+    /** 来源状态：来源缺失 */
+    private static final String SOURCE_MISSING = "MISSING";
+    /** 来源状态：来源变更待确认 */
+    private static final String SOURCE_CHANGED = "CHANGED";
+
     @Autowired
     private TlObjectGroupExtMapper extMapper;
     @Autowired
@@ -46,12 +58,27 @@ public class DimensionCodeOptionServiceImpl implements IDimensionCodeOptionServi
         if (libraryId == null || fieldName == null || fieldName.trim().isEmpty()) {
             throw new ServiceException("标签库与标签字段不能为空");
         }
-        // 1. 校验标签存在且类型支持码值选项
-        String tagType = extMapper.selectTagTypeByField(libraryId, fieldName);
-        if (tagType == null) {
+        // 1. 校验标签存在、已上线、来源可用且类型支持码值选项
+        TagStatusRef tag = extMapper.selectTagRefByField(libraryId, fieldName);
+        if (tag == null) {
             throw new ServiceException("标签不存在或已删除");
         }
-        if (!TAG_TYPE_OPTION.equals(tagType) && !TAG_TYPE_BOOL.equals(tagType)) {
+        if (!STATUS_ONLINE.equals(tag.getStatus())) {
+            if (STATUS_PENDING.equals(tag.getStatus())) {
+                throw new ServiceException("标签尚未通过首次元数据审核（待完善），不能查询码值");
+            }
+            throw new ServiceException("标签未上线，不能查询码值");
+        }
+        if (SOURCE_MISSING.equals(tag.getSourceStatus())) {
+            throw new ServiceException("标签来源字段已缺失，不能查询码值");
+        }
+        if (SOURCE_CHANGED.equals(tag.getSourceStatus())) {
+            throw new ServiceException("标签来源已变更待确认，审核通过前不能查询码值");
+        }
+        if (!SOURCE_AVAILABLE.equals(tag.getSourceStatus())) {
+            throw new ServiceException("标签来源状态不可用，不能查询码值");
+        }
+        if (!TAG_TYPE_OPTION.equals(tag.getTagType()) && !TAG_TYPE_BOOL.equals(tag.getTagType())) {
             throw new ServiceException("该标签类型不支持码值选项");
         }
 

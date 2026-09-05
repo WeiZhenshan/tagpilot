@@ -50,8 +50,7 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
     private ObjectMapper objectMapper;
 
     @Override
-    public String buildSql(Long libraryId, RulePayload rule, String mode) {
-        Long versionId = extMapper.selectOnlineVersionId(libraryId);
+    public String buildSql(Long versionId, RulePayload rule, String mode) {
         if (versionId == null) {
             throw new ServiceException("关联标签库的数据集不存在或未上线");
         }
@@ -62,7 +61,7 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
 
         StringBuilder sql = new StringBuilder();
         if (MODE_SELECT.equals(mode)) {
-            String objectKeyCol = resolveObjectKeyColumnByVersion(versionId, rule);
+            String objectKeyCol = resolveObjectKeyColumn(versionId, rule);
             List<String> selectCols = new ArrayList<>();
             selectCols.add(backtick(objectKeyCol));
             if (rule.getPreviewColumns() != null) {
@@ -71,9 +70,11 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
                         continue;
                     }
                     String col = extMapper.selectColumnNameByAlias(versionId, pc.getFieldName());
-                    if (col != null) {
-                        selectCols.add(backtick(col) + " as " + backtick(pc.getTagName() != null ? pc.getTagName() : pc.getFieldName()));
+                    if (col == null) {
+                        // 失效预览列不得静默跳过，统一校验应已拦截，此处兜底
+                        throw new ServiceException("预览列标签[" + previewLabel(pc) + "]未在数据集中启用");
                     }
+                    selectCols.add(backtick(col) + " as " + backtick(pc.getTagName() != null ? pc.getTagName() : pc.getFieldName()));
                 }
             }
             sql.append("select ").append(String.join(", ", selectCols));
@@ -93,12 +94,15 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
     }
 
     @Override
-    public String resolveObjectKeyColumn(Long libraryId, RulePayload rule) {
-        Long versionId = extMapper.selectOnlineVersionId(libraryId);
+    public String resolveObjectKeyColumn(Long versionId, RulePayload rule) {
         if (versionId == null) {
             throw new ServiceException("关联标签库的数据集不存在或未上线");
         }
         return resolveObjectKeyColumnByVersion(versionId, rule);
+    }
+
+    private String previewLabel(RulePayload.PreviewColumn pc) {
+        return pc.getTagName() != null ? pc.getTagName() : String.valueOf(pc.getFieldName());
     }
 
     private String resolveObjectKeyColumnByVersion(Long versionId, RulePayload rule) {

@@ -2,15 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper">
 
-    <!-- 默认版本在线则取默认版本；默认版本为空或已下线时回退取最新 ONLINE 版本 -->
-    <select id="selectOnlineVersionId" parameterType="Long" resultType="Long">
-        select v.version_id from tl_tag_library l
-        join dp_dataset d on d.dataset_id = l.dataset_id and d.del_flag = '0' and d.status = '0'
-        join dp_dataset_version v on v.dataset_id = d.dataset_id and v.version_status = 'ONLINE'
-        where l.library_id = #{libraryId} and l.del_flag = '0'
-        order by (v.version_id = d.default_version_id) desc, v.version_no desc
-        limit 1
-    </select>
+    <!-- 在线版本解析统一走 databroker 的 DpOnlineVersionResolver，此处不再维护重复 SQL -->
 
     <select id="selectVersionDefinitionJson" parameterType="Long" resultType="String">
         select definition_json from dp_dataset_version where version_id = #{versionId}
@@ -63,10 +55,19 @@
         limit 1
     </select>
 
-    <select id="selectTagTypeByField" resultType="String">
-        select tag_type from tl_tag
+    <select id="selectTagRefByField" resultType="com.ruoyi.objectgroup.domain.TagStatusRef">
+        select tag_id as tagId, field_name as fieldName, tag_name as tagName,
+               tag_type as tagType, data_type as dataType, status, source_status as sourceStatus
+        from tl_tag
         where library_id = #{libraryId} and field_name = #{fieldName} and del_flag = '0'
         limit 1
+    </select>
+
+    <select id="selectTagRefsByLibrary" parameterType="Long" resultType="com.ruoyi.objectgroup.domain.TagStatusRef">
+        select tag_id as tagId, field_name as fieldName, tag_name as tagName,
+               tag_type as tagType, data_type as dataType, status, source_status as sourceStatus
+        from tl_tag
+        where library_id = #{libraryId} and del_flag = '0'
     </select>
 
     <!-- 标签库默认码表：已关联、启用、未删除且与标签库数据集同源的维表 -->

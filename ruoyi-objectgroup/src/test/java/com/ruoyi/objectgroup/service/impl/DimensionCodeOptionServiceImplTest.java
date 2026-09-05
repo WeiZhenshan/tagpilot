@@ -31,6 +31,7 @@ import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.databroker.domain.DpDataSource;
 import com.ruoyi.databroker.metadata.JdbcConnectionFactory;
 import com.ruoyi.objectgroup.domain.DimensionTableRef;
+import com.ruoyi.objectgroup.domain.TagStatusRef;
 import com.ruoyi.objectgroup.mapper.TlObjectGroupExtMapper;
 
 /**
@@ -125,9 +126,22 @@ class DimensionCodeOptionServiceImplTest {
         return ps;
     }
 
-    /** 标签存在且为选项型 + 返回给定的关联维表 */
+    /** 构造标签状态快照 */
+    private TagStatusRef tagRef(String tagType, String status, String sourceStatus) {
+        TagStatusRef ref = new TagStatusRef();
+        ref.setTagId(1L);
+        ref.setFieldName(FIELD_NAME);
+        ref.setTagName("性别");
+        ref.setTagType(tagType);
+        ref.setStatus(status);
+        ref.setSourceStatus(sourceStatus);
+        return ref;
+    }
+
+    /** 标签存在、已上线、来源可用且为选项型 + 返回给定的关联维表 */
     private void mockTagAndDimensions(List<DimensionTableRef> dims) {
-        when(extMapper.selectTagTypeByField(LIBRARY_ID, FIELD_NAME)).thenReturn("选项型");
+        when(extMapper.selectTagRefByField(LIBRARY_ID, FIELD_NAME))
+                .thenReturn(tagRef("选项型", "2", "AVAILABLE"));
         when(extMapper.selectEnabledDimensionsByLibrary(LIBRARY_ID)).thenReturn(dims);
     }
 
@@ -189,7 +203,8 @@ class DimensionCodeOptionServiceImplTest {
 
     @Test
     void 数值型标签不支持码值选项() {
-        when(extMapper.selectTagTypeByField(LIBRARY_ID, FIELD_NAME)).thenReturn("数值型");
+        when(extMapper.selectTagRefByField(LIBRARY_ID, FIELD_NAME))
+                .thenReturn(tagRef("数值型", "2", "AVAILABLE"));
 
         ServiceException e = assertThrows(ServiceException.class,
                 () -> service.listCodeOptions(LIBRARY_ID, FIELD_NAME));
@@ -199,11 +214,55 @@ class DimensionCodeOptionServiceImplTest {
 
     @Test
     void 标签不存在时抛异常() {
-        when(extMapper.selectTagTypeByField(LIBRARY_ID, FIELD_NAME)).thenReturn(null);
+        when(extMapper.selectTagRefByField(LIBRARY_ID, FIELD_NAME)).thenReturn(null);
 
         ServiceException e = assertThrows(ServiceException.class,
                 () -> service.listCodeOptions(LIBRARY_ID, FIELD_NAME));
         assertTrue(e.getMessage().contains("不存在"));
+        verifyNoInteractions(connectionFactory);
+    }
+
+    @Test
+    void 待完善标签不能查询码值() {
+        when(extMapper.selectTagRefByField(LIBRARY_ID, FIELD_NAME))
+                .thenReturn(tagRef("选项型", "4", "AVAILABLE"));
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.listCodeOptions(LIBRARY_ID, FIELD_NAME));
+        assertTrue(e.getMessage().contains("待完善"), e.getMessage());
+        verifyNoInteractions(connectionFactory);
+    }
+
+    @Test
+    void 未上线标签不能查询码值() {
+        when(extMapper.selectTagRefByField(LIBRARY_ID, FIELD_NAME))
+                .thenReturn(tagRef("选项型", "0", "AVAILABLE"));
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.listCodeOptions(LIBRARY_ID, FIELD_NAME));
+        assertTrue(e.getMessage().contains("未上线"), e.getMessage());
+        verifyNoInteractions(connectionFactory);
+    }
+
+    @Test
+    void 来源缺失标签不能查询码值() {
+        when(extMapper.selectTagRefByField(LIBRARY_ID, FIELD_NAME))
+                .thenReturn(tagRef("选项型", "2", "MISSING"));
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.listCodeOptions(LIBRARY_ID, FIELD_NAME));
+        assertTrue(e.getMessage().contains("缺失"), e.getMessage());
+        verifyNoInteractions(connectionFactory);
+    }
+
+    @Test
+    void 来源变更待确认标签不能查询码值() {
+        when(extMapper.selectTagRefByField(LIBRARY_ID, FIELD_NAME))
+                .thenReturn(tagRef("选项型", "2", "CHANGED"));
+
+        ServiceException e = assertThrows(ServiceException.class,
+                () -> service.listCodeOptions(LIBRARY_ID, FIELD_NAME));
+        assertTrue(e.getMessage().contains("待确认"), e.getMessage());
         verifyNoInteractions(connectionFactory);
     }
 
