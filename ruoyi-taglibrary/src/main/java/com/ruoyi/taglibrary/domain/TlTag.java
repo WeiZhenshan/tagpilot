@@ -84,6 +84,9 @@ public class TlTag extends BaseEntity {
     /** 是否排除待完善标签（标签管理查询用，批量映射不过滤，非表列） */
     private Boolean excludeIncomplete;
 
+    /** 是否包含来源缺失记录（批量映射"包含失效字段"开关，默认 null 不过滤，非表列） */
+    private Boolean includeMissing;
+
     public Long getTagId() { return tagId; }
     public void setTagId(Long tagId) { this.tagId = tagId; }
     public Long getLibraryId() { return libraryId; }
@@ -132,6 +135,8 @@ public class TlTag extends BaseEntity {
     public void setKeyword(String keyword) { this.keyword = keyword; }
     public Boolean getExcludeIncomplete() { return excludeIncomplete; }
     public void setExcludeIncomplete(Boolean excludeIncomplete) { this.excludeIncomplete = excludeIncomplete; }
+    public Boolean getIncludeMissing() { return includeMissing; }
+    public void setIncludeMissing(Boolean includeMissing) { this.includeMissing = includeMissing; }
 
     @Override
     public String toString() {

@@ -42,7 +42,12 @@
       <el-col :span="18">
         <el-card v-if="tagDetail.tagId" shadow="never">
           <div slot="header">标签详情
-            <el-button style="float: right; padding: 3px 0;" type="text" @click="openTagEdit" v-hasPermi="['taglibrary:tag:edit']">编辑</el-button>
+            <el-tooltip v-if="tagDetail.createWay === '同步'" content="同步标签的名称/类型/目录/口径请通过批量映射维护" placement="top">
+              <span style="float: right; padding: 3px 0;">
+                <el-button type="text" disabled>编辑</el-button>
+              </span>
+            </el-tooltip>
+            <el-button v-else style="float: right; padding: 3px 0;" type="text" @click="openTagEdit" v-hasPermi="['taglibrary:tag:edit']">编辑</el-button>
           </div>
           <el-row :gutter="16">
             <el-col :span="18">
