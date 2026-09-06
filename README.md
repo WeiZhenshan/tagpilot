@@ -10,7 +10,7 @@
 
 ## 项目简介
 
-**TagPilot** 是在 [RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue)（Spring Boot 2.5.15 / Java 8）基础上深度定制的标签客群管理系统，涵盖**数据中台（DataBroker）、标签库（TagLibrary）、客群圈选（ObjectGroup）**三大核心模块，提供从数据源接入、元数据管理、标签生产到客群筛选的一站式解决方案。
+**TagPilot** 是在 [RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue)（Spring Boot 2.5.15 / Java 8）基础上深度定制的标签客群管理系统，涵盖**数据源管理（DataBroker）、标签库（TagLibrary）、客群圈选（ObjectGroup）**三大核心模块，提供从数据源接入、元数据管理、标签生产到客群筛选的一站式解决方案。
 
 ### 架构总览
 
@@ -22,7 +22,7 @@
 │                  标签库 (TagLibrary)              │
 │     标签目录 · 标签管理 · 维度管理 · 映射同步 · 元数据审核 │
 ├─────────────────────────────────────────────────┤
-│                 数据中台 (DataBroker)              │
+│               数据源管理 (DataBroker)              │
 │   数据源管理 · 数据集版本管理 · 维表管理 · 元数据采集    │
 ├─────────────────────────────────────────────────┤
 │              RuoYi-Vue 基础平台                    │
@@ -34,7 +34,7 @@
 
 ## 核心模块
 
-### 1. 数据中台 (DataBroker) — `ruoyi-databroker`
+### 1. 数据源管理 (DataBroker) — `ruoyi-databroker`
 
 数据源与元数据管理层，为上层标签和客群提供统一的数据底座。
 
@@ -145,6 +145,25 @@ npm run dev       # 开发模式，端口 80，代理 /dev-api → localhost:808
 npm run build:prod # 生产构建
 ```
 
+### 一键启停 (`dev.sh`)
+
+项目提供 `dev.sh` 脚本参照 `ry.sh` 风格统一管理前后端进程：
+
+```bash
+./dev.sh start       # 启动前后端（jar 缺失或源码有更新时自动增量编译）
+./dev.sh stop        # 停止前后端
+./dev.sh restart     # 重启
+./dev.sh status      # 查看进程状态
+./dev.sh build       # 强制重新编译后端（mvn clean package -DskipTests）
+```
+
+脚本特性：
+- 自动检测 Redis（6379）和 MySQL（3306）是否就绪，未启动时中止并提示
+- 自动切换到本机 JDK 1.8（系统默认 JDK 17 时自动降级）
+- 数据源加密密钥自动管理：首次运行时随机生成并持久化到 `.databroker-crypto-secret`，避免每次重启换钥导致存量密文不可解
+- 支持自定义前端端口：`PORT=8081 ./dev.sh start`
+- 支持自定义加密密钥：`DATABROKER_CRYPTO_SECRET=xxx ./dev.sh start`
+
 ---
 
 ## 项目结构
@@ -154,7 +173,7 @@ ruoyi-admin          # 应用入口，Controller 层
 ruoyi-framework      # 安全框架、JWT、AOP、配置
 ruoyi-system         # RBAC 基础业务（用户/角色/菜单/部门）
 ruoyi-common         # 公共工具与基类
-ruoyi-databroker     # 数据中台模块
+ruoyi-databroker     # 数据源管理模块
 ruoyi-taglibrary     # 标签库模块
 ruoyi-objectgroup    # 客群圈选模块
 ruoyi-quartz         # 定时任务
