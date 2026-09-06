@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="logo" src="https://oscimg.oschina.net/oscnet/up-d3d0a9303e11d522a06cd263f3079027715.png">
+    <img alt="TagPilot Logo" src="docs/images/tagpilot-logo.png" width="180">
 </p>
 <h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">TagPilot 标签管理系统</h1>
 <h4 align="center">基于 RuoYi-Vue 的数据中台与标签客群一体化管理平台</h4>
