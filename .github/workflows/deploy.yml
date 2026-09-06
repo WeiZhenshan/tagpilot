@@ -1,0 +1,264 @@
+name: Deploy TagPilot
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tagpilot-production
+  cancel-in-progress: true
+
+jobs:
+
+  deploy:
+
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # =========================
+      # Checkout
+      # =========================
+
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+
+      # =========================
+      # Backend
+      # =========================
+
+      - name: Setup Java 8
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+
+      - name: Build backend
+        run: |
+          mvn -B clean package -DskipTests
+
+      - name: Check backend artifact
+        run: |
+          ls -lh ruoyi-admin/target/ruoyi-admin.jar
+
+
+      # =========================
+      # Frontend
+      # =========================
+
+      - name: Setup Node.js 16
+        uses: actions/setup-node@v7
+        with:
+          node-version: '16'
+          package-manager-cache: false
+
+      - name: Install frontend dependencies
+        working-directory: ruoyi-ui
+        run: |
+          npm install --no-audit --no-fund
+
+      - name: Build frontend
+        working-directory: ruoyi-ui
+        run: |
+          npm run build:prod
+
+      - name: Package frontend
+        run: |
+          tar \
+            -C ruoyi-ui/dist \
+            -czf tagpilot-ui.tar.gz .
+
+
+      # =========================
+      # SSH
+      # =========================
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "$DEPLOY_SSH_KEY" \
+            > ~/.ssh/id_ed25519
+
+          chmod 600 ~/.ssh/id_ed25519
+
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" \
+            > ~/.ssh/known_hosts
+
+          chmod 600 ~/.ssh/known_hosts
+
+
+      # =========================
+      # Upload artifacts
+      # =========================
+
+      - name: Upload artifacts
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+
+          scp \
+            -P "$PORT" \
+            ruoyi-admin/target/ruoyi-admin.jar \
+            "$USER@$HOST:/tmp/tagpilot-$GITHUB_SHA.jar"
+
+          scp \
+            -P "$PORT" \
+            tagpilot-ui.tar.gz \
+            "$USER@$HOST:/tmp/tagpilot-ui-$GITHUB_SHA.tar.gz"
+
+
+      # =========================
+      # Deploy
+      # =========================
+
+      - name: Deploy to Tencent Cloud
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+
+          ssh \
+            -p "$PORT" \
+            "$USER@$HOST" \
+            "bash -s -- '$GITHUB_SHA'" <<'REMOTE'
+
+          set -euo pipefail
+
+          SHA="$1"
+
+          RELEASE_DIR="/opt/tagpilot/releases/$SHA"
+
+          JAR="/tmp/tagpilot-$SHA.jar"
+          UI="/tmp/tagpilot-ui-$SHA.tar.gz"
+
+          echo "Deploying release: $SHA"
+
+          PREVIOUS=""
+
+          if [ -L /opt/tagpilot/current ]; then
+            PREVIOUS="$(readlink -f /opt/tagpilot/current)"
+          fi
+
+
+          # ----------------------
+          # Create new release
+          # ----------------------
+
+          rm -rf "$RELEASE_DIR"
+
+          mkdir -p "$RELEASE_DIR/ui"
+
+          cp "$JAR" \
+            "$RELEASE_DIR/ruoyi-admin.jar"
+
+          tar \
+            -xzf "$UI" \
+            -C "$RELEASE_DIR/ui"
+
+          chmod -R a+rX "$RELEASE_DIR"
+
+
+          # ----------------------
+          # Switch release
+          # ----------------------
+
+          ln -sfn \
+            "$RELEASE_DIR" \
+            /opt/tagpilot/current
+
+
+          # ----------------------
+          # Restart backend
+          # ----------------------
+
+          sudo systemctl restart tagpilot
+
+
+          # ----------------------
+          # Health check
+          # ----------------------
+
+          HEALTHY=0
+
+          for i in $(seq 1 30); do
+
+            if curl \
+              -fsS \
+              http://127.0.0.1:8080/captchaImage \
+              >/dev/null 2>&1
+            then
+              HEALTHY=1
+              break
+            fi
+
+            sleep 2
+
+          done
+
+
+          # ----------------------
+          # Rollback if failed
+          # ----------------------
+
+          if [ "$HEALTHY" -ne 1 ]; then
+
+            echo "TagPilot health check failed."
+
+            if [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then
+
+              echo "Rolling back to: $PREVIOUS"
+
+              ln -sfn \
+                "$PREVIOUS" \
+                /opt/tagpilot/current
+
+              sudo systemctl restart tagpilot
+
+            fi
+
+            exit 1
+
+          fi
+
+
+          # ----------------------
+          # Nginx check
+          # ----------------------
+
+          sudo nginx -t
+
+          sudo systemctl reload nginx
+
+
+          # ----------------------
+          # Cleanup
+          # ----------------------
+
+          rm -f "$JAR" "$UI"
+
+          ls -1dt /opt/tagpilot/releases/* \
+            2>/dev/null \
+            | tail -n +6 \
+            | xargs -r rm -rf
+
+
+          echo "TagPilot deployment successful."
+
+          REMOTE
