@@ -87,6 +87,24 @@ jobs:
 
 
       # =========================
+      # Database migration
+      # =========================
+      # 在重启应用之前执行 sql/migration/ 下的增量数据库变更。
+      # 依赖仓库 Settings 中配置的 4 个 secret：
+      #   TAGPILOT_DB_HOST / TAGPILOT_DB_PORT / TAGPILOT_DB_USER / TAGPILOT_DB_PASSWORD
+      # 迁移失败会以非零码退出并中断部署，应用保持当前版本运行。
+
+      - name: Apply incremental database migrations
+        env:
+          DB_HOST: ${{ secrets.TAGPILOT_DB_HOST }}
+          DB_PORT: ${{ secrets.TAGPILOT_DB_PORT }}
+          DB_USER: ${{ secrets.TAGPILOT_DB_USER }}
+          DB_PASSWORD: ${{ secrets.TAGPILOT_DB_PASSWORD }}
+          DB_NAME: ry
+        run: bash bin/db-migrate.sh
+
+
+      # =========================
       # Local deploy
       # =========================
 
