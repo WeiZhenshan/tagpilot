@@ -54,7 +54,7 @@ The dev server proxies `VUE_APP_BASE_API` (`/dev-api`) to the backend at `localh
 - **Tests exist only in the new feature modules.** `ruoyi-databroker`, `ruoyi-taglibrary`, `ruoyi-objectgroup` have JUnit 5 + Mockito unit tests under `src/test/` (service-layer, mocked mappers/JDBC, no Spring context); those three poms declare `spring-boot-starter-test` (test scope) and `maven-surefire-plugin` 2.22.2 (the Maven-default 2.12.4 silently skips JUnit 5 → "Tests run: 0"). All other modules still have **0** tests — a green `mvn test` only proves those three suites pass.
 - **Branch ≠ README claim.** `README.md` advertises `master` = Spring Boot 4.x, but this checkout (branch `dev`) is **Spring Boot 2.5.15 / Java 8**. Always trust `pom.xml` (`java.version`, `spring-boot.version`) over the README when the toolchain matters.
 - **Redis is mandatory.** Token storage, caching, rate-limiting, and login-session hydration all fail without a running Redis.
-- **DB init & migration:** 新服务器首次部署执行一次 `sql/init/ry_init.sql`（创建 `ry` + `indiv_cust` 两库，含结构与基础数据，需要 MySQL 8.0+）。之后的增量变更：在 `sql/migration/` 新增 `V<yyyymmdd>_<序号>__<描述>.sql`（幂等、只向前、不得含 `drop table`），由 `bin/db-migrate.sh` 执行并记录到 `schema_migration` 表；流水线 Deploy 阶段会自动执行。旧的 `sql/ry_20260417.sql` + `sql/quartz.sql` 初始化方式已被取代。
+- **DB init & migration:** 新服务器首次部署执行一次 `sql/init/ry_init.sql`（创建 `ry` + `indiv_cust` 两库，含结构与基础数据，需要 MySQL 8.0+）。之后的增量变更：在 `sql/migration/` 新增 `V<yyyymmdd>_<序号>__<描述>.sql`（幂等、只向前、不得含 `drop table`），由 `bin/db-migrate.sh` 执行并记录到 `schema_migration` 表；流水线 Deploy 阶段会自动执行。旧的 `sql/archive/ry_20260417.sql` + `sql/archive/quartz.sql` 初始化方式已被取代。
 - **No frontend lint/format tooling.** No ESLint, Prettier, or `.editorconfig` is configured — there is no `npm run lint`. Match the surrounding file's style by hand.
 - **CI:** `.github/workflows/deploy.yml` 是唯一的流水线（GitHub Actions, self-hosted runner `tagpilot-prod`）：构建后端 jar + 前端 dist → 执行增量数据库迁移（`bin/db-migrate.sh`，凭据走仓库 secrets `TAGPILOT_DB_*`）→ 发布到 `/opt/tagpilot/releases/` 并健康检查/回滚。单元测试不在流水线中运行，验证是自己的责任。
 - **Token expiry units are minutes** (`token.expireTime`, default 30), not seconds/ms.
@@ -72,5 +72,6 @@ The dev server proxies `VUE_APP_BASE_API` (`/dev-api`) to the backend at `localh
 ## Docs to read before touching sensitive areas
 
 - `CLAUDE.md` — full architecture (auth, datasource, aspects, frontend).
-- `doc/若依环境使用手册.docx` — environment setup manual (Chinese).
-- `sql/ry_20260417.sql` — canonical schema/seed reference for entity fields.
+- `docs/development/若依环境使用手册.docx` — environment setup manual (Chinese).
+- `sql/archive/ry_20260417.sql` — canonical schema/seed reference for entity fields（已归档；当前初始化脚本为 `sql/init/ry_init.sql`）。
+- `docs/README.md` — 全项目文档导航中心；`sql/README.md` — 数据库脚本统一索引。

@@ -83,7 +83,7 @@ insert into sys_menu values('2133', '映射草稿保存', '2102', '12', '#', '',
 insert into sys_menu values('2134', '映射提交审核', '2102', '13', '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:submit', '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('2135', '元数据变更审批', '2103', '1',  '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:audit', '#', 'admin', sysdate(), '', null, '');
 
--- 批量映射新增权限按钮（守卫可重复执行；存量库授权见 sql/tag_mapping_sync_upgrade_migration.sql）
+-- 批量映射新增权限按钮（守卫可重复执行；存量库授权见 sql/archive/tag_mapping_sync_upgrade_migration.sql）
 insert into sys_menu
 select '2136', '映射重新同步', '2102', '14', '#', '', '', '', 1, 0, 'F', '0', '0', 'taglibrary:tag:mapping:sync', '#', 'admin', sysdate(), '', null, ''
 from dual where not exists (select 1 from sys_menu where menu_id = '2136');

@@ -83,7 +83,7 @@ The project is a 6-module Maven multi-module project (`pom.xml` at root):
 
 - **Active profile**: `spring.profiles.active: druid` — DB config lives in `application-druid.yml`.
 - **Redis required**: Token storage, cache, rate-limiting all depend on Redis.
-- **DB init**: Run `sql/ry_20260417.sql` then `sql/quartz.sql` on MySQL (`ry` database).
+- **DB init**: Run `sql/init/ry_init.sql` once on MySQL 8.0+ (creates the `ry` + `indiv_cust` databases); later incremental changes go in `sql/migration/` and are applied by `bin/db-migrate.sh`. Full script index in `sql/README.md`.
 - `ruoyi.profile` sets the file-upload root path (OS-specific).
 - `token.expireTime` units are **minutes** (default 30).
 - `user.password.maxRetryCount` / `lockTime` control account lockout (default 5 attempts / 10 min).

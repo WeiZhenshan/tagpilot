@@ -110,16 +110,20 @@
 
 ### 数据库初始化
 
-```sql
--- 创建数据库
-CREATE DATABASE IF NOT EXISTS `ry` DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;
+新服务器首次部署执行一次 `sql/init/ry_init.sql`（创建 `ry` + `indiv_cust` 两库，含结构与基础数据，需要 MySQL 8.0+）：
 
--- 导入基础表结构与种子数据
-source sql/ry_20260417.sql;
-
--- 导入 Quartz 定时任务表
-source sql/quartz.sql;
+```bash
+mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 ```
+
+之后的增量变更：在 `sql/migration/` 新增 `V<yyyymmdd>_<序号>__<描述>.sql`（幂等、只向前、不得含 `drop table`），由 `bin/db-migrate.sh` 执行并记录到 `schema_migration` 表（流水线 Deploy 阶段自动执行）：
+
+```bash
+DB_USER=root DB_PASSWORD=xxx bash bin/db-migrate.sh
+```
+
+旧的 `sql/ry_20260417.sql` + `sql/quartz.sql` 初始化方式已被取代，脚本移至 `sql/archive/`。
+完整数据库脚本清单见 [`sql/README.md`](sql/README.md)。
 
 ### 后端启动
 
@@ -179,7 +183,18 @@ ruoyi-objectgroup    # 客群圈选模块
 ruoyi-quartz         # 定时任务
 ruoyi-generator      # 代码生成器
 ruoyi-ui             # Vue 2 前端项目
+sql                  # 数据库脚本（初始化 / 增量迁移 / 种子数据）
+docs                 # 项目文档
 ```
+
+---
+
+## 文档
+
+- [`docs/README.md`](docs/README.md) — 全项目文档导航中心（架构 / 设计 / 计划 / 开发环境）
+- [`sql/README.md`](sql/README.md) — 数据库脚本统一索引（执行顺序、是否自动执行、前置依赖）
+- [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) — AI Agent 工作区指令与架构说明
+- [`PRODUCT.md`](PRODUCT.md) — 产品定位与设计原则
 
 ---
 

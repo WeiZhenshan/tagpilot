@@ -643,7 +643,7 @@ git commit -m "feat: 标签库模块controller层"
 
 **Files:** 无新增（仅运行）
 
-前置：MySQL 已执行 Task 2 两个 SQL；Redis 已启动；若 `sql/ind_tag_data.sql` 的 `ind_tag_data` 表不存在则先导入。
+前置：MySQL 已执行 Task 2 两个 SQL；Redis 已启动；若 `sql/seed/ind_tag_data.sql` 的 `ind_tag_data` 表不存在则先导入。
 
 - [ ] **Step 1: 启动后端**
 
