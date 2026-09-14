@@ -43,17 +43,15 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 若依环境使用手册 | 开发环境 / 部署指南 | 全局 | [`development/若依环境使用手册.docx`](development/若依环境使用手册.docx) | 若依系统开发环境搭建（Maven、Eclipse、数据库与日志配置）、启动验证、war/jar 部署 | 现行（注意：文内指向的初始化脚本名为旧版 `sql/ry_20180423.sql`/`quartz.sql`，当前初始化脚本为 `sql/init/ry_init.sql`） |
 
-### 工具固定路径（保留在 `docs/superpowers/`）
+### 工作流固定路径（保留在 `docs/superpowers/specs/`）
 
-superpowers 工作流按约定把计划与规格写入 `docs/superpowers/{plans,specs}/`，**不可移动**，否则工作流将找不到它们。
+superpowers 工作流按约定把计划与规格写入 `docs/superpowers/{plans,specs}/`，**不可移动**，否则工作流将找不到它们。下列设计规格是这两个模块长期有效的设计依据，请勿删除（已完成的逐任务施工计划在本轮清理中移除，设计知识均由这些规格承载）。
 
 | 文档 | 类别 | 所属模块 | 路径 | 用途 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| databroker-datasource 实施计划 | 计划（工作流产物） | databroker | [`superpowers/plans/2026-07-05-databroker-datasource.md`](superpowers/plans/2026-07-05-databroker-datasource.md) | 数据代理数据源模块的逐任务实施计划 | 历史执行记录 |
-| taglibrary 实施计划 | 计划（工作流产物） | taglibrary | [`superpowers/plans/2026-07-23-taglibrary.md`](superpowers/plans/2026-07-23-taglibrary.md) | 标签库模块的逐任务实施计划 | 历史执行记录 |
-| databroker-datasource 设计规格 | 规格（工作流产物） | databroker | [`superpowers/specs/2026-07-05-databroker-datasource-design.md`](superpowers/specs/2026-07-05-databroker-datasource-design.md) | 数据源管理设计规格 | 历史执行记录 |
-| databroker-dataset 设计规格 | 规格（工作流产物） | databroker | [`superpowers/specs/2026-07-23-databroker-dataset-design.md`](superpowers/specs/2026-07-23-databroker-dataset-design.md) | 数据集管理设计规格 | 历史执行记录 |
-| taglibrary 设计规格 | 规格（工作流产物） | taglibrary | [`superpowers/specs/2026-07-23-taglibrary-design.md`](superpowers/specs/2026-07-23-taglibrary-design.md) | 标签库模块设计规格 | 历史执行记录 |
+| databroker-datasource 设计规格 | 设计规格 | databroker | [`superpowers/specs/2026-07-05-databroker-datasource-design.md`](superpowers/specs/2026-07-05-databroker-datasource-design.md) | 数据源管理设计规格（架构、5 张表、接口契约、菜单权限、加密方案） | 现行 |
+| databroker-dataset 设计规格 | 设计规格 | databroker | [`superpowers/specs/2026-07-23-databroker-dataset-design.md`](superpowers/specs/2026-07-23-databroker-dataset-design.md) | 数据集管理设计规格（definition_json 格式、版本状态机、端点契约、前端布局） | 现行 |
+| taglibrary 设计规格 | 设计规格 | taglibrary | [`superpowers/specs/2026-07-23-taglibrary-design.md`](superpowers/specs/2026-07-23-taglibrary-design.md) | 标签库模块设计规格（数据表设计、状态机、接口契约、字段快照同步、菜单 SQL） | 现行 |
 
 ### 文档资源 `docs/images/`
 
@@ -85,12 +83,7 @@ superpowers 工作流按约定把计划与规格写入 `docs/superpowers/{plans,
 
 ### Agent / IDE 工具目录
 
-| 文档 | 类别 | 路径 | 用途 | 为何保留原位 |
-| :--- | :--- | :--- | :--- | :--- |
-| ZCode 会话计划 | 计划（工具产物） | [`../.zcode/plans/plan-sess_8535ee87-2bf9-4477-a66d-b71dd4b60e1d.md`](../.zcode/plans/plan-sess_8535ee87-2bf9-4477-a66d-b71dd4b60e1d.md) | 修复 Agent 前端会话列表顺序问题的修复方案 | ZCode 工具写入目录；文中引用的 `ruoyi-agentui` 模块在当前仓库中不存在，属历史归档 |
-| superpowers 任务报告 | 执行记录（工具产物） | [`../.superpowers/sdd/task-1-report.md`](../.superpowers/sdd/task-1-report.md) | Task 1：Maven 模块脚手架（`ruoyi-databroker`）的完成报告 | superpowers 工具写入目录 |
-
-> `.superpowers/` 与 `docs/superpowers/` 是两个不同目录：前者是工具运行产物，后者是本项目按工作流约定存放计划与规格的位置。二者都保留原位。
+`.claude/`、`.impeccable/` 等工具目录只保留工具配置（如 `.claude/launch.json` 的开发服务器启动配置），**不存放文档**。历史会话级计划与一次性执行报告已在本轮清理中移除；这些目录由各自工具在下次运行时按需重建。
 
 ---
 

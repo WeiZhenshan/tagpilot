@@ -10,7 +10,6 @@ TagPilot 全部数据库脚本的统一入口。**新增 SQL 前请先确认它�
 可选数据    sql/seed/*.sql                  按需手工执行
 一次性修复  sql/maintenance/*.sql           手工执行，执行前先核对影响行数
 历史留档    sql/archive/*.sql               不再执行，仅供追溯
-数据快照    sql/backups/*.sql               备份留档，不用于初始化
 ```
 
 > `sql/migration/` 与 `sql/init/ry_init.sql` 的路径被 `bin/db-migrate.sh` 引用，**不要改名或移动**。
@@ -70,13 +69,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `tag_system_del_flag_migration.sql` | del_flag 拓宽迁移（原文） | 否 | 否 | — | — | 全局 | — | 否 | 已收录为 `sql/migration/V20260905_01__tag_system_del_flag_widen.sql` |
 | `tag_mapping_sync_upgrade_migration.sql` | 批量映射同步结构迁移（原文） | 否 | 否 | — | — | taglibrary | — | 否 | 已收录为 `sql/migration/V20260905_03__tag_mapping_sync_upgrade.sql` |
 
-## 6. 数据备份快照（`sql/backups/`）
-
-| 文件 | 用途 | 是否自动执行 | 允许手动执行 | 执行顺序 | 前置依赖 | 所属模块 | 运行环境 | 框架管理 | 备注 |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `tag_mapping_data_backup_20260906.sql` | 2026-09-06 标签映射相关数据备份快照 | 否 | 仅恢复时 | — | — | taglibrary | — | 否 | 备份留档，**不用于初始化**；恢复前请确认目标库版本一致 |
-
-## 7. 模块级 SQL（保留在原位，未集中到 `sql/`）
+## 6. 模块级 SQL（保留在原位，未集中到 `sql/`）
 
 以下脚本位于各模块的 Maven 资源目录 `ruoyi-*/src/main/resources/sql/`，**保留原位置**：它们随模块打包进 jar，是模块自带的建表/菜单 DDL，路径被模块设计文档引用，移动会改变 jar 内容且无收益。此处仅登记索引。
 
@@ -110,7 +103,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 
 ---
 
-## 8. 目录职责与新增约定
+## 7. 目录职责与新增约定
 
 | 目录 | 职责 | 谁执行 |
 | :--- | :--- | :--- |
@@ -118,7 +111,6 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `migration/` | 有先后顺序的增量升级脚本，由 `bin/db-migrate.sh` 驱动 | CI 自动 |
 | `seed/` | 初始化字典、演示数据、测试数据、reference data | 开发/测试手工 |
 | `maintenance/` | 数据修复、backfill、一次性补数据、排障 SQL | 开发/DBA 手工，需逐段确认 |
-| `backups/` | 数据备份快照 | 仅恢复时 |
 | `archive/` | 已废弃 / 已被替代 / 历史版本，有保留价值 | 不执行 |
 
-新增脚本时：先判断它属于上表哪一类，不要直接丢在 `sql/` 根目录；不要创建 `database/`、`db/` 等第二套顶层体系。
+新增脚本时：先判断它属于上表哪一类，不要直接丢在 `sql/` 根目录；不要创建 `database/`、`db/` 等第二套顶层体系。开发阶段的临时数据备份不要提交到仓库（需要时放在本地或备份系统，不要进 `sql/`）。
