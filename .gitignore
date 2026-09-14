@@ -51,6 +51,11 @@ dump.rdb
 # 本机数据代理加密密钥（dev.sh 自动生成）
 .databroker-crypto-secret
 
+# Agent / AI 工具的本机会话产物（不提交）
+# 注意：项目知识文档在 docs/superpowers/specs/，仍正常跟踪
+.zcode/
+.superpowers/
+
 # Windows 上传路径误建目录（RuoYi 默认 uploadPath）
 /D:/
 

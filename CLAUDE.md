@@ -37,18 +37,21 @@ npm run build:stage   # staging build
 
 ## Module Architecture
 
-The project is a 6-module Maven multi-module project (`pom.xml` at root):
+The project is a 9-module Maven multi-module project (`pom.xml` at root):
 
 | Module | Purpose |
 |---|---|
-| `ruoyi-admin` | Entry point. Spring Boot startup, HTTP controllers, YAML config, i18n resources, MyBatis XML mappers. |
+| `ruoyi-admin` | Entry point. Spring Boot startup, HTTP controllers, YAML config, i18n resources, MyBatis config. |
 | `ruoyi-framework` | Cross-cutting infrastructure: Security config, JWT filter, AOP aspects (logging, data-scope, rate-limiting, data-source switching), Druid/Redis/MyBatis/thread-pool config, repeat-submit interceptor, `TokenService`, `PermissionService`. |
 | `ruoyi-system` | Core business logic: domain entities, MyBatis mappers, service layer for users, roles, menus, depts, posts, config, dicts, notices. |
 | `ruoyi-common` | Shared library: domain base classes, enums, annotations, utils (String/Date/Excel/Security/Servlet/IP/uuid/http), XSS filter, exception types, constants. |
 | `ruoyi-quartz` | Scheduled-task subsystem: Quartz job management UI, task execution, CRUD for job definitions. |
 | `ruoyi-generator` | Code generator: Velocity-based code generation from DB table metadata. Reads `information_schema` and produces controller/service/mapper/domain/Vue templates. |
+| `ruoyi-databroker` | DataBroker — data source & dataset management, metadata collection, dimension tables. Prefix `dp_`. Routes `/databroker/**`. |
+| `ruoyi-taglibrary` | TagLibrary — label directory/tag/dimension management, metadata audit, batch mapping sync. Prefix `tl_`. Routes `/taglibrary/**`. |
+| `ruoyi-objectgroup` | ObjectGroup — visual rule engine, SQL generation for customer segment selection, import/export. Routes `/objectgroup/**`. |
 
-**Dependency direction**: `admin` -> `framework` -> `system` -> `common`; `admin` also directly depends on `quartz` and `generator`.
+**Dependency direction**: `admin` -> `framework` -> `system` -> `common`; `admin` also directly depends on `quartz`, `generator`, `databroker`, `taglibrary` and `objectgroup`. Among the business modules, `databroker` depends on `framework`; `objectgroup` depends on `common` + `framework` + `databroker`; `taglibrary` depends on `common` + `framework` + `databroker` + `objectgroup`.
 
 ## Key Architecture Patterns
 
@@ -69,7 +72,7 @@ The project is a 6-module Maven multi-module project (`pom.xml` at root):
 - **Rate limiting**: `@RateLimiter` annotation + `RateLimiterAspect` backed by Redis counters.
 
 ### MyBatis
-- XML mappers live in `ruoyi-admin/src/main/resources/mapper/`. Aliases declared in `mybatis.typeAliasesPackage: com.ruoyi.**.domain`. PageHelper configured for MySQL dialect. Custom `MyBatisConfig` enables map-underscore-to-camel-case by default.
+- XML mappers live in each module's `src/main/resources/mapper/<module>/` (e.g. `ruoyi-system/.../mapper/system/`, `ruoyi-databroker/.../mapper/databroker/`), aggregated at startup by `mybatis.mapperLocations: classpath*:mapper/**/*Mapper.xml`. Aliases declared in `mybatis.typeAliasesPackage: com.ruoyi.**.domain`. PageHelper configured for MySQL dialect. Custom `MyBatisConfig` enables map-underscore-to-camel-case by default.
 
 ### Frontend (ruoyi-ui)
 - Vue 2 + Vuex + Vue Router 3 + Element UI + Axios.
@@ -83,7 +86,7 @@ The project is a 6-module Maven multi-module project (`pom.xml` at root):
 
 - **Active profile**: `spring.profiles.active: druid` — DB config lives in `application-druid.yml`.
 - **Redis required**: Token storage, cache, rate-limiting all depend on Redis.
-- **DB init**: Run `sql/ry_20260417.sql` then `sql/quartz.sql` on MySQL (`ry` database).
+- **DB init**: Run `sql/init/ry_init.sql` once on MySQL 8.0+ (creates the `ry` + `indiv_cust` databases); later incremental changes go in `sql/migration/` and are applied by `bin/db-migrate.sh`. Full script index in `sql/README.md`.
 - `ruoyi.profile` sets the file-upload root path (OS-specific).
 - `token.expireTime` units are **minutes** (default 30).
 - `user.password.maxRetryCount` / `lockTime` control account lockout (default 5 attempts / 10 min).
