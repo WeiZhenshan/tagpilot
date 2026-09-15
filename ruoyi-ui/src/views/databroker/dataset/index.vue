@@ -203,7 +203,8 @@
                         :disabled="!isDraftVersion" @change="toggleCheckAll" />
                     </template>
                     <template #default="scope">
-                      <el-checkbox v-model="scope.row.checked" :disabled="!isDraftVersion" />
+                      <el-checkbox v-model="scope.row.checked" :disabled="!isDraftVersion"
+                        @change="val => (scope.row.enabled = val)" />
                     </template>
                   </el-table-column>
                   <el-table-column label="顺序" width="60" align="center">
@@ -1076,7 +1077,7 @@ export default {
           columnType: c.columnType,
           columnComment: c.columnComment || '',
           alias: sel ? (sel.alias || c.columnName) : c.columnName,
-          enabled: sel ? (sel.enabled === true || sel.enabled === '1') : true,
+          enabled: sel ? (sel.enabled === true || sel.enabled === '1') : false,
           checked: !!sel,
           orderNum: sel ? (sel.orderNum || 0) : 0
         }
@@ -1106,7 +1107,7 @@ export default {
     },
     toggleCheckAll(val) {
       const rows = this.filteredFieldRows
-      rows.forEach(r => { r.checked = val })
+      rows.forEach(r => { r.checked = val; r.enabled = val })
     },
     checkedOrder(row) {
       const checked = this.fieldRows.filter(r => r.checked)

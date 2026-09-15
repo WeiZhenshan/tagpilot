@@ -144,7 +144,8 @@
 
     <!-- 树节点右键菜单 -->
     <ul v-show="contextMenuVisible" class="context-menu" :style="{left: contextMenuX + 'px', top: contextMenuY + 'px'}">
-      <li v-if="isDirNode(contextMenuNode)" @click="handleContextCommand('add')">新建目录</li>
+      <li v-if="isLibNode(contextMenuNode)" @click="handleContextCommand('addRoot')">新建目录</li>
+      <li v-if="isDirNode(contextMenuNode)" @click="handleContextCommand('add')">新建子目录</li>
       <li v-if="isDirNode(contextMenuNode)" @click="handleContextCommand('rename')">重命名</li>
       <li v-if="isDirNode(contextMenuNode)" @click="handleContextCommand('delete')">删除目录</li>
       <li v-if="isTagNode(contextMenuNode) && activeTab === 'offline'" @click="handleContextCommand('submit')">提交审批</li>
@@ -283,7 +284,11 @@ export default {
       this.treeLoading = true
       tagTree(this.currentLibraryId, this.activeTab).then(response => {
         this.treeData = response.data || []
-        this.defaultExpandedKeys = this.treeData.length > 0 ? [this.treeData[0].id] : []
+        // 默认展开标签库根节点与其下一级目录，便于查看多级结构
+        const rootNode = this.treeData[0]
+        this.defaultExpandedKeys = rootNode
+          ? [rootNode.id].concat((rootNode.children || []).filter(c => String(c.id).indexOf('dir-') === 0).map(c => c.id))
+          : []
         this.treeLoading = false
       }).catch(() => { this.treeLoading = false })
     },
@@ -312,6 +317,10 @@ export default {
     /** 是否目录节点 */
     isDirNode(data) {
       return data && String(data.id).indexOf('dir-') === 0
+    },
+    /** 是否标签库根节点 */
+    isLibNode(data) {
+      return data && String(data.id).indexOf('lib-') === 0
     },
     /** 勾选状态 */
     isTagChecked(data) {
@@ -356,8 +365,8 @@ export default {
     /** 右键菜单命令分发 */
     handleContextCommand(cmd) {
       this.closeContextMenu()
-      if (cmd === 'add') {
-        this.openDirDialog('add')
+      if (cmd === 'add' || cmd === 'addRoot') {
+        this.openDirDialog(cmd)
       } else if (cmd === 'rename') {
         this.openDirDialog('edit')
       } else if (cmd === 'delete') {
@@ -386,12 +395,14 @@ export default {
     },
     /** 打开目录弹窗（add 新建 / edit 重命名） */
     openDirDialog(mode) {
-      if (mode === 'add') {
-        this.dirTitle = '新建目录'
+      if (mode === 'add' || mode === 'addRoot') {
+        // 目录节点右键=新建子目录；标签库根节点右键=新建一级目录
+        const asChild = mode === 'add' && this.isDirNode(this.selectedNode)
+        this.dirTitle = asChild ? '新建子目录' : '新建目录'
         this.dirForm = {
           dirId: undefined,
           libraryId: this.currentLibraryId,
-          parentId: 0,
+          parentId: asChild ? Number(this.parseNodeId(this.selectedNode.id)) : 0,
           dirName: undefined
         }
       } else {

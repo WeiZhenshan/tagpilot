@@ -10,9 +10,11 @@ TagPilot 全部数据库脚本的统一入口。**新增 SQL 前请先确认它�
 可选数据    sql/seed/*.sql                  按需手工执行
 一次性修复  sql/maintenance/*.sql           手工执行，执行前先核对影响行数
 历史留档    sql/archive/*.sql               不再执行，仅供追溯
+独立交付    sql/indiv_cust/*.sql            手工按序号执行，不参与自动部署
 ```
 
 > `sql/migration/` 与 `sql/init/ry_init.sql` 的路径被 `bin/db-migrate.sh` 引用，**不要改名或移动**。
+> `sql/indiv_cust/` 不在 `bin/db-migrate.sh` 的扫描范围内（该脚本只扫描 `sql/migration/`），属于独立交付，需手工执行。
 
 ---
 
@@ -69,7 +71,50 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `tag_system_del_flag_migration.sql` | del_flag 拓宽迁移（原文） | 否 | 否 | — | — | 全局 | — | 否 | 已收录为 `sql/migration/V20260905_01__tag_system_del_flag_widen.sql` |
 | `tag_mapping_sync_upgrade_migration.sql` | 批量映射同步结构迁移（原文） | 否 | 否 | — | — | taglibrary | — | 否 | 已收录为 `sql/migration/V20260905_03__tag_mapping_sync_upgrade.sql` |
 
-## 6. 模块级 SQL（保留在原位，未集中到 `sql/`）
+## 6. 独立交付：个人客户经营标签大宽表（`sql/indiv_cust/`）
+
+面向 `indiv_cust` 库的独立交付，**不参与自动部署**，需按序号手工执行。
+
+- **标签来源**：`docs/项目参考文档/个人客户经营标签库结构_脱敏版.md`（2828 个标签）
+- **为何是 970 列**：InnoDB 单表列数上限为 1017（本机 `innodb_page_size`=16KB），2828 列无法建表，故从原库筛出 **970 个代表性标签**（覆盖全部 9 个二级目录 / 56 个三级目录）
+- **建表顺序**：`01` → `02` → `03` → `04` → `05` →（`99` 校验）；回退执行 `98`
+
+| 文件 | 用途 | 是否自动执行 | 允许手动执行 | 执行顺序 | 前置依赖 | 所属模块 | 运行环境 | 框架管理 | 备注 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `01_create_L_INDVCST_LABEL.sql` | 建 `L_INDVCST_LABEL` 大宽表：970 列 = 客户号主键 `CUST_ID` + 969 个标签字段，每列 COMMENT 为原始中文标签名 | 否 | 是 | 1 | MySQL 8.0+；`indiv_cust` 库已存在 | indiv_cust | 开发/测试 | 否 | 声明行长约 5.7 KB、行内估算约 7.1 KB（InnoDB 16KB 页行内上限 8,126 B）；`ROW_FORMAT=DYNAMIC`；文本/选项列用 `TEXT`、金额类用 `DECIMAL(13,2)`（上限 999 亿）以压进行内限制；仅主键 NOT NULL；**未**添加 ETL 日期等技术字段 |
+| `02_create_L_INDVCST_LABEL_CODE_MAP.sql` | 建码值映射表，结构**完全沿用** `indiv_cust.dim_customer_tag_code` | 否 | 是 | 2 | 无 | indiv_cust | 开发/测试 | 否 | 主键 `(tag_name_en, tag_code)`；关联键是**标签字段名**（非 tag_id / 非 code_group）；按需求决定**未**新增 `status` / `del_flag` / 审计字段 |
+| `03_insert_L_INDVCST_LABEL_CODE_MAP_BOOL.sql` | 布尔型字段码值 **258 条**（129 字段 × 2） | 否 | 是 | 3 | 须先执行 `02` | indiv_cust | 开发/测试 | 否 | 编码沿用既有系统实际规范：`1`=是、`0`=否（证据见 `dim_customer_tag_code` 中 `is_vip` 样例）；幂等 upsert |
+| `04_insert_L_INDVCST_LABEL_CODE_MAP_OPTION.sql` | 选项型字段码值 **195 条**（42 字段） | 否 | 是 | 4 | 须先执行 `02` | indiv_cust | 开发/测试 | 否 | 3 个字段复用既有码值（性别 `M`/`F`、客户等级 `A`/`B`/`C`），其余按零售业务语义设计并逐段标注依据 |
+| `05_insert_L_INDVCST_LABEL_CODE_MAP_BRANCH.sql` | 机构类字段码值 **1270 条**（6 字段），取**真实联行号（CNAPS）** | 否 | 是 | 5 | 须先执行 `02` | indiv_cust | 开发/测试 | 否 | 来源 GitHub 开源数据集 `chaclee/cnaps`；18 一级机构 / 383 二级机构 / 85 三级机构；内部单位（清算·票据中心）已排除；**生产前需与行内机构主数据核对** |
+| `98_rollback_L_INDVCST_LABEL.sql` | 回退：删除上述两张表 | 否 | 是 | 回退时 | 无 | indiv_cust | 开发/测试 | 否 | ⚠️ `DROP TABLE` 不可恢复，执行前请先 `mysqldump` 备份；已确认应用代码对这两张表零引用 |
+| `99_validate_L_INDVCST_LABEL.sql` | 纯查询校验脚本（17 段）：字段数量、码值覆盖率、布尔覆盖率、选项覆盖率、重复码值、孤立码值、缺失码值 | 否 | 是 | 6 | 表与码值已就绪 | indiv_cust | 开发/测试 | 否 | **不含任何 DDL/DML**，可安全反复执行；表未建时仅报「表不存在」，无语法错误 |
+
+执行：
+
+```bash
+# 注意 1：必须带 --default-character-set=utf8mb4
+#         否则客户端按 latin1 发送，970 个列 COMMENT 与全部码值中文会写成乱码且不可还原
+# 注意 2：脚本内表名已全限定为 `indiv_cust`.`L_*`，无需先 use 目标库
+# 注意 3：主机/端口/账号请按实际环境替换，不要保留尖括号（< > 会被 shell 当作重定向）
+
+for f in 01_create_L_INDVCST_LABEL 02_create_L_INDVCST_LABEL_CODE_MAP \
+         03_insert_L_INDVCST_LABEL_CODE_MAP_BOOL 04_insert_L_INDVCST_LABEL_CODE_MAP_OPTION \
+         05_insert_L_INDVCST_LABEL_CODE_MAP_BRANCH; do
+  mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p < "sql/indiv_cust/$f.sql"
+done
+
+# 校验（纯查询）
+mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
+      < sql/indiv_cust/99_validate_L_INDVCST_LABEL.sql
+
+# 回退（危险，先备份）
+mysqldump --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p indiv_cust \
+    L_INDVCST_LABEL L_INDVCST_LABEL_CODE_MAP > backup_indiv_cust_label.sql
+mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
+      < sql/indiv_cust/98_rollback_L_INDVCST_LABEL.sql
+```
+
+## 7. 模块级 SQL（保留在原位，未集中到 `sql/`）
 
 以下脚本位于各模块的 Maven 资源目录 `ruoyi-*/src/main/resources/sql/`，**保留原位置**：它们随模块打包进 jar，是模块自带的建表/菜单 DDL，路径被模块设计文档引用，移动会改变 jar 内容且无收益。此处仅登记索引。
 
@@ -103,7 +148,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 
 ---
 
-## 7. 目录职责与新增约定
+## 8. 目录职责与新增约定
 
 | 目录 | 职责 | 谁执行 |
 | :--- | :--- | :--- |
@@ -112,5 +157,6 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `seed/` | 初始化字典、演示数据、测试数据、reference data | 开发/测试手工 |
 | `maintenance/` | 数据修复、backfill、一次性补数据、排障 SQL | 开发/DBA 手工，需逐段确认 |
 | `archive/` | 已废弃 / 已被替代 / 历史版本，有保留价值 | 不执行 |
+| `indiv_cust/` | `indiv_cust` 库个人客户经营标签大宽表的独立交付（建表 / 码值 / 回退 / 校验） | 开发/测试手工，按序号执行 |
 
 新增脚本时：先判断它属于上表哪一类，不要直接丢在 `sql/` 根目录；不要创建 `database/`、`db/` 等第二套顶层体系。开发阶段的临时数据备份不要提交到仓库（需要时放在本地或备份系统，不要进 `sql/`）。

@@ -51,7 +51,7 @@
       </el-table-column>
       <el-table-column prop="createBy" label="创建人" width="90" align="center" />
       <el-table-column prop="createTime" label="创建时间" width="160" align="center" />
-      <el-table-column label="操作" width="160" fixed="right">
+      <el-table-column label="操作" width="200" fixed="right">
         <template #default="scope">
           <el-button type="text" size="mini" icon="el-icon-view" @click="handleDetail(scope.row)">详情</el-button>
           <el-button type="text" size="mini" icon="el-icon-edit" @click="handleEdit(scope.row)" v-hasPermi="['databroker:dimension:edit']">编辑</el-button>

@@ -95,10 +95,9 @@ public class TlTagServiceImpl implements ITlTagService {
             }
         }
 
-        // 二层目录节点
+        // 目录节点按 parent_id 组装多级树（selectDirList 已按 parent_id/order_num 排序，兄弟节点保持入库顺序）
         List<TlTagDir> dirs = dirMapper.selectDirList(libraryId);
         Map<Long, Map<String, Object>> dirNodeMap = new LinkedHashMap<>();
-        List<Map<String, Object>> dirNodes = new ArrayList<>();
         for (TlTagDir dir : dirs) {
             Map<String, Object> node = new LinkedHashMap<>();
             node.put("id", "dir-" + dir.getDirId());
@@ -106,7 +105,19 @@ public class TlTagServiceImpl implements ITlTagService {
             node.put("count", 0);
             node.put("children", new ArrayList<Map<String, Object>>());
             dirNodeMap.put(dir.getDirId(), node);
-            dirNodes.add(node);
+        }
+        List<Map<String, Object>> rootDirs = new ArrayList<>();
+        for (TlTagDir dir : dirs) {
+            Map<String, Object> node = dirNodeMap.get(dir.getDirId());
+            Long parentId = dir.getParentId();
+            Map<String, Object> parent = (parentId != null && parentId != 0L) ? dirNodeMap.get(parentId) : null;
+            if (parent != null) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> parentChildren = (List<Map<String, Object>>) parent.get("children");
+                parentChildren.add(node);
+            } else {
+                rootDirs.add(node);
+            }
         }
 
         // 标签挂到对应目录
@@ -127,7 +138,10 @@ public class TlTagServiceImpl implements ITlTagService {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> children = (List<Map<String, Object>>) dirNode.get("children");
             children.add(node);
-            dirNode.put("count", children.size());
+        }
+        // 目录计数=子树标签总数（父目录汇总子目录）
+        for (Map<String, Object> rootDir : rootDirs) {
+            fillSubtreeCount(rootDir);
         }
 
         // 根节点（库）
@@ -135,11 +149,27 @@ public class TlTagServiceImpl implements ITlTagService {
         root.put("id", "lib-" + library.getLibraryId());
         root.put("label", library.getLibraryName());
         root.put("count", tags.size());
-        root.put("children", dirNodes);
+        root.put("children", rootDirs);
 
         List<Map<String, Object>> tree = new ArrayList<>();
         tree.add(root);
         return tree;
+    }
+
+    /** 递归汇总目录子树下的标签数（tag- 叶子计 1，子目录递归累加） */
+    private int fillSubtreeCount(Map<String, Object> node) {
+        int count = 0;
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> children = (List<Map<String, Object>>) node.get("children");
+        for (Map<String, Object> child : children) {
+            if (String.valueOf(child.get("id")).startsWith("tag-")) {
+                count++;
+            } else {
+                count += fillSubtreeCount(child);
+            }
+        }
+        node.put("count", count);
+        return count;
     }
 
     @Override

@@ -55,9 +55,15 @@ dump.rdb
 # 注意：项目知识文档在 docs/superpowers/specs/，仍正常跟踪
 .zcode/
 .superpowers/
+.agents/
+.claude/
+skills-lock.json
 
 # Windows 上传路径误建目录（RuoYi 默认 uploadPath）
 /D:/
+
+# 项目参考文档（本地资料，不提交）
+docs/项目参考文档/
 
 !*/build/*.java
 !*/build/*.html
