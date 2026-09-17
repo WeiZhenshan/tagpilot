@@ -30,6 +30,8 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 数据代理模块-数据源管理开发文档 | 详细设计 / 开发文档 | databroker | [`design/数据代理模块-数据源管理开发文档.md`](design/数据代理模块-数据源管理开发文档.md) | 数据源管理模块的应用架构、Maven 模块调整、数据库设计、菜单权限、后端接口设计 | 现行 |
 | 标签系统数据链路评估与优化方案 | 技术方案 / 评估报告 | databroker + taglibrary + objectgroup | [`design/标签系统数据链路评估与优化方案.md`](design/标签系统数据链路评估与优化方案.md) | 数据流向总览、删除链路依赖保护缺失的 P0/P1/P2 问题与优化方案 | 部分落地：P0-5 → `sql/migration/V20260905_01__tag_system_del_flag_widen.sql`；P0-6 → `sql/maintenance/cleanup_orphan_data.sql` |
+| 标签语义层与检索索引建设方案 | 架构方案 / 详细设计 | taglibrary + AI Runtime | [`design/标签语义层与检索索引建设方案.md`](design/标签语义层与检索索引建设方案.md) | 标签智能体模块 A 基础数据架构：`ts_*` 语义层（概念/族/结构化口径/别名/码值语义/易混淆/词典）、`TagCatalogSnapshot` 版本快照、Milvus Standalone 索引（BM25 + 向量 + 标量过滤 + 别名切换）与构建流水线、评测与治理 | 现行方案（2026-09-16，待评审） |
+| 标签语义层与检索索引建设方案 v1（本地索引版） | 架构方案 / 历史版本 | taglibrary + AI Runtime | [`design/标签语义层与检索索引建设方案-v1-本地索引版.md`](design/标签语义层与检索索引建设方案-v1-本地索引版.md) | 同上方案的首版：索引层采用 numpy 内存向量矩阵 + rank_bm25 本地产物、不引入向量数据库；语义层设计与现行版一致 | 历史参考（已被 Milvus 版取代） |
 
 ### 计划 `docs/plans/`
 
