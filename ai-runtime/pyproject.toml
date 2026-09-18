@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tag-semantic"
+version = "0.1.0"
+description = "Tag semantic layer bootstrap and retrieval runtime"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[tool.pytest.ini_options]
+testpaths = ["tag_semantic/tests"]
+pythonpath = ["."]

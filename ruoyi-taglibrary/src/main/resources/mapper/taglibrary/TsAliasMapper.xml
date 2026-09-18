@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsAliasMapper">
+
+    <resultMap type="TsAlias" id="TsAliasResult">
+        <id     property="aliasId"      column="alias_id"      />
+        <result property="targetType"   column="target_type"   />
+        <result property="targetId"     column="target_id"     />
+        <result property="aliasText"    column="alias_text"    />
+        <result property="aliasNorm"    column="alias_norm"    />
+        <result property="aliasType"    column="alias_type"    />
+        <result property="weight"       column="weight"        />
+        <result property="source"       column="source"        />
+        <result property="reviewStatus" column="review_status" />
+        <result property="hitCount"     column="hit_count"     />
+        <result property="reviewBy"     column="review_by"     />
+        <result property="reviewTime"   column="review_time"   />
+        <result property="sourceRef"    column="source_ref"    />
+        <result property="createBy"     column="create_by"     />
+        <result property="createTime"   column="create_time"   />
+        <result property="updateBy"     column="update_by"     />
+        <result property="updateTime"   column="update_time"   />
+        <result property="remark"       column="remark"        />
+    </resultMap>
+
+    <sql id="selectVo">
+        select alias_id, target_type, target_id, alias_text, alias_norm, alias_type, weight, source,
+               review_status, hit_count, review_by, review_time, source_ref,
+               create_by, create_time, update_by, update_time, remark
+        from ts_alias
+    </sql>
+
+    <select id="selectAliasById" parameterType="Long" resultMap="TsAliasResult">
+        <include refid="selectVo"/> where alias_id = #{aliasId}
+    </select>
+
+    <select id="selectAliasList" resultMap="TsAliasResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="targetType != null and targetType != ''">and target_type = #{targetType}</if>
+            <if test="targetId != null and targetId != ''">and target_id = #{targetId}</if>
+        </where>
+        order by alias_id
+    </select>
+
+    <insert id="insertAlias" parameterType="TsAlias" useGeneratedKeys="true" keyProperty="aliasId">
+        insert into ts_alias (
+            target_type, target_id, alias_text, alias_norm, alias_type, weight, source,
+            review_status, hit_count, review_by, review_time, source_ref, create_by, create_time, remark
+        ) values (
+            #{targetType}, #{targetId}, #{aliasText}, #{aliasNorm}, #{aliasType}, #{weight}, #{source},
+            #{reviewStatus}, #{hitCount}, #{reviewBy}, #{reviewTime}, #{sourceRef}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateAlias" parameterType="TsAlias">
+        update ts_alias
+        <set>
+            <if test="aliasText != null">alias_text = #{aliasText},</if>
+            <if test="aliasNorm != null">alias_norm = #{aliasNorm},</if>
+            <if test="aliasType != null">alias_type = #{aliasType},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="hitCount != null">hit_count = #{hitCount},</if>
+            <if test="reviewBy != null">review_by = #{reviewBy},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where alias_id = #{aliasId}
+    </update>
+</mapper>

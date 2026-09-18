@@ -41,6 +41,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `V20260905_01__tag_system_del_flag_widen.sql` | del_flag 由 char(1) 拓宽为 varchar(64)，修复逻辑删除唯一键冲突（P0-5） | **是**（CI Deploy） | 否 | 3 | 无 | 全局（dp_*/tl_*） | 全部 | 自研迁移器 | 来源 `sql/archive/tag_system_del_flag_migration.sql` |
 | `V20260905_02__taglibrary_metadata_change.sql` | tl_tag_library_dimension + tl_tag_metadata_change 建表 | **是**（CI Deploy） | 否 | 4 | 无 | taglibrary | 全部 | 自研迁移器 | 来源 `ruoyi-taglibrary/src/main/resources/sql/taglibrary_metadata_migration.sql` |
 | `V20260905_03__tag_mapping_sync_upgrade.sql` | 批量映射同步：tl_tag_library/tl_tag/tl_tag_metadata_change 加列、新增权限菜单 2136–2137、存量草稿迁入 status='4' | **是**（CI Deploy） | 否 | 5 | **须在 V20260905_02 之后** | taglibrary | 全部 | 自研迁移器 | 来源 `sql/archive/tag_mapping_sync_upgrade_migration.sql` |
+| `V20260918_01__tag_semantic_layer.sql` | 标签语义层：11 张 `ts_*` 表 + 权限按钮 2140–2143（list/edit/review/bootstrap） | **是**（CI Deploy） | 否 | 6 | 无（不改 tl_*/dp_*） | taglibrary | 全部 | 自研迁移器 | 对应 `docs/design/标签语义层与检索索引建设方案.md` S1；本阶段不开放 publish |
 
 **新增迁移脚本规范**：命名 `V<yyyymmdd>_<序号>__<描述>.sql`；幂等、只向前、不得包含 `drop table`。已应用的迁移文件**内容不可再修改**（因此其中标注的"来源"路径保留移动前的历史写法，实际文件见 `sql/archive/`）。
 
@@ -59,6 +60,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | 文件 | 用途 | 是否自动执行 | 允许手动执行 | 执行顺序 | 前置依赖 | 所属模块 | 运行环境 | 框架管理 | 备注 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `cleanup_orphan_data.sql` | 标签系统孤儿数据一次性清理（维表关系残留、孤儿码值、孤儿对象群、空导入批次），对应《标签系统数据链路评估与优化方案》P0-6 | 否 | **是（需逐段确认）** | 一次性 | `ry` 库为已升级版本 | taglibrary / objectgroup | 测试库核对后再上生产 | 否 | 每段先给出"受影响行数预估"，确认无误后放开对应 `DELETE`；后续此类清理已由代码级联逻辑承接，**勿重复定时执行** |
+| `s0_tag_semantic_inventory.sql` | 标签语义层 S0 只读核验：宽表/码表、库 107、在线版本、码表绑定、试点字段 | 否 | **是（仅 SELECT）** | 实施前 | `ry` + `indiv_cust` | taglibrary | 开发/测试 | 否 | 无写操作；结果填入 `docs/design/s0_source_inventory.json` |
 
 ## 5. 历史留档（`sql/archive/`）
 

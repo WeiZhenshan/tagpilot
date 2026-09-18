@@ -1,0 +1,156 @@
+{
+  "verified_at": "2026-09-18T20:06:32+08:00",
+  "script": "sql/maintenance/s0_tag_semantic_inventory.sql",
+  "expected_vs_actual": {
+    "wide_table_columns_expected": 970,
+    "wide_table_columns_actual": 970,
+    "business_tags_expected": 969,
+    "code_fields_expected": 177,
+    "code_count_expected": 1723,
+    "note": "数字与交付脚本一致只作为对照，不替代本次查询。"
+  },
+  "wide_table": {
+    "schema": "indiv_cust",
+    "table": "L_INDVCST_LABEL",
+    "column_count": 970,
+    "type_distribution": {
+      "decimal": 449,
+      "int": 160,
+      "text": 155,
+      "tinyint": 129,
+      "date": 66,
+      "datetime": 10,
+      "varchar": 1
+    }
+  },
+  "code_table": {
+    "schema": "indiv_cust",
+    "table": "L_INDVCST_LABEL_CODE_MAP",
+    "field_count": 177,
+    "code_count": 1723
+  },
+  "libraries": [
+    {
+      "library_id": 105,
+      "library_name": "客户对象群标签库",
+      "library_code": "og_lib_001",
+      "tag_object": "客户",
+      "status": "2",
+      "dataset_id": 4,
+      "last_sync_version_id": 7,
+      "tag_count": 7,
+      "online_count": 7,
+      "available_online_count": 7,
+      "role": "对照库，本试点不使用"
+    },
+    {
+      "library_id": 107,
+      "library_name": "个人客户经营标签库",
+      "library_code": "L_INDVCST_LABEL",
+      "tag_object": "客户",
+      "status": "2",
+      "dataset_id": 6,
+      "last_sync_version_id": 12,
+      "tag_count": 970,
+      "online_count": 970,
+      "available_online_count": 970,
+      "object_key_count": 1,
+      "business_tag_count": 969,
+      "role": "本试点目标库"
+    }
+  ],
+  "resolved_online_version": {
+    "library_id": 107,
+    "dataset_id": 6,
+    "dataset_name": "个人客户经营数据集",
+    "dataset_status": "0",
+    "datasource_id": 101,
+    "datasource_name": "个人客户集市",
+    "default_version_id": 12,
+    "resolved_version_id": 12,
+    "version_no": 1,
+    "version_name": "V1",
+    "version_status": "ONLINE",
+    "is_default": true,
+    "reason": "默认在线版本",
+    "enabled_field_count": 970
+  },
+  "dimension_binding": [
+    {
+      "library_id": 107,
+      "relation_id": 2,
+      "dimension_id": 2,
+      "order_num": 1,
+      "dimension_name": "个人客户经营标签码值表",
+      "dimension_code": "L_INDVCST_LABEL_CODE_MAP",
+      "source_table_name": "L_INDVCST_LABEL_CODE_MAP",
+      "dim_status": "0",
+      "dim_del_flag": "0",
+      "dim_datasource_id": 101,
+      "library_datasource_id": 101,
+      "same_source": true
+    }
+  ],
+  "pilot_scope": {
+    "library_id": 107,
+    "pilot_field_count": 31,
+    "usable_count": 31,
+    "excluded_from_other_libraries": ["library_id=105 同名字段 GENDER/CUST_ID 不纳入本试点"],
+    "coverage_note": "试点 31 个字段 / 全库 969 个业务标签 ≈ 3.2%，不得写成 100% 覆盖。"
+  },
+  "pilot_fields": [
+    {"field_name": "CUST_ID", "tag_id": 525, "tag_name": "客户号", "data_type": "varchar(32)", "tag_type": "文本型", "is_object_key": "1", "status": "2", "source_status": "AVAILABLE", "version": 2, "enabled": true, "code_count": 0, "pilot_role": "ID_KEY，仅 binding，不进业务检索"},
+    {"field_name": "GENDER", "tag_id": 526, "tag_name": "性别", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 2, "pilot_role": "ENUM_NOMINAL"},
+    {"field_name": "ID_TYPE", "tag_id": 530, "tag_name": "证件类型", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 6, "pilot_role": "ENUM_NOMINAL"},
+    {"field_name": "OUTSIDE_ASSET_WAN_KYC", "tag_id": 534, "tag_name": "行外资产", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 6, "pilot_role": "ENUM_ORDINAL"},
+    {"field_name": "OUTSIDE_ASSET_OPS_KYC", "tag_id": 535, "tag_name": "行外资产（运营KYC）", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 6, "pilot_role": "ENUM_ORDINAL 同源多来源"},
+    {"field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG", "tag_id": 536, "tag_name": "勿扰客户（企微标签）", "data_type": "tinyint", "tag_type": "布尔型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 2, "pilot_role": "BOOL 来源词 WECOM"},
+    {"field_name": "OUTSIDE_ASSET_PB_KYC", "tag_id": 538, "tag_name": "行外资产（私银KYC）", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 6, "pilot_role": "ENUM_ORDINAL 同源多来源"},
+    {"field_name": "CHILD_COUNT_PB_KYC", "tag_id": 539, "tag_name": "子女数量（私银KYC）", "data_type": "int", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_COUNT"},
+    {"field_name": "HOUSEHOLD_ANNUAL_INCOME_PB_KYC", "tag_id": 540, "tag_name": "家庭年收入（私银KYC）", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 6, "pilot_role": "ENUM_ORDINAL"},
+    {"field_name": "CUR_PB_KYC_COMPLETENESS", "tag_id": 564, "tag_name": "当前私银KYC完整度", "data_type": "decimal(9,6)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_RATIO"},
+    {"field_name": "CUR_APP_DEVICE_TYPE", "tag_id": 565, "tag_name": "当前APP设备类型", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 4, "pilot_role": "ENUM_NOMINAL"},
+    {"field_name": "CUR_MOBILE_MODEL", "tag_id": 566, "tag_name": "当前手机型号", "data_type": "text", "tag_type": "文本型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "TEXT_FREE"},
+    {"field_name": "HIGHEST_EDUCATION", "tag_id": 567, "tag_name": "最高学历", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 6, "pilot_role": "ENUM_ORDINAL"},
+    {"field_name": "HIST_HOLDING_WMP_FLAG", "tag_id": 579, "tag_name": "历史持有理财标志", "data_type": "tinyint", "tag_type": "布尔型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 2, "pilot_role": "BOOL 时间族 HIST"},
+    {"field_name": "CUR_HOLDING_WMP_FLAG", "tag_id": 601, "tag_name": "当前持有理财标志", "data_type": "tinyint", "tag_type": "布尔型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 2, "pilot_role": "BOOL 时间族 CURRENT"},
+    {"field_name": "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_FLAG", "tag_id": 708, "tag_name": "近7天异名跨行转入标志", "data_type": "tinyint", "tag_type": "布尔型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 2, "pilot_role": "BOOL 时间族 7D"},
+    {"field_name": "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_FLAG", "tag_id": 709, "tag_name": "近30天异名跨行转入标志", "data_type": "tinyint", "tag_type": "布尔型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 2, "pilot_role": "BOOL 时间族 30D"},
+    {"field_name": "LAST_12_MONTHS_MAX_AUM", "tag_id": 717, "tag_name": "近12个月最高AUM", "data_type": "decimal(13,2)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_AMOUNT MAX 族"},
+    {"field_name": "T3_MONTH_END_AUM", "tag_id": 718, "tag_name": "T-3月末AUM", "data_type": "decimal(13,2)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_AMOUNT EOP 族"},
+    {"field_name": "CUR_FIXED_INCOME_AUM_RATIO", "tag_id": 719, "tag_name": "当前固收类AUM占比", "data_type": "decimal(9,6)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_RATIO"},
+    {"field_name": "CUR_POINT_AUM", "tag_id": 721, "tag_name": "当前时点AUM", "data_type": "decimal(13,2)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_AMOUNT EOP 族"},
+    {"field_name": "CUR_AUM_MONTH_AVG_DAILY_BALANCE", "tag_id": 722, "tag_name": "当前AUM月日均余额", "data_type": "decimal(13,2)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_AMOUNT AVG_DAILY 族"},
+    {"field_name": "HIST_MAX_POINT_AUM", "tag_id": 727, "tag_name": "历史最高时点AUM", "data_type": "decimal(13,2)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_AMOUNT HIST+MAX 族"},
+    {"field_name": "CUR_POINT_AUM_OUR_BANK", "tag_id": 735, "tag_name": "当前时点AUM（本行）", "data_type": "decimal(13,2)", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_AMOUNT 范围 OUR_BANK"},
+    {"field_name": "HIST_MATURED_TIME_DEPOSIT_LATEST_MAT_DATE", "tag_id": 856, "tag_name": "历史已到期定期存款最近一次到期日期", "data_type": "date", "tag_type": "日期型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "DATE HIST"},
+    {"field_name": "NEXT_TIME_DEPOSIT_LATEST_MAT_DATE", "tag_id": 858, "tag_name": "未来定期存款最近一次到期日期", "data_type": "date", "tag_type": "日期型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "DATE FUTURE"},
+    {"field_name": "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_COUNT", "tag_id": 1268, "tag_name": "近7天异名跨行转入次数", "data_type": "int", "tag_type": "数值型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 0, "pilot_role": "NUM_COUNT"},
+    {"field_name": "CUR_CORE_CM_LEVEL3_BRANCH", "tag_id": 1386, "tag_name": "当前核心管户三级机构", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 85, "pilot_role": "ENUM_NOMINAL 机构，禁止猜树"},
+    {"field_name": "CUR_CORE_CM_LEVEL1_BRANCH", "tag_id": 1409, "tag_name": "当前核心管户一级机构", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 18, "pilot_role": "ENUM_NOMINAL 机构，禁止猜树"},
+    {"field_name": "CUR_CORE_CM_LEVEL2_BRANCH", "tag_id": 1410, "tag_name": "当前核心管户二级机构", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 383, "pilot_role": "ENUM_NOMINAL 机构，禁止猜树"},
+    {"field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL", "tag_id": 1466, "tag_name": "当前理财风评等级", "data_type": "text", "tag_type": "选项型", "status": "2", "source_status": "AVAILABLE", "version": 3, "enabled": true, "code_count": 5, "pilot_role": "ENUM_ORDINAL C1-C5"}
+  ],
+  "issues": [
+    {
+      "code": "CROSS_LIBRARY_FIELD_NAME",
+      "severity": "info",
+      "message": "GENDER、CUST_ID 在 library_id=105 与 107 同时存在。导出与 rule_init 必须按 library_id 过滤，禁止只按 field_name 全局匹配。"
+    },
+    {
+      "code": "TAG_NAME_VS_CODE_MAP_LABEL",
+      "severity": "info",
+      "message": "OUTSIDE_ASSET_WAN_KYC 在 tl_tag.tag_name 为「行外资产」，码表 tag_name_cn 为「行外资产(万元)(KYC)」。权威名称仍以 tl_tag 为准，码表中文名随 code_value 冻结。"
+    },
+    {
+      "code": "HIERARCHY_NOT_CONFIRMED",
+      "severity": "info",
+      "message": "一级/二级/三级机构码表已绑定可读，但公开联行号不等于行内组织树。S2 保持 ENUM_NOMINAL + HIERARCHY_SKIPPED。"
+    },
+    {
+      "code": "OBJECT_KEY_VERSION",
+      "severity": "info",
+      "message": "CUST_ID(tag_id=525) version=2，其余试点业务标签 version=3。对象键不进业务检索文档。"
+    }
+  ]
+}
