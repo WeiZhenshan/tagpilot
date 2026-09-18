@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsBusinessTermMapper">
+
+    <resultMap type="TsBusinessTerm" id="TsBusinessTermResult">
+        <id     property="termId"                   column="term_id"                    />
+        <result property="term"                     column="term"                       />
+        <result property="termNorm"                 column="term_norm"                  />
+        <result property="termType"                 column="term_type"                  />
+        <result property="options"                  column="options"                    />
+        <result property="defaultPolicy"            column="default_policy"             />
+        <result property="applicableSemanticTypes"  column="applicable_semantic_types"  />
+        <result property="tagObject"                column="tag_object"                 />
+        <result property="reviewStatus"             column="review_status"              />
+        <result property="reviewBy"                 column="review_by"                  />
+        <result property="reviewTime"               column="review_time"                />
+        <result property="sourceRef"                column="source_ref"                 />
+        <result property="createBy"                 column="create_by"                  />
+        <result property="createTime"               column="create_time"                />
+        <result property="updateBy"                 column="update_by"                  />
+        <result property="updateTime"               column="update_time"                />
+        <result property="remark"                   column="remark"                     />
+    </resultMap>
+
+    <sql id="selectVo">
+        select term_id, term, term_norm, term_type, options, default_policy, applicable_semantic_types,
+               tag_object, review_status, review_by, review_time, source_ref,
+               create_by, create_time, update_by, update_time, remark
+        from ts_business_term
+    </sql>
+
+    <select id="selectTermById" parameterType="Long" resultMap="TsBusinessTermResult">
+        <include refid="selectVo"/> where term_id = #{termId}
+    </select>
+
+    <select id="selectTermList" resultMap="TsBusinessTermResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="termNorm != null and termNorm != ''">and term_norm = #{termNorm}</if>
+            <if test="termType != null and termType != ''">and term_type = #{termType}</if>
+        </where>
+        order by term_id
+    </select>
+
+    <select id="selectByNorm" resultMap="TsBusinessTermResult">
+        <include refid="selectVo"/>
+        where term_norm = #{termNorm} and term_type = #{termType}
+          and tag_object &lt;=&gt; #{tagObject}
+    </select>
+
+    <insert id="insertTerm" parameterType="TsBusinessTerm" useGeneratedKeys="true" keyProperty="termId">
+        insert into ts_business_term (
+            term, term_norm, term_type, options, default_policy, applicable_semantic_types, tag_object,
+            review_status, review_by, review_time, source_ref, create_by, create_time, remark
+        ) values (
+            #{term}, #{termNorm}, #{termType}, #{options}, #{defaultPolicy}, #{applicableSemanticTypes}, #{tagObject},
+            #{reviewStatus}, #{reviewBy}, #{reviewTime}, #{sourceRef}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateTerm" parameterType="TsBusinessTerm">
+        update ts_business_term
+        <set>
+            <if test="term != null">term = #{term},</if>
+            <if test="termNorm != null">term_norm = #{termNorm},</if>
+            <if test="termType != null">term_type = #{termType},</if>
+            <if test="options != null">options = #{options},</if>
+            <if test="defaultPolicy != null">default_policy = #{defaultPolicy},</if>
+            <if test="applicableSemanticTypes != null">applicable_semantic_types = #{applicableSemanticTypes},</if>
+            <if test="tagObject != null">tag_object = #{tagObject},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="reviewBy != null">review_by = #{reviewBy},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where term_id = #{termId}
+    </update>
+</mapper>

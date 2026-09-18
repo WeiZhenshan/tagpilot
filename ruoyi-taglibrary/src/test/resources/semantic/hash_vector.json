@@ -1,0 +1,25 @@
+{
+  "rows": [
+    {
+      "kind": "meta",
+      "library_id": 107,
+      "schema_version": "v1",
+      "scope": "PILOT",
+      "coverage_note": "31/969 ≈ 3.2%",
+      "snapshot_id": "L107-IGNORE",
+      "content_hash": "deadbeef"
+    },
+    {
+      "kind": "tag",
+      "tag_id": 526,
+      "name": "性别",
+      "family_key": "GENDER|NONE|ALL|NONE|NONE|BASE",
+      "status": "2"
+    }
+  ],
+  "expected_hash": "0af75a399cab5d18e4959e13bc23edfc4d60b11fd53d3b54910b32a154357629",
+  "canonical_lines": [
+    "{\"coverage_note\":\"31/969 ≈ 3.2%\",\"kind\":\"meta\",\"library_id\":107,\"schema_version\":\"v1\",\"scope\":\"PILOT\"}",
+    "{\"family_key\":\"GENDER|NONE|ALL|NONE|NONE|BASE\",\"kind\":\"tag\",\"name\":\"性别\",\"tag_id\":526}"
+  ]
+}

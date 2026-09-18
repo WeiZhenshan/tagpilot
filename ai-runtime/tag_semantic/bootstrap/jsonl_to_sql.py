@@ -25,9 +25,10 @@ def sql_json(value) -> str:
     return "CAST(" + sql_str(raw) + " AS JSON)"
 
 
-def convert(result_path: Path, sql_path: Path) -> tuple[int, int]:
+def convert(result_path: Path, sql_path: Path, concept_path: Path | None = None) -> tuple[int, int, int]:
     tags = []
     codes = []
+    concepts = []
     with result_path.open(encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
@@ -38,15 +39,47 @@ def convert(result_path: Path, sql_path: Path) -> tuple[int, int]:
                 tags.append(row)
             elif row.get("kind") == "code_value_semantic":
                 codes.append(row)
+            elif row.get("kind") == "concept":
+                concepts.append(row)
+    if concept_path and concept_path.exists():
+        with concept_path.open(encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if line:
+                    concepts.append(json.loads(line))
     parts = ["SET NAMES utf8mb4;", "USE ry;"]
+    for row in concepts:
+        parts.append(
+            "INSERT INTO ts_concept ("
+            "library_id, concept_code, concept_name, domain_dir_id, tag_object, definition, "
+            "parent_id, status, source, review_status, source_ref, create_by, create_time"
+            ") VALUES ("
+            f"{int(row.get('library_id') or 107)}, {sql_str(row.get('concept_code'))}, "
+            f"{sql_str(row.get('concept_name'))}, {sql_num(row.get('domain_dir_id') or 0)}, "
+            f"{sql_str(row.get('tag_object') or '客户')}, {sql_str(row.get('definition'))}, "
+            f"{sql_num(row.get('parent_id') or 0)}, '0', 'RULE', 'DRAFT', 'concept_cluster', "
+            "'rule_init', NOW()"
+            ") ON DUPLICATE KEY UPDATE "
+            "concept_name=VALUES(concept_name), definition=VALUES(definition), "
+            "review_status=IF(review_status='REVIEWED', review_status, 'DRAFT'), "
+            "update_by='rule_init', update_time=NOW();"
+        )
     for row in tags:
+        family = row.get("family_key") or row.get("family_candidate") or "UNNAMED|NONE|ALL|NONE|NONE|BASE"
+        concept_code = row.get("concept_code")
+        concept_sql = (
+            "(SELECT concept_id FROM ts_concept WHERE library_id="
+            f"{int(row.get('library_id') or 107)} AND concept_code={sql_str(concept_code)} LIMIT 1)"
+            if concept_code and concept_code != "OBJECT_KEY"
+            else "NULL"
+        )
         parts.append(
             "INSERT INTO ts_tag_semantic ("
             "tag_id, concept_id, family_key, caliber_variant, semantic_type, allowed_operators, "
             "default_operator, unit, unit_scale, caliber_struct, definition_long, sensitivity, "
             "basis_hash, source, review_status, semantic_version, source_ref, create_by, create_time, remark"
             ") VALUES ("
-            f"{int(row['tag_id'])}, NULL, {sql_str(row.get('family_candidate') or 'UNNAMED|NONE|ALL|NONE|NONE|BASE')}, "
+            f"{int(row['tag_id'])}, {concept_sql}, {sql_str(family)}, "
             f"{sql_str(row.get('caliber_variant') or 'BASE')}, {sql_str(row.get('semantic_type'))}, "
             f"{sql_str(json.dumps(row.get('allowed_operators') or [], ensure_ascii=False))}, "
             f"{sql_str(row.get('default_operator'))}, {sql_str(row.get('unit') or 'NONE')}, "
@@ -54,9 +87,9 @@ def convert(result_path: Path, sql_path: Path) -> tuple[int, int]:
             f"{sql_json(row.get('caliber_struct') or {})}, {sql_str(row.get('definition_long'))}, "
             f"{sql_str(row.get('sensitivity') or 'UNKNOWN')}, {sql_str(row.get('basis_hash'))}, "
             "'RULE', 'DRAFT', 1, 'rule_init', 'rule_init', NOW(), "
-            f"{sql_str(row.get('concept_candidate'))}"
+            f"{sql_str(row.get('concept_candidate') or row.get('concept_code'))}"
             ") ON DUPLICATE KEY UPDATE "
-            "family_key=VALUES(family_key), caliber_variant=VALUES(caliber_variant), "
+            "concept_id=VALUES(concept_id), family_key=VALUES(family_key), caliber_variant=VALUES(caliber_variant), "
             "semantic_type=VALUES(semantic_type), allowed_operators=VALUES(allowed_operators), "
             "default_operator=VALUES(default_operator), unit=VALUES(unit), unit_scale=VALUES(unit_scale), "
             "caliber_struct=VALUES(caliber_struct), definition_long=VALUES(definition_long), "
@@ -83,13 +116,15 @@ def convert(result_path: Path, sql_path: Path) -> tuple[int, int]:
             "update_by='rule_init', update_time=NOW();"
         )
     sql_path.write_text("\n".join(parts) + "\n", encoding="utf-8")
-    print(f"wrote {sql_path} tags={len(tags)} codes={len(codes)}")
-    return len(tags), len(codes)
+    print(f"wrote {sql_path} concepts={len(concepts)} tags={len(tags)} codes={len(codes)}")
+    return len(tags), len(codes), len(concepts)
 
 
 def main() -> None:
     out = ROOT / "ai-runtime/tag_semantic/out"
-    convert(out / "rule_init_result.jsonl", out / "rule_init_import.sql")
+    clustered = out / "s3_clustered.jsonl"
+    source = clustered if clustered.exists() else out / "rule_init_result.jsonl"
+    convert(source, out / "rule_init_import.sql", out / "s3_concepts.jsonl")
 
 
 if __name__ == "__main__":

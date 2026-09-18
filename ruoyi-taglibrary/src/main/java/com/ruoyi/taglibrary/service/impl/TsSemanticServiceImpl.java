@@ -1,21 +1,32 @@
 package com.ruoyi.taglibrary.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TsAlias;
+import com.ruoyi.taglibrary.domain.TsBusinessTerm;
 import com.ruoyi.taglibrary.domain.TsCodeValueSemantic;
 import com.ruoyi.taglibrary.domain.TsConcept;
+import com.ruoyi.taglibrary.domain.TsConfusable;
+import com.ruoyi.taglibrary.domain.TsTagExample;
 import com.ruoyi.taglibrary.domain.TsTagSemantic;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
 import com.ruoyi.taglibrary.mapper.TsAliasMapper;
+import com.ruoyi.taglibrary.mapper.TsBusinessTermMapper;
 import com.ruoyi.taglibrary.mapper.TsCodeValueSemanticMapper;
 import com.ruoyi.taglibrary.mapper.TsConceptMapper;
+import com.ruoyi.taglibrary.mapper.TsConfusableMapper;
+import com.ruoyi.taglibrary.mapper.TsTagExampleMapper;
 import com.ruoyi.taglibrary.mapper.TsTagSemanticMapper;
 import com.ruoyi.taglibrary.service.ITsSemanticService;
 
@@ -27,6 +38,7 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
 
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_REVIEWED = "REVIEWED";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
     private TlTagMapper tagMapper;
@@ -38,6 +50,12 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
     private TsAliasMapper aliasMapper;
     @Autowired
     private TsCodeValueSemanticMapper codeValueMapper;
+    @Autowired
+    private TsBusinessTermMapper termMapper;
+    @Autowired
+    private TsConfusableMapper confusableMapper;
+    @Autowired
+    private TsTagExampleMapper exampleMapper;
 
     @Override
     public TsTagSemantic selectTagSemanticByTagId(Long tagId) {
@@ -103,6 +121,10 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
         existing.setReviewBy(SecurityUtils.getUsername());
         existing.setReviewTime(new Date());
         existing.setUpdateBy(SecurityUtils.getUsername());
+        TsConcept concept = existing.getConceptId() == null ? null : conceptMapper.selectConceptById(existing.getConceptId());
+        existing.setCompletenessScore(Integer.valueOf(com.ruoyi.taglibrary.service.TsCompletenessScorer.score(
+                existing, concept, java.util.Collections.<TsAlias>emptyList(),
+                codeValueMapper.selectByTagId(tagId), true, false)));
         return tagSemanticMapper.updateTagSemantic(existing);
     }
 
@@ -265,6 +287,211 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
         return codeValueMapper.updateCodeValue(existing);
     }
 
+    @Override
+    public List<TsBusinessTerm> selectTermList(String termNorm, String termType) {
+        return termMapper.selectTermList(termNorm, termType);
+    }
+
+    @Override
+    public int saveTerm(TsBusinessTerm term) {
+        if (term == null || StringUtils.isEmpty(term.getTerm()) || StringUtils.isEmpty(term.getTermType())) {
+            throw new ServiceException("词条与类型不能为空");
+        }
+        if (StringUtils.isEmpty(term.getTermNorm())) {
+            term.setTermNorm(normalizeAlias(term.getTerm()));
+        }
+        if (StringUtils.isEmpty(term.getTagObject())) {
+            term.setTagObject("客户");
+        }
+        String username = SecurityUtils.getUsername();
+        term.setReviewStatus(STATUS_DRAFT);
+        if (term.getTermId() == null) {
+            term.setCreateBy(username);
+            return termMapper.insertTerm(term);
+        }
+        TsBusinessTerm existing = termMapper.selectTermById(term.getTermId());
+        if (existing == null) {
+            throw new ServiceException("词条不存在");
+        }
+        term.setUpdateBy(username);
+        return termMapper.updateTerm(term);
+    }
+
+    @Override
+    public int reviewTerm(Long termId, String sourceRef) {
+        TsBusinessTerm existing = termMapper.selectTermById(termId);
+        if (existing == null) {
+            throw new ServiceException("词条不存在");
+        }
+        requireDraft(existing.getReviewStatus());
+        existing.setReviewStatus(STATUS_REVIEWED);
+        existing.setSourceRef(sourceRef);
+        existing.setReviewBy(SecurityUtils.getUsername());
+        existing.setReviewTime(new Date());
+        existing.setUpdateBy(SecurityUtils.getUsername());
+        return termMapper.updateTerm(existing);
+    }
+
+    @Override
+    public List<TsConfusable> selectConfusableByTagId(Long tagId) {
+        return confusableMapper.selectByTagId(tagId);
+    }
+
+    @Override
+    public int saveConfusable(TsConfusable pair) {
+        if (pair == null || pair.getTagIdA() == null || pair.getTagIdB() == null) {
+            throw new ServiceException("易混淆标签对不能为空");
+        }
+        if (pair.getTagIdA().equals(pair.getTagIdB())) {
+            throw new ServiceException("易混淆对不能是同一标签");
+        }
+        if (pair.getTagIdA().longValue() > pair.getTagIdB().longValue()) {
+            Long tmp = pair.getTagIdA();
+            pair.setTagIdA(pair.getTagIdB());
+            pair.setTagIdB(tmp);
+        }
+        if (StringUtils.isEmpty(pair.getConfusionType())) {
+            throw new ServiceException("混淆类型不能为空");
+        }
+        String username = SecurityUtils.getUsername();
+        pair.setReviewStatus(STATUS_DRAFT);
+        if (pair.getPairId() == null) {
+            if (StringUtils.isEmpty(pair.getSource())) {
+                pair.setSource("HUMAN");
+            }
+            pair.setCreateBy(username);
+            return confusableMapper.insertPair(pair);
+        }
+        TsConfusable existing = confusableMapper.selectById(pair.getPairId());
+        if (existing == null) {
+            throw new ServiceException("易混淆对不存在");
+        }
+        pair.setUpdateBy(username);
+        return confusableMapper.updatePair(pair);
+    }
+
+    @Override
+    public int reviewConfusable(Long pairId, String sourceRef) {
+        TsConfusable existing = confusableMapper.selectById(pairId);
+        if (existing == null) {
+            throw new ServiceException("易混淆对不存在");
+        }
+        requireDraft(existing.getReviewStatus());
+        existing.setReviewStatus(STATUS_REVIEWED);
+        existing.setSourceRef(sourceRef);
+        existing.setReviewBy(SecurityUtils.getUsername());
+        existing.setReviewTime(new Date());
+        existing.setUpdateBy(SecurityUtils.getUsername());
+        return confusableMapper.updatePair(existing);
+    }
+
+    @Override
+    public int generateTimeFacetPairs(Long libraryId) {
+        if (libraryId == null) {
+            throw new ServiceException("标签库不能为空");
+        }
+        List<TsTagSemantic> tags = tagSemanticMapper.selectByLibraryId(libraryId);
+        Map<String, List<TsTagSemantic>> groups = new HashMap<String, List<TsTagSemantic>>();
+        for (TsTagSemantic tag : tags) {
+            if ("ID_KEY".equals(tag.getSemanticType()) || StringUtils.isEmpty(tag.getFamilyKey())) {
+                continue;
+            }
+            List<TsTagSemantic> members = groups.get(tag.getFamilyKey());
+            if (members == null) {
+                members = new ArrayList<TsTagSemantic>();
+                groups.put(tag.getFamilyKey(), members);
+            }
+            members.add(tag);
+        }
+        int created = 0;
+        String username = SecurityUtils.getUsername();
+        for (List<TsTagSemantic> members : groups.values()) {
+            if (members.size() < 2) {
+                continue;
+            }
+            for (int i = 0; i < members.size(); i++) {
+                for (int j = i + 1; j < members.size(); j++) {
+                    TsTagSemantic left = members.get(i);
+                    TsTagSemantic right = members.get(j);
+                    Long a = left.getTagId();
+                    Long b = right.getTagId();
+                    if (a.longValue() > b.longValue()) {
+                        Long tmp = a;
+                        a = b;
+                        b = tmp;
+                        TsTagSemantic swap = left;
+                        left = right;
+                        right = swap;
+                    }
+                    if (confusableMapper.selectByPair(a, b) != null) {
+                        continue;
+                    }
+                    String la = timeLabel(left);
+                    String lb = timeLabel(right);
+                    TsConfusable pair = new TsConfusable();
+                    pair.setTagIdA(a);
+                    pair.setTagIdB(b);
+                    pair.setConfusionType("TIME_FACET");
+                    pair.setDifferenceNote("两者仅统计时点不同：" + la + " vs " + lb);
+                    pair.setDisambiguationHint("用户提到" + la + "选" + nz(left.getTagName(), String.valueOf(a))
+                            + "；提到" + lb + "选" + nz(right.getTagName(), String.valueOf(b)));
+                    pair.setSource("RULE");
+                    pair.setReviewStatus(STATUS_DRAFT);
+                    pair.setCreateBy(username);
+                    confusableMapper.insertPair(pair);
+                    created++;
+                }
+            }
+        }
+        return created;
+    }
+
+    @Override
+    public List<TsTagExample> selectExamplesByTagId(Long tagId) {
+        return exampleMapper.selectByTagId(tagId);
+    }
+
+    @Override
+    public int saveExample(TsTagExample example) {
+        if (example == null || example.getTagId() == null || StringUtils.isEmpty(example.getUtterance())) {
+            throw new ServiceException("示例标签与说法不能为空");
+        }
+        if (StringUtils.isEmpty(example.getExampleType())) {
+            throw new ServiceException("示例类型不能为空");
+        }
+        requireTag(example.getTagId());
+        String username = SecurityUtils.getUsername();
+        example.setReviewStatus(STATUS_DRAFT);
+        if (example.getExampleId() == null) {
+            if (StringUtils.isEmpty(example.getSource())) {
+                example.setSource("HUMAN");
+            }
+            example.setCreateBy(username);
+            return exampleMapper.insertExample(example);
+        }
+        TsTagExample existing = exampleMapper.selectById(example.getExampleId());
+        if (existing == null) {
+            throw new ServiceException("示例不存在");
+        }
+        example.setUpdateBy(username);
+        return exampleMapper.updateExample(example);
+    }
+
+    @Override
+    public int reviewExample(Long exampleId, String sourceRef) {
+        TsTagExample existing = exampleMapper.selectById(exampleId);
+        if (existing == null) {
+            throw new ServiceException("示例不存在");
+        }
+        requireDraft(existing.getReviewStatus());
+        existing.setReviewStatus(STATUS_REVIEWED);
+        existing.setSourceRef(sourceRef);
+        existing.setReviewBy(SecurityUtils.getUsername());
+        existing.setReviewTime(new Date());
+        existing.setUpdateBy(SecurityUtils.getUsername());
+        return exampleMapper.updateExample(existing);
+    }
+
     private TlTag requireTag(Long tagId) {
         TlTag tag = tagMapper.selectTagById(tagId);
         if (tag == null) {
@@ -310,5 +537,26 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
             sb.append(Character.toLowerCase(c));
         }
         return sb.toString();
+    }
+
+    private String timeLabel(TsTagSemantic tag) {
+        String raw = tag.getCaliberStruct();
+        if (StringUtils.isEmpty(raw)) {
+            return "无时间";
+        }
+        try {
+            JsonNode node = MAPPER.readTree(raw);
+            JsonNode label = node.get("time_anchor_label");
+            if (label != null && !label.isNull() && StringUtils.isNotEmpty(label.asText())) {
+                return label.asText();
+            }
+        } catch (Exception ignored) {
+            return "无时间";
+        }
+        return "无时间";
+    }
+
+    private String nz(String value, String fallback) {
+        return StringUtils.isEmpty(value) ? fallback : value;
     }
 }

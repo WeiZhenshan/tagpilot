@@ -36,6 +36,7 @@ import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagDir;
 import com.ruoyi.taglibrary.domain.TlTagLibrary;
 import com.ruoyi.taglibrary.domain.TsCodeValueSemantic;
+import com.ruoyi.taglibrary.domain.TsConcept;
 import com.ruoyi.taglibrary.domain.TsTagSemantic;
 import com.ruoyi.taglibrary.domain.dto.BootstrapExportRequest;
 import com.ruoyi.taglibrary.domain.dto.BootstrapExportResult;
@@ -46,6 +47,7 @@ import com.ruoyi.taglibrary.mapper.TlTagLibraryDimensionMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
 import com.ruoyi.taglibrary.mapper.TsCodeValueSemanticMapper;
+import com.ruoyi.taglibrary.mapper.TsConceptMapper;
 import com.ruoyi.taglibrary.mapper.TsTagSemanticMapper;
 import com.ruoyi.taglibrary.service.ITsBootstrapService;
 
@@ -86,6 +88,8 @@ public class TsBootstrapExportService implements ITsBootstrapService {
     private TsTagSemanticMapper tagSemanticMapper;
     @Autowired
     private TsCodeValueSemanticMapper codeValueMapper;
+    @Autowired
+    private TsConceptMapper conceptMapper;
 
     @Override
     public BootstrapExportResult exportFreeze(BootstrapExportRequest request) {
@@ -197,6 +201,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
             throw new ServiceException("导入内容不能为空");
         }
         Long libraryId = request.getLibraryId();
+        List<JsonNode> conceptNodes = new ArrayList<JsonNode>();
         List<JsonNode> tagNodes = new ArrayList<JsonNode>();
         List<JsonNode> codeNodes = new ArrayList<JsonNode>();
         String[] lines = request.getJsonl().split("\\r?\\n");
@@ -212,7 +217,9 @@ public class TsBootstrapExportService implements ITsBootstrapService {
                 throw new ServiceException("导入 JSONL 第 " + (i + 1) + " 行无法解析");
             }
             String kind = text(node, "kind");
-            if ("tag_semantic".equals(kind)) {
+            if ("concept".equals(kind)) {
+                conceptNodes.add(node);
+            } else if ("tag_semantic".equals(kind)) {
                 tagNodes.add(node);
             } else if ("code_value_semantic".equals(kind)) {
                 codeNodes.add(node);
@@ -224,8 +231,36 @@ public class TsBootstrapExportService implements ITsBootstrapService {
         BootstrapImportResult result = new BootstrapImportResult();
         result.setLibraryId(libraryId);
         String username = currentUser();
-        int importedTags = 0;
+        int importedConcepts = 0;
         int skipped = 0;
+        Map<String, TsConcept> conceptByCode = new HashMap<String, TsConcept>();
+        for (JsonNode node : conceptNodes) {
+            Long nodeLibrary = longValue(node, "library_id");
+            String conceptCode = text(node, "concept_code");
+            if (nodeLibrary == null || !libraryId.equals(nodeLibrary) || StringUtils.isEmpty(conceptCode)) {
+                result.getRejected().add(reject(null, "CONCEPT_LIBRARY_MISMATCH", "概念不属于该库或缺少 concept_code"));
+                continue;
+            }
+            TsConcept existing = conceptMapper.selectByLibraryAndCode(libraryId, conceptCode);
+            if (existing != null && STATUS_REVIEWED.equals(existing.getReviewStatus())) {
+                skipped++;
+                conceptByCode.put(conceptCode, existing);
+                result.getRejected().add(reject(existing.getConceptId(), "REVIEWED_SKIP", "已复核概念不允许被 RULE 草稿覆盖"));
+                continue;
+            }
+            TsConcept row = toConcept(node, libraryId, username);
+            if (existing == null) {
+                conceptMapper.insertConcept(row);
+            } else {
+                row.setConceptId(existing.getConceptId());
+                row.setUpdateBy(username);
+                conceptMapper.updateConcept(row);
+            }
+            conceptByCode.put(conceptCode, row);
+            importedConcepts++;
+        }
+        result.setImportedConceptCount(importedConcepts);
+        int importedTags = 0;
         for (JsonNode node : tagNodes) {
             Long tagId = longValue(node, "tag_id");
             if (tagId == null) {
@@ -247,7 +282,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
                 result.getRejected().add(reject(tagId, "REVIEWED_SKIP", "已复核语义不允许被 RULE 草稿覆盖"));
                 continue;
             }
-            TsTagSemantic row = toTagSemantic(node, tagId, username);
+            TsTagSemantic row = toTagSemantic(node, tagId, username, resolveConceptId(node, libraryId, conceptByCode));
             if (existing == null) {
                 tagSemanticMapper.insertTagSemantic(row);
             } else {
@@ -546,11 +581,12 @@ public class TsBootstrapExportService implements ITsBootstrapService {
         }
     }
 
-    private TsTagSemantic toTagSemantic(JsonNode node, Long tagId, String username) {
+    private TsTagSemantic toTagSemantic(JsonNode node, Long tagId, String username, Long conceptId) {
         TsTagSemantic row = new TsTagSemantic();
         row.setTagId(tagId);
-        row.setConceptId(null);
-        row.setFamilyKey(nz(text(node, "family_candidate"), "UNNAMED|NONE|ALL|NONE|NONE|BASE"));
+        row.setConceptId(conceptId);
+        String family = nz(text(node, "family_key"), text(node, "family_candidate"));
+        row.setFamilyKey(nz(family, "UNNAMED|NONE|ALL|NONE|NONE|BASE"));
         row.setCaliberVariant(nz(text(node, "caliber_variant"), "BASE"));
         row.setSemanticType(text(node, "semantic_type"));
         row.setAllowedOperators(jsonText(node.get("allowed_operators")));
@@ -591,6 +627,42 @@ public class TsBootstrapExportService implements ITsBootstrapService {
         row.setSourceRef("rule_init");
         row.setCreateBy(username);
         return row;
+    }
+
+    private TsConcept toConcept(JsonNode node, Long libraryId, String username) {
+        TsConcept row = new TsConcept();
+        row.setLibraryId(libraryId);
+        row.setConceptCode(text(node, "concept_code"));
+        row.setConceptName(nz(text(node, "concept_name"), text(node, "concept_code")));
+        Long domainDirId = longValue(node, "domain_dir_id");
+        row.setDomainDirId(domainDirId == null ? Long.valueOf(0L) : domainDirId);
+        row.setTagObject(nz(text(node, "tag_object"), "客户"));
+        row.setDefinition(text(node, "definition"));
+        Long parentId = longValue(node, "parent_id");
+        row.setParentId(parentId == null ? Long.valueOf(0L) : parentId);
+        row.setStatus(nz(text(node, "status"), "0"));
+        row.setSource("RULE");
+        row.setReviewStatus(STATUS_DRAFT);
+        row.setSourceRef("concept_cluster");
+        row.setCreateBy(username);
+        return row;
+    }
+
+    private Long resolveConceptId(JsonNode node, Long libraryId, Map<String, TsConcept> conceptByCode) {
+        String code = text(node, "concept_code");
+        if (StringUtils.isEmpty(code) || "OBJECT_KEY".equals(code)) {
+            return null;
+        }
+        TsConcept cached = conceptByCode.get(code);
+        if (cached != null) {
+            return cached.getConceptId();
+        }
+        TsConcept loaded = conceptMapper.selectByLibraryAndCode(libraryId, code);
+        if (loaded != null) {
+            conceptByCode.put(code, loaded);
+            return loaded.getConceptId();
+        }
+        return null;
     }
 
     private boolean sameAuthority(TlTag tag, JsonNode node) {

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsIndexBuildMapper">
+    <resultMap type="com.ruoyi.taglibrary.domain.TsIndexBuild" id="BuildResult">
+        <id property="buildId" column="build_id"/>
+        <result property="snapshotId" column="snapshot_id"/>
+        <result property="docTemplateVersion" column="doc_template_version"/>
+        <result property="analyzerVersion" column="analyzer_version"/>
+        <result property="embeddingModel" column="embedding_model"/>
+        <result property="embeddingDim" column="embedding_dim"/>
+        <result property="storeType" column="store_type"/>
+        <result property="milvusCollection" column="milvus_collection"/>
+        <result property="milvusAlias" column="milvus_alias"/>
+        <result property="artifactUri" column="artifact_uri"/>
+        <result property="artifactHash" column="artifact_hash"/>
+        <result property="docCount" column="doc_count"/>
+        <result property="docIdHash" column="doc_id_hash"/>
+        <result property="status" column="status"/>
+        <result property="evalSummary" column="eval_summary"/>
+        <result property="buildTime" column="build_time"/>
+        <result property="buildDurationMs" column="build_duration_ms"/>
+    </resultMap>
+    <sql id="cols">
+        build_id, snapshot_id, doc_template_version, analyzer_version, embedding_model, embedding_dim,
+        store_type, milvus_collection, milvus_alias, artifact_uri, artifact_hash, doc_count, doc_id_hash,
+        status, eval_summary, build_time, build_duration_ms
+    </sql>
+    <select id="selectById" resultMap="BuildResult">
+        select <include refid="cols"/> from ts_index_build where build_id = #{buildId}
+    </select>
+    <select id="selectActiveBySnapshotId" resultMap="BuildResult">
+        select <include refid="cols"/> from ts_index_build where snapshot_id = #{snapshotId} and status = 'ACTIVE' limit 1
+    </select>
+    <select id="selectBySnapshotId" resultMap="BuildResult">
+        select <include refid="cols"/> from ts_index_build where snapshot_id = #{snapshotId} order by create_time desc
+    </select>
+    <insert id="insertBuild">
+        insert into ts_index_build (
+            build_id, snapshot_id, doc_template_version, analyzer_version, embedding_model, embedding_dim,
+            store_type, milvus_collection, milvus_alias, artifact_uri, artifact_hash, doc_count, doc_id_hash,
+            status, eval_summary, build_time, build_duration_ms, create_by, create_time
+        ) values (
+            #{buildId}, #{snapshotId}, #{docTemplateVersion}, #{analyzerVersion}, #{embeddingModel}, #{embeddingDim},
+            #{storeType}, #{milvusCollection}, #{milvusAlias}, #{artifactUri}, #{artifactHash}, #{docCount}, #{docIdHash},
+            #{status}, #{evalSummary}, #{buildTime}, #{buildDurationMs}, #{createBy}, sysdate()
+        )
+    </insert>
+    <update id="updateBuild">
+        update ts_index_build
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="milvusCollection != null">milvus_collection = #{milvusCollection},</if>
+            <if test="milvusAlias != null">milvus_alias = #{milvusAlias},</if>
+            <if test="artifactUri != null">artifact_uri = #{artifactUri},</if>
+            <if test="artifactHash != null">artifact_hash = #{artifactHash},</if>
+            <if test="docCount != null">doc_count = #{docCount},</if>
+            <if test="docIdHash != null">doc_id_hash = #{docIdHash},</if>
+            <if test="evalSummary != null">eval_summary = #{evalSummary},</if>
+            update_time = sysdate()
+        </set>
+        where build_id = #{buildId}
+    </update>
+    <update id="retireActiveBySnapshotId">
+        update ts_index_build set status = 'RETIRED', update_time = sysdate()
+        where snapshot_id = #{snapshotId} and status = 'ACTIVE'
+    </update>
+</mapper>

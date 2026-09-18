@@ -11,6 +11,7 @@ public class BootstrapImportResult {
     private Long libraryId;
     private int importedTagCount;
     private int importedCodeCount;
+    private int importedConceptCount;
     private int skippedReviewedCount;
     private List<Map<String, Object>> rejected = new ArrayList<Map<String, Object>>();
 
@@ -20,6 +21,8 @@ public class BootstrapImportResult {
     public void setImportedTagCount(int importedTagCount) { this.importedTagCount = importedTagCount; }
     public int getImportedCodeCount() { return importedCodeCount; }
     public void setImportedCodeCount(int importedCodeCount) { this.importedCodeCount = importedCodeCount; }
+    public int getImportedConceptCount() { return importedConceptCount; }
+    public void setImportedConceptCount(int importedConceptCount) { this.importedConceptCount = importedConceptCount; }
     public int getSkippedReviewedCount() { return skippedReviewedCount; }
     public void setSkippedReviewedCount(int skippedReviewedCount) { this.skippedReviewedCount = skippedReviewedCount; }
     public List<Map<String, Object>> getRejected() { return rejected; }

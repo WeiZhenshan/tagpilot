@@ -15,11 +15,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TsCodeValueSemantic;
+import com.ruoyi.taglibrary.domain.TsConcept;
 import com.ruoyi.taglibrary.domain.TsTagSemantic;
 import com.ruoyi.taglibrary.domain.dto.BootstrapImportRequest;
 import com.ruoyi.taglibrary.domain.dto.BootstrapImportResult;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
 import com.ruoyi.taglibrary.mapper.TsCodeValueSemanticMapper;
+import com.ruoyi.taglibrary.mapper.TsConceptMapper;
 import com.ruoyi.taglibrary.mapper.TsTagSemanticMapper;
 
 /**
@@ -34,6 +36,8 @@ class TsBootstrapImportServiceTest extends BaseServiceTest {
     private TsTagSemanticMapper tagSemanticMapper;
     @Mock
     private TsCodeValueSemanticMapper codeValueMapper;
+    @Mock
+    private TsConceptMapper conceptMapper;
 
     @InjectMocks
     private TsBootstrapExportService bootstrapService;
@@ -89,6 +93,34 @@ class TsBootstrapImportServiceTest extends BaseServiceTest {
         verify(tagSemanticMapper, never()).insertTagSemantic(any());
     }
 
+    @Test
+    void importConceptThenBindFamilyKey() {
+        when(conceptMapper.selectByLibraryAndCode(107L, "AUM")).thenReturn(null);
+        when(conceptMapper.insertConcept(any(TsConcept.class))).thenAnswer(invocation -> {
+            TsConcept concept = invocation.getArgument(0);
+            concept.setConceptId(211L);
+            return 1;
+        });
+        when(tagMapper.selectTagById(721L)).thenReturn(tag(721L, 107L, "CUR_POINT_AUM", "decimal(13,2)", "AUM口径"));
+        when(tagSemanticMapper.selectByTagId(721L)).thenReturn(null);
+        when(tagSemanticMapper.insertTagSemantic(any(TsTagSemantic.class))).thenReturn(1);
+
+        BootstrapImportResult result = bootstrapService.importDrafts(request(107L, conceptLine() + aumTagLine()));
+        assertEquals(1, result.getImportedConceptCount());
+        assertEquals(1, result.getImportedTagCount());
+
+        ArgumentCaptor<TsConcept> conceptCaptor = ArgumentCaptor.forClass(TsConcept.class);
+        verify(conceptMapper).insertConcept(conceptCaptor.capture());
+        assertEquals("AUM", conceptCaptor.getValue().getConceptCode());
+        assertEquals("DRAFT", conceptCaptor.getValue().getReviewStatus());
+
+        ArgumentCaptor<TsTagSemantic> tagCaptor = ArgumentCaptor.forClass(TsTagSemantic.class);
+        verify(tagSemanticMapper).insertTagSemantic(tagCaptor.capture());
+        assertEquals(Long.valueOf(211L), tagCaptor.getValue().getConceptId());
+        assertEquals("AUM|EOP|ALL|NONE|CNY|BASE", tagCaptor.getValue().getFamilyKey());
+        assertEquals("CNY", tagCaptor.getValue().getUnit());
+    }
+
     private BootstrapImportRequest request(Long libraryId, String jsonl) {
         BootstrapImportRequest req = new BootstrapImportRequest();
         req.setLibraryId(libraryId);
@@ -122,5 +154,22 @@ class TsBootstrapImportServiceTest extends BaseServiceTest {
     private String codeLine() {
         return "{\"kind\":\"code_value_semantic\",\"tag_id\":526,\"code\":\"M\",\"rank_no\":1,"
                 + "\"source\":\"RULE\",\"review_status\":\"DRAFT\",\"basis_hash\":\"def\"}\n";
+    }
+
+    private String conceptLine() {
+        return "{\"kind\":\"concept\",\"library_id\":107,\"concept_code\":\"AUM\",\"concept_name\":\"AUM\","
+                + "\"domain_dir_id\":9001,\"tag_object\":\"客户\",\"definition\":\"资产管理规模\","
+                + "\"parent_id\":0,\"status\":\"0\",\"source\":\"RULE\",\"review_status\":\"DRAFT\"}\n";
+    }
+
+    private String aumTagLine() {
+        return "{\"kind\":\"tag_semantic\",\"tag_id\":721,\"library_id\":107,\"field_name\":\"CUR_POINT_AUM\","
+                + "\"semantic_type\":\"NUM_AMOUNT\",\"allowed_operators\":[\">\",\">=\",\"<\",\"<=\",\"between\"],"
+                + "\"default_operator\":\">\",\"unit\":\"CNY\",\"unit_scale\":1,"
+                + "\"caliber_struct\":{\"statistic\":\"EOP\",\"scope\":\"ALL\"},\"concept_code\":\"AUM\","
+                + "\"family_key\":\"AUM|EOP|ALL|NONE|CNY|BASE\",\"caliber_variant\":\"BASE\","
+                + "\"source\":\"RULE\",\"review_status\":\"DRAFT\",\"basis_hash\":\"abc\","
+                + "\"authority\":{\"field_name\":\"CUR_POINT_AUM\",\"business_caliber\":\"AUM口径\","
+                + "\"tech_caliber\":\"L_INDVCST_LABEL\",\"data_type\":\"decimal(13,2)\"}}\n";
     }
 }

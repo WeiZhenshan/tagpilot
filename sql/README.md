@@ -42,6 +42,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `V20260905_02__taglibrary_metadata_change.sql` | tl_tag_library_dimension + tl_tag_metadata_change 建表 | **是**（CI Deploy） | 否 | 4 | 无 | taglibrary | 全部 | 自研迁移器 | 来源 `ruoyi-taglibrary/src/main/resources/sql/taglibrary_metadata_migration.sql` |
 | `V20260905_03__tag_mapping_sync_upgrade.sql` | 批量映射同步：tl_tag_library/tl_tag/tl_tag_metadata_change 加列、新增权限菜单 2136–2137、存量草稿迁入 status='4' | **是**（CI Deploy） | 否 | 5 | **须在 V20260905_02 之后** | taglibrary | 全部 | 自研迁移器 | 来源 `sql/archive/tag_mapping_sync_upgrade_migration.sql` |
 | `V20260918_01__tag_semantic_layer.sql` | 标签语义层：11 张 `ts_*` 表 + 权限按钮 2140–2143（list/edit/review/bootstrap） | **是**（CI Deploy） | 否 | 6 | 无（不改 tl_*/dp_*） | taglibrary | 全部 | 自研迁移器 | 对应 `docs/design/标签语义层与检索索引建设方案.md` S1；本阶段不开放 publish |
+| `V20260918_02__tag_semantic_runtime.sql` | 语义发布权限 2144 + 业务词典种子 | **是**（CI Deploy） | 否 | 7 | **须在 V20260918_01 之后** | taglibrary | 全部 | 自研迁移器 | S7 词典首批；完整约 40 条以 Python `seed_terms()` 为准 |
 
 **新增迁移脚本规范**：命名 `V<yyyymmdd>_<序号>__<描述>.sql`；幂等、只向前、不得包含 `drop table`。已应用的迁移文件**内容不可再修改**（因此其中标注的"来源"路径保留移动前的历史写法，实际文件见 `sql/archive/`）。
 
