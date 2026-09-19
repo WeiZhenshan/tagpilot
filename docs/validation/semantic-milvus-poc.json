@@ -1,0 +1,31 @@
+{
+  "scope": "ISOLATED_CONTRACT_FIXTURE",
+  "production_quality_accepted": false,
+  "python": "3.14.5",
+  "architecture": "arm64",
+  "pymilvus": "3.0.2",
+  "build_seconds": 10.756628749979427,
+  "server_version": "3.0.1",
+  "analyzer_tokens": "[['近', '30', '天', '异名', '跨行', '转入']]",
+  "stats": {
+    "store_type": "MILVUS",
+    "milvus_collection": "tag_docs_95b0e4bbf0e18f34241d9df63f3bca21",
+    "doc_count": 3,
+    "doc_id_hash": "f97c3b843245dd6dac5994145dee9cbd6738ec2e95aed98fbb615a20812bf6da",
+    "load_state": "{'state': <LoadState: Loaded>}",
+    "aliases": []
+  },
+  "whitelist_3000_p95_ms": 15.83941699936986,
+  "empty_whitelist_passed": true,
+  "alias_switch_passed": true,
+  "reload_id_hash_passed": true,
+  "peak_python_rss_bytes": 114475008,
+  "not_measured": [
+    "真实模型召回",
+    "969/1723全量",
+    "服务端内存峰值",
+    "激活进程崩溃补偿",
+    "生产4核16GB容量",
+    "自定义词典"
+  ]
+}

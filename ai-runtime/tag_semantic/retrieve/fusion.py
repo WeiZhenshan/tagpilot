@@ -11,9 +11,13 @@ def rrf(rank_lists: list[list[dict[str, Any]]], k: int = 60) -> list[dict[str, A
     payload: dict[str, dict[str, Any]] = {}
     features: dict[str, dict[str, Any]] = defaultdict(dict)
     for channel_hits in rank_lists:
+        seen = set()
         for hit in channel_hits:
             doc = hit["doc"]
             key = doc["doc_id"]
+            if key in seen:
+                continue
+            seen.add(key)
             rank = hit.get("rank") or 1
             scores[key] += 1.0 / (k + rank)
             payload[key] = doc

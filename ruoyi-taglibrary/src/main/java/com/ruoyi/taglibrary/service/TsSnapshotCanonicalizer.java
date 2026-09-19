@@ -31,6 +31,7 @@ public final class TsSnapshotCanonicalizer {
         ENVELOPE.add("hit_count");
         MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         MAPPER.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+        MAPPER.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
     }
 
     private TsSnapshotCanonicalizer() {
@@ -44,9 +45,7 @@ public final class TsSnapshotCanonicalizer {
             List<String> keys = new ArrayList<String>();
             for (Object key : raw.keySet()) {
                 String name = String.valueOf(key);
-                if (!ENVELOPE.contains(name)) {
-                    keys.add(name);
-                }
+                keys.add(name);
             }
             Collections.sort(keys);
             for (String key : keys) {
@@ -73,7 +72,8 @@ public final class TsSnapshotCanonicalizer {
                 mapped.sort(new Comparator<Object>() {
                     @Override
                     public int compare(Object a, Object b) {
-                        return dumps(a).compareTo(dumps(b));
+                        try { return MAPPER.writeValueAsString(a).compareTo(MAPPER.writeValueAsString(b)); }
+                        catch (Exception e) { throw new ServiceException("规范化排序失败"); }
                     }
                 });
             }
@@ -82,11 +82,27 @@ public final class TsSnapshotCanonicalizer {
             }
             return mapped;
         }
+        if (value instanceof java.math.BigDecimal) return ((java.math.BigDecimal) value).stripTrailingZeros();
+        if (value instanceof Double || value instanceof Float) return new java.math.BigDecimal(value.toString()).stripTrailingZeros();
         return value;
     }
 
     public static String dumps(Object value) {
         try {
+            if (value instanceof Map) {
+                Map<?, ?> raw = (Map<?, ?>) value;
+                Map<String, Object> row = new LinkedHashMap<String, Object>();
+                for (Map.Entry<?, ?> entry : raw.entrySet()) {
+                    String key = String.valueOf(entry.getKey());
+                    if (("meta".equals(raw.get("kind")) && ENVELOPE.contains(key)) || "hit_count".equals(key)) continue;
+                    row.put(key, entry.getValue());
+                }
+                if ("meta".equals(raw.get("kind")) && row.get("source_manifest") instanceof Map) {
+                    Map<Object, Object> manifest = new LinkedHashMap<Object, Object>((Map<?, ?>) row.get("source_manifest"));
+                    manifest.remove("frozen_at"); manifest.remove("freeze_sha256"); row.put("source_manifest", manifest);
+                }
+                value = row;
+            }
             return MAPPER.writeValueAsString(canonicalize(value));
         } catch (Exception e) {
             throw new ServiceException("规范化 JSON 失败");
@@ -98,7 +114,9 @@ public final class TsSnapshotCanonicalizer {
         ordered.sort(new Comparator<Map<String, Object>>() {
             @Override
             public int compare(Map<String, Object> a, Map<String, Object> b) {
-                return sortKey(a).compareTo(sortKey(b));
+                String[] left = sortKey(a), right = sortKey(b);
+                for (int i = 0; i < left.length; i++) { int cmp = left[i].compareTo(right[i]); if (cmp != 0) return cmp; }
+                return 0;
             }
         });
         StringBuilder payload = new StringBuilder();
@@ -108,27 +126,27 @@ public final class TsSnapshotCanonicalizer {
         return sha256(payload.toString());
     }
 
-    private static String sortKey(Map<String, Object> row) {
+    private static String[] sortKey(Map<String, Object> row) {
         String kind = stringVal(row.get("kind"));
         if ("meta".equals(kind)) {
-            return "0||";
+            return new String[] {"0", "", ""};
         }
         if ("domain".equals(kind)) {
-            return "1|" + stringVal(row.get("dir_id")) + "|";
+            return new String[] {"1", stringVal(row.get("dir_id")), ""};
         }
         if ("concept".equals(kind)) {
-            return "2|" + first(row, "concept_id", "concept_code") + "|";
+            return new String[] {"2", first(row, "concept_id", "concept_code"), ""};
         }
         if ("tag".equals(kind)) {
-            return "3|" + stringVal(row.get("tag_id")) + "|";
+            return new String[] {"3", stringVal(row.get("tag_id")), ""};
         }
         if ("code_value".equals(kind)) {
-            return "4|" + stringVal(row.get("tag_id")) + "|" + stringVal(row.get("code"));
+            return new String[] {"4", stringVal(row.get("tag_id")), stringVal(row.get("code"))};
         }
         if ("term".equals(kind)) {
-            return "5|" + first(row, "term_id", "term_norm") + "|";
+            return new String[] {"5", first(row, "term_id", "term_norm"), ""};
         }
-        return "9|" + kind + "|" + dumps(row);
+        return new String[] {"9", kind, dumps(row)};
     }
 
     private static String first(Map<String, Object> row, String a, String b) {

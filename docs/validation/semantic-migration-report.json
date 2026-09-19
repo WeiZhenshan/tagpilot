@@ -1,0 +1,12 @@
+{
+  "scope": "ISOLATED_MYSQL_SCHEMA",
+  "business_database_modified": false,
+  "mysql_version": "8.0.46",
+  "migrations": [
+    "V20260919_01__tag_snapshot_artifact.sql",
+    "V20260919_02__tag_semantic_pages.sql"
+  ],
+  "applied_twice": true,
+  "menu_and_role_idempotence": true,
+  "duplicate_feedback_rejected": true
+}

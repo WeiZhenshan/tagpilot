@@ -68,3 +68,43 @@ def stub_generate(prompt: str) -> dict[str, Any]:
         "positive_examples": [],
         "negative_examples": [],
     }
+
+
+class OllamaGenerator:
+    """默认在本机推理；调用方仅传入已确认概念元数据，无客户数据/测试题。"""
+    def __init__(self, model: str, base_url='http://127.0.0.1:11434', client=None):
+        from urllib.parse import urlparse
+        import httpx
+        if urlparse(base_url).hostname not in {'localhost', '127.0.0.1', '::1'}:
+            raise ValueError('远程模型需先完成数据边界评审，本适配器仅允许本机服务')
+        if not model:
+            raise ValueError('模型名称不能为空')
+        self.model, self.base_url = model, base_url.rstrip('/')
+        self.client = client or httpx.Client(timeout=120, follow_redirects=False)
+        self.usage = {'input_tokens': 0, 'output_tokens': 0, 'duration_ns': 0, 'requests': 0}
+
+    def __call__(self, prompt):
+        response = self.client.post(self.base_url + '/api/generate', json={
+            'model': self.model, 'prompt': prompt, 'stream': False, 'format': 'json',
+            'options': {'temperature': 0, 'num_predict': 1200}})
+        response.raise_for_status()
+        body = response.json()
+        if not body.get('done'):
+            raise ValueError('模型生成未完成')
+        self.usage['input_tokens'] += body.get('prompt_eval_count', 0)
+        self.usage['output_tokens'] += body.get('eval_count', 0)
+        self.usage['duration_ns'] += body.get('total_duration', 0)
+        self.usage['requests'] += 1
+        return json.loads(body['response'])
+
+
+def enrich_reviewed_batch(concepts, generator, max_batch=10):
+    if len(concepts) > max_batch:
+        raise ValueError('先完成小批质量确认，再调整批次上限')
+    outputs = []
+    for concept in concepts:
+        if concept.get('review_status') != 'REVIEWED' or concept.get('sealed') or concept.get('dataset_type') in {'GOLD', 'SEALED'}:
+            raise ValueError('仅已复核概念元数据可用于富化，禁止封存题')
+        metadata = {k: concept.get(k) for k in ('concept_code', 'concept_name', 'definition')}
+        outputs.append({'concept_code': metadata['concept_code'], **enrich_concept(metadata, generator)})
+    return outputs

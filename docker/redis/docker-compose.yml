@@ -1,0 +1,28 @@
+# 与本机正在运行的 Redis 对齐，可拷贝到另一台电脑直接启动。
+# 来源：OrbStack 容器 redis（image redis:7 → 7.4.7，6379，AOF，无密码）。
+# 数据用命名卷，不绑定 /mydata 或 /Users 绝对路径。
+name: ruoyi-redis
+
+services:
+  redis:
+    image: redis:7.4.7
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+volumes:
+  redis-data:

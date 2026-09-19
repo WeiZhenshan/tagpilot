@@ -14,6 +14,9 @@ public class TsCatalogSnapshot extends BaseEntity {
     private Integer aliasCount;
     private Integer codeValueCount;
     private String contentHash;
+    private String fileSha256;
+    public String getFileSha256() { return fileSha256; }
+    public void setFileSha256(String value) { fileSha256 = value; }
     private String storageUri;
     private String schemaVersion;
     private String status;

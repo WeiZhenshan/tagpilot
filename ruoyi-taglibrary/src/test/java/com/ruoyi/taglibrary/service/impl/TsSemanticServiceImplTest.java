@@ -40,6 +40,8 @@ class TsSemanticServiceImplTest extends BaseServiceTest {
     @Mock
     private TsCodeValueSemanticMapper codeValueMapper;
 
+    @Mock private com.ruoyi.taglibrary.service.TsSemanticBasisGuard basisGuard;
+
     @InjectMocks
     private TsSemanticServiceImpl semanticService;
 

@@ -72,6 +72,10 @@ def test_female_alias_hits_gender(tmp_path):
     result = service.retrieve("女性", None, k=20)
     tag_ids = [c["doc"].get("tag_id") for c in result["candidates"]]
     assert 526 in tag_ids or any(c["doc"].get("code") == "F" for c in result["candidates"])
+    assert result['code_selection'] == {'expressible': True, 'codes': ['F']}
+    negated = service.retrieve('不是女性', set(service.catalog.tags), k=20)
+    assert negated['code_selection'] is None
+    assert negated['decision'] == 'CLARIFY'
 
 
 def test_interbank_30d(tmp_path):

@@ -17,6 +17,7 @@ def tokenize(text: str) -> list[str]:
 
 
 class LocalStore(IndexStore):
+    store_type = "LOCAL"
     def __init__(self) -> None:
         self.docs: list[dict[str, Any]] = []
         self._name_index: dict[str, Any] = {}
@@ -66,7 +67,7 @@ class LocalStore(IndexStore):
         eligible = filters.get("eligible_tag_ids")
         eligible_concepts = filters.get("eligible_concept_ids")
         results = []
-        for idx, score in self._bm25(index, query, k=max(k * 3, 30)):
+        for idx, score in self._bm25(index, query, k=len(self.docs)):
             doc = self.docs[idx]
             if not _allowed(doc, eligible, eligible_concepts):
                 continue

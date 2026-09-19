@@ -42,6 +42,7 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
 
     @Autowired
     private TlTagMapper tagMapper;
+    @Autowired private com.ruoyi.taglibrary.service.TsSemanticBasisGuard basisGuard;
     @Autowired
     private TsTagSemanticMapper tagSemanticMapper;
     @Autowired
@@ -116,6 +117,7 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
             throw new ServiceException("语义记录不存在");
         }
         requireDraft(existing.getReviewStatus());
+        basisGuard.verifyTag(existing);
         existing.setReviewStatus(STATUS_REVIEWED);
         existing.setSourceRef(sourceRef);
         existing.setReviewBy(SecurityUtils.getUsername());
@@ -279,6 +281,7 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
             throw new ServiceException("码值语义不存在");
         }
         requireDraft(existing.getReviewStatus());
+        basisGuard.verifyCode(existing);
         existing.setReviewStatus(STATUS_REVIEWED);
         existing.setSourceRef(sourceRef);
         existing.setReviewBy(SecurityUtils.getUsername());

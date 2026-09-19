@@ -209,7 +209,14 @@ def cluster_tags(
             if caliber.get("statistic") in {"MAX", "MIN", "SUM", "AVG_DAILY", "EOP"}:
                 caliber["statistic"] = "NONE"
                 row["caliber_struct"] = caliber
+        override = (confirmed.get("tag_concepts") or {}).get(row.get("field_name"))
         concept = resolve_concept(row)
+        if override and semantic_type != "ID_KEY":
+            if not override.get("concept_code") or not override.get("concept_name"):
+                raise ValueError("概念复核配置缺少编码或名称")
+            concept = {"code": override["concept_code"], "name": override["concept_name"], "definition": override.get("definition")}
+            row["domain_dir_id"] = override.get("domain_dir_id")
+            row["caliber_variant"] = override.get("caliber_variant") or row.get("caliber_variant") or "BASE"
         if concept is None:
             row["concept_code"] = None
             row["concept_name"] = None
@@ -253,7 +260,7 @@ def build_concept_rows(clustered: list[dict[str, Any]], library_id: int, domain_
                 "library_id": library_id,
                 "concept_code": code,
                 "concept_name": row.get("concept_name") or code,
-                "domain_dir_id": domain_dir_id,
+                "domain_dir_id": row.get("domain_dir_id") or domain_dir_id,
                 "tag_object": tag_object,
                 "definition": row.get("concept_definition") or row.get("concept_name"),
                 "parent_id": 0,
@@ -281,14 +288,15 @@ def apply_cluster(result_rows: list[dict[str, Any]], confirmations: Optional[dic
 
 
 def review_pack(concepts: list[dict[str, Any]], clustered: list[dict[str, Any]], confirmations: dict[str, Any]) -> str:
+    business_count = sum(r.get('kind') == 'tag_semantic' and r.get('semantic_type') != 'ID_KEY' for r in clustered)
     lines = [
-        "# S3 概念复核包（试点）",
+        "# S3 概念复核包（候选草稿）",
         "",
-        "> 覆盖率：试点字段 / 全库 969 ≈ 3.2%，不得写成 100%。",
+        f"> 本包包含 {business_count} 个业务标签草稿、{len(concepts)} 个概念候选；生成数量不是已复核或已发布覆盖率。",
         "",
-        "## 书面确认（试点默认）",
+        "## 提供的口径依据（未提供项仍待业务确认）",
         "",
-        f"- 金额单位：`{confirmations.get('amount_unit')}`，unit_scale=`{confirmations.get('amount_unit_scale')}`（元，不自动换算万元）",
+        f"- 金额单位：`{confirmations.get('amount_unit')}`，unit_scale=`{confirmations.get('amount_unit_scale')}`；缺失时不默认元或万元",
         f"- 占比量纲：`{confirmations.get('ratio_scale_note')}`，unit=`{confirmations.get('ratio_unit')}`",
         "- 学历 / 风评：只保留 rank_no，不伪造金额区间",
         "- 机构：ENUM_NOMINAL，不开 under / 不猜联行号树",
@@ -338,15 +346,17 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--domain-dir-id", type=int, default=0)
     parser.add_argument("--tag-object", default="客户")
     parser.add_argument("--review-md", type=Path, default=None)
+    parser.add_argument("--confirmations", type=Path, help="业务复核确认配置 JSON，不默认使用试点确认")
     args = parser.parse_args(argv)
     rows = load_result_jsonl(args.result_jsonl)
-    clustered = apply_cluster(rows, confirmations=PILOT_CONFIRMATIONS)
+    confirmations = json.loads(args.confirmations.read_text()) if args.confirmations else {}
+    clustered = apply_cluster(rows, confirmations=confirmations)
     concepts = build_concept_rows(clustered, args.library_id, args.domain_dir_id, args.tag_object)
     args.out_dir.mkdir(parents=True, exist_ok=True)
     write_jsonl(args.out_dir / "s3_clustered.jsonl", clustered)
     write_jsonl(args.out_dir / "s3_concepts.jsonl", concepts)
     md_path = args.review_md or (args.out_dir / "s3_concept_review_pack.md")
-    md_path.write_text(review_pack(concepts, clustered, PILOT_CONFIRMATIONS), encoding="utf-8")
+    md_path.write_text(review_pack(concepts, clustered, confirmations), encoding="utf-8")
     print(f"concepts={len(concepts)} tags={sum(1 for r in clustered if r.get('kind')=='tag_semantic')}")
     return 0
 

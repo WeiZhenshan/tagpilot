@@ -8,8 +8,6 @@ from typing import Any
 def resolve_family(members: list[dict[str, Any]], time_facet: dict[str, Any]) -> dict[str, Any]:
     if not members:
         return {"status": "empty", "selected": None, "confusable_shown": []}
-    if len(members) == 1:
-        return {"status": "selected", "selected": members[0], "confusable_shown": []}
     wanted = (time_facet or {}).get("time_anchor_type")
     window = (time_facet or {}).get("time_window_value")
     unit = (time_facet or {}).get("time_window_unit")
@@ -33,6 +31,8 @@ def resolve_family(members: list[dict[str, Any]], time_facet: dict[str, Any]) ->
                 "confusable_shown": members,
                 "reason": "明确时间在族内不存在",
             }
+    if len(members) == 1:
+        return {"status": "selected", "selected": members[0], "confusable_shown": []}
     return {"status": "clarify_time", "selected": None, "confusable_shown": members, "reason": "无时间表达且族内多成员"}
 
 
@@ -55,10 +55,42 @@ def expand_ordinal_codes(codes: list[dict[str, Any]], operator: str, threshold_r
     return selected
 
 
-def interval_covers(codes: list[dict[str, Any]], lower: float | None, upper: float | None, op: str) -> dict[str, Any]:
-    """分档必须能精确表达，否则不可自动近似。"""
-    if op == ">" and lower is not None:
-        for row in codes:
-            if row.get("lower_bound") == lower and row.get("lower_inclusive") == 1:
-                return {"expressible": False, "reason": "超过下界切穿闭区间，不能用该档近似"}
-    return {"expressible": True}
+def interval_covers(codes, lower, upper, op):
+    """仅当完整桶的并集严格等于请求区间时返回码集，禁止跨桶近似。"""
+    from decimal import Decimal
+    def number(value):
+        return None if value is None else Decimal(str(value))
+    def inclusive(value):
+        return value in (True, 1, "1")
+    lo, hi = number(lower), number(upper)
+    if op not in {">", ">=", "<", "<=", "between"}:
+        return {"expressible": False, "reason": "区间操作符不支持"}
+    qli, qui = op in {">=", "between"}, op in {"<=", "between"}
+    selected = []
+    for row in codes:
+        if row.get("is_unknown_bucket") in (True, 1, "1"):
+            continue
+        if "lower_bound" not in row or "upper_bound" not in row:
+            return {"expressible": False, "reason": "缺少已复核区间"}
+        a, b = number(row.get("lower_bound")), number(row.get("upper_bound"))
+        ai, bi = inclusive(row.get("lower_inclusive")), inclusive(row.get("upper_inclusive"))
+        # 与目标区间不相交。
+        if b is not None and lo is not None and (b < lo or (b == lo and not (bi and qli))):
+            continue
+        if a is not None and hi is not None and (a > hi or (a == hi and not (ai and qui))):
+            continue
+        contained_left = lo is None or (a is not None and (a > lo or (a == lo and (qli or not ai))))
+        contained_right = hi is None or (b is not None and (b < hi or (b == hi and (qui or not bi))))
+        if not contained_left or not contained_right:
+            return {"expressible": False, "reason": "阈值切穿分档，不能近似为码值集合"}
+        selected.append((a, b, ai, bi, row["code"]))
+    if not selected:
+        return {"expressible": False, "reason": "无完整区间可表达该条件"}
+    selected.sort(key=lambda r: (r[0] is not None, r[0] or Decimal(0)))
+    first, last = selected[0], selected[-1]
+    if first[0] != lo or last[1] != hi or (lo is not None and first[2] != qli) or (hi is not None and last[3] != qui):
+        return {"expressible": False, "reason": "码值区间未完整覆盖目标条件"}
+    for left, right in zip(selected, selected[1:]):
+        if left[1] != right[0] or left[3] == right[2]:
+            return {"expressible": False, "reason": "区间存在缺口或重叠"}
+    return {"expressible": True, "codes": [r[4] for r in selected]}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsRetrievalFeedbackMapper">
+  <resultMap id="Feedback" type="com.ruoyi.taglibrary.domain.TsRetrievalFeedback">
+    <result property="feedbackId" column="feedback_id"/>
+    <result property="traceId" column="trace_id"/>
+    <result property="snapshotId" column="snapshot_id"/>
+    <result property="buildId" column="build_id"/>
+    <result property="userId" column="user_id"/>
+    <result property="queryText" column="query_text"/>
+    <result property="requirementText" column="requirement_text"/>
+    <result property="recommendedTagId" column="recommended_tag_id"/>
+    <result property="finalTagId" column="final_tag_id"/>
+    <result property="action" column="action"/>
+    <result property="rankFeatures" column="rank_features"/>
+  </resultMap>
+  <select id="selectTrace" resultMap="Feedback">
+    select * from ts_retrieval_feedback where trace_id = #{traceId} and user_id = #{userId} and action = 'TRACE' limit 1
+  </select>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="feedbackId">
+    insert into ts_retrieval_feedback (trace_id,snapshot_id,build_id,user_id,query_text,requirement_text,recommended_tag_id,final_tag_id,action,rank_features,decision_key,create_time) values (#{traceId},#{snapshotId},#{buildId},#{userId},#{queryText},#{requirementText},#{recommendedTagId},#{finalTagId},#{action},#{rankFeatures},concat(#{traceId}, ':', #{userId}, ':', if(#{action} = 'TRACE', 'TRACE', 'DECISION')),sysdate())
+  </insert>
+</mapper>

@@ -3,6 +3,10 @@
 <mapper namespace="com.ruoyi.taglibrary.mapper.TsIndexBuildMapper">
     <resultMap type="com.ruoyi.taglibrary.domain.TsIndexBuild" id="BuildResult">
         <id property="buildId" column="build_id"/>
+        <result property="embeddingModelHash" column="embedding_model_hash"/>
+        <result property="rerankerModel" column="reranker_model"/>
+        <result property="rerankerModelHash" column="reranker_model_hash"/>
+        <result property="retrievalConfigHash" column="retrieval_config_hash"/>
         <result property="snapshotId" column="snapshot_id"/>
         <result property="docTemplateVersion" column="doc_template_version"/>
         <result property="analyzerVersion" column="analyzer_version"/>
@@ -21,10 +25,14 @@
         <result property="buildDurationMs" column="build_duration_ms"/>
     </resultMap>
     <sql id="cols">
-        build_id, snapshot_id, doc_template_version, analyzer_version, embedding_model, embedding_dim,
+        build_id, snapshot_id, doc_template_version, analyzer_version, embedding_model, embedding_dim, embedding_model_hash, reranker_model, reranker_model_hash, retrieval_config_hash,
         store_type, milvus_collection, milvus_alias, artifact_uri, artifact_hash, doc_count, doc_id_hash,
         status, eval_summary, build_time, build_duration_ms
     </sql>
+    <select id="selectByLibraryId" resultMap="BuildResult">
+        select b.* from ts_index_build b join ts_catalog_snapshot s on s.snapshot_id = b.snapshot_id
+        where s.library_id = #{libraryId} order by b.create_time desc, b.build_id desc
+    </select>
     <select id="selectById" resultMap="BuildResult">
         select <include refid="cols"/> from ts_index_build where build_id = #{buildId}
     </select>
@@ -36,11 +44,11 @@
     </select>
     <insert id="insertBuild">
         insert into ts_index_build (
-            build_id, snapshot_id, doc_template_version, analyzer_version, embedding_model, embedding_dim,
+            build_id, snapshot_id, doc_template_version, analyzer_version, embedding_model, embedding_dim, embedding_model_hash, reranker_model, reranker_model_hash, retrieval_config_hash,
             store_type, milvus_collection, milvus_alias, artifact_uri, artifact_hash, doc_count, doc_id_hash,
             status, eval_summary, build_time, build_duration_ms, create_by, create_time
         ) values (
-            #{buildId}, #{snapshotId}, #{docTemplateVersion}, #{analyzerVersion}, #{embeddingModel}, #{embeddingDim},
+            #{buildId}, #{snapshotId}, #{docTemplateVersion}, #{analyzerVersion}, #{embeddingModel}, #{embeddingDim}, #{embeddingModelHash}, #{rerankerModel}, #{rerankerModelHash}, #{retrievalConfigHash},
             #{storeType}, #{milvusCollection}, #{milvusAlias}, #{artifactUri}, #{artifactHash}, #{docCount}, #{docIdHash},
             #{status}, #{evalSummary}, #{buildTime}, #{buildDurationMs}, #{createBy}, sysdate()
         )
@@ -48,6 +56,15 @@
     <update id="updateBuild">
         update ts_index_build
         <set>
+            <if test="embeddingModel != null">embedding_model = #{embeddingModel},</if>
+            <if test="embeddingDim != null">embedding_dim = #{embeddingDim},</if>
+            <if test="analyzerVersion != null">analyzer_version = #{analyzerVersion},</if>
+            <if test="docTemplateVersion != null">doc_template_version = #{docTemplateVersion},</if>
+            <if test="embeddingModelHash != null">embedding_model_hash = #{embeddingModelHash},</if>
+            <if test="rerankerModel != null">reranker_model = #{rerankerModel},</if>
+            <if test="rerankerModelHash != null">reranker_model_hash = #{rerankerModelHash},</if>
+            <if test="retrievalConfigHash != null">retrieval_config_hash = #{retrievalConfigHash},</if>
+
             <if test="status != null">status = #{status},</if>
             <if test="milvusCollection != null">milvus_collection = #{milvusCollection},</if>
             <if test="milvusAlias != null">milvus_alias = #{milvusAlias},</if>
@@ -59,6 +76,11 @@
             update_time = sysdate()
         </set>
         where build_id = #{buildId}
+    </update>
+    <update id="retireActiveByLibraryId">
+        update ts_index_build b join ts_catalog_snapshot s on s.snapshot_id = b.snapshot_id
+        set b.status = 'RETIRED', b.update_time = sysdate()
+        where s.library_id = #{libraryId} and b.status = 'ACTIVE'
     </update>
     <update id="retireActiveBySnapshotId">
         update ts_index_build set status = 'RETIRED', update_time = sysdate()

@@ -1,0 +1,10 @@
+{
+  "scope": "LOCAL_FORWARD_MIGRATION",
+  "database": "ry",
+  "migrations": [
+    "V20260919_01__tag_snapshot_artifact.sql",
+    "V20260919_02__tag_semantic_pages.sql"
+  ],
+  "exit_code": 0,
+  "docker_commands_executed": false
+}

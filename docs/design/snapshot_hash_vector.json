@@ -15,11 +15,49 @@
       "name": "性别",
       "family_key": "GENDER|NONE|ALL|NONE|NONE|BASE",
       "status": "2"
+    },
+    {
+      "kind": "tag",
+      "tag_id": 1,
+      "status": "2",
+      "nested": {
+        "snapshot_id": "business",
+        "status": "ON"
+      },
+      "ratio": 1e-05
+    },
+    {
+      "kind": "tag",
+      "tag_id": 10,
+      "status": "2",
+      "unit_scale": 1.0
+    },
+    {
+      "kind": "tag",
+      "tag_id": 100,
+      "status": "2",
+      "examples": [
+        {
+          "text": "a",
+          "nested": {
+            "status": "ON"
+          }
+        },
+        {
+          "text": "aa",
+          "nested": {
+            "status": "OFF"
+          }
+        }
+      ]
     }
   ],
-  "expected_hash": "0af75a399cab5d18e4959e13bc23edfc4d60b11fd53d3b54910b32a154357629",
+  "expected_hash": "ff5fa9ae39aae5e92ceda2f169a2471018293ada0873cd8c53acc838c2e1fe6f",
   "canonical_lines": [
     "{\"coverage_note\":\"31/969 ≈ 3.2%\",\"kind\":\"meta\",\"library_id\":107,\"schema_version\":\"v1\",\"scope\":\"PILOT\"}",
-    "{\"family_key\":\"GENDER|NONE|ALL|NONE|NONE|BASE\",\"kind\":\"tag\",\"name\":\"性别\",\"tag_id\":526}"
+    "{\"family_key\":\"GENDER|NONE|ALL|NONE|NONE|BASE\",\"kind\":\"tag\",\"name\":\"性别\",\"status\":\"2\",\"tag_id\":526}",
+    "{\"kind\":\"tag\",\"nested\":{\"snapshot_id\":\"business\",\"status\":\"ON\"},\"ratio\":0.00001,\"status\":\"2\",\"tag_id\":1}",
+    "{\"kind\":\"tag\",\"status\":\"2\",\"tag_id\":10,\"unit_scale\":1}",
+    "{\"examples\":[{\"nested\":{\"status\":\"OFF\"},\"text\":\"aa\"},{\"nested\":{\"status\":\"ON\"},\"text\":\"a\"}],\"kind\":\"tag\",\"status\":\"2\",\"tag_id\":100}"
   ]
 }

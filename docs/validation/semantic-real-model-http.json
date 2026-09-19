@@ -1,0 +1,20 @@
+{
+  "scope": "ISOLATED_REAL_HTTP_WITH_JAVA_TEST_SNAPSHOT",
+  "store_type": "LOCAL",
+  "embedding_model": "BAAI/bge-m3",
+  "reranker_model": "BAAI/bge-reranker-v2-m3",
+  "doc_count": 3,
+  "artifact_hash": "356a7437cdbc40ed83fa59681dbd223702f32e016975c5c37e8084f3b5e20686",
+  "content_hash": "a18beba293f68360660c300e3369dfc7fafd319affe322ca864d2a680cae6b53",
+  "passed": [
+    "service_auth",
+    "http_build",
+    "stats_id_reconciliation",
+    "activate_prepared_only",
+    "retrieve_partial_whitelist",
+    "empty_whitelist",
+    "duplicate_build_rejected"
+  ],
+  "business_snapshot_published": false,
+  "java_http_orchestration_verified": false
+}

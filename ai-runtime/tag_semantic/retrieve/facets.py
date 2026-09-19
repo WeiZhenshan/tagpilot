@@ -12,7 +12,7 @@ NEGATIONS = {"未", "没有", "不", "无", "排除", "非", "不是"}
 
 
 def parse_facets(text: str, terms: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    terms = terms or seed_terms()
+    terms = seed_terms() if terms is None else terms
     time = parse_time_anchor(text)
     boundary = None
     for word, op in BOUNDARY_MAP.items():
@@ -21,7 +21,7 @@ def parse_facets(text: str, terms: list[dict[str, Any]] | None = None) -> dict[s
             break
     fuzzy = []
     for term in terms:
-        if term.get("term") and term["term"] in text and term.get("default_policy") == "ASK":
+        if term.get("term") and term["term"] in text and (term.get("default_policy") or term.get("policy")) in {"ASK", "CLARIFY"}:
             fuzzy.append(term["term"])
     negated = any(word in text for word in NEGATIONS)
     return {

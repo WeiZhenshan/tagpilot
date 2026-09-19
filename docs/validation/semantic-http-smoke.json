@@ -1,0 +1,19 @@
+{
+  "scope": "ISOLATED_REAL_HTTP_WITH_JAVA_TEST_SNAPSHOT",
+  "store_type": "LOCAL",
+  "embedding_model": "hash-v1",
+  "doc_count": 3,
+  "artifact_hash": "d80b6203e295379a54cdad2be5c25ebfe7fae46c3fe3023f44b49481ce628d1f",
+  "content_hash": "c0c14985092e3182c9b19e2e62b7dc3eda11948b3dbd2e03e59abaffd2f66e1f",
+  "passed": [
+    "service_auth",
+    "http_build",
+    "stats_id_reconciliation",
+    "activate_prepared_only",
+    "retrieve_partial_whitelist",
+    "empty_whitelist",
+    "duplicate_build_rejected"
+  ],
+  "business_snapshot_published": false,
+  "java_http_orchestration_verified": false
+}

@@ -1,0 +1,260 @@
+{
+  "date": "2026-09-19",
+  "scope": "ENGINEERING_AND_ISOLATED_REAL_MODEL_VALIDATION",
+  "production_acceptance": false,
+  "java": {
+    "total": 186,
+    "failures": 0,
+    "skipped": 0,
+    "build_success": true,
+    "modules": {
+      "taglibrary": 99,
+      "objectgroup": 58,
+      "databroker": 29
+    },
+    "classes": [
+      {
+        "name": "com.ruoyi.databroker.crypto.DataBrokerCryptoServiceTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.databroker.util.DpSourceFingerprintTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.databroker.service.DpOnlineVersionResolverTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.databroker.service.DpDimensionServiceImplTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.objectgroup.service.impl.RuleTagValidatorTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.objectgroup.service.impl.RuleSqlBuilderTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.objectgroup.service.impl.TlObjectGroupServiceImplTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.objectgroup.service.impl.DimensionCodeOptionServiceImplTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.controller.TsSemanticPermissionTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TlTagMappingServiceImplTest",
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TsSemanticServiceImplTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TlTagServiceImplTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TsCompletenessScorerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TsRetrievalServiceTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TlTagLibraryDimensionServiceImplTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TsCatalogRuntimeServiceImplTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TsSemanticAuxServiceImplTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TlTagLibrarySyncTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TsBootstrapExportServiceTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.impl.TsBootstrapImportServiceTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.TsIndexMaintenanceServiceTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.TsSnapshotCanonicalizerTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.TsSnapshotArtifactStoreTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.ruoyi.taglibrary.service.TsSnapshotAssemblerTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "python": {
+    "passed": 66,
+    "failed": 0,
+    "skipped": 0,
+    "dependency_deprecation_warnings": 2,
+    "java_contract_env": "TAG_JAVA_CONTRACT"
+  },
+  "frontend": {
+    "production_build_passed": true,
+    "impeccable_detect_findings": 0,
+    "scope": "3 semantic Vue files"
+  },
+  "permissions": {
+    "method_security_mockmvc_identities": 7,
+    "endpoints": 9,
+    "matrix_outcomes": 63,
+    "source_dictionary_test_passed": true,
+    "real_database_role_login_verified": false
+  },
+  "browser": {
+    "origin": "http://localhost:1024",
+    "browser": "Chrome",
+    "identity": "admin",
+    "library_id": 107,
+    "tag_rows": 970,
+    "checks": [
+      {
+        "name": "source_code_labels",
+        "status": "PASS",
+        "observed": {
+          "F": "女",
+          "M": "男",
+          "dimension_id": 2
+        }
+      },
+      {
+        "name": "natural_query_without_active",
+        "status": "PASS",
+        "observed": "库内无 ACTIVE 快照"
+      },
+      {
+        "name": "publication_precheck",
+        "status": "BLOCKED_BY_EXPECTED_GATE",
+        "coverage": "0/969",
+        "excluded": 969,
+        "reasons": [
+          "NOT_REVIEWED"
+        ],
+        "publishable": false
+      }
+    ],
+    "business_writes_performed": false
+  },
+  "remaining": [
+    "业务复核与未决口径确认",
+    "独立封存600与开发300/多条件/规模梯度集",
+    "全库969发布激活及Java编排成功查询",
+    "真实数据库角色登录矩阵",
+    "生产4核16GB故障容量和恢复验收"
+  ],
+  "logs": {
+    "tag-semantic-followup-final-java.log": {
+      "path": "/private/tmp/tag-semantic-followup-final-java.log",
+      "sha256": "d7a77ab2a6ae929e486158160149244af95a963e8c69cfe46ab9f05dfc6c25a0"
+    },
+    "tag-semantic-followup-final-python.log": {
+      "path": "/private/tmp/tag-semantic-followup-final-python.log",
+      "sha256": "c67bf9afee828fef2ee43efd1d87f29f972d5f829781278bdc1a585b5b493c81"
+    },
+    "tag-semantic-followup-final-ui.log": {
+      "path": "/private/tmp/tag-semantic-followup-final-ui.log",
+      "sha256": "70ea5087cd3add1e8a24a0331eb2afe669f77362c0aac8edc67313e1ecdb591e"
+    }
+  }
+}

@@ -6,6 +6,18 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 public class TsIndexBuild extends BaseEntity {
     private static final long serialVersionUID = 1L;
+    private String embeddingModelHash;
+    public String getEmbeddingModelHash() { return embeddingModelHash; }
+    public void setEmbeddingModelHash(String value) { embeddingModelHash = value; }
+    private String rerankerModel;
+    public String getRerankerModel() { return rerankerModel; }
+    public void setRerankerModel(String value) { rerankerModel = value; }
+    private String rerankerModelHash;
+    public String getRerankerModelHash() { return rerankerModelHash; }
+    public void setRerankerModelHash(String value) { rerankerModelHash = value; }
+    private String retrievalConfigHash;
+    public String getRetrievalConfigHash() { return retrievalConfigHash; }
+    public void setRetrievalConfigHash(String value) { retrievalConfigHash = value; }
     private String buildId;
     private String snapshotId;
     private String docTemplateVersion;

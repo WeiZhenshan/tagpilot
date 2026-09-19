@@ -1,0 +1,36 @@
+{
+  "scope": "LIVE_JAVA_FREEZE_AND_DRAFT_GENERATION",
+  "library_id": 107,
+  "freeze_sha256": "b9288b16b73182d30f9ec7b16fb05d5cfef8cebfef1804229d1f7eef45e53781",
+  "source_manifest": {
+    "frozen_at": "2026-09-19T02:18:29.332310Z",
+    "consistency": "metadata_repeatable_read+same_source_code_repeatable_read",
+    "dataset_id": 6,
+    "version_id": 12,
+    "version_no": 1,
+    "version_name": "V1",
+    "resolve_reason": "默认在线版本",
+    "enabled_field_count": 970
+  },
+  "source_counts": {
+    "meta": 1,
+    "domain": 9,
+    "tag": 970,
+    "code_value": 1723
+  },
+  "business_tag_denominator": 969,
+  "generated_counts": {
+    "tag_semantic": 970,
+    "code_value_semantic": 1723
+  },
+  "concept_candidates": 676,
+  "review_status_counts": {
+    "DRAFT": 2693
+  },
+  "unresolved_categories": {
+    "UNIT": 456,
+    "COMPOSITE": 128
+  },
+  "reviewed_business_tags_generated": 0,
+  "production_coverage_accepted": false
+}

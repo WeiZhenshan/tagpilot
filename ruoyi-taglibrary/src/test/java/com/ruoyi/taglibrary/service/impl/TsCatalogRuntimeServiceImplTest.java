@@ -36,6 +36,10 @@ import com.ruoyi.taglibrary.mapper.TsTagSemanticMapper;
 @ExtendWith(MockitoExtension.class)
 class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
 
+    @Mock private com.ruoyi.taglibrary.service.TsSnapshotAssembler assembler;
+    @Mock private com.ruoyi.taglibrary.service.TsSnapshotArtifactStore artifacts;
+    @Mock private com.ruoyi.taglibrary.service.TsRuntimeClient runtime;
+    @Mock private com.ruoyi.taglibrary.service.TsIndexMaintenanceService maintenance;
     @Mock private TlTagLibraryMapper libraryMapper;
     @Mock private TlTagMapper tagMapper;
     @Mock private TsTagSemanticMapper tagSemanticMapper;
@@ -50,14 +54,11 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
     @Test
     void publishSkipsDraftAndRequiresReviewedConcept() {
         when(libraryMapper.selectLibraryById(107L)).thenReturn(library());
-        TsTagSemantic draft = semantic(721L, "DRAFT", 11L);
-        TsTagSemantic ready = semantic(709L, "REVIEWED", 12L);
-        when(tagSemanticMapper.selectByLibraryId(107L)).thenReturn(Arrays.asList(draft, ready));
-        TsConcept concept = new TsConcept();
-        concept.setConceptId(12L);
-        concept.setReviewStatus("REVIEWED");
-        concept.setStatus("0");
-        when(conceptMapper.selectConceptById(12L)).thenReturn(concept);
+        com.ruoyi.taglibrary.service.TsSnapshotAssembler.Result assembled = new com.ruoyi.taglibrary.service.TsSnapshotAssembler.Result();
+        assembled.tagIds.add(709L);
+        assembled.rows.add(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("kind", "meta", "library_id", 107L));
+        assembled.report.put("excluded", "NOT_REVIEWED");
+        when(assembler.assemble(107L, "试点 31/969 ≈ 3.2%" )).thenReturn(assembled);
         when(snapshotMapper.selectMaxSnapshotNo(107L)).thenReturn(null);
         when(snapshotMapper.insertSnapshot(any(TsCatalogSnapshot.class))).thenReturn(1);
 
@@ -100,13 +101,35 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         snapshot.setSnapshotId("L107-1");
         snapshot.setLibraryId(107L);
         when(snapshotMapper.selectById("L107-1")).thenReturn(snapshot);
+        build.setDocIdHash("hash"); build.setStoreType("LOCAL");
+        when(runtime.get("/stats?build_id=b1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
         TsIndexBuild activated = runtimeService.activate("b1");
         assertEquals("ACTIVE", activated.getStatus());
         verify(snapshotMapper).retireActive(107L, "L107-1");
-        verify(indexBuildMapper).retireActiveBySnapshotId("L107-1");
+        verify(indexBuildMapper).retireActiveByLibraryId(107L);
         ArgumentCaptor<TsIndexBuild> captor = ArgumentCaptor.forClass(TsIndexBuild.class);
         verify(indexBuildMapper).updateBuild(captor.capture());
         assertEquals("ACTIVE", captor.getValue().getStatus());
+    }
+
+    @Test
+    void firstActivationTimeoutRegistersCompensationBeforeRpc() {
+        TsIndexBuild build = new TsIndexBuild();
+        build.setBuildId("b1"); build.setSnapshotId("s1"); build.setStatus("READY");
+        build.setStoreType("MILVUS"); build.setDocIdHash("hash");
+        TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("s1"); snapshot.setLibraryId(107L);
+        when(indexBuildMapper.selectById("b1")).thenReturn(build);
+        when(snapshotMapper.selectById("s1")).thenReturn(snapshot);
+        when(runtime.get("/stats?build_id=b1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
+        when(runtime.post(org.mockito.ArgumentMatchers.eq("/activate"), any())).thenThrow(new ServiceException("RPC timeout after alias changed"));
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            assertThrows(ServiceException.class, () -> runtimeService.activate("b1"));
+            for (org.springframework.transaction.support.TransactionSynchronization sync : org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations())
+                sync.afterCompletion(org.springframework.transaction.support.TransactionSynchronization.STATUS_ROLLED_BACK);
+            verify(maintenance).reconcile(107L);
+            org.mockito.Mockito.verify(indexBuildMapper, org.mockito.Mockito.never()).retireActiveByLibraryId(any());
+        } finally { org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization(); }
     }
 
     @Test

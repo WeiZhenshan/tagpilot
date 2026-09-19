@@ -92,6 +92,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
     private TsConceptMapper conceptMapper;
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
     public BootstrapExportResult exportFreeze(BootstrapExportRequest request) {
         if (request == null || request.getLibraryId() == null) {
             throw new ServiceException("标签库不能为空");
@@ -154,6 +155,8 @@ public class TsBootstrapExportService implements ITsBootstrapService {
         meta.put("tag_object", library.getTagObject());
         meta.put("schema_version", "v1");
         Map<String, Object> sourceManifest = new LinkedHashMap<String, Object>();
+        sourceManifest.put("frozen_at", java.time.Instant.now().toString());
+        sourceManifest.put("consistency", "metadata_repeatable_read+same_source_code_repeatable_read");
         sourceManifest.put("dataset_id", library.getDatasetId());
         sourceManifest.put("version_id", version.getVersionId());
         sourceManifest.put("version_no", version.getVersionNo());
@@ -193,6 +196,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public BootstrapImportResult importDrafts(BootstrapImportRequest request) {
         if (request == null || request.getLibraryId() == null) {
             throw new ServiceException("标签库不能为空");
@@ -242,7 +246,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
                 continue;
             }
             TsConcept existing = conceptMapper.selectByLibraryAndCode(libraryId, conceptCode);
-            if (existing != null && STATUS_REVIEWED.equals(existing.getReviewStatus())) {
+            if (existing != null && (STATUS_REVIEWED.equals(existing.getReviewStatus()) || "HUMAN".equals(existing.getSource()) || "LLM".equals(existing.getSource()))) {
                 skipped++;
                 conceptByCode.put(conceptCode, existing);
                 result.getRejected().add(reject(existing.getConceptId(), "REVIEWED_SKIP", "已复核概念不允许被 RULE 草稿覆盖"));
@@ -277,7 +281,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
                 continue;
             }
             TsTagSemantic existing = tagSemanticMapper.selectByTagId(tagId);
-            if (existing != null && STATUS_REVIEWED.equals(existing.getReviewStatus())) {
+            if (existing != null && (STATUS_REVIEWED.equals(existing.getReviewStatus()) || "HUMAN".equals(existing.getSource()) || "LLM".equals(existing.getSource()))) {
                 skipped++;
                 result.getRejected().add(reject(tagId, "REVIEWED_SKIP", "已复核语义不允许被 RULE 草稿覆盖"));
                 continue;
@@ -306,7 +310,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
                 continue;
             }
             TsCodeValueSemantic existing = codeValueMapper.selectByTagIdAndCode(tagId, code);
-            if (existing != null && STATUS_REVIEWED.equals(existing.getReviewStatus())) {
+            if (existing != null && (STATUS_REVIEWED.equals(existing.getReviewStatus()) || "HUMAN".equals(existing.getSource()) || "LLM".equals(existing.getSource()))) {
                 skipped++;
                 result.getRejected().add(reject(tagId, "REVIEWED_SKIP", "已复核码值语义不允许被 RULE 草稿覆盖"));
                 continue;
@@ -384,6 +388,9 @@ public class TsBootstrapExportService implements ITsBootstrapService {
         }
         Map<String, MergedCode> merged = new LinkedHashMap<String, MergedCode>();
         try (Connection conn = connectionFactory.createConnection(ds, password)) {
+            conn.setReadOnly(true);
+            conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            conn.setAutoCommit(false);
             for (DpDimensionTable dim : dims) {
                 String tableName = dim.getSourceTableName();
                 if (tableName == null || !TABLE_NAME_PATTERN.matcher(tableName).matches()) {
@@ -425,6 +432,7 @@ public class TsBootstrapExportService implements ITsBootstrapService {
                     }
                 }
             }
+            conn.commit();
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {

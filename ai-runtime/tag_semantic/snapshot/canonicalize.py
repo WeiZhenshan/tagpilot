@@ -4,9 +4,24 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+from decimal import Decimal
 from typing import Any
 
-ENVELOPE_KEYS = {"snapshot_id", "snapshot_no", "generated_at", "content_hash", "status"}
+ENVELOPE_KEYS = {"snapshot_id", "snapshot_no", "generated_at", "content_hash"}
+
+
+def canonical_json(value):
+    if isinstance(value, dict):
+        return "{" + ",".join(json.dumps(k, ensure_ascii=False) + ":" + canonical_json(value[k]) for k in sorted(value)) + "}"
+    if isinstance(value, list):
+        return "[" + ",".join(canonical_json(v) for v in value) + "]"
+    if isinstance(value, (float, Decimal)):
+        if not math.isfinite(value):
+            raise ValueError("非有限数值不能进入快照")
+        number = Decimal(str(value))
+        return "0" if not number else format(number.normalize(), "f")
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
 def sort_value(value: Any) -> Any:
@@ -14,7 +29,7 @@ def sort_value(value: Any) -> Any:
         return {k: sort_value(value[k]) for k in sorted(value.keys())}
     if isinstance(value, list):
         if value and all(isinstance(x, dict) for x in value):
-            return [sort_value(x) for x in sorted(value, key=lambda x: json.dumps(sort_value(x), ensure_ascii=False))]
+            return [sort_value(x) for x in sorted(value, key=lambda x: canonical_json(sort_value(x)))]
         if value and all(not isinstance(x, (dict, list)) for x in value):
             # 有序路径/区间保留；无序标量集合排序
             return value
@@ -23,7 +38,10 @@ def sort_value(value: Any) -> Any:
 
 
 def canonical_row(row: dict[str, Any]) -> dict[str, Any]:
-    cleaned = {k: v for k, v in row.items() if k not in ENVELOPE_KEYS and k != "hit_count"}
+    excluded = ENVELOPE_KEYS | {"status"} if row.get("kind") == "meta" else set()
+    cleaned = {k: v for k, v in row.items() if k not in excluded and k != "hit_count"}
+    if row.get("kind") == "meta" and isinstance(cleaned.get("source_manifest"), dict):
+        cleaned["source_manifest"] = {k: v for k, v in cleaned["source_manifest"].items() if k not in {"frozen_at", "freeze_sha256"}}
     return sort_value(cleaned)
 
 
@@ -45,7 +63,7 @@ def row_sort_key(row: dict[str, Any]) -> tuple:
 
 
 def dumps_row(row: dict[str, Any]) -> str:
-    return json.dumps(canonical_row(row), ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    return canonical_json(canonical_row(row))
 
 
 def content_hash(rows: list[dict[str, Any]]) -> str:

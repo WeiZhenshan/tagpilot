@@ -68,3 +68,8 @@ docs/项目参考文档/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+
+# Local immutable semantic artifacts (backup separately)
+/data/tag-snapshots/
+/data/tag-index/
+/logs/runtime/

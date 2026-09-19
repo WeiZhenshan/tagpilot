@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Any
 
 from tag_semantic.snapshot.canonicalize import content_hash
+from tag_semantic.snapshot.schema import validate_catalog
+from copy import deepcopy
 
 
 @dataclass
@@ -45,12 +47,16 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
 
 def load_catalog(path: Path, expected_hash: str | None = None) -> Catalog:
     rows = load_jsonl(path)
+    declared = next((r.get("content_hash") for r in rows if r.get("kind") == "meta"), None)
+    expected_hash = expected_hash or declared
     if expected_hash:
         actual = content_hash(rows)
         if actual != expected_hash:
             raise ValueError(f"快照内容哈希不一致: expected={expected_hash} actual={actual}")
+    original_rows = deepcopy(rows)
+    validate_catalog(rows)
     catalog = Catalog(meta={})
-    catalog.rows = rows
+    catalog.rows = original_rows
     for row in rows:
         kind = row.get("kind")
         if kind == "meta":

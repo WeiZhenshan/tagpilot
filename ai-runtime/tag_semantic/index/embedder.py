@@ -29,3 +29,55 @@ class HashEmbedder:
 
 def cosine(a: list[float], b: list[float]) -> float:
     return sum(x * y for x, y in zip(a, b))
+
+
+def model_directory_hash(path):
+    """模型使用已下载目录；权重/配置逐文件哈希，避免仅记录可漂移名称。"""
+    from pathlib import Path
+    root = Path(path).resolve(strict=True)
+    if not root.is_dir():
+        raise ValueError('模型必须是本地目录')
+    digest = hashlib.sha256()
+    files = sorted(p for p in root.rglob('*') if p.is_file() and not any(part in {'.cache', '.git'} for part in p.relative_to(root).parts))
+    if not files:
+        raise ValueError('模型目录为空')
+    for file in files:
+        digest.update(str(file.relative_to(root)).encode())
+        with file.open('rb') as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b''):
+                digest.update(block)
+    return digest.hexdigest()
+
+
+class BGEEmbedder:
+    model = 'BAAI/bge-m3'
+    dim = 1024
+
+    def __init__(self, path: str):
+        self.model_hash = model_directory_hash(path)
+        self.path = path
+        from FlagEmbedding import BGEM3FlagModel
+        self._model = BGEM3FlagModel(path, use_fp16=False, devices=['cpu'])
+
+    def encode(self, texts):
+        return self._model.encode(list(texts), batch_size=8, max_length=2048)['dense_vecs'].tolist()
+
+
+class BGEReranker:
+    model = 'BAAI/bge-reranker-v2-m3'
+
+    def __init__(self, path: str):
+        self.model_hash = model_directory_hash(path)
+        self.path = path
+        from FlagEmbedding import FlagReranker
+        self._model = FlagReranker(path, use_fp16=False, devices=['cpu'])
+
+    def rerank(self, query, candidates, k=10):
+        if not candidates:
+            return []
+        pairs = [[query, c['doc'].get('body_text', '') + '\n[族] ' + str(c['doc'].get('family_key') or '')] for c in candidates[:50]]
+        scores = self._model.compute_score(pairs, normalize=True)
+        if isinstance(scores, (int, float)):
+            scores = [scores]
+        result = [dict(c, rerank_score=float(score)) for c, score in zip(candidates, scores)]
+        return sorted(result, key=lambda x: (-x['rerank_score'], x['doc']['doc_id']))[:k]

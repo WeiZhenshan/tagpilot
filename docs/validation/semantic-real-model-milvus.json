@@ -1,0 +1,35 @@
+{
+  "scope": "ISOLATED_CONTRACT_FIXTURE",
+  "production_quality_accepted": false,
+  "python": "3.12.13",
+  "architecture": "arm64",
+  "pymilvus": "3.0.2",
+  "build_seconds": 23.017901834013173,
+  "server_version": "3.0.1",
+  "analyzer_tokens": "[['近', '30', '天', '异名', '跨行', '转入']]",
+  "stats": {
+    "store_type": "MILVUS",
+    "milvus_collection": "tag_docs_03f83ca35c9bdfc452eba49dcf86feec",
+    "doc_count": 3,
+    "doc_id_hash": "f97c3b843245dd6dac5994145dee9cbd6738ec2e95aed98fbb615a20812bf6da",
+    "load_state": "{'state': <LoadState: Loaded>}",
+    "aliases": []
+  },
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_model_hash": "850878161cfd72e0cb99eacc56632f7614333319e4fa76be01de8b6169e36a94",
+  "reranker_model_hash": "98d1b6ae3e07214cf16618aec28b2fcea6c6a5c43b00a8e92328f6c7432fd305",
+  "whitelist_3000_p95_ms": 854.2292919883039,
+  "empty_whitelist_passed": true,
+  "alias_switch_passed": true,
+  "first_activation_alias_compensation_passed": true,
+  "reload_id_hash_passed": true,
+  "peak_python_rss_bytes": 2600517632,
+  "not_measured": [
+    "真实模型600封存召回",
+    "969/1723全量",
+    "服务端内存峰值",
+    "生产进程崩溃",
+    "生产4核16GB容量",
+    "自定义词典"
+  ]
+}

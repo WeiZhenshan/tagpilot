@@ -16,6 +16,7 @@ JVM_OPTS="-Dname=$AppName -Duser.timezone=Asia/Shanghai -Xms512m -Xmx1024m -XX:M
 ROOT_DIR=$(cd "$(dirname "$0")" && pwd)
 JAR_PATH="$ROOT_DIR/ruoyi-admin/target/$AppName"
 BACKEND_LOG="$ROOT_DIR/logs/$AppName-dev.log"
+RUNTIME_JAR="$ROOT_DIR/logs/runtime/$AppName"
 FRONTEND_LOG="$ROOT_DIR/logs/ruoyi-ui-dev.log"
 UI_DIR="$ROOT_DIR/ruoyi-ui"
 BACKEND_PORT=8080
@@ -69,6 +70,9 @@ ensure_crypto_secret() {
 check_env() {
     port_up 6379 || { red "Redis 未启动 (端口 6379)，请先启动"; exit 1; }
     port_up 3306 || { red "MySQL 未启动 (端口 3306)，请先启动"; exit 1; }
+    if [ "${TAG_CHECK_MILVUS:-false}" = true ]; then
+        nc -z "${TAG_MILVUS_HOST:-127.0.0.1}" "${TAG_MILVUS_PORT:-19530}" >/dev/null 2>&1 || { red "外部 Milvus 未就绪"; exit 1; }
+    fi
     blue "Redis / MySQL 运行中"
 }
 
@@ -117,7 +121,10 @@ start()
     ensure_crypto_secret
     mkdir -p "$ROOT_DIR/logs"
     blue "启动后端 (端口 $BACKEND_PORT，日志: $BACKEND_LOG)..."
-    nohup java $JVM_OPTS -jar "$JAR_PATH" > "$BACKEND_LOG" 2>&1 &
+    # 运行不可变副本，避免开发期间 mvn package 覆盖正在被 JVM 延迟读取的嵌套 JAR。
+    mkdir -p "$(dirname "$RUNTIME_JAR")"
+    cp "$JAR_PATH" "$RUNTIME_JAR.tmp" && mv "$RUNTIME_JAR.tmp" "$RUNTIME_JAR"
+    nohup java $JVM_OPTS -jar "$RUNTIME_JAR" > "$BACKEND_LOG" 2>&1 &
     green "Start $AppName success... (pid: $!)"
 
     WAITED=0

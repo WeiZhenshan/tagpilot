@@ -31,14 +31,14 @@ def aggregate_profile(tag: dict[str, Any], values: Iterable[Any], profile_date: 
         "p90": None,
         "p99": None,
     }
-    if semantic_type in {TEXT_FREE, ID_KEY} or tag.get("sensitivity") == "UNKNOWN":
+    if semantic_type in {TEXT_FREE, ID_KEY, "UNKNOWN"} or tag.get("sensitivity") != "LOW" or len(present) < 20:
         return row
     if semantic_type in {"BOOL", "ENUM_NOMINAL", "ENUM_ORDINAL"}:
         freq: dict[str, int] = {}
         for value in present:
             key = str(value)
             freq[key] = freq.get(key, 0) + 1
-        row["top_values"] = [{"code": k, "count": v} for k, v in sorted(freq.items(), key=lambda x: -x[1])[:20]]
+        row["top_values"] = [{"code": k, "count": v} for k, v in sorted(freq.items(), key=lambda x: -x[1])[:20] if v >= 20 and k in set(map(str, tag.get("reviewed_codes") or []))]
         return row
     nums = []
     for value in present:

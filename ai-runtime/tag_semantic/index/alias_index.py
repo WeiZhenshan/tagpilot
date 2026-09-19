@@ -1,35 +1,43 @@
-"""进程内 AC 别名词典：长词优先。"""
-
-from __future__ import annotations
-
+"""AC 自动机；以 JSON 数据安全持久化，不加载任意 pickle 代码。"""
 from typing import Any, Iterable
+from pathlib import Path
+import json
+import ahocorasick
 
 
 class AliasIndex:
-    def __init__(self) -> None:
-        self._entries: dict[str, list[dict[str, Any]]] = {}
+    def __init__(self):
+        self._entries = {}
+        self._automaton = None
 
     def build(self, aliases: Iterable[dict[str, Any]]) -> None:
         self._entries = {}
         for alias in aliases:
-            if alias.get("review_status") != "REVIEWED":
+            if alias.get('review_status') != 'REVIEWED' or alias.get('alias_type') == 'NEGATIVE':
                 continue
-            if alias.get("alias_type") == "NEGATIVE":
-                continue
-            norm = alias.get("alias_norm") or ""
-            if not norm:
-                continue
-            self._entries.setdefault(norm, []).append(alias)
-        self._sorted = sorted(self._entries.keys(), key=len, reverse=True)
+            norm = (alias.get('alias_norm') or '').lower().replace(' ', '')
+            if norm:
+                bucket = self._entries.setdefault(norm, [])
+                if alias not in bucket:
+                    bucket.append(alias)
+        self._automaton = ahocorasick.Automaton()
+        for key in self._entries:
+            self._automaton.add_word(key, key)
+        if self._entries:
+            self._automaton.make_automaton()
 
-    def lookup(self, text: str) -> list[dict[str, Any]]:
-        query = (text or "").strip().lower().replace(" ", "")
-        hits: list[dict[str, Any]] = []
-        seen: set[str] = set()
-        for key in getattr(self, "_sorted", []):
-            if key and key in query and key not in seen:
-                if len(key) == 1 and len(query) > 1:
-                    continue
-                seen.add(key)
-                hits.extend(self._entries[key])
-        return hits
+    def lookup(self, text):
+        query = (text or '').strip().lower().replace(' ', '')
+        if not self._entries:
+            return []
+        keys = {key for _, key in self._automaton.iter(query) if len(key) > 1 or query == key}
+        return [a for key in sorted(keys, key=lambda s: (-len(s), s)) for a in self._entries[key]]
+
+    def save(self, path: Path):
+        path.write_text(json.dumps([a for rows in self._entries.values() for a in rows], ensure_ascii=False, sort_keys=True), encoding='utf-8')
+
+    @classmethod
+    def load(cls, path):
+        instance = cls()
+        instance.build(json.loads(Path(path).read_text(encoding='utf-8')))
+        return instance

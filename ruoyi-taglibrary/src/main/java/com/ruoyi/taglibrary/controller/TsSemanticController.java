@@ -43,6 +43,94 @@ public class TsSemanticController extends BaseController {
     @Autowired
     private ITsCatalogRuntimeService catalogRuntimeService;
 
+    @Autowired private com.ruoyi.taglibrary.mapper.TsCatalogSnapshotMapper snapshots;
+    @Autowired private com.ruoyi.taglibrary.mapper.TsIndexBuildMapper builds;
+    @Autowired private com.ruoyi.taglibrary.service.TsSnapshotArtifactStore artifacts;
+
+    @Autowired private com.ruoyi.taglibrary.service.TsRuntimeClient runtimeClient;
+    @Autowired private com.ruoyi.taglibrary.service.TsRetrievalService retrievalService;
+
+    @Autowired private com.ruoyi.taglibrary.service.TsProfileService profileService;
+
+    @Autowired private com.ruoyi.taglibrary.service.TsSnapshotAssembler snapshotAssembler;
+
+    @Autowired private com.ruoyi.taglibrary.service.TsIndexMaintenanceService maintenance;
+    @Autowired private com.ruoyi.taglibrary.mapper.TlTagMapper tagMapper;
+    @Autowired private com.ruoyi.objectgroup.service.IDimensionCodeOptionService codeOptions;
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:bootstrap')")
+    @PostMapping("/library/{libraryId}/cleanup")
+    public AjaxResult cleanup(@PathVariable Long libraryId) { return success(maintenance.cleanup(libraryId)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:publish')")
+    @PostMapping("/library/{libraryId}/reconcile")
+    public AjaxResult reconcile(@PathVariable Long libraryId) { return success(maintenance.reconcile(libraryId)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @GetMapping("/catalog-overview")
+    public AjaxResult overview(@RequestParam Long libraryId) {
+        java.util.Map<String, Object> bundle = catalogRuntimeService.activeBundle(libraryId);
+        java.util.List<Long> eligible = catalogRuntimeService.eligibleTagIds(libraryId, String.valueOf(bundle.get("snapshot_id")));
+        return success(runtimeClient.post("/catalog-overview", com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("requirement", "overview", "library_id", libraryId, "build_id", bundle.get("build_id"), "eligible_tag_ids", eligible)));
+    }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:publish')")
+    @GetMapping("/snapshot/quality")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
+    public AjaxResult quality(@RequestParam Long libraryId) { return success(snapshotAssembler.assemble(libraryId, null).report); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @GetMapping("/profile/{tagId}")
+    public AjaxResult profile(@PathVariable Long tagId) { return success(profileService.latest(tagId)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:bootstrap')")
+    @PostMapping("/profile/{tagId}/aggregate")
+    public AjaxResult aggregateProfile(@PathVariable Long tagId) { return success(profileService.aggregate(tagId)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @PostMapping("/retrieve")
+    public AjaxResult retrieve(@RequestBody java.util.Map<String, String> request) {
+        return success(retrievalService.retrieve(Long.valueOf(request.get("libraryId")), request.get("requirement")));
+    }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @PostMapping("/feedback")
+    public AjaxResult feedback(@RequestBody com.ruoyi.taglibrary.domain.TsRetrievalFeedback request) { return toAjax(retrievalService.feedback(request)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:bootstrap')")
+    @PostMapping("/index-build/start")
+    public AjaxResult startBuild(@RequestParam String snapshotId, @RequestParam String storeType) { return success(retrievalService.startBuild(snapshotId, storeType)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:bootstrap')")
+    @GetMapping("/index-build/{buildId}/stats")
+    public AjaxResult stats(@PathVariable String buildId) {
+        if (!buildId.matches("[A-Za-z0-9_-]{1,48}") || builds.selectById(buildId) == null) throw new com.ruoyi.common.exception.ServiceException("构建不存在");
+        return success(runtimeClient.get("/stats?build_id=" + buildId));
+    }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @GetMapping("/snapshot/list")
+    public TableDataInfo snapshots(@RequestParam Long libraryId) {
+        startPage(); return getDataTable(snapshots.selectByLibraryId(libraryId));
+    }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @GetMapping("/index-build/list")
+    public AjaxResult builds(@RequestParam String snapshotId) { return success(builds.selectBySnapshotId(snapshotId)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @GetMapping("/snapshot/{snapshotId}/download")
+    public void download(@PathVariable String snapshotId, javax.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        com.ruoyi.taglibrary.domain.TsCatalogSnapshot snapshot = snapshots.selectById(snapshotId);
+        if (snapshot == null) throw new com.ruoyi.common.exception.ServiceException("快照不存在");
+        java.nio.file.Path path = artifacts.verifiedPath(snapshot);
+        response.setContentType("application/x-ndjson;charset=UTF-8");
+        response.setHeader("X-Content-Sha256", snapshot.getFileSha256());
+        response.setHeader("X-Catalog-Content-Hash", snapshot.getContentHash());
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + path.getFileName() + "\"");
+        java.nio.file.Files.copy(path, response.getOutputStream());
+    }
+
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
     @GetMapping("/tag/list")
     public TableDataInfo tagList(@RequestParam Long libraryId) {
@@ -121,6 +209,15 @@ public class TsSemanticController extends BaseController {
     @GetMapping("/code-value/{tagId}")
     public AjaxResult listCodeValues(@PathVariable Long tagId) {
         return success(semanticService.selectCodeValuesByTagId(tagId));
+    }
+
+    /** 复核时实时展示权威码义，禁止将其作为语义草稿修改。 */
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
+    @GetMapping("/code-value/{tagId}/source")
+    public AjaxResult codeValueSource(@PathVariable Long tagId) {
+        com.ruoyi.taglibrary.domain.TlTag tag = tagMapper.selectTagById(tagId);
+        if (tag == null) throw new com.ruoyi.common.exception.ServiceException("标签不存在或已删除");
+        return success(codeOptions.listCodeOptions(tag.getLibraryId(), tag.getFieldName()));
     }
 
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:edit')")
