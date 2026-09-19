@@ -161,16 +161,17 @@ def _issue(tag: dict[str, Any], issue: str, message: str, code: Optional[str] = 
 
 
 def parse_interval(definition: str) -> Optional[dict[str, Any]]:
-    """解析『100万(含)-300万』『50万以下』『1000万及以上』。失败返回 None。"""
+    """解析『5千(含)-1万』『100万(含)-300万』『1000万及以上』。失败返回 None。"""
     if not definition:
         return None
     text = definition.replace("（含）", "(含)").replace(" ", "")
-    if "万" not in text:
+    if "万" not in text and "千" not in text:
         return None
-    below = re.fullmatch(r"(\d+(?:\.\d+)?)万(以下|及以下)", text)
+    unit_scale = {"千": 1000, "万": 10000}
+    below = re.fullmatch(r"(\d+(?:\.\d+)?)(千|万)(以下|及以下)", text)
     if below:
-        bound = float(below.group(1)) * 10000
-        inclusive = 1 if below.group(2) == "及以下" else 0
+        bound = float(below.group(1)) * unit_scale[below.group(2)]
+        inclusive = 1 if below.group(3) == "及以下" else 0
         return {
             "lower_bound": None,
             "upper_bound": bound,
@@ -178,25 +179,25 @@ def parse_interval(definition: str) -> Optional[dict[str, Any]]:
             "upper_inclusive": inclusive,
             "bound_unit": "CNY",
         }
-    above = re.fullmatch(r"(\d+(?:\.\d+)?)万(\(含\))?(及以上|以上)", text)
+    above = re.fullmatch(r"(\d+(?:\.\d+)?)(千|万)(\(含\))?(及以上|以上)", text)
     if above:
-        bound = float(above.group(1)) * 10000
+        bound = float(above.group(1)) * unit_scale[above.group(2)]
         return {
             "lower_bound": bound,
             "upper_bound": None,
-            "lower_inclusive": 1,
+            "lower_inclusive": 1 if above.group(3) or above.group(4) == "及以上" else 0,
             "upper_inclusive": None,
             "bound_unit": "CNY",
         }
     ranged = re.fullmatch(
-        r"(\d+(?:\.\d+)?)万(\(含\))?-(\d+(?:\.\d+)?)万(\(含\))?",
+        r"(\d+(?:\.\d+)?)(千|万)(\(含\))?-(\d+(?:\.\d+)?)(千|万)(\(含\))?",
         text,
     )
     if ranged:
-        lower = float(ranged.group(1)) * 10000
-        upper = float(ranged.group(3)) * 10000
-        lower_inc = 1 if ranged.group(2) else 0
-        upper_inc = 1 if ranged.group(4) else 0
+        lower = float(ranged.group(1)) * unit_scale[ranged.group(2)]
+        upper = float(ranged.group(4)) * unit_scale[ranged.group(5)]
+        lower_inc = 1 if ranged.group(3) else 0
+        upper_inc = 1 if ranged.group(6) else 0
         return {
             "lower_bound": lower,
             "upper_bound": upper,

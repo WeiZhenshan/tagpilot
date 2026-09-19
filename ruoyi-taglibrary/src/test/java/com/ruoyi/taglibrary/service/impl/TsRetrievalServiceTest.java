@@ -28,7 +28,7 @@ class TsRetrievalServiceTest extends BaseServiceTest {
         identify();
         when(catalog.activeBundle(107L)).thenReturn(map("snapshot_id", "s1", "build_id", "b1", "store_type", "LOCAL", "artifact_hash", "hash"));
         when(catalog.eligibleTagIds(107L, "s1")).thenReturn(Arrays.asList(1L));
-        when(runtime.post(eq("/retrieve"), any())).thenReturn(map("snapshot_id", "s1", "build_id", "b1", "store_type", "LOCAL", "artifact_hash", "hash", "candidates", Arrays.asList(map("tag_id", 1))));
+        when(runtime.post(eq("/agent/query"), any())).thenReturn(map("snapshot_id", "s1", "build_id", "b1", "store_type", "LOCAL", "artifact_hash", "hash", "candidates", Arrays.asList(map("tag_id", 1))));
         service.retrieve(107L, "客户张三的手机13800138000");
         ArgumentCaptor<TsRetrievalFeedback> captor = ArgumentCaptor.forClass(TsRetrievalFeedback.class);
         verify(feedback).insert(captor.capture());
@@ -39,7 +39,7 @@ class TsRetrievalServiceTest extends BaseServiceTest {
     @Test void rejectsOutOfEligibilityRuntimeResponse() {
         when(catalog.activeBundle(107L)).thenReturn(map("snapshot_id", "s1", "build_id", "b1", "store_type", "LOCAL"));
         when(catalog.eligibleTagIds(107L, "s1")).thenReturn(Arrays.asList(1L));
-        when(runtime.post(eq("/retrieve"), any())).thenReturn(map("snapshot_id", "s1", "build_id", "b1", "store_type", "LOCAL", "candidates", Arrays.asList(map("tag_id", 2))));
+        when(runtime.post(eq("/agent/query"), any())).thenReturn(map("snapshot_id", "s1", "build_id", "b1", "store_type", "LOCAL", "candidates", Arrays.asList(map("tag_id", 2))));
         assertThrows(ServiceException.class, () -> service.retrieve(107L, "女性"));
         verify(feedback, never()).insert(any());
     }

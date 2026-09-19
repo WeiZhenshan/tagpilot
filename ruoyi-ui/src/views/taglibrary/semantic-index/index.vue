@@ -21,8 +21,8 @@
     </el-table>
     <pagination v-show="total > 0" :total="total" :page.sync="page" :limit.sync="pageSize" @pagination="load" />
     <section class="query-section" aria-labelledby="semantic-query-title">
-      <h3 id="semantic-query-title">自然语言查询</h3>
-      <p>使用当前已激活的索引查找标签。遇到口径不明确或无法精确表达的条件，会提示补充信息。</p>
+      <h3 id="semantic-query-title">自然语言标签智能体</h3>
+      <p>智能体只在当前角色可用的已发布标签中建议，并通过 DSL 门禁；结果必须由你确认，不会自动执行客群筛选。</p>
       <el-form @submit.native.prevent="retrieve">
         <el-form-item label="查询条件">
           <el-input v-model="requirement" type="textarea" :rows="3" :maxlength="500" show-word-limit aria-label="查询条件" placeholder="例如：近30天有异名跨行转入的客户" />
@@ -31,8 +31,9 @@
       </el-form>
       <el-alert v-if="queryError" :title="queryError" type="error" :closable="false" class="query-result" />
       <div v-if="queryResult" class="query-result" aria-live="polite">
-        <el-alert :title="decisionText" :type="queryResult.decision === 'CANDIDATES_ONLY' ? 'info' : 'warning'" :closable="false" />
+        <el-alert :title="decisionText" :type="['CANDIDATES_ONLY', 'NEEDS_CONFIRMATION', 'NEEDS_VALUE'].includes(queryResult.decision) ? 'info' : 'warning'" :closable="false" />
         <p>快照：{{ queryResult.snapshot_id }} · 构建：{{ queryResult.build_id }}</p>
+        <p>选择器：{{ queryResult.selector || '-' }} · 大模型已连接：{{ queryResult.model_connected ? '是' : '否（精确证据演示模式）' }} · DSL：{{ queryResult.dsl_valid ? '合法，待确认' : '尚未生成' }}</p>
         <el-table :data="queryResult.candidates || []" size="small" empty-text="当前可用范围内没有候选标签">
           <el-table-column prop="name" label="候选标签" min-width="180" />
           <el-table-column prop="family_key" label="所属标签族" min-width="240" show-overflow-tooltip />
@@ -66,7 +67,7 @@ export default {
   name: 'TagSemanticIndex',
   data() { return { libraryId: Number(this.$route.query.libraryId) || undefined, libraries: [], snapshots: [], selected: null, builds: [], page: 1, pageSize: 20, total: 0, storeType: 'MILVUS', loading: false, publishing: false, building: false, buildLoading: false, activating: false, detailTitle: '', detail: '', detailVisible: false, requirement: '', retrieving: false, queryResult: null, queryError: '', feedbackSaved: false, feedbackSaving: false } },
   computed: {
-    decisionText() { return { CANDIDATES_ONLY: '已找到候选标签，请核对业务口径；查询不会自动执行客群筛选。', CLARIFY: '查询条件需要补充时间范围或明确业务口径，请修改后重试。', INEXPRESSIBLE: '现有码值分档无法精确表达该条件，请调整条件或选择连续数值标签。' }[this.queryResult && this.queryResult.decision] || '请核对候选标签的业务口径。' }
+    decisionText() { return { CANDIDATES_ONLY: '已找到候选标签，请核对业务口径。', NEEDS_CONFIRMATION: 'DSL 已通过门禁，请确认后再交给客群执行服务。', NEEDS_VALUE: '已唯一识别标签，但仍需补充条件值并确认。', CLARIFY: '查询条件需要补充时间范围或明确业务口径，请修改后重试。', INEXPRESSIBLE: '现有码值分档无法精确表达该条件，请调整条件或选择连续数值标签。', REJECTED_BY_DSL_GATE: '大模型建议未通过 DSL 门禁，已阻止执行。' }[this.queryResult && this.queryResult.decision] || '请核对候选标签的业务口径。' }
   },
   mounted() { this.loadLibraries() },
   methods: {

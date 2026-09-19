@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from tag_semantic.server import create_app
+from tag_semantic.index import builder
 from tag_semantic.index.builder import build_index, load_index
 from tag_semantic.index.local_store import LocalStore
 from tag_semantic.snapshot.canonicalize import content_hash
@@ -51,6 +52,18 @@ def test_artifacts_immutable_reload_and_corruption(tmp_path):
     (tmp_path / 'b1' / 'emb.npy').write_bytes(b'broken')
     with pytest.raises(ValueError, match='校验失败'):
         load_index(tmp_path / 'b1')
+
+
+def test_old_relative_model_path_resolves_from_runtime_root(tmp_path, monkeypatch):
+    runtime_root = tmp_path / 'ai-runtime'
+    module_file = runtime_root / 'tag_semantic' / 'index' / 'builder.py'
+    model = runtime_root / 'out' / 'models' / 'bge-m3'
+    model.mkdir(parents=True)
+    elsewhere = tmp_path / 'elsewhere'
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+    monkeypatch.setattr(builder, '__file__', str(module_file))
+    assert builder._resolved_model_path('out/models/bge-m3') == str(model.resolve())
 
 
 def test_filter_before_topk_prevents_starvation():

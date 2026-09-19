@@ -83,6 +83,23 @@ class TsSnapshotAssemblerTest {
         assertThrows(com.ruoyi.common.exception.ServiceException.class, () -> validateOrdinal(Arrays.asList(a, b)));
     }
 
+    @Test void ordinalIntervalsAllowOpenEndedFirstAndLastBuckets() {
+        TsCodeValueSemantic first = new TsCodeValueSemantic(), middle = new TsCodeValueSemantic(), last = new TsCodeValueSemantic();
+        for (TsCodeValueSemantic c : Arrays.asList(first, middle, last)) { c.setReviewStatus("REVIEWED"); c.setBoundUnit("CNY"); }
+        first.setRankNo(1); first.setUpperBound(new java.math.BigDecimal("500000")); first.setUpperInclusive(0);
+        middle.setRankNo(2); middle.setLowerBound(new java.math.BigDecimal("500000")); middle.setLowerInclusive(1);
+        middle.setUpperBound(new java.math.BigDecimal("1000000")); middle.setUpperInclusive(0);
+        last.setRankNo(3); last.setLowerBound(new java.math.BigDecimal("1000000")); last.setLowerInclusive(1);
+        assertDoesNotThrow(() -> validateIntervals(Arrays.asList(first, middle, last)));
+    }
+
+    @Test void reviewedDirectBooleanDoesNotRequireInventedCodeTable() {
+        TsTagSemantic tag = new TsTagSemantic(); tag.setSemanticType("BOOL");
+        assertTrue(codesReady(tag, Collections.emptyList(), Collections.emptyList()));
+        tag.setSemanticType("ENUM_NOMINAL");
+        assertFalse(codesReady(tag, Collections.emptyList(), Collections.emptyList()));
+    }
+
     @Test void businessStatusAndNestedFieldsParticipateInHash() {
         Map<String, Object> row = map("kind", "tag", "tag_id", 1, "status", "2", "nested", map("status", "ACTIVE", "snapshot_id", "business-id"));
         String first = TsSnapshotCanonicalizer.contentHash(Collections.singletonList(row));

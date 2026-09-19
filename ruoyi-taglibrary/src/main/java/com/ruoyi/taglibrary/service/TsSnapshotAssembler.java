@@ -30,6 +30,22 @@ public class TsSnapshotAssembler {
         BootstrapExportRequest request = new BootstrapExportRequest();
         request.setLibraryId(libraryId);
         BootstrapExportResult freeze = bootstrap.exportFreeze(request);
+        return assemble(libraryId, coverageNote, freeze);
+    }
+
+    /** 本地封存验收使用：只接受哈希匹配的 Java 冻结工件，不回连来源数据源。 */
+    public Result assembleFrozen(Long libraryId, String coverageNote, String jsonl, String contentHash) {
+        if (jsonl == null || contentHash == null || !contentHash.equals(TsSnapshotCanonicalizer.sha256(jsonl))) {
+            throw new ServiceException("冻结工件哈希不一致");
+        }
+        BootstrapExportResult freeze = new BootstrapExportResult();
+        freeze.setLibraryId(libraryId); freeze.setJsonl(jsonl); freeze.setContentHash(contentHash);
+        freeze.setIssues(Collections.emptyList());
+        return assemble(libraryId, coverageNote, freeze);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Result assemble(Long libraryId, String coverageNote, BootstrapExportResult freeze) {
         if (!freeze.getIssues().isEmpty()) throw new ServiceException("来源冻结存在异常，拒绝发布：" + json(freeze.getIssues()));
         Result result = new Result();
         Map<Long, Map<String, Object>> authority = new LinkedHashMap<>();
@@ -38,13 +54,18 @@ public class TsSnapshotAssembler {
         try {
             for (String line : freeze.getJsonl().split("\\n")) {
                 Map<String, Object> row = JSON.readValue(line, Map.class);
-                if ("meta".equals(row.get("kind"))) result.sourceManifest = (Map<String, Object>) row.get("source_manifest");
+                if ("meta".equals(row.get("kind"))) {
+                    if (row.get("library_id") != null && !Objects.equals(libraryId, id(row.get("library_id")))) throw new ServiceException("冻结工件不属于目标标签库");
+                    result.sourceManifest = (Map<String, Object>) row.get("source_manifest");
+                }
                 if ("domain".equals(row.get("kind"))) domains.add(row);
                 if ("tag".equals(row.get("kind"))) authority.put(id(row.get("tag_id")), row);
                 if ("code_value".equals(row.get("kind"))) codesByTag.computeIfAbsent(id(row.get("tag_id")), k -> new ArrayList<>()).add(row);
             }
         } catch (Exception e) { throw new ServiceException("冻结内容无法解析"); }
+        if (result.sourceManifest == null) throw new ServiceException("冻结工件缺少来源清单");
         result.sourceManifest.put("freeze_sha256", freeze.getContentHash());
+        result.sourceManifest.put("release_mode", "FROZEN_ARTIFACT_LOCAL_DEMO");
         Map<Long, TsConcept> conceptMap = new HashMap<>();
         TsConcept query = new TsConcept(); query.setLibraryId(libraryId);
         for (TsConcept c : semantics.selectConceptList(query)) conceptMap.put(c.getConceptId(), c);
@@ -183,9 +204,11 @@ public class TsSnapshotAssembler {
         if (c == null || !"REVIEWED".equals(c.getReviewStatus()) || !"0".equals(c.getStatus()) || !seen.add(c.getConceptId())) return false;
         return c.getParentId() == null || c.getParentId() == 0 || conceptReady(all.get(c.getParentId()), all, seen);
     }
-    private boolean codesReady(TsTagSemantic tag, List<Map<String, Object>> source, List<TsCodeValueSemantic> codes) {
+    static boolean codesReady(TsTagSemantic tag, List<Map<String, Object>> source, List<TsCodeValueSemantic> codes) {
         boolean requires = "BOOL".equals(tag.getSemanticType()) || (tag.getSemanticType() != null && tag.getSemanticType().startsWith("ENUM_"));
-        if (requires && source.isEmpty()) return false;
+        // 来源字段字典明确为布尔、但没有独立码表时，运行时直接使用 0/1；不得伪造码值记录。
+        boolean directBoolean = "BOOL".equals(tag.getSemanticType()) && source.isEmpty() && codes.isEmpty();
+        if (requires && source.isEmpty() && !directBoolean) return false;
         Map<String, TsCodeValueSemantic> byCode = new HashMap<>();
         for (TsCodeValueSemantic c : codes) if ("REVIEWED".equals(c.getReviewStatus())) byCode.put(c.getCode(), c);
         if (byCode.size() != source.size()) return false;
@@ -234,7 +257,8 @@ public class TsSnapshotAssembler {
         TsCodeValueSemantic previous = null;
         for (TsCodeValueSemantic row : rows) {
             if (row.getRankNo() == null || !ranks.add(row.getRankNo()) || row.getBoundUnit() == null
-                    || row.getLowerInclusive() == null || row.getUpperInclusive() == null) throw new ServiceException("有序码值的顺序、单位和端点包含性必须明确");
+                    || (row.getLowerBound() != null && row.getLowerInclusive() == null)
+                    || (row.getUpperBound() != null && row.getUpperInclusive() == null)) throw new ServiceException("有序码值的顺序、单位和有限端点包含性必须明确");
             if (row.getLowerBound() != null && row.getUpperBound() != null && row.getLowerBound().compareTo(row.getUpperBound()) >= 0) throw new ServiceException("码值区间端点非法");
             if (previous != null && (!Objects.equals(previous.getBoundUnit(), row.getBoundUnit()) || previous.getUpperBound() == null || row.getLowerBound() == null
                     || previous.getUpperBound().compareTo(row.getLowerBound()) != 0

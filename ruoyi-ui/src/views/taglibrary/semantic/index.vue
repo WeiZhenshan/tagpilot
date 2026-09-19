@@ -7,6 +7,9 @@
         </el-select>
       </el-form-item>
       <el-form-item><el-button type="primary" icon="el-icon-search" :loading="loading" @click="load">加载语义资产</el-button></el-form-item>
+      <el-form-item>
+        <el-button v-hasPermi="['taglibrary:semantic:bootstrap']" icon="el-icon-download" :loading="exporting" :disabled="!libraryId" @click="exportCurrentFreeze">导出实时冻结</el-button>
+      </el-form-item>
     </el-form>
     <el-alert v-if="!loadedLibrary" title="选择标签库，维护语义草稿、复核依据和检索词典。" type="info" :closable="false" />
     <el-tabs v-else v-model="tab">
@@ -63,12 +66,12 @@
 <script>
 import SemanticRecords from './Records'
 import { listLibrary } from '@/api/taglibrary/library'
-import { profileTag, aggregateProfile, semanticList, semanticDetail, saveSemantic, reviewSemantic } from '@/api/taglibrary/semantic'
+import { profileTag, aggregateProfile, semanticList, semanticDetail, saveSemantic, reviewSemantic, bootstrapExport } from '@/api/taglibrary/semantic'
 const f = (key, label, extra = {}) => ({ key, label, ...extra })
 export default {
   name: 'TagSemantic', components: { SemanticRecords },
   data() { return {
-    libraryId: Number(this.$route.query.libraryId) || undefined, libraries: [], loadedLibrary: null, tags: [], profile: null, profileLoading: false, loading: false, saving: false, tab: 'tags', drawer: false, selected: {}, detailTab: 'semantic', page: 1, pageSize: 20, total: 0,
+    libraryId: Number(this.$route.query.libraryId) || undefined, libraries: [], loadedLibrary: null, tags: [], profile: null, profileLoading: false, loading: false, saving: false, exporting: false, tab: 'tags', drawer: false, selected: {}, detailTab: 'semantic', page: 1, pageSize: 20, total: 0,
     types: ['BOOL', 'ENUM_NOMINAL', 'ENUM_ORDINAL', 'ENUM_HIERARCHY', 'NUM_AMOUNT', 'NUM_COUNT', 'NUM_RATIO', 'NUM_SCORE', 'TEXT_FREE', 'DATE', 'ID_KEY'],
     conceptFields: [f('conceptCode', '概念编码', { required: true, immutable: true }), f('conceptName', '概念名称', { required: true }), f('tagObject', '标签对象', { required: true }), f('domainDirId', '业务域编号', { number: true, required: true }), f('definition', '定义', { multiline: true }), f('parentId', '父概念编号', { number: true }), f('status', '状态', { options: ['0', '1'] })],
     termFields: [f('term', '词条', { required: true }), f('termType', '类别', { options: ['FUZZY_TIME', 'FUZZY_QUANTITY', 'FUZZY_CATEGORY', 'ORDINAL_WORD', 'NEGATION', 'BOUNDARY'], required: true }), f('options', '候选含义 JSON', { multiline: true }), f('defaultPolicy', '处理策略', { options: ['ASK', 'SUGGEST'] })],
@@ -92,6 +95,28 @@ export default {
       if (this.libraryId !== this.loadedLibrary) this.page = 1
       this.loading = true
       try { const result = await semanticList('tag', { libraryId: this.libraryId, pageNum: this.page, pageSize: this.pageSize }); this.tags = result.rows; this.total = result.total; this.loadedLibrary = this.libraryId } finally { this.loading = false }
+    },
+    async exportCurrentFreeze() {
+      if (!this.libraryId) return
+      this.exporting = true
+      try {
+        const response = await bootstrapExport({ libraryId: this.libraryId })
+        const result = response.data || {}
+        if ((result.issues || []).length) {
+          this.$modal.msgError(`实时冻结存在 ${result.issues.length} 个来源问题，已拒绝下载`)
+          return
+        }
+        const blob = new Blob([result.jsonl || ''], { type: 'application/x-ndjson;charset=utf-8' })
+        const link = document.createElement('a')
+        const url = URL.createObjectURL(blob)
+        link.href = url
+        link.download = `semantic-freeze-L${this.libraryId}-${result.contentHash || 'unhashed'}.jsonl`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+        this.$modal.msgSuccess(`已导出 ${result.tagCount} 个字段、${result.codeValueCount} 个码值`)
+      } finally { this.exporting = false }
     },
     open(row) { this.profile = null; this.selected = { ...row }; this.detailTab = 'semantic'; this.drawer = true },
     async getProfile() { this.profile = (await profileTag(this.selected.tagId)).data },

@@ -4,6 +4,8 @@ import json
 import math
 from pathlib import Path
 from tag_semantic.retrieve.service import visible_candidates
+from tag_semantic.agent.dsl import validate_dsl
+from tag_semantic.agent.graph import ExactEvidenceSelector
 
 
 def wilson(success, total):
@@ -81,9 +83,11 @@ def evaluate(service, cases, manifest, *, scope='DEVELOPMENT'):
     validate_cases(cases, sealed=scope == 'SEALED')
     counters = {key: [0, 0] for key in ('hit_at_20', 'final_hit_at_10', 'complete_conditions_at_20', 'family_at_10',
                 'hard_negative_top1_family', 'code_set_exact', 'clarification_correct', 'inexpressible_correct',
-                'unauthorized_references', 'incorrect_auto_execution')}
+                'high_confidence_precision', 'high_confidence_coverage', 'query_exact_match', 'dsl_schema_legal',
+                'hallucinated_references', 'unauthorized_references', 'incorrect_auto_execution')}
     failures, traces = [], []
     multi_cases = 0
+    selector = ExactEvidenceSelector()
 
     def record(metric, passed, identity):
         counters[metric][0] += int(passed)
@@ -112,6 +116,22 @@ def evaluate(service, cases, manifest, *, scope='DEVELOPMENT'):
                 if condition.get('family_key'):
                     record('family_at_10', condition['family_key'] in families, case['id'])
             record('complete_conditions_at_20', all(hits), case['id'])
+            final_complete = all(bool(final_tags & set(condition['accept_tag_ids']))
+                                 and set(condition.get('required_tag_ids', [])) <= final_tags for condition in conditions)
+            record('query_exact_match', final_complete, case['id'])
+            proposal = selector.select(case['query'], final_rows, service.catalog)
+            high_confidence = proposal if proposal and float(proposal.get('confidence') or 0) >= .99 else None
+            record('high_confidence_coverage', high_confidence is not None, case['id'])
+            if high_confidence:
+                expected = {tag for condition in conditions for tag in condition['accept_tag_ids']}
+                recommended = set(high_confidence.get('recommended_tag_ids') or [])
+                record('high_confidence_precision', bool(recommended) and recommended <= expected, case['id'])
+                if high_confidence.get('dsl'):
+                    try:
+                        validate_dsl(high_confidence['dsl'], service.catalog, eligible)
+                        record('dsl_schema_legal', True, case['id'])
+                    except Exception:
+                        record('dsl_schema_legal', False, case['id'])
             multi_cases += int(len(conditions) > 1 or any(c.get('required_tag_ids') for c in conditions))
             if case.get('hard_negative'):
                 expected = {c['family_key'] for c in conditions if c.get('family_key')}
@@ -133,6 +153,11 @@ def evaluate(service, cases, manifest, *, scope='DEVELOPMENT'):
             if member.get('tag_id'):
                 references.add(member['tag_id'])
         unauthorized = len(references - eligible)
+        hallucinated = len(references - set(service.catalog.tags))
+        counters['hallucinated_references'][0] += hallucinated
+        counters['hallucinated_references'][1] += len(references)
+        if hallucinated:
+            failures.append({'id': case['id'], 'metric': 'hallucinated_references'})
         counters['unauthorized_references'][0] += unauthorized
         counters['unauthorized_references'][1] += len(references)
         if unauthorized:
@@ -148,6 +173,8 @@ def evaluate(service, cases, manifest, *, scope='DEVELOPMENT'):
                        'decision': result.get('decision')})
     metrics = {key: {'numerator': a, 'denominator': b, 'rate': a / b if b else None, 'ci95': wilson(a, b)} for key, (a, b) in counters.items()}
     thresholds = {'hit_at_20': .995, 'family_at_10': .99, 'hard_negative_top1_family': .95,
+                  'high_confidence_precision': .99, 'high_confidence_coverage': .60, 'query_exact_match': .90,
+                  'dsl_schema_legal': 1,
                   'code_set_exact': 1, 'clarification_correct': 1, 'inexpressible_correct': 1}
     gates = {key: metrics[key]['denominator'] > 0 and metrics[key]['rate'] >= threshold for key, threshold in thresholds.items()}
     tags = list(service.catalog.tags.values())
@@ -157,6 +184,7 @@ def evaluate(service, cases, manifest, *, scope='DEVELOPMENT'):
                  real_embedding=manifest.get('embedding_model') == 'BAAI/bge-m3' and bool(manifest.get('embedding_model_hash')),
                  real_reranker=manifest.get('reranker_model') == 'BAAI/bge-reranker-v2-m3' and bool(manifest.get('reranker_model_hash')),
                  multi_condition_cases=multi_cases > 0,
+                 no_hallucinated_references=counters['hallucinated_references'][0] == 0,
                  no_unauthorized_references=counters['unauthorized_references'][0] == 0,
                  no_automatic_execution=counters['incorrect_auto_execution'][0] == 0,
                  recall_stage_present=not any(f['metric'] == 'missing_recall_stage' for f in failures))

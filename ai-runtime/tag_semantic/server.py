@@ -16,6 +16,7 @@ from tag_semantic.index.embedder import BGEEmbedder, BGEReranker
 from tag_semantic.index.milvus_store import id_hash
 from tag_semantic.retrieve.service import RetrieveService, visible_candidates
 from tag_semantic.snapshot.loader import load_catalog
+from tag_semantic.agent.graph import build_agent
 
 
 class BuildRequest(BaseModel):
@@ -31,6 +32,13 @@ class RetrieveRequest(BaseModel):
     build_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,48}$')
     eligible_tag_ids: list[int] = Field(max_length=100000)
     k: int = Field(default=20, ge=1, le=50)
+
+
+class AgentRequest(BaseModel):
+    requirement: str = Field(min_length=1, max_length=500)
+    library_id: int = Field(gt=0)
+    build_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,48}$')
+    eligible_tag_ids: list[int] = Field(max_length=100000)
 
 
 def create_app(artifact_root=None, snapshot_root=None, token=None):
@@ -62,6 +70,7 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                     if built['manifest']['build_id'] != build_id:
                         raise ValueError('构建目录身份不一致')
                     built['service'] = RetrieveService(built['catalog'], built['store'], built['alias_index'], built['embedder'], built['reranker'], built['manifest']['retrieval_config'])
+                    built['agent'] = build_agent(built['service'])
                     built['artifact_hash'] = sha(path / 'manifest.json')
                     if len(cache) >= 3:
                         cache.pop(next(iter(cache)))
@@ -123,6 +132,28 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                                   'channel_agreement': len((response['candidates'][0].get('rank_features') or {})) / 4 if response['candidates'] else 0,
                                   'unresolved_fuzzy_terms': response['facets'].get('unresolved_fuzzy_terms', []),
                                   'retrieval_config_hash': manifest['retrieval_config_hash']}}
+
+    @app.post('/agent/query', dependencies=[Depends(authenticate)])
+    def agent_query(request: AgentRequest):
+        built = bundle(request.build_id)
+        manifest, catalog = built['manifest'], built['catalog']
+        if manifest['library_id'] != request.library_id:
+            raise HTTPException(409, '构建不属于请求标签库')
+        eligible = set(request.eligible_tag_ids) & set(catalog.tags)
+        try:
+            with build_lease(root, request.build_id):
+                state = built['agent'].invoke({'requirement': request.requirement, 'eligible_tag_ids': eligible})
+                result = dict(state['result'])
+        except Exception as exc:
+            counters['retrieve_failures'] += 1
+            raise HTTPException(503, '智能体选择失败；未自动执行') from exc
+        referenced = {int(item['tag_id']) for item in result.get('candidates') or []}
+        referenced.update(int(tag_id) for tag_id in result.get('recommended_tag_ids') or [])
+        if not referenced <= eligible:
+            raise HTTPException(409, '智能体响应包含资格外标签')
+        result.update(trace_id=uuid.uuid4().hex, snapshot_id=manifest['snapshot_id'], build_id=request.build_id,
+                      artifact_hash=built['artifact_hash'], store_type=manifest['store_type'], eligible_hash=id_hash(str(t) for t in eligible))
+        return result
 
     @app.get('/stats', dependencies=[Depends(authenticate)])
     def stats(build_id: str):

@@ -125,6 +125,14 @@ def test_outside_asset_03_half_open_interval(tmp_path):
     assert parse_interval("100万(含)-300万")["lower_inclusive"] == 1
 
 
+def test_parse_interval_supports_mixed_thousand_and_ten_thousand_units():
+    parsed = parse_interval("5千(含)-1万")
+    assert parsed["lower_bound"] == 5000
+    assert parsed["upper_bound"] == 10000
+    assert parsed["lower_inclusive"] == 1
+    assert parse_interval("10万以上")["lower_inclusive"] == 0
+
+
 def test_aum_families_split_eop_vs_max(tmp_path):
     output = run_rule_init(load_freeze(freeze_jsonl(tmp_path)))
     point = _by_field(output["result"], "CUR_POINT_AUM")

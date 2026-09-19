@@ -41,12 +41,20 @@ class RetrieveService:
                 continue
             if not _doc_allowed(doc, filters):
                 continue
-            alias_hits.append({"doc": doc, "score": 1.0, "rank": 1, "channel": "alias"})
+            alias_hits.append({"doc": doc, "score": 1.0, "rank": 1, "channel": "alias",
+                               "alias_norm": (alias.get("alias_norm") or "").lower().replace(" ", "")})
         budget = int(self.config.get("channel_k", 30))
-        bm25_name = self.store.search("bm25_name", requirement, filters, budget)
-        bm25_body = self.store.search("bm25_body", requirement, filters, budget)
-        dense_hits = self._dense(requirement, filters, budget)
-        fused = rrf([alias_hits, bm25_name, bm25_body, dense_hits], k=int(self.config.get("rrf_k", 60)))
+        import re
+        multi_condition = re.search(r"(?:同时|并且|以及|而且|；|;|、)", requirement) is not None
+        exact_hits = self._unique_longest_alias_hits(alias_hits) if self.config.get("exact_alias_fast_path") is True and not multi_condition else []
+        if exact_hits:
+            # 最长已复核别名只指向一个标签时，身份已确定；不再浪费模型重排，也避免短别名稀释证据。
+            fused = rrf([exact_hits], k=int(self.config.get("rrf_k", 60)))
+        else:
+            bm25_name = self.store.search("bm25_name", requirement, filters, budget)
+            bm25_body = self.store.search("bm25_body", requirement, filters, budget)
+            dense_hits = self._dense(requirement, filters, budget)
+            fused = rrf([alias_hits, bm25_name, bm25_body, dense_hits], k=int(self.config.get("rrf_k", 60)))
         # 域只作软先验，不能剪掉其它业务域；权重固化在 build manifest。
         for item in fused:
             doc = item['doc']
@@ -57,7 +65,7 @@ class RetrieveService:
             item['rrf_score'] += prior
         fused.sort(key=lambda c: (-c['rrf_score'], c['doc']['doc_id']))
         recall_candidates = fused[:20]
-        if self.reranker:
+        if self.reranker and not exact_hits:
             budget = min(50, max(1, int(self.config.get('rerank_k', 50))))
             fused = self.reranker.rerank(requirement, fused[:budget], k=max(k, 10))
         tag_candidates = []
@@ -114,6 +122,17 @@ class RetrieveService:
             "facets": facets,
             "family": family_result,
         }
+
+    @staticmethod
+    def _unique_longest_alias_hits(alias_hits):
+        tag_hits = [hit for hit in alias_hits if int(hit["doc"].get("tag_id") or -1) > 0 and hit.get("alias_norm")]
+        if not tag_hits:
+            return []
+        longest = max(len(hit["alias_norm"]) for hit in tag_hits)
+        strongest = [hit for hit in tag_hits if len(hit["alias_norm"]) == longest]
+        if len({int(hit["doc"]["tag_id"]) for hit in strongest}) != 1:
+            return []
+        return strongest
 
     def _dense(self, query: str, filters: dict[str, Any], k: int) -> list[dict[str, Any]]:
         if getattr(self.store, "store_type", "LOCAL") == "MILVUS":

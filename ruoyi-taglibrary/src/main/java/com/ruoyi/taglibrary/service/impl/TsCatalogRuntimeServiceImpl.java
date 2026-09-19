@@ -1,6 +1,9 @@
 package com.ruoyi.taglibrary.service.impl;
 
 import java.text.SimpleDateFormat;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,12 +65,34 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
     @Autowired private com.ruoyi.taglibrary.service.TsSnapshotArtifactStore artifacts;
     @Autowired private com.ruoyi.taglibrary.service.TsIndexMaintenanceService maintenance;
 
+    /**
+     * 本地演示可使用刚从 Java 权威导出接口下载的冻结件做当前资格校验。
+     * 默认关闭；路径与 SHA-256 必须同时配置，避免在无法连接来源库时悄悄降级为旧快照。
+     */
+    @Value("${tag.local-demo-current-freeze:}")
+    private String localDemoCurrentFreeze;
+    @Value("${tag.local-demo-current-freeze-sha256:}")
+    private String localDemoCurrentFreezeSha256;
+
     @Override
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
     public TsCatalogSnapshot publish(Long libraryId, String coverageNote) {
         if (libraryId == null || libraryMapper.selectLibraryById(libraryId) == null) throw new ServiceException("标签库不存在");
         snapshotMapper.lockLibrary(libraryId);
         com.ruoyi.taglibrary.service.TsSnapshotAssembler.Result assembled = assembler.assemble(libraryId, coverageNote);
+        return persistSnapshot(libraryId, assembled);
+    }
+
+    /** 本地封存验收使用：发布已校验哈希的 Java 冻结工件，不回连来源数据源。 */
+    @Transactional(isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
+    public TsCatalogSnapshot publishFrozen(Long libraryId, String coverageNote, String jsonl, String contentHash) {
+        if (libraryId == null || libraryMapper.selectLibraryById(libraryId) == null) throw new ServiceException("标签库不存在");
+        snapshotMapper.lockLibrary(libraryId);
+        com.ruoyi.taglibrary.service.TsSnapshotAssembler.Result assembled = assembler.assembleFrozen(libraryId, coverageNote, jsonl, contentHash);
+        return persistSnapshot(libraryId, assembled);
+    }
+
+    private TsCatalogSnapshot persistSnapshot(Long libraryId, com.ruoyi.taglibrary.service.TsSnapshotAssembler.Result assembled) {
         if (assembled.tagIds.isEmpty()) throw new ServiceException("没有通过发布门禁的业务标签，请查看质量报告");
         Integer maxNo = snapshotMapper.selectMaxSnapshotNo(libraryId);
         int nextNo = maxNo == null ? 1 : maxNo + 1;
@@ -102,16 +128,23 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
         if (library.getDatasetId() == null) {
             throw new ServiceException("无法取得资格，数据集缺失");
         }
-        DpResolvedVersion version = versionResolver.resolve(library.getDatasetId());
-        if (version == null) {
-            throw new ServiceException("无法取得资格，无在线数据集版本");
-        }
         Set<String> enabled = new HashSet<String>();
-        List<DpResolvedField> fields = versionResolver.listEnabledFields(version.getVersionId());
-        if (fields != null) {
-            for (DpResolvedField field : fields) {
-                if (field.getFieldAlias() != null) {
-                    enabled.add(field.getFieldAlias());
+        LocalDemoFreeze localFreeze = loadLocalDemoFreeze(library);
+        if (localFreeze != null) {
+            for (Map<String, Object> row : localFreeze.tags.values()) {
+                if (row.get("field_name") != null) enabled.add(String.valueOf(row.get("field_name")));
+            }
+        } else {
+            DpResolvedVersion version = versionResolver.resolve(library.getDatasetId());
+            if (version == null) {
+                throw new ServiceException("无法取得资格，无在线数据集版本");
+            }
+            List<DpResolvedField> fields = versionResolver.listEnabledFields(version.getVersionId());
+            if (fields != null) {
+                for (DpResolvedField field : fields) {
+                    if (field.getFieldAlias() != null) {
+                        enabled.add(field.getFieldAlias());
+                    }
                 }
             }
         }
@@ -143,7 +176,7 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
                     inter.add(id);
                 }
             }
-            current = compatibleIds(libraryId, snapshot, inter);
+            current = compatibleIds(libraryId, snapshot, inter, localFreeze);
         }
         if (current.isEmpty()) {
             throw new ServiceException("无法取得资格，拒绝服务");
@@ -277,23 +310,27 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Long> compatibleIds(Long libraryId, TsCatalogSnapshot snapshot, List<Long> ids) {
+    private List<Long> compatibleIds(Long libraryId, TsCatalogSnapshot snapshot, List<Long> ids, LocalDemoFreeze localFreeze) {
         try {
             Map<Long, Map<String, Object>> frozen = new java.util.HashMap<>();
             for (String line : java.nio.file.Files.readAllLines(artifacts.verifiedPath(snapshot), java.nio.charset.StandardCharsets.UTF_8)) {
                 Map<String, Object> row = MAPPER.readValue(line, Map.class);
                 if ("tag".equals(row.get("kind"))) frozen.put(Long.valueOf(String.valueOf(row.get("tag_id"))), row);
             }
-            com.ruoyi.taglibrary.domain.dto.BootstrapExportRequest request = new com.ruoyi.taglibrary.domain.dto.BootstrapExportRequest();
-            request.setLibraryId(libraryId); request.setTagIds(ids);
-            com.ruoyi.taglibrary.domain.dto.BootstrapExportResult freeze = bootstrap.exportFreeze(request);
-            if (!freeze.getIssues().isEmpty()) throw new ServiceException("当前来源存在异常，拒绝检索");
             Map<Long, Map<String, Object>> tags = new java.util.HashMap<>();
             Map<Long, List<Map<String, Object>>> codes = new java.util.HashMap<>();
-            for (String line : freeze.getJsonl().split("\n")) {
-                Map<String, Object> row = MAPPER.readValue(line, Map.class);
-                if ("tag".equals(row.get("kind"))) tags.put(Long.valueOf(String.valueOf(row.get("tag_id"))), row);
-                if ("code_value".equals(row.get("kind"))) codes.computeIfAbsent(Long.valueOf(String.valueOf(row.get("tag_id"))), k -> new ArrayList<>()).add(row);
+            if (localFreeze != null) {
+                tags.putAll(localFreeze.tags); codes.putAll(localFreeze.codes);
+            } else {
+                com.ruoyi.taglibrary.domain.dto.BootstrapExportRequest request = new com.ruoyi.taglibrary.domain.dto.BootstrapExportRequest();
+                request.setLibraryId(libraryId); request.setTagIds(ids);
+                com.ruoyi.taglibrary.domain.dto.BootstrapExportResult freeze = bootstrap.exportFreeze(request);
+                if (!freeze.getIssues().isEmpty()) throw new ServiceException("当前来源存在异常，拒绝检索");
+                for (String line : freeze.getJsonl().split("\n")) {
+                    Map<String, Object> row = MAPPER.readValue(line, Map.class);
+                    if ("tag".equals(row.get("kind"))) tags.put(Long.valueOf(String.valueOf(row.get("tag_id"))), row);
+                    if ("code_value".equals(row.get("kind"))) codes.computeIfAbsent(Long.valueOf(String.valueOf(row.get("tag_id"))), k -> new ArrayList<>()).add(row);
+                }
             }
             List<Long> compatible = new ArrayList<>();
             for (Long id : ids) {
@@ -311,7 +348,50 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
                 if (enabled) compatible.add(id);
             }
             return compatible;
-        } catch (ServiceException e) { throw e; } catch (Exception e) { throw new ServiceException("当前资格与快照依据校验失败，拒绝服务"); }
+        } catch (ServiceException e) { throw e; } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(TsCatalogRuntimeServiceImpl.class)
+                    .error("当前资格与快照依据校验失败", e);
+            throw new ServiceException("当前资格与快照依据校验失败，拒绝服务")
+                    .setDetailMessage(e.getClass().getSimpleName() + ": " + String.valueOf(e.getMessage()));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private LocalDemoFreeze loadLocalDemoFreeze(TlTagLibrary library) {
+        if (StringUtils.isEmpty(localDemoCurrentFreeze)) return null;
+        if (StringUtils.isEmpty(localDemoCurrentFreezeSha256)) throw new ServiceException("本地演示当前冻结件缺少 SHA-256，拒绝使用");
+        try {
+            String jsonl = new String(Files.readAllBytes(Paths.get(localDemoCurrentFreeze)), StandardCharsets.UTF_8);
+            String actual = com.ruoyi.taglibrary.service.TsSnapshotCanonicalizer.sha256(jsonl);
+            if (!localDemoCurrentFreezeSha256.equals(actual)) throw new ServiceException("本地演示当前冻结件 SHA-256 不匹配");
+            LocalDemoFreeze result = new LocalDemoFreeze();
+            Map<String, Object> meta = null;
+            for (String line : jsonl.split("\n")) {
+                if (line.trim().isEmpty()) continue;
+                Map<String, Object> row = MAPPER.readValue(line, Map.class);
+                if ("meta".equals(row.get("kind"))) meta = row;
+                if ("tag".equals(row.get("kind"))) result.tags.put(Long.valueOf(String.valueOf(row.get("tag_id"))), row);
+                if ("code_value".equals(row.get("kind"))) result.codes.computeIfAbsent(Long.valueOf(String.valueOf(row.get("tag_id"))), k -> new ArrayList<>()).add(row);
+            }
+            if (meta == null || !library.getLibraryId().equals(Long.valueOf(String.valueOf(meta.get("library_id"))))) {
+                throw new ServiceException("本地演示当前冻结件不属于目标标签库");
+            }
+            Map<String, Object> manifest = (Map<String, Object>) meta.get("source_manifest");
+            if (manifest == null || !library.getDatasetId().equals(Long.valueOf(String.valueOf(manifest.get("dataset_id"))))) {
+                throw new ServiceException("本地演示当前冻结件不属于目标数据集");
+            }
+            Map<String, Object> counts = (Map<String, Object>) meta.get("counts");
+            if (counts == null || result.tags.size() != Integer.parseInt(String.valueOf(counts.get("tag")))) {
+                throw new ServiceException("本地演示当前冻结件字段计数不一致");
+            }
+            return result;
+        } catch (ServiceException e) { throw e; }
+        catch (Exception e) { throw new ServiceException("本地演示当前冻结件无法解析"); }
+    }
+
+    private static final class LocalDemoFreeze {
+        private final Map<Long, Map<String, Object>> tags = new java.util.HashMap<Long, Map<String, Object>>();
+        private final Map<Long, List<Map<String, Object>>> codes = new java.util.HashMap<Long, List<Map<String, Object>>>();
     }
 
     private Map<String, Object> activationPayload(TsCatalogSnapshot snapshot, TsIndexBuild build) {

@@ -5,17 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.databroker.domain.vo.DpResolvedField;
 import com.ruoyi.databroker.domain.vo.DpResolvedVersion;
@@ -51,6 +57,9 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
     @InjectMocks
     private TsCatalogRuntimeServiceImpl runtimeService;
 
+    @TempDir
+    Path tempDir;
+
     @Test
     void publishSkipsDraftAndRequiresReviewedConcept() {
         when(libraryMapper.selectLibraryById(107L)).thenReturn(library());
@@ -78,6 +87,22 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         when(tagMapper.selectTagList(any(TlTag.class))).thenReturn(Collections.singletonList(onlineTag()));
         ServiceException ex = assertThrows(ServiceException.class, () -> runtimeService.eligibleTagIds(107L, null));
         assertEquals("无法取得资格，拒绝服务", ex.getMessage());
+    }
+
+    @Test
+    void localDemoFreezeUsesHashPinnedJavaExportWithoutSourceDatasource() throws Exception {
+        String jsonl = "{\"kind\":\"meta\",\"library_id\":107,\"source_manifest\":{\"dataset_id\":6},\"counts\":{\"tag\":1,\"code_value\":0}}\n"
+                + "{\"kind\":\"tag\",\"tag_id\":526,\"field_name\":\"GENDER\"}\n";
+        Path freeze = tempDir.resolve("current-freeze.jsonl");
+        Files.write(freeze, jsonl.getBytes(StandardCharsets.UTF_8));
+        ReflectionTestUtils.setField(runtimeService, "localDemoCurrentFreeze", freeze.toString());
+        ReflectionTestUtils.setField(runtimeService, "localDemoCurrentFreezeSha256",
+                com.ruoyi.taglibrary.service.TsSnapshotCanonicalizer.sha256(jsonl));
+        when(libraryMapper.selectLibraryById(107L)).thenReturn(library());
+        when(tagMapper.selectTagList(any(TlTag.class))).thenReturn(Collections.singletonList(onlineTag()));
+
+        assertEquals(Collections.singletonList(526L), runtimeService.eligibleTagIds(107L, null));
+        verifyNoInteractions(versionResolver);
     }
 
     @Test

@@ -19,6 +19,19 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _resolved_model_path(value):
+    """加载时兼容以 ai-runtime 为基准的相对模型路径。"""
+    if not value:
+        return None
+    path = Path(value).expanduser()
+    if path.is_absolute() or path.exists():
+        return str(path.resolve())
+    runtime_relative = Path(__file__).resolve().parents[2] / path
+    if runtime_relative.exists():
+        return str(runtime_relative.resolve())
+    return str(path)
+
+
 def build_index(catalog, out_dir: Path, build_id: str, store_type='LOCAL', embedder=None, reranker=None, config=None):
     if store_type not in ('LOCAL', 'MILVUS'):
         raise ValueError('不支持的存储模式，禁止自动降级')
@@ -30,7 +43,8 @@ def build_index(catalog, out_dir: Path, build_id: str, store_type='LOCAL', embed
     out_dir.parent.mkdir(parents=True, exist_ok=True)
     temp = Path(tempfile.mkdtemp(prefix='.building-', dir=out_dir.parent))
     embedder = embedder or HashEmbedder()
-    config = {'channel_k': 30, 'rrf_k': 60, 'rerank_k': 50, 'domain_prior_weight': 0.002, **(config or {})}
+    config = {'channel_k': 30, 'rrf_k': 60, 'rerank_k': 50, 'domain_prior_weight': 0.002,
+              'exact_alias_fast_path': True, 'exact_alias_fast_path_version': 'v2-multicondition-aware', **(config or {})}
     docs = render_documents(list(catalog.tags.values()), list(catalog.concepts.values()), catalog.code_values)
     if not docs:
         raise ValueError('空快照不得构建')
@@ -74,10 +88,12 @@ def load_index(out_dir: Path):
     catalog = load_catalog(root / 'snapshot.jsonl', manifest['content_hash'])
     if catalog.meta.get('snapshot_id') != manifest['snapshot_id'] or catalog.meta['library_id'] != manifest['library_id']:
         raise ValueError('manifest 与快照身份不一致')
-    embedder = BGEEmbedder(manifest['embedding_path']) if manifest['embedding_path'] else HashEmbedder()
+    embedder_path = _resolved_model_path(manifest['embedding_path'])
+    reranker_path = _resolved_model_path(manifest.get('reranker_path'))
+    embedder = BGEEmbedder(embedder_path) if embedder_path else HashEmbedder()
     if getattr(embedder, 'model_hash', hashlib.sha256(b'hash-v1:64').hexdigest()) != manifest['embedding_model_hash']:
         raise ValueError('Embedding 模型已变化，必须新建 build')
-    reranker = BGEReranker(manifest['reranker_path']) if manifest.get('reranker_path') else None
+    reranker = BGEReranker(reranker_path) if reranker_path else None
     if reranker and reranker.model_hash != manifest['reranker_model_hash']:
         raise ValueError('Reranker 模型已变化，必须新建 build')
     docs = [json.loads(line) for line in (root / 'docs.jsonl').read_text().splitlines()]

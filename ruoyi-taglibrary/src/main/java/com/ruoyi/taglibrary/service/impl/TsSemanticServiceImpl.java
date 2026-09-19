@@ -219,6 +219,9 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
             if (StringUtils.isEmpty(alias.getSource())) {
                 alias.setSource("HUMAN");
             }
+            if (alias.getHitCount() == null) {
+                alias.setHitCount(0);
+            }
             alias.setCreateBy(username);
             return aliasMapper.insertAlias(alias);
         }
