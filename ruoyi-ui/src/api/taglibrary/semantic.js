@@ -71,7 +71,7 @@ export function buildStats(buildId) { return request({ url: `/taglibrary/semanti
 export function downloadSnapshot(snapshotId) {
   return request({ url: `/taglibrary/semantic/snapshot/${snapshotId}/download`, method: 'get', responseType: 'blob' })
 }
-export function retrieveSemantic(data) { return request({ url: '/taglibrary/semantic/retrieve', method: 'post', data }) }
+export function retrieveSemantic(data) { return request({ url: '/taglibrary/semantic/retrieve', method: 'post', data, timeout: 60000 }) }
 export function submitFeedback(data) { return request({ url: '/taglibrary/semantic/feedback', method: 'post', data }) }
 
 export function snapshotQuality(libraryId) { return request({ url: '/taglibrary/semantic/snapshot/quality', method: 'get', params: { libraryId }, timeout: 120000 }) }

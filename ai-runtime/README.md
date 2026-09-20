@@ -76,6 +76,14 @@ Agent 只把经过 Java 资格剪裁和检索后的候选发给 OpenAI-compatibl
 | `TAG_LLM_MODEL` | 已批准模型名 |
 | `TAG_LLM_API_KEY` | 运行时凭据，只经环境注入 |
 
+本机开发可在仓库根目录创建 `.tag-llm-config`（已加入 `.gitignore`），`dev.sh` / `bin/tag-semantic-runtime.sh` 会自动加载。DeepSeek 示例：
+
+```text
+TAG_LLM_BASE_URL=https://api.deepseek.com
+TAG_LLM_MODEL=deepseek-flash
+TAG_LLM_API_KEY=sk-...
+```
+
 重启 Python 运行时后，页面必须显示 `model_connected=true`才能把该次查询记为 LLM 选择结果。未配置或调用失败时不自动执行，当前精确证据回退模式也不得冒充 LLM。
 
 ## 快照、索引和评测复验
