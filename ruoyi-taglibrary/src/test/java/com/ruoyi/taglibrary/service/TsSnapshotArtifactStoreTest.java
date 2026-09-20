@@ -20,6 +20,16 @@ class TsSnapshotArtifactStoreTest {
         Files.write(file, "tampered".getBytes());
         assertThrows(com.ruoyi.common.exception.ServiceException.class, () -> store.verifiedPath(snapshot));
     }
+    @Test void relocatesStaleStorageUriUnderConfiguredDir() throws Exception {
+        TsSnapshotArtifactStore store = new TsSnapshotArtifactStore(); ReflectionTestUtils.setField(store, "directory", directory.toString());
+        TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("L107-RELOCATE-001");
+        String jsonl = "{\"kind\":\"meta\",\"library_id\":107}\n";
+        store.write(snapshot, jsonl);
+        snapshot.setStorageUri("file:///Users/wzs/dev/RuoYi-Vue/ai-runtime/out/missing/" + snapshot.getSnapshotId() + ".jsonl");
+        Path file = store.verifiedPath(snapshot);
+        assertTrue(file.startsWith(directory.toRealPath()));
+        assertArrayEquals(jsonl.getBytes(java.nio.charset.StandardCharsets.UTF_8), Files.readAllBytes(file));
+    }
     @Test void rejectsPathTraversal() {
         TsSnapshotArtifactStore store = new TsSnapshotArtifactStore(); ReflectionTestUtils.setField(store, "directory", directory.toString());
         TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("../escape");

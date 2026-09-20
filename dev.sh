@@ -1,16 +1,18 @@
 #!/bin/sh
-# 一键启停开发环境 (参照 ry.sh 风格，管理 后端jar + 前端dev server + Python语义运行时)
+# 一键启停开发环境 (参照 ry.sh 风格，管理 后端jar + 前端dev server + 语义引擎 + Agent 编排层 + 智能体工作台)
 # 用法:
-#   ./dev.sh start      启动前后端与语义运行时 (令牌默认读取/生成本机 .tag-runtime-token)
-#   ./dev.sh stop       停止全部 (后端/前端/语义运行时)
+#   ./dev.sh start      启动前后端、语义引擎、编排层与智能体工作台 (令牌默认读取/生成本机 .tag-runtime-token)
+#   ./dev.sh stop       停止全部 (后端/前端/语义引擎/编排层/智能体工作台)
 #   ./dev.sh restart    重启全部
 #   ./dev.sh status     查看全部状态
 #   ./dev.sh build      强制重新编译后端 (mvn clean package -DskipTests)
-#   ./dev.sh runtime {start|stop|restart|status}   单独管理 Python 语义运行时 (端口 8091)
+#   ./dev.sh runtime {start|stop|restart|status}   单独管理 Python 语义引擎 (端口 8091)
+#   ./dev.sh agent {start|stop|restart|status}     单独管理 Agent 编排层 (端口 8092)
+#   ./dev.sh assistant {start|stop|restart|status} 单独管理智能体工作台 (端口 5174)
 #   PORT=8081 ./dev.sh start   指定前端端口 (默认 80)
 #   DATABROKER_CRYPTO_SECRET=xxx ./dev.sh start   指定数据代理加密密钥 (默认读取/生成本机 .databroker-crypto-secret)
 #   TAG_RUNTIME_TOKEN=xxx ./dev.sh start          指定服务间令牌 (默认读取/生成本机 .tag-runtime-token)
-#   TAG_SNAPSHOT_DIR=xxx TAG_INDEX_DIR=yyy ./dev.sh start   指定快照/索引目录 (默认自动选用 ai-runtime/out 下的完整数据集)
+#   TAG_SNAPSHOT_DIR=xxx TAG_INDEX_DIR=yyy ./dev.sh start   指定快照/索引目录 (默认自动选用 tagpilot-semantic/out 下的完整数据集)
 #   LLM 选择器默认读取本机 .tag-llm-config（DeepSeek 等 OpenAI-compatible 端点）；也可用环境变量 TAG_LLM_* 覆盖
 AppName=ruoyi-admin.jar
 
@@ -35,15 +37,27 @@ TOKEN_FILE="$ROOT_DIR/.tag-runtime-token"
 # LLM 选择器配置（OpenAI-compatible；本机持久化、不入 git）
 LLM_CONFIG_FILE="$ROOT_DIR/.tag-llm-config"
 
-# Python 语义运行时（tag_semantic / uvicorn，令牌经环境变量注入两侧进程）
+# Python 语义引擎（tag_semantic / uvicorn，令牌经环境变量注入两侧进程）
 RT_SCRIPT="$ROOT_DIR/bin/tag-semantic-runtime.sh"
 RT_LOG="$ROOT_DIR/logs/tag-semantic-runtime.log"
 RT_PORT="${TAG_RUNTIME_PORT:-8091}"
+
+# Agent 编排层（tagpilot_agent / uvicorn）
+AGENT_SCRIPT="$ROOT_DIR/bin/tagpilot-agent.sh"
+AGENT_LOG="$ROOT_DIR/logs/tagpilot-agent.log"
+AGENT_PORT="${TAG_AGENT_PORT:-8092}"
+
+ASSISTANT_SCRIPT="$ROOT_DIR/bin/tagpilot-assistant.sh"
+ASSISTANT_LOG="$ROOT_DIR/logs/tagpilot-assistant.log"
+ASSISTANT_PORT="${TAG_ASSISTANT_PORT:-5174}"
+ASSISTANT_DIR="$ROOT_DIR/tagpilot-assistant"
 
 # 后端/前端/运行时进程识别模式
 BACKEND_PAT="ruoyi-admin.jar"
 FRONTEND_PAT="vue-cli-service"
 RT_PAT="tag_semantic.server:app"
+AGENT_PAT="tagpilot_agent.server:app"
+ASSISTANT_PAT="vite --port ${ASSISTANT_PORT}"
 
 red()    { printf '\033[0;31m%s\033[0m\n' "$*"; }
 green()  { printf '\033[0;32m%s\033[0m\n' "$*"; }
@@ -51,13 +65,15 @@ yellow() { printf '\033[0;33m%s\033[0m\n' "$*"; }
 blue()   { printf '\033[0;34m%s\033[0m\n' "$*"; }
 
 if [ "$1" = "" ]; then
-    sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
 fi
 
 get_backend_pid()  { pgrep -f "$BACKEND_PAT" 2>/dev/null; }
 get_frontend_pid() { pgrep -f "$FRONTEND_PAT" 2>/dev/null; }
 get_runtime_pid()  { pgrep -f "$RT_PAT" 2>/dev/null; }
+get_agent_pid()    { pgrep -f "$AGENT_PAT" 2>/dev/null; }
+get_assistant_pid() { pgrep -f "$ASSISTANT_PAT" 2>/dev/null; }
 
 port_up() { nc -z 127.0.0.1 "$1" >/dev/null 2>&1; }
 
@@ -115,10 +131,10 @@ ensure_llm_config() {
 }
 
 # 语义层快照/索引目录：Java 写快照、Python 读快照并写索引，两侧必须指向同一数据集。
-# 外部未配置时自动选用本机 ai-runtime/out 下的完整数据集（同时含 snapshots/ 与 indexes/，按日期命名取最后一个）
+# 外部未配置时自动选用本机 tagpilot-semantic/out 下的完整数据集（同时含 snapshots/ 与 indexes/，按日期命名取最后一个）
 ensure_tag_data_dirs() {
     SET=""
-    for candidate in "$ROOT_DIR"/ai-runtime/out/*/; do
+    for candidate in "$ROOT_DIR"/tagpilot-semantic/out/*/; do
         [ -d "$candidate/snapshots" ] && [ -d "$candidate/indexes" ] && SET="$candidate"
     done
     [ -n "$SET" ] || return 0
@@ -137,20 +153,26 @@ ensure_tag_data_dirs() {
 # 真实 BGE 依赖 FlagEmbedding，该包在 Python 3.14+ 不可用；优先使用 .venv-models (Python 3.12)
 ensure_runtime_python() {
     [ -n "${TAG_RUNTIME_PYTHON:-}" ] && return 0
-    if [ -x "$ROOT_DIR/ai-runtime/.venv-models/bin/python" ]; then
-        TAG_RUNTIME_PYTHON="$ROOT_DIR/ai-runtime/.venv-models/bin/python"
+    if [ -x "$ROOT_DIR/tagpilot-semantic/.venv-models/bin/python" ]; then
+        TAG_RUNTIME_PYTHON="$ROOT_DIR/tagpilot-semantic/.venv-models/bin/python"
     else
-        TAG_RUNTIME_PYTHON="$ROOT_DIR/ai-runtime/.venv/bin/python"
+        TAG_RUNTIME_PYTHON="$ROOT_DIR/tagpilot-semantic/.venv/bin/python"
     fi
     export TAG_RUNTIME_PYTHON
+}
+
+ensure_agent_python() {
+    [ -n "${TAG_AGENT_PYTHON:-}" ] && return 0
+    TAG_AGENT_PYTHON="$ROOT_DIR/tagpilot-agent/.venv/bin/python"
+    export TAG_AGENT_PYTHON
 }
 
 # 未显式配置向量模型时使用本机已下载的 bge-m3（真实模式必需，基线实验除外）
 ensure_embedding_path() {
     [ -n "${TAG_EMBEDDING_PATH:-}" ] && return 0
     [ "${TAG_ALLOW_HASH_BASELINE:-false}" = true ] && return 0
-    if [ -d "$ROOT_DIR/ai-runtime/out/models/bge-m3" ]; then
-        TAG_EMBEDDING_PATH="$ROOT_DIR/ai-runtime/out/models/bge-m3"
+    if [ -d "$ROOT_DIR/tagpilot-semantic/out/models/bge-m3" ]; then
+        TAG_EMBEDDING_PATH="$ROOT_DIR/tagpilot-semantic/out/models/bge-m3"
         export TAG_EMBEDDING_PATH
         blue "使用本机默认向量模型: $TAG_EMBEDDING_PATH"
     fi
@@ -201,7 +223,7 @@ runtime_check_env() {
     ensure_runtime_python
     RT_PY="$TAG_RUNTIME_PYTHON"
     (cd "$ROOT_DIR" && [ -x "$RT_PY" ]) || {
-        red "解释器不可执行: $RT_PY (请先 uv sync --project ai-runtime --extra dev，真实模型还需 --extra models)"
+        red "解释器不可执行: $RT_PY (请先 uv sync --project tagpilot-semantic --extra dev，真实模型还需 --extra models)"
         return 1
     }
     if [ -z "${TAG_EMBEDDING_PATH:-}" ] && [ "${TAG_ALLOW_HASH_BASELINE:-false}" != "true" ]; then
@@ -216,8 +238,8 @@ runtime_check_env() {
     if [ -n "${TAG_EMBEDDING_PATH:-}" ] && ! (cd "$ROOT_DIR" && "$RT_PY" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('FlagEmbedding') else 1)" >/dev/null 2>&1); then
         PY_VER=$(cd "$ROOT_DIR" && "$RT_PY" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null)
         red "解释器缺少 FlagEmbedding（真实模型依赖，当前 Python ${PY_VER:-?}）"
-        red "请执行: UV_PROJECT_ENVIRONMENT=.venv-models uv sync --project ai-runtime --python 3.12 --extra dev --extra models"
-        red "或设置: export TAG_RUNTIME_PYTHON='ai-runtime/.venv-models/bin/python'"
+        red "请执行: UV_PROJECT_ENVIRONMENT=.venv-models uv sync --project tagpilot-semantic --python 3.12 --extra dev --extra models"
+        red "或设置: export TAG_RUNTIME_PYTHON='tagpilot-semantic/.venv-models/bin/python'"
         return 1
     fi
     port_up 6379 || yellow "Redis 未运行 (6379)，运行时可能不可用"
@@ -229,22 +251,21 @@ runtime_check_env() {
 
 runtime_start() {
     if [ -n "$(get_runtime_pid)" ]; then
-        echo "tag-semantic runtime is running... (pid: $(get_runtime_pid | head -1))"
+        echo "tagpilot-semantic is running... (pid: $(get_runtime_pid | head -1))"
         return 0
     fi
     if port_up "$RT_PORT"; then
-        red "端口 $RT_PORT 已被其他进程占用，无法启动语义运行时"
+        red "端口 $RT_PORT 已被其他进程占用，无法启动语义引擎"
         return 1
     fi
     ensure_runtime_token
-    ensure_llm_config
     ensure_runtime_python
     ensure_embedding_path
     ensure_tag_data_dirs
     runtime_check_env || return 1
 
     mkdir -p "$ROOT_DIR/logs"
-    blue "启动语义运行时 (端口 $RT_PORT，日志: $RT_LOG)..."
+    blue "启动语义引擎 (端口 $RT_PORT，日志: $RT_LOG)..."
     (cd "$ROOT_DIR" && nohup "$RT_SCRIPT" > "$RT_LOG" 2>&1 < /dev/null &)
 
     WAITED=0
@@ -264,9 +285,9 @@ runtime_start() {
     done
 
     if [ "$READY" = "1" ]; then
-        green "语义运行时已就绪: http://127.0.0.1:$RT_PORT (pid: $(get_runtime_pid | head -1))"
+        green "语义引擎已就绪: http://127.0.0.1:$RT_PORT (pid: $(get_runtime_pid | head -1))"
     else
-        red "语义运行时启动失败，日志末尾:"
+        red "语义引擎启动失败，日志末尾:"
         tail -30 "$RT_LOG"
         return 1
     fi
@@ -274,9 +295,122 @@ runtime_start() {
 
 runtime_status() {
     if [ -n "$(get_runtime_pid)" ]; then
-        green "tag-semantic runtime is running... (pid: $(get_runtime_pid | head -1))"
+        green "tagpilot-semantic is running... (pid: $(get_runtime_pid | head -1))"
     else
-        red "tag-semantic runtime is not running..."
+        red "tagpilot-semantic is not running..."
+    fi
+}
+
+agent_check_env() {
+    [ -n "${TAG_RUNTIME_TOKEN:-}" ] || {
+        red "未配置 TAG_RUNTIME_TOKEN（Java / 语义引擎 / 编排层必须使用同一令牌）"
+        return 1
+    }
+    ensure_agent_python
+    [ -x "$TAG_AGENT_PYTHON" ] || {
+        red "编排层解释器不可执行: $TAG_AGENT_PYTHON (请先 uv sync --project tagpilot-agent --extra dev)"
+        return 1
+    }
+    return 0
+}
+
+agent_start() {
+    if [ -n "$(get_agent_pid)" ]; then
+        echo "tagpilot-agent is running... (pid: $(get_agent_pid | head -1))"
+        return 0
+    fi
+    if port_up "$AGENT_PORT"; then
+        red "端口 $AGENT_PORT 已被其他进程占用，无法启动编排层"
+        return 1
+    fi
+    ensure_runtime_token
+    ensure_llm_config
+    ensure_agent_python
+    export TAG_SEMANTIC_URL="${TAG_SEMANTIC_URL:-http://127.0.0.1:$RT_PORT}"
+    export TAG_AGENT_URL="${TAG_AGENT_URL:-http://127.0.0.1:$AGENT_PORT}"
+    agent_check_env || return 1
+
+    mkdir -p "$ROOT_DIR/logs"
+    blue "启动 Agent 编排层 (端口 $AGENT_PORT，日志: $AGENT_LOG)..."
+    (cd "$ROOT_DIR" && nohup "$AGENT_SCRIPT" > "$AGENT_LOG" 2>&1 < /dev/null &)
+
+    WAITED=0
+    READY=0
+    while [ "$WAITED" -lt 30 ]; do
+        AGENT_CODE=$(curl -s -o /dev/null -m 2 -w '%{http_code}' "http://127.0.0.1:$AGENT_PORT/" 2>/dev/null)
+        if [ -n "$AGENT_CODE" ] && [ "$AGENT_CODE" != "000" ]; then
+            READY=1
+            break
+        fi
+        WAITED=$((WAITED + 1))
+        sleep 1
+        if [ "$WAITED" -ge 3 ] && [ -z "$(get_agent_pid)" ]; then
+            break
+        fi
+    done
+
+    if [ "$READY" = "1" ]; then
+        green "编排层已就绪: http://127.0.0.1:$AGENT_PORT (pid: $(get_agent_pid | head -1))"
+    else
+        red "编排层启动失败，日志末尾:"
+        tail -30 "$AGENT_LOG"
+        return 1
+    fi
+}
+
+agent_status() {
+    if [ -n "$(get_agent_pid)" ]; then
+        green "tagpilot-agent is running... (pid: $(get_agent_pid | head -1))"
+    else
+        red "tagpilot-agent is not running..."
+    fi
+}
+
+assistant_start() {
+    if [ -n "$(get_assistant_pid)" ]; then
+        echo "tagpilot-assistant is running... (pid: $(get_assistant_pid | head -1))"
+        return 0
+    fi
+    if port_up "$ASSISTANT_PORT"; then
+        red "端口 $ASSISTANT_PORT 已被其他进程占用，无法启动智能体工作台"
+        return 1
+    fi
+    if [ ! -d "$ASSISTANT_DIR/node_modules" ]; then
+        blue "智能体工作台依赖缺失，执行 npm install..."
+        (cd "$ASSISTANT_DIR" && npm install --no-audit --no-fund) || { red "tagpilot-assistant npm install 失败"; return 1; }
+    fi
+    mkdir -p "$ROOT_DIR/logs"
+    blue "启动智能体工作台 (端口 $ASSISTANT_PORT，日志: $ASSISTANT_LOG)..."
+    (cd "$ROOT_DIR" && nohup "$ASSISTANT_SCRIPT" > "$ASSISTANT_LOG" 2>&1 < /dev/null &)
+
+    WAITED=0
+    READY=0
+    while [ "$WAITED" -lt 30 ]; do
+        if port_up "$ASSISTANT_PORT"; then
+            READY=1
+            break
+        fi
+        WAITED=$((WAITED + 1))
+        sleep 1
+        if [ "$WAITED" -ge 3 ] && [ -z "$(get_assistant_pid)" ]; then
+            break
+        fi
+    done
+
+    if [ "$READY" = "1" ]; then
+        green "智能体工作台已就绪: http://127.0.0.1:$ASSISTANT_PORT/agent-ui/ (pid: $(get_assistant_pid | head -1))"
+    else
+        red "智能体工作台启动失败，日志末尾:"
+        tail -30 "$ASSISTANT_LOG"
+        return 1
+    fi
+}
+
+assistant_status() {
+    if [ -n "$(get_assistant_pid)" ]; then
+        green "tagpilot-assistant is running... (pid: $(get_assistant_pid | head -1))"
+    else
+        red "tagpilot-assistant is not running..."
     fi
 }
 
@@ -298,6 +432,7 @@ start()
     ensure_crypto_secret
     ensure_runtime_token
     ensure_tag_data_dirs
+    export TAG_AGENT_URL="${TAG_AGENT_URL:-http://127.0.0.1:$AGENT_PORT}"
     mkdir -p "$ROOT_DIR/logs"
     blue "启动后端 (端口 $BACKEND_PORT，日志: $BACKEND_LOG)..."
     # 运行不可变副本，避免开发期间 mvn package 覆盖正在被 JVM 延迟读取的嵌套 JAR。
@@ -355,8 +490,10 @@ start()
         exit 1
     fi
 
-    # 4. 语义运行时（令牌已由 ensure_runtime_token 注入，启动失败不影响 Java/Vue）
-    runtime_start || red "语义运行时启动失败；Java/Vue 不受影响，修复后可执行 ./dev.sh runtime restart"
+    # 4. 语义引擎与编排层（令牌已由 ensure_runtime_token 注入，启动失败不影响 Java/Vue）
+    runtime_start || red "语义引擎启动失败；Java/Vue 不受影响，修复后可执行 ./dev.sh runtime restart"
+    agent_start || red "编排层启动失败；Java/Vue 不受影响，修复后可执行 ./dev.sh agent restart"
+    assistant_start || red "智能体工作台启动失败；Java/Vue 不受影响，修复后可执行 ./dev.sh assistant restart"
 }
 
 stop_one() {  # $1=进程匹配模式 $2=显示名
@@ -381,7 +518,9 @@ stop()
     echo "Stop $AppName"
     stop_one "$BACKEND_PAT" "$AppName"
     stop_one "$FRONTEND_PAT" "ruoyi-ui dev server"
-    stop_one "$RT_PAT" "tag-semantic runtime"
+    stop_one "$ASSISTANT_PAT" "tagpilot-assistant"
+    stop_one "$RT_PAT" "tagpilot-semantic"
+    stop_one "$AGENT_PAT" "tagpilot-agent"
 }
 
 restart()
@@ -404,6 +543,8 @@ status()
         red "ruoyi-ui dev server is not running..."
     fi
     runtime_status
+    agent_status
+    assistant_status
 }
 
 case "$1" in
@@ -415,12 +556,28 @@ case "$1" in
     runtime)
         case "${2:-}" in
             start)   runtime_start;;
-            stop)    stop_one "$RT_PAT" "tag-semantic runtime";;
-            restart) stop_one "$RT_PAT" "tag-semantic runtime"; sleep 2; runtime_start;;
+            stop)    stop_one "$RT_PAT" "tagpilot-semantic";;
+            restart) stop_one "$RT_PAT" "tagpilot-semantic"; sleep 2; runtime_start;;
             status)  runtime_status;;
             *)       echo "Usage: $0 runtime {start|stop|restart|status}"; exit 1;;
         esac;;
+    agent)
+        case "${2:-}" in
+            start)   agent_start;;
+            stop)    stop_one "$AGENT_PAT" "tagpilot-agent";;
+            restart) stop_one "$AGENT_PAT" "tagpilot-agent"; sleep 2; agent_start;;
+            status)  agent_status;;
+            *)       echo "Usage: $0 agent {start|stop|restart|status}"; exit 1;;
+        esac;;
+    assistant)
+        case "${2:-}" in
+            start)   assistant_start;;
+            stop)    stop_one "$ASSISTANT_PAT" "tagpilot-assistant";;
+            restart) stop_one "$ASSISTANT_PAT" "tagpilot-assistant"; sleep 2; assistant_start;;
+            status)  assistant_status;;
+            *)       echo "Usage: $0 assistant {start|stop|restart|status}"; exit 1;;
+        esac;;
     *)
-        echo "Usage: $0 {start|stop|restart|status|build|runtime}"
+        echo "Usage: $0 {start|stop|restart|status|build|runtime|agent|assistant}"
         exit 1;;
 esac

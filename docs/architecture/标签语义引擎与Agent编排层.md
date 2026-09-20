@@ -1,6 +1,6 @@
 # 标签语义引擎与 Agent 编排层
 
-> 对照代码事实整理（2026-09-19）。设计原稿见 [`../design/标签语义层与检索索引建设方案.md`](../design/标签语义层与检索索引建设方案.md)；本地演示验收见 [`../validation/语义索引层建设验收记录.md`](../validation/语义索引层建设验收记录.md)。
+> 对照代码事实整理（2026-09-20）。设计原稿见 [`../design/标签语义层与检索索引建设方案.md`](../design/标签语义层与检索索引建设方案.md)；本地演示验收见 [`../validation/语义索引层建设验收记录.md`](../validation/语义索引层建设验收记录.md)。
 >
 > 本文描述**已落地能力**与**如何使用**。当前 `ACTIVE` 只表示本机演示链路打通，不等于银行人工终验或生产运维批准。
 
@@ -8,7 +8,7 @@
 
 ## 0. 一句话定位
 
-标签语义引擎把「标签是谁、能不能用」和「标签怎么被理解」拆开：权威身份仍在 `tl_tag` / `dp_*`，理解层在 `ts_*`。Python AI Runtime 只消费不可变快照和 Java 算好的资格集合，做检索、受限选择和 DSL 校验。页面上的自然语言查询走 LangGraph Agent，结果一律 `auto_execute=false`，必须人工确认，**不会自动圈客**。
+标签语义引擎把「标签是谁、能不能用」和「标签怎么被理解」拆开：权威身份仍在 `tl_tag` / `dp_*`，理解层在 `ts_*`。`tagpilot-semantic` 只消费不可变快照和 Java 算好的资格集合，做 Embedding 与多路召回。自然语言查询走独立的 `tagpilot-agent`（LangGraph + DSL 门禁），结果一律 `auto_execute=false`，必须人工确认，**不会自动圈客**。
 
 ---
 
@@ -22,8 +22,9 @@
 | 权威层 | `dp_*` + `tl_*` | 数据源、数据集、标签身份、上线、来源确认 | 别名、族、检索文档 |
 | 语义层 | `ts_*` | 概念、族、结构化口径、别名、码值语义、词典 | 改宽 `tl_tag`、替代审批 |
 | 版本层 | `ts_catalog_snapshot` / `ts_index_build` | 不可变 JSONL、索引构建登记 | 权限白名单 |
-| 运行时 | Python `ai-runtime/tag_semantic` | Embedding、Milvus、多路召回、Agent、DSL | 登录、资格、客群 SQL |
-| 编排入口 | Vue「语义快照与索引」+ Java `TsRetrievalService` | 查询、Trace、反馈 | 自动执行对象群 |
+| 运行时 | Python `tagpilot-semantic/tag_semantic` | Embedding、Milvus、多路召回 | 登录、资格、客群 SQL、DSL 选择 |
+| 编排层 | Python `tagpilot-agent` | LangGraph 受控选择图、AudienceQueryDSL | 索引构建、向量检索实现 |
+| 编排入口 | Vue「智能体工作台」(`/agent`) + Java `TsRetrievalService` | 查询、Trace、反馈 | 自动执行对象群 |
 
 权限永远在请求时由 Spring Boot 计算。快照和索引里没有角色、没有白名单。
 
@@ -42,9 +43,9 @@
 | 发布门禁 + JSONL 落盘 | `TsSnapshotAssembler`、`TsSnapshotArtifactStore` | `L107-20260919-002` |
 | BGE-M3 + reranker + Milvus | `index/builder.py`、`index/milvus_store.py` | `bge-m3-l107-20260919-002-r3`，3374 文档 / 1024 维 |
 | 六通道检索（别名 / BM25 名 / BM25 正文 / 稠密 / 族 / 码值） | `retrieve/service.py` | 精确别名可走快路径 |
-| LangGraph Agent + AudienceQueryDSL | `agent/graph.py`、`agent/dsl.py` | `retrieve → select → validate → finalize` |
-| Java ↔ Python 受控调用 | `TsRuntimeClient`、`server.py` | Bearer 令牌，Python 无公开文档页 |
-| 自然语言查询页 + 反馈入库 | `semantic-index/index.vue`、`TsRetrievalService` | 查询走 `/agent/query` |
+| LangGraph Agent + AudienceQueryDSL | `tagpilot-agent/tagpilot_agent/graph.py`、`dsl.py` | `retrieve → select → validate → finalize` |
+| Java ↔ Python 受控调用 | `TsRuntimeClient`、`TsAgentClient`、`tagpilot-semantic` / `tagpilot-agent` 的 `server.py` | Bearer 令牌，Python 无公开文档页 |
+| 自然语言查询页 + 反馈入库 | `tagpilot-assistant`（`/agent`）+ `TsRetrievalService` | 查询走 `/agent/query` |
 | 600 题本地封存回归 | `eval/acceptance.py` | 点估计通过，不是独立 Gold |
 
 ### 2.2 明确未完成或不得宣称
@@ -63,9 +64,10 @@
 
 ```mermaid
 flowchart TB
-  subgraph UI["前端 ruoyi-ui"]
+  subgraph UI["前端"]
     P1["标签语义维护<br/>/taglibrary/semantic"]
     P2["语义快照与索引<br/>/taglibrary/semantic-index"]
+    P3["智能体工作台<br/>/agent"]
   end
 
   subgraph JAVA["权威 + 语义治理 Spring Boot"]
@@ -83,25 +85,29 @@ flowchart TB
     VER["ts_catalog_snapshot / ts_index_build"]
   end
 
-  subgraph PY["Python AI Runtime :8091"]
+  subgraph PY["Python 语义引擎 :8091"]
     SNAP["不可变 snapshot.jsonl"]
     IDX["build 产物：docs / emb.npy / alias / graph.sqlite"]
     MV["Milvus Collection 或 LOCAL"]
     RET["RetrieveService"]
-    AG["LangGraph Agent"]
+  end
+
+  subgraph AG["Python 编排层 :8092"]
+    LG["LangGraph Agent"]
   end
 
   P1 --> C
   P2 --> C
+  P3 --> R
   C --> B --> TL
   C --> S --> TS
   S --> VER
   C --> Q --> TL
-  P2 --> R --> AG
+  R --> LG
   R --> F
   S -->|JSONL 落盘| SNAP
   SNAP --> IDX --> MV
-  AG --> RET --> MV
+  LG --> RET --> MV
 ```
 
 ### 3.1 权威层（Java，可变）
@@ -279,10 +285,11 @@ Java 在响应返回前再次校验：`snapshot_id / build_id / store_type / art
 ```mermaid
 sequenceDiagram
   participant U as 业务用户
-  participant Vue as 语义快照与索引页
+  participant Vue as 智能体工作台
   participant Java as TsRetrievalService
   participant Auth as eligibleTagIds
-  participant Py as POST /agent/query
+  participant Py as POST :8092 /agent/query
+  participant Sem as POST :8091 /retrieve
   participant G as LangGraph
   participant Idx as 固定 ACTIVE build
 
@@ -291,7 +298,8 @@ sequenceDiagram
   Java->>Auth: 当前资格 ∩ 快照已发布 ∩ 依据未漂移
   Java->>Py: requirement, library_id, build_id, eligible_tag_ids
   Py->>G: invoke
-  G->>Idx: retrieve
+  G->>Sem: retrieve
+  Sem->>Idx: 六通道检索
   G->>G: select → validate_dsl → finalize
   Py-->>Java: decision, candidates, dsl, selector, model_connected
   Java->>Java: 身份与资格二次校验，写 TRACE
@@ -301,7 +309,7 @@ sequenceDiagram
   Java-->>U: 仅落库，不执行客群
 ```
 
-服务间认证：Java `tag.runtime-token` 与 Python `TAG_RUNTIME_TOKEN` 必须相同。Python 不暴露 Swagger。用户 JWT 到不了 Python。
+服务间认证：Java `tag.runtime-token` 与 Python `TAG_RUNTIME_TOKEN` 必须相同（语义引擎与编排层共用）。Python 不暴露 Swagger。用户 JWT 到不了 Python。
 
 ---
 
@@ -311,7 +319,7 @@ sequenceDiagram
 
 | 权限 | 菜单/按钮 | 能做 |
 |---|---|---|
-| `taglibrary:semantic:list` | 标签语义维护、语义快照与索引 | 查看、查询、下载快照、看质量报告 |
+| `taglibrary:semantic:list` | 标签语义维护、语义快照与索引、智能体工作台 | 查看、查询、下载快照、看质量报告 |
 | `taglibrary:semantic:edit` | 维护页保存 | 改 DRAFT |
 | `taglibrary:semantic:review` | 业务复核 | DRAFT → REVIEWED（校验 basis_hash） |
 | `taglibrary:semantic:bootstrap` | 导出冻结、导入草稿、建索引、聚合画像 | 建设期操作 |
@@ -320,36 +328,47 @@ sequenceDiagram
 路由：
 
 - `/taglibrary/semantic` 标签语义维护
-- `/taglibrary/semantic-index` 快照、索引、自然语言智能体
+- `/taglibrary/semantic-index` 快照与索引运维
+- `/agent` 智能体工作台（自然语言查询与反馈）
 
 ### 7.2 本机启动（演示）
 
 依赖：MySQL、Redis、Milvus（默认 `http://127.0.0.1:19530`）。模型目录不进 Git，需本地：
 
 ```text
-ai-runtime/out/models/bge-m3/
-ai-runtime/out/models/bge-reranker-v2-m3/
+tagpilot-semantic/out/models/bge-m3/
+tagpilot-semantic/out/models/bge-reranker-v2-m3/
 ```
 
 ```bash
 # 安装（真实 BGE 用 3.12 独立环境）
-uv sync --project ai-runtime --extra dev
-UV_PROJECT_ENVIRONMENT=.venv-models uv sync --project ai-runtime --python 3.12 \
+uv sync --project tagpilot-semantic --extra dev
+uv sync --project tagpilot-agent --extra dev
+cd tagpilot-assistant && npm install && cd ..
+UV_PROJECT_ENVIRONMENT=.venv-models uv sync --project tagpilot-semantic --python 3.12 \
   --extra dev --extra models --frozen
 
-# 终端 1：Python 运行时
+# 终端 1：语义引擎 + 向量索引
 export TAG_RUNTIME_TOKEN='<本地随机令牌>'
-export TAG_RUNTIME_PYTHON='ai-runtime/.venv-models/bin/python'
-export TAG_SNAPSHOT_DIR="$PWD/ai-runtime/out/full-20260919/snapshots"
-export TAG_INDEX_DIR="$PWD/ai-runtime/out/full-20260919/indexes"
-export TAG_EMBEDDING_PATH="$PWD/ai-runtime/out/models/bge-m3"
-export TAG_RERANKER_PATH="$PWD/ai-runtime/out/models/bge-reranker-v2-m3"
+export TAG_RUNTIME_PYTHON='tagpilot-semantic/.venv-models/bin/python'
+export TAG_SNAPSHOT_DIR="$PWD/tagpilot-semantic/out/full-20260919/snapshots"
+export TAG_INDEX_DIR="$PWD/tagpilot-semantic/out/full-20260919/indexes"
+export TAG_EMBEDDING_PATH="$PWD/tagpilot-semantic/out/models/bge-m3"
+export TAG_RERANKER_PATH="$PWD/tagpilot-semantic/out/models/bge-reranker-v2-m3"
 export MILVUS_URI='http://127.0.0.1:19530'
 ./bin/tag-semantic-runtime.sh
 
-# 终端 2：Java + Vue（令牌必须与终端 1 相同）
+# 终端 2：Agent 编排层
 export TAG_RUNTIME_TOKEN='<与终端1相同>'
-export TAG_SNAPSHOT_DIR="$PWD/ai-runtime/out/full-20260919/snapshots"
+export TAG_SEMANTIC_URL='http://127.0.0.1:8091'
+./bin/tagpilot-agent.sh
+
+# 可选：单独起智能体工作台（`./dev.sh start` 已包含）
+./bin/tagpilot-assistant.sh
+
+# 终端 3：Java + Vue + 智能体工作台（令牌必须与终端 1 相同；`./dev.sh start` 也会尝试拉起 Python 与 Assistant UI）
+export TAG_RUNTIME_TOKEN='<与终端1相同>'
+export TAG_SNAPSHOT_DIR="$PWD/tagpilot-semantic/out/full-20260919/snapshots"
 export TAG_LOCAL_DEMO_CURRENT_FREEZE='<实时冻结 JSONL 绝对路径>'
 export TAG_LOCAL_DEMO_CURRENT_FREEZE_SHA256='<该文件 SHA-256>'
 PORT=1024 ./dev.sh start
@@ -381,7 +400,7 @@ VERIFY_UI=true bin/verify-tag-semantic.sh
 2. **生成 DRAFT**（Python，不连业务库）
 
    ```bash
-   ai-runtime/.venv/bin/python -m tag_semantic.bootstrap.expand_full \
+   tagpilot-semantic/.venv/bin/python -m tag_semantic.bootstrap.expand_full \
      path/to/freeze.jsonl --out-dir /tmp/semantic-drafts
    ```
 
@@ -400,7 +419,7 @@ VERIFY_UI=true bin/verify-tag-semantic.sh
    选中快照 → 存储选 `MILVUS`（或对照用 `LOCAL`）→ 「新建索引」（可能数分钟）→ 行集对账通过后「激活」。只有 ACTIVE 构建承接查询。
 
 7. **查询与反馈**  
-   在同一页输入自然语言。结果必须人工确认。反馈动作：`ACCEPT / REPLACE / REMOVE / CLARIFY_PICKED / REJECT_ALL`。
+   从标签库管理 / 标签管理 / 快照页点「打开智能体」，或侧栏进入「智能体工作台」。结果必须人工确认。反馈动作：`ACCEPT / REPLACE / REMOVE / CLARIFY_PICKED / REJECT_ALL`。
 
 ### 7.4 接入真实 LLM 选择器
 
@@ -431,16 +450,22 @@ Java（浏览器 Axios 前缀 `/dev-api`）：
 | GET | `/taglibrary/semantic/index-build/{id}/stats` | 行集对账 |
 | POST | `/taglibrary/semantic/index-build/{id}/activate` | 激活 |
 
-Python（`Authorization: Bearer $TAG_RUNTIME_TOKEN`）：
+Python 语义引擎 `:8091`（`Authorization: Bearer $TAG_RUNTIME_TOKEN`）：
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/health` | 探活（无令牌也可看是否配置） |
 | POST | `/build` | 从快照目录构建 |
-| POST | `/retrieve` | 纯检索 |
-| POST | `/agent/query` | LangGraph |
+| POST | `/retrieve` | 纯检索（含 `selection_context` 供编排层） |
 | GET | `/stats?build_id=` | manifest + 行集对账 |
 | POST | `/activate` `/deactivate` `/drop` | 仅 Java 协议调用 |
+
+Python 编排层 `:8092`（同一令牌）：
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/health` | 探活 |
+| POST | `/agent/query` | LangGraph；内部转调语义引擎 `/retrieve` |
 
 ### 7.6 CLI 与评测
 
@@ -452,17 +477,17 @@ python -m tag_semantic.cli fetch-snapshot --base-url http://127.0.0.1:8080 \
 # 离线构建
 python -m tag_semantic.cli build --snapshot snap.jsonl --out indexes/b1 \
   --build-id b1 --store-type MILVUS \
-  --embedding-path ai-runtime/out/models/bge-m3 \
-  --reranker-path ai-runtime/out/models/bge-reranker-v2-m3
+  --embedding-path tagpilot-semantic/out/models/bge-m3 \
+  --reranker-path tagpilot-semantic/out/models/bge-reranker-v2-m3
 
 # 离线查询 / 开发评测
 python -m tag_semantic.cli query --snapshot snap.jsonl --artifact indexes/b1 --text '女性'
 python -m tag_semantic.cli eval --snapshot snap.jsonl --artifact indexes/b1
 
 # 600 题封存回归（输出必须是新文件；hash 必须匹配）
-ai-runtime/.venv-models/bin/python -m tag_semantic.eval.acceptance \
-  --build-dir ai-runtime/out/full-20260919/indexes/bge-m3-l107-20260919-002-r3 \
-  --sealed ai-runtime/out/full-20260919/eval/sealed-600-v2.json \
+tagpilot-semantic/.venv-models/bin/python -m tag_semantic.eval.acceptance \
+  --build-dir tagpilot-semantic/out/full-20260919/indexes/bge-m3-l107-20260919-002-r3 \
+  --sealed tagpilot-semantic/out/full-20260919/eval/sealed-600-v2.json \
   --sha256 2c542a60b5a8124b855c89fd97465e13899f0848f7469fadb50d4cba934999d4 \
   --output /tmp/sealed-600-recheck.json
 ```
@@ -473,9 +498,11 @@ ai-runtime/.venv-models/bin/python -m tag_semantic.eval.acceptance \
 
 | 配置 | 含义 |
 |---|---|
-| `tag.snapshot-dir` / `TAG_SNAPSHOT_DIR` | Java 与 Python 共用的快照目录 |
-| `tag.runtime-url` / `TAG_RUNTIME_URL` | 默认 `http://127.0.0.1:8091` |
-| `tag.runtime-token` / `TAG_RUNTIME_TOKEN` | 服务间令牌 |
+| `tag.snapshot-dir` / `TAG_SNAPSHOT_DIR` | Java 与语义引擎共用的快照目录 |
+| `tag.runtime-url` / `TAG_RUNTIME_URL` | 语义引擎，默认 `http://127.0.0.1:8091` |
+| `tag.agent-url` / `TAG_AGENT_URL` | 编排层，默认 `http://127.0.0.1:8092` |
+| `tag.runtime-token` / `TAG_RUNTIME_TOKEN` | 服务间令牌（Java / 语义引擎 / 编排层同值） |
+| `TAG_SEMANTIC_URL` | 编排层调用语义引擎的基地址，默认 `http://127.0.0.1:8091` |
 | `tag.local-demo-current-freeze` + `...-sha256` | 本地演示用已导出冻结件做当前资格，避免回连来源库；路径与哈希必须成对 |
 
 令牌、API Key、客户原值不得写入文档、验收 JSON 或 Git。
@@ -496,13 +523,13 @@ ai-runtime/.venv-models/bin/python -m tag_semantic.eval.acceptance \
 
 | 关心的问题 | 先看 |
 |---|---|
-| HTTP 面 | `TsSemanticController`、`ai-runtime/tag_semantic/server.py` |
+| HTTP 面 | `TsSemanticController`、`tagpilot-semantic/tag_semantic/server.py`、`tagpilot-agent/tagpilot_agent/server.py` |
 | 资格与激活 | `TsCatalogRuntimeServiceImpl` |
 | 发布门禁 | `TsSnapshotAssembler` |
-| 查询与反馈 | `TsRetrievalService` |
-| 检索 | `retrieve/service.py`、`family.py`、`facets.py` |
-| Agent / DSL | `agent/graph.py`、`agent/dsl.py` |
-| 索引 | `index/builder.py`、`milvus_store.py`、`docs/templates.py` |
-| 草稿生成 | `bootstrap/rule_init.py`、`expand_full.py`、`expert_review.py` |
+| 查询与反馈 | `TsRetrievalService`、`TsAgentClient` |
+| 检索 | `tagpilot-semantic/.../retrieve/service.py`、`family.py`、`facets.py` |
+| Agent / DSL | `tagpilot-agent/tagpilot_agent/graph.py`、`dsl.py` |
+| 索引 | `tagpilot-semantic/.../index/builder.py`、`milvus_store.py`、`docs/templates.py` |
+| 草稿生成 | `tagpilot-semantic/.../bootstrap/rule_init.py`、`expand_full.py`、`expert_review.py` |
 | 页面 | `ruoyi-ui/src/views/taglibrary/semantic/`、`semantic-index/` |
-| 本机命令 | `ai-runtime/README.md`、`bin/tag-semantic-runtime.sh` |
+| 本机命令 | `tagpilot-semantic/README.md`、`tagpilot-agent/README.md`、`bin/tag-semantic-runtime.sh`、`bin/tagpilot-agent.sh` |

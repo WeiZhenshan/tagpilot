@@ -3,9 +3,12 @@
     <el-row :gutter="12">
       <!-- 左侧：标签库 + 树 -->
       <el-col :span="6">
-        <el-select v-model="currentLibraryId" placeholder="请选择标签库" size="small" style="width: 100%; margin-bottom: 8px;" @change="handleLibraryChange">
-          <el-option v-for="lib in libraryOptions" :key="lib.libraryId" :label="lib.libraryName" :value="lib.libraryId" />
-        </el-select>
+        <div class="library-toolbar">
+          <el-select v-model="currentLibraryId" placeholder="请选择标签库" size="small" style="flex: 1;" @change="handleLibraryChange">
+            <el-option v-for="lib in libraryOptions" :key="lib.libraryId" :label="lib.libraryName" :value="lib.libraryId" />
+          </el-select>
+          <el-button type="primary" size="small" icon="el-icon-chat-dot-round" :disabled="!currentLibraryId" @click="goAgentWorkbench" v-hasPermi="['taglibrary:semantic:list']">打开智能体</el-button>
+        </div>
         <el-input v-model="searchText" placeholder="搜索标签/目录" clearable size="small" prefix-icon="el-icon-search" style="margin-bottom: 8px;" />
         <el-tabs v-model="activeTab" @tab-click="handleTabChange">
           <el-tab-pane label="上线标签" name="online" />
@@ -158,6 +161,7 @@
 import { listLibrary } from '@/api/taglibrary/library'
 import { listDir, addDir, updateDir, delDir } from '@/api/taglibrary/dir'
 import { tagTree, getTag, updateTag, submitTag, offlineTag } from '@/api/taglibrary/tag'
+import { agentWorkbenchLocation } from '@/utils/agentWorkbench'
 
 export default {
   name: 'TagLibraryTags',
@@ -248,6 +252,14 @@ export default {
     document.removeEventListener('click', this.closeContextMenu)
   },
   methods: {
+    goAgentWorkbench() {
+      const library = this.currentLibrary
+      this.$router.push(agentWorkbenchLocation({
+        libraryId: this.currentLibraryId,
+        libraryName: library.libraryName,
+        from: '/taglibrary/tags'
+      }))
+    },
     /** 加载标签库下拉，按 query.libraryId 预选，无则默认第一个 */
     loadLibraries() {
       listLibrary({ pageNum: 1, pageSize: 100 }).then(response => {
@@ -526,6 +538,13 @@ export default {
 /* 页面容器 */
 .app-container {
   padding: 16px 20px;
+}
+
+.library-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 /* 左右面板：统一卡片容器 */

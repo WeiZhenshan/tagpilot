@@ -13,6 +13,7 @@ import static com.ruoyi.taglibrary.service.TsSnapshotAssembler.*;
 public class TsRetrievalService {
     @Autowired private ITsCatalogRuntimeService catalog;
     @Autowired private TsRuntimeClient runtime;
+    @Autowired private TsAgentClient agent;
     @Autowired private TsRetrievalFeedbackMapper feedback;
     @Autowired private TsCatalogSnapshotMapper snapshots;
     @Autowired private TsIndexBuildMapper builds;
@@ -23,8 +24,8 @@ public class TsRetrievalService {
         Map<String, Object> bundle = catalog.activeBundle(libraryId);
         String snapshotId = String.valueOf(bundle.get("snapshot_id")), buildId = String.valueOf(bundle.get("build_id"));
         List<Long> eligible = catalog.eligibleTagIds(libraryId, snapshotId);
-        // Python 端 LangGraph 只在 Java 已计算的资格集合内选择；仍由本服务校验响应并持久化 Trace。
-        Map<String, Object> result = runtime.post("/agent/query", map("requirement", requirement, "library_id", libraryId, "build_id", buildId, "eligible_tag_ids", eligible));
+        // Agent 编排层只在 Java 已计算的资格集合内选择；仍由本服务校验响应并持久化 Trace。
+        Map<String, Object> result = agent.post("/agent/query", map("requirement", requirement, "library_id", libraryId, "build_id", buildId, "eligible_tag_ids", eligible));
         if (!snapshotId.equals(result.get("snapshot_id")) || !buildId.equals(result.get("build_id")) || !bundle.get("store_type").equals(result.get("store_type")) || !java.util.Objects.equals(bundle.get("artifact_hash"), result.get("artifact_hash"))) throw new ServiceException("检索构建身份不一致");
         List<Map<String, Object>> candidates = (List<Map<String, Object>>) result.get("candidates");
         if (candidates == null) throw new ServiceException("检索响应缺少候选列表");

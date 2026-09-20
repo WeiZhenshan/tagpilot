@@ -148,4 +148,5 @@ databroker:
 tag:
   snapshot-dir: ${TAG_SNAPSHOT_DIR:./data/tag-snapshots}
   runtime-url: ${TAG_RUNTIME_URL:http://127.0.0.1:8091}
+  agent-url: ${TAG_AGENT_URL:http://127.0.0.1:8092}
   runtime-token: ${TAG_RUNTIME_TOKEN:}

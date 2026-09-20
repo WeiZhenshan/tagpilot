@@ -9,8 +9,11 @@
       <el-form-item><el-button type="primary" :loading="loading" @click="load">查询快照</el-button></el-form-item>
       <el-form-item><el-button v-hasPermi="['taglibrary:semantic:publish']" :disabled="!libraryId" @click="quality">发布前检查</el-button></el-form-item>
       <el-form-item><el-button v-hasPermi="['taglibrary:semantic:publish']" :disabled="!libraryId" :loading="publishing" @click="publish">发布快照</el-button></el-form-item>
+      <el-form-item>
+        <el-button type="primary" plain icon="el-icon-chat-dot-round" :disabled="!libraryId" @click="goAgentWorkbench" v-hasPermi="['taglibrary:semantic:list']">打开智能体</el-button>
+      </el-form-item>
     </el-form>
-    <el-alert title="发布会校验复核状态、来源依据与完整度。新构建就绪后，需激活才会承接检索。" type="info" :closable="false" />
+    <el-alert title="发布会校验复核状态、来源依据与完整度。新构建就绪后，需激活才会承接检索。自然语言查询请到智能体工作台。" type="info" :closable="false" />
     <el-table v-loading="loading" :data="snapshots" size="small" highlight-current-row @current-change="select" empty-text="尚无快照，请先完成业务语义复核">
       <el-table-column prop="snapshotId" label="快照" min-width="220" />
       <el-table-column prop="status" label="状态" width="120" />
@@ -20,29 +23,6 @@
       <el-table-column label="操作" width="190"><template slot-scope="s"><el-button type="text" @click.stop="show('质量门禁报告', report(s.row.qualityReport))">质量报告</el-button><el-button type="text" @click.stop="download(s.row)">下载</el-button></template></el-table-column>
     </el-table>
     <pagination v-show="total > 0" :total="total" :page.sync="page" :limit.sync="pageSize" @pagination="load" />
-    <section class="query-section" aria-labelledby="semantic-query-title">
-      <h3 id="semantic-query-title">自然语言标签智能体</h3>
-      <p>智能体只在当前角色可用的已发布标签中建议，并通过 DSL 门禁；结果必须由你确认，不会自动执行客群筛选。</p>
-      <el-form @submit.native.prevent="retrieve">
-        <el-form-item label="查询条件">
-          <el-input v-model="requirement" type="textarea" :rows="3" :maxlength="500" show-word-limit aria-label="查询条件" placeholder="例如：近30天有异名跨行转入的客户" />
-        </el-form-item>
-        <el-button type="primary" :loading="retrieving" :disabled="!libraryId || !requirement.trim()" @click="retrieve">查询标签</el-button>
-      </el-form>
-      <el-alert v-if="queryError" :title="queryError" type="error" :closable="false" class="query-result" />
-      <div v-if="queryResult" class="query-result" aria-live="polite">
-        <el-alert :title="decisionText" :type="['CANDIDATES_ONLY', 'NEEDS_CONFIRMATION', 'NEEDS_VALUE'].includes(queryResult.decision) ? 'info' : 'warning'" :closable="false" />
-        <p>快照：{{ queryResult.snapshot_id }} · 构建：{{ queryResult.build_id }}</p>
-        <p>选择器：{{ queryResult.selector || '-' }} · 大模型已连接：{{ queryResult.model_connected ? '是' : '否（精确证据演示模式）' }} · DSL：{{ queryResult.dsl_valid ? '合法，待确认' : '尚未生成' }}</p>
-        <el-table :data="queryResult.candidates || []" size="small" empty-text="当前可用范围内没有候选标签">
-          <el-table-column prop="name" label="候选标签" min-width="180" />
-          <el-table-column prop="family_key" label="所属标签族" min-width="240" show-overflow-tooltip />
-          <el-table-column prop="code" label="原始码值" width="110" />
-          <el-table-column label="反馈" width="110"><template slot-scope="s"><el-button type="text" :disabled="feedbackSaved || feedbackSaving" @click="feedback(s.row)">符合需求</el-button></template></el-table-column>
-        </el-table>
-        <p v-if="feedbackSaved">反馈已记录。</p>
-      </div>
-    </section>
     <section v-if="selected" class="build-section">
       <div class="build-toolbar"><h3>{{ selected.snapshotId }} 的索引构建</h3><div>
         <el-select v-model="storeType" size="small" aria-label="存储模式" class="store-select"><el-option label="LOCAL 基线" value="LOCAL" /><el-option label="Milvus" value="MILVUS" /></el-select>
@@ -62,13 +42,11 @@
 </template>
 <script>
 import { listLibrary } from '@/api/taglibrary/library'
-import { snapshotQuality, listSnapshots, listBuilds, publishSnapshot, downloadSnapshot, startBuild, buildStats, activateBuild, retrieveSemantic, submitFeedback } from '@/api/taglibrary/semantic'
+import { snapshotQuality, listSnapshots, listBuilds, publishSnapshot, downloadSnapshot, startBuild, buildStats, activateBuild } from '@/api/taglibrary/semantic'
+import { agentWorkbenchLocation } from '@/utils/agentWorkbench'
 export default {
   name: 'TagSemanticIndex',
-  data() { return { libraryId: Number(this.$route.query.libraryId) || undefined, libraries: [], snapshots: [], selected: null, builds: [], page: 1, pageSize: 20, total: 0, storeType: 'MILVUS', loading: false, publishing: false, building: false, buildLoading: false, activating: false, detailTitle: '', detail: '', detailVisible: false, requirement: '', retrieving: false, queryResult: null, queryError: '', feedbackSaved: false, feedbackSaving: false } },
-  computed: {
-    decisionText() { return { CANDIDATES_ONLY: '已找到候选标签，请核对业务口径。', NEEDS_CONFIRMATION: 'DSL 已通过门禁，请确认后再交给客群执行服务。', NEEDS_VALUE: '已唯一识别标签，但仍需补充条件值并确认。', CLARIFY: '查询条件需要补充时间范围或明确业务口径，请修改后重试。', INEXPRESSIBLE: '现有码值分档无法精确表达该条件，请调整条件或选择连续数值标签。', REJECTED_BY_DSL_GATE: '大模型建议未通过 DSL 门禁，已阻止执行。' }[this.queryResult && this.queryResult.decision] || '请核对候选标签的业务口径。' }
-  },
+  data() { return { libraryId: Number(this.$route.query.libraryId) || undefined, libraries: [], snapshots: [], selected: null, builds: [], page: 1, pageSize: 20, total: 0, storeType: 'MILVUS', loading: false, publishing: false, building: false, buildLoading: false, activating: false, detailTitle: '', detail: '', detailVisible: false } },
   mounted() { this.loadLibraries() },
   methods: {
     loadLibraries() {
@@ -78,24 +56,16 @@ export default {
       })
     },
     handleLibraryChange() {
-      this.queryResult = null; this.queryError = ''; this.feedbackSaved = false
       this.snapshots = []; this.selected = null; this.builds = []; this.total = 0; this.page = 1
       if (this.libraryId) this.load()
     },
-    async retrieve() {
-      if (!this.libraryId || !this.requirement.trim() || this.retrieving) return
-      const libraryId = this.libraryId
-      this.retrieving = true; this.queryResult = null; this.queryError = ''; this.feedbackSaved = false
-      try { const r = await retrieveSemantic({ libraryId, requirement: this.requirement.trim() }); if (this.libraryId === libraryId) this.queryResult = r.data }
-      catch (error) { if (this.libraryId === libraryId) this.queryError = error.message || '查询失败，请确认已发布快照、激活索引且检索服务可用。' }
-      finally { this.retrieving = false }
-    },
-    async feedback(row) {
-      const result = this.queryResult
-      if (!result || this.feedbackSaved || this.feedbackSaving) return
-      this.feedbackSaving = true
-      try { await submitFeedback({ traceId: result.trace_id, buildId: result.build_id, snapshotId: result.snapshot_id, recommendedTagId: row.tag_id, finalTagId: row.tag_id, action: 'ACCEPT' }); if (this.queryResult === result) this.feedbackSaved = true }
-      finally { this.feedbackSaving = false }
+    goAgentWorkbench() {
+      const library = this.libraries.find(item => item.libraryId === this.libraryId) || {}
+      this.$router.push(agentWorkbenchLocation({
+        libraryId: this.libraryId,
+        libraryName: library.libraryName,
+        from: '/taglibrary/semantic-index'
+      }))
     },
     report(value) { try { return JSON.parse(value || '{}') } catch (_) { return { message: value } } },
     show(title, data) { this.detailTitle = title; this.detail = JSON.stringify(data, null, 2); this.detailVisible = true },
@@ -117,7 +87,4 @@ export default {
 .build-toolbar h3 { font-size: 16px; overflow-wrap: anywhere; }
 .store-select { width: 140px; margin-right: 10px; }
 .report { max-height: 65vh; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
-.query-section { clear: both; padding-top: 28px; }
-.query-section h3 { font-size: 16px; }
-.query-result { margin-top: 16px; overflow-wrap: anywhere; }
 </style>

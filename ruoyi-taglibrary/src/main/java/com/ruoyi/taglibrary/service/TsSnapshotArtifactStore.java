@@ -32,7 +32,15 @@ public class TsSnapshotArtifactStore {
     public Path verifiedPath(TsCatalogSnapshot snapshot) {
         try {
             Path root = Paths.get(directory).toRealPath();
-            Path file = Paths.get(URI.create(snapshot.getStorageUri())).toRealPath();
+            Path file;
+            try {
+                file = Paths.get(URI.create(snapshot.getStorageUri())).toRealPath();
+            } catch (Exception e) {
+                // 目录搬迁后 DB storage_uri 可能仍指向旧绝对路径；只允许回落到当前 snapshot-dir 下同名文件。
+                Path relocated = root.resolve(snapshot.getSnapshotId() + ".jsonl");
+                if (!Files.isRegularFile(relocated)) throw e;
+                file = relocated.toRealPath();
+            }
             if (!file.startsWith(root) || !Files.isRegularFile(file)) throw new IOException();
             String content = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
             if (!TsSnapshotCanonicalizer.sha256(content).equals(snapshot.getFileSha256())) throw new IOException();

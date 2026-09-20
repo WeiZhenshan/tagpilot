@@ -54,7 +54,10 @@
             </div>
             <div class="card-line card-source">关联数据集：{{ row.datasetName || '-' }}</div>
             <div class="card-footer">
-              <el-button type="text" icon="el-icon-price-tag" @click="goTagManage(row)">标签管理</el-button>
+              <span>
+                <el-button type="text" icon="el-icon-price-tag" @click="goTagManage(row)">标签管理</el-button>
+                <el-button type="text" icon="el-icon-chat-dot-round" @click="goAgentWorkbench(row)" v-hasPermi="['taglibrary:semantic:list']">打开智能体</el-button>
+              </span>
               <el-dropdown trigger="click" @command="cmd => handleMore(cmd, row)">
                 <el-button type="text">更多<i class="el-icon-arrow-down el-icon--right" /></el-button>
                 <el-dropdown-menu slot="dropdown">
@@ -97,9 +100,10 @@
           上线 {{ scope.row.onlineCount || 0 }} / 待发布 {{ scope.row.pendingCount || 0 }} / 下线 {{ scope.row.offlineCount || 0 }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220" fixed="right">
+      <el-table-column label="操作" width="300" fixed="right">
         <template #default="scope">
           <el-button type="text" size="mini" icon="el-icon-price-tag" @click="goTagManage(scope.row)">标签管理</el-button>
+          <el-button type="text" size="mini" icon="el-icon-chat-dot-round" @click="goAgentWorkbench(scope.row)" v-hasPermi="['taglibrary:semantic:list']">打开智能体</el-button>
           <el-button type="text" size="mini" icon="el-icon-edit" @click="handleUpdate(scope.row)" v-hasPermi="['taglibrary:library:edit']">编辑</el-button>
           <el-button type="text" size="mini" icon="el-icon-delete" @click="handleMore('remove', scope.row)" v-hasPermi="['taglibrary:library:remove']">删除</el-button>
         </template>
@@ -221,6 +225,7 @@ import { listLibrary, listOnlineDatasets, getLibrary, addLibrary, updateLibrary,
   syncLibrary, submitLibrary, offlineLibrary } from '@/api/taglibrary/library'
 import { listDir } from '@/api/taglibrary/dir'
 import { listTag, updateTag } from '@/api/taglibrary/tag'
+import { agentWorkbenchLocation } from '@/utils/agentWorkbench'
 
 export default {
   name: 'TagLibraryList',
@@ -365,6 +370,13 @@ export default {
     /** 跳转标签管理页 */
     goTagManage(row) {
       this.$router.push({ path: '/taglibrary/tags', query: { libraryId: row.libraryId } })
+    },
+    goAgentWorkbench(row) {
+      this.$router.push(agentWorkbenchLocation({
+        libraryId: row.libraryId,
+        libraryName: row.libraryName,
+        from: '/taglibrary/list'
+      }))
     },
     /** 卡片"更多"操作分发 */
     handleMore(cmd, row) {
