@@ -1,0 +1,513 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-21T03:25:55.783971+00:00",
+  "title": "Design System: TagPilot Assistant 圈选工作台",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "primary",
+        "tonalRamp": [
+          "oklch(15.00% 0.16786 252.18)",
+          "oklch(26.43% 0.16786 252.18)",
+          "oklch(37.86% 0.16786 252.18)",
+          "oklch(49.29% 0.16786 252.18)",
+          "oklch(60.71% 0.16786 252.18)",
+          "oklch(72.14% 0.16786 252.18)",
+          "oklch(83.57% 0.16786 252.18)",
+          "oklch(95.00% 0.16786 252.18)"
+        ]
+      },
+      "primary-action": {
+        "role": "primary",
+        "displayName": "primary-action",
+        "tonalRamp": [
+          "oklch(15.00% 0.11101 251.63)",
+          "oklch(26.43% 0.11101 251.63)",
+          "oklch(37.86% 0.11101 251.63)",
+          "oklch(49.29% 0.11101 251.63)",
+          "oklch(60.71% 0.11101 251.63)",
+          "oklch(72.14% 0.11101 251.63)",
+          "oklch(83.57% 0.11101 251.63)",
+          "oklch(95.00% 0.11101 251.63)"
+        ]
+      },
+      "primary-action-hover": {
+        "role": "primary",
+        "displayName": "primary-action-hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.09648 251.98)",
+          "oklch(26.43% 0.09648 251.98)",
+          "oklch(37.86% 0.09648 251.98)",
+          "oklch(49.29% 0.09648 251.98)",
+          "oklch(60.71% 0.09648 251.98)",
+          "oklch(72.14% 0.09648 251.98)",
+          "oklch(83.57% 0.09648 251.98)",
+          "oklch(95.00% 0.09648 251.98)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "paper",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "soft": {
+        "role": "neutral",
+        "displayName": "soft",
+        "tonalRamp": [
+          "oklch(15.00% 0.00287 264.54)",
+          "oklch(26.43% 0.00287 264.54)",
+          "oklch(37.86% 0.00287 264.54)",
+          "oklch(49.29% 0.00287 264.54)",
+          "oklch(60.71% 0.00287 264.54)",
+          "oklch(72.14% 0.00287 264.54)",
+          "oklch(83.57% 0.00287 264.54)",
+          "oklch(95.00% 0.00287 264.54)"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "panel",
+        "tonalRamp": [
+          "oklch(15.00% 0.00132 286.38)",
+          "oklch(26.43% 0.00132 286.38)",
+          "oklch(37.86% 0.00132 286.38)",
+          "oklch(49.29% 0.00132 286.38)",
+          "oklch(60.71% 0.00132 286.38)",
+          "oklch(72.14% 0.00132 286.38)",
+          "oklch(83.57% 0.00132 286.38)",
+          "oklch(95.00% 0.00132 286.38)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.01024 260.70)",
+          "oklch(26.43% 0.01024 260.70)",
+          "oklch(37.86% 0.01024 260.70)",
+          "oklch(49.29% 0.01024 260.70)",
+          "oklch(60.71% 0.01024 260.70)",
+          "oklch(72.14% 0.01024 260.70)",
+          "oklch(83.57% 0.01024 260.70)",
+          "oklch(95.00% 0.01024 260.70)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "muted",
+        "tonalRamp": [
+          "oklch(15.00% 0.02168 255.60)",
+          "oklch(26.43% 0.02168 255.60)",
+          "oklch(37.86% 0.02168 255.60)",
+          "oklch(49.29% 0.02168 255.60)",
+          "oklch(60.71% 0.02168 255.60)",
+          "oklch(72.14% 0.02168 255.60)",
+          "oklch(83.57% 0.02168 255.60)",
+          "oklch(95.00% 0.02168 255.60)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "border",
+        "tonalRamp": [
+          "oklch(15.00% 0.00580 264.53)",
+          "oklch(26.43% 0.00580 264.53)",
+          "oklch(37.86% 0.00580 264.53)",
+          "oklch(49.29% 0.00580 264.53)",
+          "oklch(60.71% 0.00580 264.53)",
+          "oklch(72.14% 0.00580 264.53)",
+          "oklch(83.57% 0.00580 264.53)",
+          "oklch(95.00% 0.00580 264.53)"
+        ]
+      },
+      "input-border": {
+        "role": "neutral",
+        "displayName": "input-border",
+        "tonalRamp": [
+          "oklch(15.00% 0.00927 258.34)",
+          "oklch(26.43% 0.00927 258.34)",
+          "oklch(37.86% 0.00927 258.34)",
+          "oklch(49.29% 0.00927 258.34)",
+          "oklch(60.71% 0.00927 258.34)",
+          "oklch(72.14% 0.00927 258.34)",
+          "oklch(83.57% 0.00927 258.34)",
+          "oklch(95.00% 0.00927 258.34)"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.00455 258.32)",
+          "oklch(26.43% 0.00455 258.32)",
+          "oklch(37.86% 0.00455 258.32)",
+          "oklch(49.29% 0.00455 258.32)",
+          "oklch(60.71% 0.00455 258.32)",
+          "oklch(72.14% 0.00455 258.32)",
+          "oklch(83.57% 0.00455 258.32)",
+          "oklch(95.00% 0.00455 258.32)"
+        ]
+      },
+      "selected": {
+        "role": "neutral",
+        "displayName": "selected",
+        "tonalRamp": [
+          "oklch(15.00% 0.00916 258.34)",
+          "oklch(26.43% 0.00916 258.34)",
+          "oklch(37.86% 0.00916 258.34)",
+          "oklch(49.29% 0.00916 258.34)",
+          "oklch(60.71% 0.00916 258.34)",
+          "oklch(72.14% 0.00916 258.34)",
+          "oklch(83.57% 0.00916 258.34)",
+          "oklch(95.00% 0.00916 258.34)"
+        ]
+      },
+      "selected-ink": {
+        "role": "neutral",
+        "displayName": "selected-ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.04543 260.49)",
+          "oklch(26.43% 0.04543 260.49)",
+          "oklch(37.86% 0.04543 260.49)",
+          "oklch(49.29% 0.04543 260.49)",
+          "oklch(60.71% 0.04543 260.49)",
+          "oklch(72.14% 0.04543 260.49)",
+          "oklch(83.57% 0.04543 260.49)",
+          "oklch(95.00% 0.04543 260.49)"
+        ]
+      },
+      "send": {
+        "role": "neutral",
+        "displayName": "send",
+        "tonalRamp": [
+          "oklch(15.00% 0.03687 256.62)",
+          "oklch(26.43% 0.03687 256.62)",
+          "oklch(37.86% 0.03687 256.62)",
+          "oklch(49.29% 0.03687 256.62)",
+          "oklch(60.71% 0.03687 256.62)",
+          "oklch(72.14% 0.03687 256.62)",
+          "oklch(83.57% 0.03687 256.62)",
+          "oklch(95.00% 0.03687 256.62)"
+        ]
+      },
+      "send-hover": {
+        "role": "neutral",
+        "displayName": "send-hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.04079 256.85)",
+          "oklch(26.43% 0.04079 256.85)",
+          "oklch(37.86% 0.04079 256.85)",
+          "oklch(49.29% 0.04079 256.85)",
+          "oklch(60.71% 0.04079 256.85)",
+          "oklch(72.14% 0.04079 256.85)",
+          "oklch(83.57% 0.04079 256.85)",
+          "oklch(95.00% 0.04079 256.85)"
+        ]
+      },
+      "disabled-ink": {
+        "role": "neutral",
+        "displayName": "disabled-ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.01489 258.36)",
+          "oklch(26.43% 0.01489 258.36)",
+          "oklch(37.86% 0.01489 258.36)",
+          "oklch(49.29% 0.01489 258.36)",
+          "oklch(60.71% 0.01489 258.36)",
+          "oklch(72.14% 0.01489 258.36)",
+          "oklch(83.57% 0.01489 258.36)",
+          "oklch(95.00% 0.01489 258.36)"
+        ]
+      },
+      "disabled-bg": {
+        "role": "neutral",
+        "displayName": "disabled-bg",
+        "tonalRamp": [
+          "oklch(15.00% 0.00287 264.54)",
+          "oklch(26.43% 0.00287 264.54)",
+          "oklch(37.86% 0.00287 264.54)",
+          "oklch(49.29% 0.00287 264.54)",
+          "oklch(60.71% 0.00287 264.54)",
+          "oklch(72.14% 0.00287 264.54)",
+          "oklch(83.57% 0.00287 264.54)",
+          "oklch(95.00% 0.00287 264.54)"
+        ]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "danger",
+        "tonalRamp": [
+          "oklch(15.00% 0.18205 29.51)",
+          "oklch(26.43% 0.18205 29.51)",
+          "oklch(37.86% 0.18205 29.51)",
+          "oklch(49.29% 0.18205 29.51)",
+          "oklch(60.71% 0.18205 29.51)",
+          "oklch(72.14% 0.18205 29.51)",
+          "oklch(83.57% 0.18205 29.51)",
+          "oklch(95.00% 0.18205 29.51)"
+        ]
+      },
+      "danger-bg": {
+        "role": "semantic",
+        "displayName": "danger-bg",
+        "tonalRamp": [
+          "oklch(15.00% 0.01217 29.87)",
+          "oklch(26.43% 0.01217 29.87)",
+          "oklch(37.86% 0.01217 29.87)",
+          "oklch(49.29% 0.01217 29.87)",
+          "oklch(60.71% 0.01217 29.87)",
+          "oklch(72.14% 0.01217 29.87)",
+          "oklch(83.57% 0.01217 29.87)",
+          "oklch(95.00% 0.01217 29.87)"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "warning",
+        "tonalRamp": [
+          "oklch(15.00% 0.09783 71.30)",
+          "oklch(26.43% 0.09783 71.30)",
+          "oklch(37.86% 0.09783 71.30)",
+          "oklch(49.29% 0.09783 71.30)",
+          "oklch(60.71% 0.09783 71.30)",
+          "oklch(72.14% 0.09783 71.30)",
+          "oklch(83.57% 0.09783 71.30)",
+          "oklch(95.00% 0.09783 71.30)"
+        ]
+      },
+      "warning-bg": {
+        "role": "semantic",
+        "displayName": "warning-bg",
+        "tonalRamp": [
+          "oklch(15.00% 0.02153 83.26)",
+          "oklch(26.43% 0.02153 83.26)",
+          "oklch(37.86% 0.02153 83.26)",
+          "oklch(49.29% 0.02153 83.26)",
+          "oklch(60.71% 0.02153 83.26)",
+          "oklch(72.14% 0.02153 83.26)",
+          "oklch(83.57% 0.02153 83.26)",
+          "oklch(95.00% 0.02153 83.26)"
+        ]
+      },
+      "bound": {
+        "role": "semantic",
+        "displayName": "bound",
+        "tonalRamp": [
+          "oklch(15.00% 0.08705 157.25)",
+          "oklch(26.43% 0.08705 157.25)",
+          "oklch(37.86% 0.08705 157.25)",
+          "oklch(49.29% 0.08705 157.25)",
+          "oklch(60.71% 0.08705 157.25)",
+          "oklch(72.14% 0.08705 157.25)",
+          "oklch(83.57% 0.08705 157.25)",
+          "oklch(95.00% 0.08705 157.25)"
+        ]
+      },
+      "pending": {
+        "role": "semantic",
+        "displayName": "pending",
+        "tonalRamp": [
+          "oklch(15.00% 0.11691 75.01)",
+          "oklch(26.43% 0.11691 75.01)",
+          "oklch(37.86% 0.11691 75.01)",
+          "oklch(49.29% 0.11691 75.01)",
+          "oklch(60.71% 0.11691 75.01)",
+          "oklch(72.14% 0.11691 75.01)",
+          "oklch(83.57% 0.11691 75.01)",
+          "oklch(95.00% 0.11691 75.01)"
+        ]
+      },
+      "choice-ink": {
+        "role": "semantic",
+        "displayName": "choice-ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.09378 250.49)",
+          "oklch(26.43% 0.09378 250.49)",
+          "oklch(37.86% 0.09378 250.49)",
+          "oklch(49.29% 0.09378 250.49)",
+          "oklch(60.71% 0.09378 250.49)",
+          "oklch(72.14% 0.09378 250.49)",
+          "oklch(83.57% 0.09378 250.49)",
+          "oklch(95.00% 0.09378 250.49)"
+        ]
+      },
+      "choice-border": {
+        "role": "semantic",
+        "displayName": "choice-border",
+        "tonalRamp": [
+          "oklch(15.00% 0.07520 247.12)",
+          "oklch(26.43% 0.07520 247.12)",
+          "oklch(37.86% 0.07520 247.12)",
+          "oklch(49.29% 0.07520 247.12)",
+          "oklch(60.71% 0.07520 247.12)",
+          "oklch(72.14% 0.07520 247.12)",
+          "oklch(83.57% 0.07520 247.12)",
+          "oklch(95.00% 0.07520 247.12)"
+        ]
+      },
+      "choice-bg": {
+        "role": "semantic",
+        "displayName": "choice-bg",
+        "tonalRamp": [
+          "oklch(15.00% 0.00927 242.84)",
+          "oklch(26.43% 0.00927 242.84)",
+          "oklch(37.86% 0.00927 242.84)",
+          "oklch(49.29% 0.00927 242.84)",
+          "oklch(60.71% 0.00927 242.84)",
+          "oklch(72.14% 0.00927 242.84)",
+          "oklch(83.57% 0.00927 242.84)",
+          "oklch(95.00% 0.00927 242.84)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "消息正文",
+        "purpose": "用于业务对话；全局继承行高为 1.6，消息正文为 1.85。"
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "button-background",
+        "value": "background 0.15s",
+        "purpose": "按钮背景状态过渡。"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }",
+        "purpose": "遵循系统减少动态偏好。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1600px"
+      },
+      {
+        "name": "compact-max",
+        "value": "1150px"
+      },
+      {
+        "name": "narrow-max",
+        "value": "900px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "760px"
+      }
+    ],
+    "focus": {
+      "standard": "outline: 2px solid var(--accent); outline-offset: 3px;",
+      "composer": "focus-within border-color: #8896a8; composer input outline: none !important;",
+      "scope": "编辑器是当前例外，不推广到其他字段。"
+    },
+    "scope": "仅 tagpilot-assistant 模块。",
+    "tonalRampNotice": "色阶仅为面板预览合成的 OKLCH lightness 15%-95% 扩展；不是 CSS 实现 token。混合色按默认 accent 生成预览。",
+    "reviewScope": "原始只读审查：三张真实 DOM 合成数据截图（1440×960 桌面 Ask、桌面方案；390×844 移动方案）及源码，判 fix。复审逐项解决窄屏错误、对比度、modal 键盘、移动历史与 Tab、fixture Invalid Date，判 ship；仅覆盖五项清单，不构成全部页面或业务验收。无 QUALITY BAR 或概念轮。"
+  },
+  "components": [
+    {
+      "name": "保存并核验修改",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "当前模块按钮样式；示例不连接业务提交。",
+      "html": "<button class=\"ds-button-primary\">保存并核验修改</button>",
+      "css": ".ds-button-primary{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;font-size:13px;line-height:1.6;border:1px solid var(--border,#e7e9ed);border-radius:6px;padding:7px 12px;cursor:pointer;transition:background .15s;background:color-mix(in srgb,var(--accent,#409eff) 60%,#000);color:#fff;padding:7px 12px;border-color:var(--accent,#409eff);}.ds-button-primary:hover:not(:disabled){background:color-mix(in srgb,var(--accent,#409eff) 50%,#000)}.ds-button-primary:focus-visible{outline:2px solid var(--accent,#409eff);outline-offset:3px;}.ds-button-primary:disabled{background:#f5f6f8;color:#959ba4;cursor:not-allowed}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    },
+    {
+      "name": "统计人数",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "当前模块按钮样式；示例不连接业务提交。",
+      "html": "<button class=\"ds-button-secondary\">统计人数</button>",
+      "css": ".ds-button-secondary{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;font-size:13px;line-height:1.6;border:1px solid var(--border,#e7e9ed);border-radius:6px;padding:7px 12px;cursor:pointer;transition:background .15s;background:#fff;color:#24272c;padding:7px 12px;}.ds-button-secondary:hover:not(:disabled){background:#f0f2f5}.ds-button-secondary:focus-visible{outline:2px solid var(--accent,#409eff);outline-offset:3px;}.ds-button-secondary:disabled{background:#f5f6f8;color:#959ba4;cursor:not-allowed}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    },
+    {
+      "name": "发送",
+      "kind": "button",
+      "refersTo": "button-send",
+      "description": "当前模块按钮样式；示例不连接业务提交。",
+      "html": "<button class=\"ds-button-send\">发送</button>",
+      "css": ".ds-button-send{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;font-size:13px;line-height:1.6;border:1px solid var(--border,#e7e9ed);border-radius:6px;padding:7px 12px;cursor:pointer;transition:background .15s;background:#263345;color:#fff;padding:5px 14px;border-color:#263345;}.ds-button-send:hover:not(:disabled){background:#37465b}.ds-button-send:focus-visible{outline:2px solid var(--accent,#409eff);outline-offset:3px;}.ds-button-send:disabled{background:#f5f6f8;color:#959ba4;cursor:not-allowed}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    },
+    {
+      "name": "查看归档",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "当前模块按钮样式；示例不连接业务提交。",
+      "html": "<button class=\"ds-button-text\">查看归档</button>",
+      "css": ".ds-button-text{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;font-size:13px;line-height:1.6;border:1px solid var(--border,#e7e9ed);border-radius:6px;padding:7px 12px;cursor:pointer;transition:background .15s;background:transparent;color:var(--muted,#68717d);padding:2px 4px;border:0;font-size:12px;}.ds-button-text:hover:not(:disabled){background:#f0f2f5}.ds-button-text:focus-visible{outline:2px solid var(--accent,#409eff);outline-offset:3px;}.ds-button-text:disabled{background:#f5f6f8;color:#959ba4;cursor:not-allowed}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    },
+    {
+      "name": "条件输入",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "带可见名称的普通字段。",
+      "html": "<label class=\"ds-field-label\">条件值（元）<input class=\"ds-field\" value=\"5000\" aria-label=\"条件值（元）\"></label>",
+      "css": ".ds-field-label{display:flex;flex-direction:column;gap:5px;font:11px/1.6 -apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:var(--muted,#68717d)}.ds-field{font:13px/1.6 -apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;border:1px solid #d9dde3;border-radius:6px;background:#fff;color:#24272c;padding:8px 10px;min-width:0}.ds-field:focus-visible{outline:2px solid var(--accent,#409eff);outline-offset:3px;}.ds-field:disabled{background:#f8f9fa;color:#737d89}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    },
+    {
+      "name": "历史选中项",
+      "kind": "nav",
+      "refersTo": "history-selected",
+      "description": "选中会话与日期。",
+      "html": "<nav aria-label=\"圈选会话\"><button class=\"ds-history\"><span>近30天转入客户</span><small>2026/9/21</small></button></nav>",
+      "css": ".ds-history{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;font-size:13px;line-height:1.6;border:1px solid var(--border,#e7e9ed);border-radius:6px;padding:7px 12px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;text-align:left;width:100%;padding:10px;border:0;background:#e8ecf2;color:#17243a}.ds-history small{font-size:11px;color:var(--muted,#68717d);margin-top:2px}.ds-history:hover{background:#f0f2f5}.ds-history:focus-visible{outline:2px solid var(--accent,#409eff);outline-offset:3px;}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    },
+    {
+      "name": "Ask 选项",
+      "kind": "chip",
+      "refersTo": "choice-selected",
+      "description": "可按下的回答选项，保持按钮语义。",
+      "html": "<button class=\"ds-choice\" aria-pressed=\"true\">自然月</button>",
+      "css": ".ds-choice{font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;font-size:13px;line-height:1.6;border:1px solid var(--border,#e7e9ed);border-radius:6px;padding:7px 12px;cursor:pointer;transition:background .15s;background:#f0f6fb;border-color:#79a4cc;color:#235382}.ds-choice:hover{background:#f0f2f5}.ds-choice:focus-visible{outline:2px solid var(--accent,#409eff);outline-offset:3px;}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    },
+    {
+      "name": "补充信息卡",
+      "kind": "card",
+      "refersTo": "ask-card",
+      "description": "薄边框容器，示例无框架依赖。",
+      "html": "<section class=\"ds-ask\"><h3>补充这些信息即可继续</h3><p>选择选项，或输入你的回答。</p></section>",
+      "css": ".ds-ask{font:13px/1.6 -apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#24272c;background:#fff;border:1px solid #d6dfe9;border-radius:8px;padding:16px}.ds-ask h3{font-size:14px;margin:0}.ds-ask p{font-size:11px;color:var(--muted,#68717d);margin:8px 0 0}@media(prefers-reduced-motion:reduce){[class^=\"ds-\"]{transition:none!important;scroll-behavior:auto!important}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "简洁白灰圈选工作台",
+    "overview": "本文仅约束 `tagpilot-assistant` 模块，依据本模块当前 CSS 和 React 实现记录，不覆盖若依其他页面、Element UI 组件或全仓库设计规则。用户已指定 assistant-ui 简洁白灰方向并允许直接完成实现；本次没有独立概念轮或生成图。\n\n界面服务于企业后台中的客户圈选操作：对话承接意图，条件方案持续可核对，关键状态与权限通过文字和控件可用性表达。白色内容面、浅灰分区、细边框建立层次；强调色沿用宿主主题，字体沿用中文系统字体栈。",
+    "keyCharacteristics": [
+      "白灰底色、细线分区、低装饰密度。",
+      "对话与可编辑条件并列，依据与技术详情按需展开。",
+      "状态文字、明确确认、历史版本与当前结果相互对应。",
+      "窄屏提供历史、对话、圈选方案三个分区入口。"
+    ],
+    "rules": [
+      {
+        "name": "The 状态可读 Rule.",
+        "body": "颜色与文字共同表达状态；不得只靠圆点颜色区分已完成、待完成或错误。",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** 继续使用模块白灰分区、细边框和中文系统字体，保持视觉作用域仅在本模块。",
+      "**Do** 将人数、版本、权限与运行进度对应到实际数据，并用中文文字说明状态。",
+      "**Do** 为新增交互保留键盘焦点、明确名称和减少动态支持。",
+      "**Do** 在移动端保留历史、对话、方案以及错误恢复入口。"
+    ],
+    "donts": [
+      "**Don't** 用装饰性动效或无依据的完成状态替代真实处理反馈。",
+      "**Don't** 隐藏条件值单位倍率，或把旧方案人数当作当前人数。",
+      "**Don't** 把本模块的局部字体例外、断点偏移或五项复审结论提升为全项目规则或完整认证。",
+      "**Don't** 未经用户指定把此设计推广到其他若依页面。"
+    ]
+  }
+}

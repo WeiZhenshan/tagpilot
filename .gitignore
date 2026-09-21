@@ -75,3 +75,7 @@ docs/项目参考文档/
 /data/tag-snapshots/
 /data/tag-index/
 /logs/runtime/
+
+# Encrypted local Agent V2 state (keep with its key, never commit)
+/data/agent/
+/tagpilot-agent/out/

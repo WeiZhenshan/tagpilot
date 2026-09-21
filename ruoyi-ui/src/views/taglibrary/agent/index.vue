@@ -1,7 +1,9 @@
 <template>
   <div class="agent-workbench-shell">
     <iframe
+      ref="frame"
       :key="iframeSrc"
+      @load="sendTheme"
       class="agent-workbench-frame"
       :src="iframeSrc"
       title="智能体工作台"
@@ -26,6 +28,12 @@ export default {
       return '/agent-ui/' + (qs ? '?' + qs : '')
     }
   },
+  watch: {
+    '$store.state.settings.theme'() { this.sendTheme() },
+    '$store.state.user.id'() {
+      if (this.$refs.frame) this.$refs.frame.contentWindow.postMessage({ type: 'tagpilot-agent:identity-changed' }, window.location.origin)
+    }
+  },
   created() {
     window.addEventListener('message', this.handleAgentMessage)
   },
@@ -33,9 +41,13 @@ export default {
     window.removeEventListener('message', this.handleAgentMessage)
   },
   methods: {
+    sendTheme() {
+      if (this.$refs.frame) this.$refs.frame.contentWindow.postMessage({ type: 'tagpilot-agent:theme', color: this.$store.state.settings.theme }, window.location.origin)
+    },
     handleAgentMessage(event) {
-      if (event.origin !== window.location.origin) return
+      if (event.origin !== window.location.origin || !this.$refs.frame || event.source !== this.$refs.frame.contentWindow) return
       const data = event.data || {}
+      if (data.type === 'tagpilot-agent:ready') { this.sendTheme(); return }
       if (data.type !== AGENT_WORKBENCH_BACK_MESSAGE) return
       this.$router.push(parseAgentBackPath(data))
     }
@@ -48,13 +60,13 @@ export default {
   position: fixed;
   inset: 0;
   z-index: 3000;
-  background: #f7f5f2;
+  background: #ffffff;
 }
 .agent-workbench-frame {
   width: 100%;
   height: 100%;
   border: 0;
   display: block;
-  background: #f7f5f2;
+  background: #ffffff;
 }
 </style>

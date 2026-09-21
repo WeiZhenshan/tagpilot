@@ -63,6 +63,8 @@ def create_app(token=None, semantic_url=None, retriever_factory: Callable | None
                       store_type=retrieval.get("store_type"), eligible_hash=retrieval.get("eligible_hash"))
         return result
 
+    from tagpilot_agent.workbench_api import register_workbench
+    register_workbench(app, authenticate, retriever_for, secret)
     return app
 
 

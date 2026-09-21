@@ -1,0 +1,4 @@
+import {describe,it,expect} from 'vitest';
+import {clauses,planDiff,type Plan} from './agentTypes';
+const plan:Plan={tree:{logic:'AND',children:[{clause_id:'a',tag_id:1,name:'消费',operator:'>',values:['5000']},{logic:'OR',children:[{clause_id:'b',tag_id:2,name:'转入',operator:'>=',values:['500000']},{clause_id:'c',tag_id:3,name:'等级',operator:'in',values:['GOLD']}]}]}};
+describe('版本化圈选条件',()=>{it('保留嵌套逻辑的全部条件',()=>expect(clauses(plan.tree).map(c=>c.clause_id)).toEqual(['a','b','c']));it('只报告发生变化的目标条件',()=>{const next=structuredClone(plan);clauses(next.tree)[1].values=['300000'];expect(planDiff(plan,next)).toEqual(['修改：转入 >= 500000 → >= 300000']);expect(clauses(plan.tree)[1].values).toEqual(['500000']);});it('逻辑变化单独可见',()=>{const next=structuredClone(plan);if('children'in next.tree)next.tree.logic='OR';expect(planDiff(plan,next)).toContain('条件组合结构已变化');});});

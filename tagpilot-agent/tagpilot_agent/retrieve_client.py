@@ -43,3 +43,12 @@ class SemanticRetrieveClient:
         data = response.json()
         data["catalog"] = SliceCatalog(data.get("selection_context") or {})
         return data
+
+    def evidence(self, tag_ids: list[int], requirement: str, eligible: set[int]) -> dict:
+        response = httpx.post(self.base_url + "/evidence", timeout=self.timeout,
+            headers={"authorization": "Bearer " + self.token},
+            json={"requirement": requirement[:500] or "标签详情", "library_id": self.library_id,
+                  "build_id": self.build_id, "eligible_tag_ids": sorted(eligible), "tag_ids": tag_ids})
+        if response.status_code >= 400:
+            raise SemanticRetrieveError(response.status_code, "发布证据读取失败")
+        return response.json()

@@ -22,5 +22,6 @@ if [[ ! -x "$agent_python" ]]; then
   exit 1
 fi
 export TAG_SEMANTIC_URL="${TAG_SEMANTIC_URL:-http://127.0.0.1:${TAG_RUNTIME_PORT:-8091}}"
+export TAG_AGENT_DB="${TAG_AGENT_DB:-${ROOT_DIR}/tagpilot-agent/out/workbench.sqlite}"
 export PYTHONPATH="${ROOT_DIR}/tagpilot-agent${PYTHONPATH:+:$PYTHONPATH}"
 exec "$agent_python" -m uvicorn tagpilot_agent.server:app --host "${TAG_AGENT_HOST:-127.0.0.1}" --port "${TAG_AGENT_PORT:-8092}"

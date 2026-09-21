@@ -202,3 +202,19 @@ def test_single_member_family_cannot_bypass_explicit_time():
     assert resolve_family([member], {'time_anchor_type': 'WINDOW', 'time_window_value': 60, 'time_window_unit': 'DAY'})['status'] == 'clarify_time'
     assert resolve_family([member], {'time_anchor_type': 'WINDOW', 'time_window_value': 7, 'time_window_unit': 'DAY'})['status'] == 'selected'
     assert resolve_family([member], {'time_anchor_type': 'NONE'})['status'] == 'selected'
+
+
+def test_evidence_rechecks_build_owner_and_eligibility(tmp_path):
+    _pilot_bundle(tmp_path)
+    client=TestClient(create_app(tmp_path,tmp_path,'secret'))
+    req={'requirement':'女性','library_id':107,'build_id':'b1','eligible_tag_ids':[526],'tag_ids':[526]}
+    headers={'Authorization':'Bearer secret'}
+    assert client.post('/evidence',json=req).status_code==401
+    response=client.post('/evidence',json=req,headers=headers)
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert data['build_id']=='b1' and data['artifact_hash']
+    assert {t['tag_id'] for t in data['tags']}=={526}
+    assert all('allowed_operators' in t and 'caliber_struct' in t for t in data['tags'])
+    assert client.post('/evidence',json={**req,'eligible_tag_ids':[]},headers=headers).status_code==403
+    assert client.post('/evidence',json={**req,'library_id':108},headers=headers).status_code==409

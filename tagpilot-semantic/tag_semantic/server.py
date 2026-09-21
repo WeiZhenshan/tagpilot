@@ -33,6 +33,10 @@ class RetrieveRequest(BaseModel):
     k: int = Field(default=20, ge=1, le=50)
 
 
+class EvidenceRequest(RetrieveRequest):
+    tag_ids: list[int] = Field(default_factory=list, max_length=50)
+
+
 def create_app(artifact_root=None, snapshot_root=None, token=None):
     root = Path(artifact_root or os.getenv('TAG_INDEX_DIR', './data/tag-index')).resolve()
     snapshots = Path(snapshot_root or os.getenv('TAG_SNAPSHOT_DIR', './data/tag-snapshots')).resolve()
@@ -124,6 +128,22 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                                   'channel_agreement': len((response['candidates'][0].get('rank_features') or {})) / 4 if response['candidates'] else 0,
                                   'unresolved_fuzzy_terms': response['facets'].get('unresolved_fuzzy_terms', []),
                                   'retrieval_config_hash': manifest['retrieval_config_hash']}}
+
+    @app.post('/evidence', dependencies=[Depends(authenticate)])
+    def evidence(request: EvidenceRequest):
+        with build_lease(root, request.build_id):
+            built = bundle(request.build_id)
+            if built['manifest']['library_id'] != request.library_id:
+                raise HTTPException(409, '构建不属于请求标签库')
+            eligible = set(request.eligible_tag_ids) & set(built['catalog'].tags)
+            if not set(request.tag_ids) <= eligible:
+                raise HTTPException(403, '标签不在当前资格范围')
+            context = selection_context([{'tag_id': tid} for tid in request.tag_ids], built['catalog'])
+            # 术语仅返回描述与默认策略，不透出可能指向资格外标签的映射。
+            terms = [{k: term.get(k) for k in ('term', 'definition', 'default_policy', 'policy')}
+                     for term in built['catalog'].terms if term.get('term') and term['term'] in request.requirement]
+            return {**context, 'terms': terms, 'snapshot_id': built['manifest']['snapshot_id'],
+                    'build_id': request.build_id, 'artifact_hash': built['artifact_hash']}
 
     @app.get('/stats', dependencies=[Depends(authenticate)])
     def stats(build_id: str):

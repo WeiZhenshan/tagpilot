@@ -23,7 +23,10 @@ export function readAdminToken(): string | undefined {
   return undefined;
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function apiRequest<T>(
+  path: string,
+  init: RequestInit = {}
+): Promise<T> {
   const token = readAdminToken();
   const headers = new Headers(init.headers);
   if (!headers.has("Content-Type") && init.body) {
@@ -33,11 +36,20 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
     headers.set("Authorization", "Bearer " + token);
   }
   const response = await fetch(API_PREFIX + path, { ...init, headers });
+  if (readAdminToken() !== token) {
+    window.dispatchEvent(new Event("tagpilot-agent:session-changed"));
+    throw new ApiError("登录用户已变更，请刷新工作台。", 401, 401);
+  }
   if (response.status === 401) {
     throw new ApiError("登录已过期，请重新登录。", 401, 401);
   }
   const payload = await response.json().catch(() => ({}));
-  const code = typeof payload.code === "number" ? payload.code : response.ok ? 200 : response.status;
+  const code =
+    typeof payload.code === "number"
+      ? payload.code
+      : response.ok
+      ? 200
+      : response.status;
   if (code === 401) {
     throw new ApiError(payload.msg || "登录已过期，请重新登录。", 401, 401);
   }
@@ -92,7 +104,11 @@ export type RetrieveResult = {
   build_id?: string;
 };
 
-export function retrieveSemantic(libraryId: number, requirement: string, signal?: AbortSignal): Promise<AjaxData<RetrieveResult>> {
+export function retrieveSemantic(
+  libraryId: number,
+  requirement: string,
+  signal?: AbortSignal
+): Promise<AjaxData<RetrieveResult>> {
   return apiRequest("/taglibrary/semantic/retrieve", {
     method: "POST",
     body: JSON.stringify({ libraryId: String(libraryId), requirement }),

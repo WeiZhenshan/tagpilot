@@ -44,6 +44,8 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `V20260918_01__tag_semantic_layer.sql` | 标签语义层：11 张 `ts_*` 表 + 权限按钮 2140–2143（list/edit/review/bootstrap） | **是**（CI Deploy） | 否 | 6 | 无（不改 tl_*/dp_*） | taglibrary | 全部 | 自研迁移器 | 对应 `docs/design/标签语义层与检索索引建设方案.md` S1；本阶段不开放 publish |
 | `V20260918_02__tag_semantic_runtime.sql` | 语义发布权限 2144 + 业务词典种子 | **是**（CI Deploy） | 否 | 7 | **须在 V20260918_01 之后** | taglibrary | 全部 | 自研迁移器 | S7 词典首批；完整约 40 条以 Python `seed_terms()` 为准 |
 
+| `V20260921_03__agent_workbench_v2.sql` | 用户会话密文与按方案版本的幂等执行记录 | **是**（CI Deploy） | 否 | 按文件名排序 | 现有若依用户、标签库与对象群模块 | taglibrary | 全部 | 自研迁移器 | 无历史数据覆盖；运行和检查点另存 Python 加密 SQLite |
+
 **新增迁移脚本规范**：命名 `V<yyyymmdd>_<序号>__<描述>.sql`；幂等、只向前、不得包含 `drop table`。已应用的迁移文件**内容不可再修改**（因此其中标注的"来源"路径保留移动前的历史写法，实际文件见 `sql/archive/`）。
 
 ## 3. 种子 / 测试数据（`sql/seed/`）

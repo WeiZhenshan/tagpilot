@@ -214,10 +214,14 @@ def selection_context(candidates, catalog):
             'semantic_type': tag.get('semantic_type'),
             'allowed_operators': tag.get('allowed_operators') or [],
             'family_key': tag.get('family_key'),
+            'caliber_struct': tag.get('caliber_struct') or {},
+            'unit': tag.get('unit'), 'unit_scale': tag.get('unit_scale', 1),
+            'unknown_policy': tag.get('unknown_policy'),
             'aliases': [{'alias_text': alias.get('alias_text'), 'review_status': alias.get('review_status')}
                         for alias in tag.get('aliases') or []],
         })
     codes = [{'tag_id': int(row['tag_id']), 'code': str(row['code']), 'label': row.get('label'),
-              'definition': row.get('definition')}
+              'definition': row.get('definition'),
+              **{k: row[k] for k in ('lower_bound', 'upper_bound', 'lower_inclusive', 'upper_inclusive', 'bound_unit', 'rank_no', 'parent_tag_id', 'parent_code', 'level_no', 'is_unknown_bucket') if k in row}}
              for row in catalog.code_values if int(row['tag_id']) in tag_ids]
     return {'tags': tags, 'code_values': codes}
