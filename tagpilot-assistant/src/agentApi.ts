@@ -12,13 +12,16 @@ async function data<T>(
   });
   return r.data;
 }
-export const listThreads = (archived = false, page = 1) =>
-  data<ThreadRow[]>(`${prefix}?archived=${archived}&page=${page}`);
+export const listThreads = (archived = false) =>
+  data<ThreadRow[]>(`${prefix}?archived=${archived}`);
 export const createThread = (library_id: number) =>
   data<Thread>(prefix, "POST", { library_id });
 export const getThread = (id: string) => data<Thread>(`${prefix}/${id}`);
 export const changeThread = (id: string, body: unknown) =>
   data<Thread>(`${prefix}/${id}`, "PATCH", body);
+export const deleteThread = async (id: string) => {
+  await apiRequest(`${prefix}/${id}`, { method: "DELETE" });
+};
 export const startRun = (
   t: Thread,
   message: string,

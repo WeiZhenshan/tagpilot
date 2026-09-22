@@ -30,6 +30,5 @@ SQLite 版本限定单服务进程，文件锁阻止多个进程共用库；进�
 | GET | `/agent/v2/runs/{id}?owner_id=…&after=…` | 状态及增量事件 |
 | POST | `/agent/v2/runs/{id}/resume` | 恢复中断/失败；重新收紧标签资格 |
 | POST | `/agent/v2/runs/{id}/cancel` | 停止，保留已产出的证据 |
-| POST | `/agent/query` | 保留旧单次接口；旧图的精确证据离线模式不用于 V2 |
 
 详细契约、迁移、边界和验证见 [Agent V2 实施说明](../docs/development/Agent-V2实施说明.md)。

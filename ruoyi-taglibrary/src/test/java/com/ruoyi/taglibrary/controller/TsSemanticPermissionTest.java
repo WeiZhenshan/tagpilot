@@ -51,7 +51,6 @@ class TsSemanticPermissionTest {
                 .setControllerAdvice(new GlobalExceptionHandler()).build();
         when(context.getBean(ITsSemanticService.class).saveTagSemantic(any())).thenReturn(1);
         when(context.getBean(ITsSemanticService.class).reviewTagSemantic(anyLong(), any())).thenReturn(1);
-        when(context.getBean(TsRetrievalService.class).feedback(any())).thenReturn(1);
         TlTag tag = new TlTag(); tag.setTagId(526L); tag.setLibraryId(107L); tag.setFieldName("GENDER");
         when(context.getBean(TlTagMapper.class).selectTagById(526L)).thenReturn(tag);
         Map<String, Object> source = new LinkedHashMap<>();
@@ -83,11 +82,9 @@ class TsSemanticPermissionTest {
             post(prefix + "/tag/526/review").contentType("application/json").content("{\"sourceRef\":\"test\"}"),
             post(prefix + "/snapshot/publish").param("libraryId", "107"),
             post(prefix + "/index-build/start").param("snapshotId", "test").param("storeType", "MILVUS"),
-            post(prefix + "/index-build/test/activate"),
-            post(prefix + "/retrieve").contentType("application/json").content("{\"libraryId\":\"107\",\"requirement\":\"女性\"}"),
-            post(prefix + "/feedback").contentType("application/json").content("{\"action\":\"REJECT_ALL\",\"traceId\":\"test\"}")
+            post(prefix + "/index-build/test/activate")
         };
-        String[] permissions = {"list", "list", "edit", "review", "publish", "bootstrap", "publish", "list", "list"};
+        String[] permissions = {"list", "list", "edit", "review", "publish", "bootstrap", "publish"};
         for (int i = 0; i < requests.length; i++) {
             mvc.perform(requests[i]).andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("all".equals(role) || permissions[i].equals(role) ? 200 : 403));

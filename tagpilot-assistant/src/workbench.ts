@@ -1,4 +1,5 @@
 export const AGENT_BACK_MESSAGE = "tagpilot-agent:back";
+export const AGENT_LOGOUT_MESSAGE = "tagpilot-agent:logout";
 export const DEFAULT_FROM = "/taglibrary/list";
 
 export type WorkbenchContext = {
@@ -29,4 +30,15 @@ export function requestBackToWorkbench(from: string): void {
     return;
   }
   window.location.assign(target);
+}
+
+export function requestLogout(): void {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage(
+      { type: AGENT_LOGOUT_MESSAGE },
+      window.location.origin
+    );
+    return;
+  }
+  window.location.assign("/login");
 }

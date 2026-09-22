@@ -68,17 +68,17 @@ public class TsAgentWorkbenchService {
     }
     private Map<String,Object> view(TsAgentThread row,Map<String,Object> state) {
         Map<String,Object> out=new LinkedHashMap<>(state);
-        out.putAll(map("thread_id",row.getThreadId(),"library_id",row.getLibraryId(),"title",row.getTitle(),"archived","1".equals(row.getArchived()),
+        out.putAll(map("thread_id",row.getThreadId(),"library_id",row.getLibraryId(),"title",row.getTitle(),"archived","1".equals(row.getArchived()),"pinned","1".equals(row.getPinned()),
             "capabilities",map("count",permissions.hasPermi("objectgroup:group:run"),"create",permissions.hasPermi("objectgroup:group:add"),"preview",permissions.hasPermi("objectgroup:group:preview"))));
         out.remove("run_request"); return out;
     }
-    public List<TsAgentThread> listThreads(boolean archived,int page) {
-        return threads.list(uid(),archived?"1":"0",30,Math.max(0,Math.min(page,10000)-1)*30);
+    public List<TsAgentThread> listThreads(boolean archived) {
+        return threads.list(uid(),archived?"1":"0");
     }
     @Transactional
     public Map<String,Object> create(Long library) {
         visible(library); TsAgentThread row=new TsAgentThread();
-        row.setThreadId(id());row.setUserId(uid());row.setLibraryId(library);row.setTitle("新的圈选");row.setArchived("0");row.setRowVersion(0L);
+        row.setThreadId(id());row.setUserId(uid());row.setLibraryId(library);row.setTitle("新的圈选");row.setArchived("0");row.setPinned("0");row.setRowVersion(0L);
         Map<String,Object> state=map("revision",0,"messages",new ArrayList<>(),"versions",new ArrayList<>(),"events",new ArrayList<>(),"status","IDLE");
         row.setPayload(crypto.encrypt(encode(state)));threads.insert(row);return view(row,state);
     }
@@ -131,8 +131,25 @@ public class TsAgentWorkbenchService {
         if(request.containsKey("title")) {
             String title=String.valueOf(request.get("title")).trim();if(title.isEmpty()||title.length()>120)throw new ServiceException("标题须为1至120字");row.setTitle(title);
         }
-        if(request.containsKey("archived")) {idle(state);row.setArchived(Boolean.TRUE.equals(request.get("archived"))?"1":"0");}
+        if(request.containsKey("archived")) {
+            idle(state);boolean archived=Boolean.TRUE.equals(request.get("archived"));row.setArchived(archived?"1":"0");
+            if(archived)row.setPinned("0");
+        }
+        if(request.containsKey("pinned")) {
+            if("1".equals(row.getArchived()))throw new ServiceException("请先恢复已归档会话",409);
+            row.setPinned(Boolean.TRUE.equals(request.get("pinned"))?"1":"0");
+        }
         save(row,state);return view(row,state);
+    }
+    @Transactional
+    public void delete(String thread) {
+        TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
+        if(!"1".equals(row.getArchived()))throw new ServiceException("请先归档会话",409);
+        idle(state);
+        agent.delete("/agent/v2/threads/"+thread+"?owner_id="+uid());
+        threads.deleteExecutions(thread,uid());
+        if(threads.deleteThread(thread,uid(),row.getRowVersion())!=1)
+            throw new ServiceException("会话已在其他页面更新，请刷新",409);
     }
     @Transactional
     public Map<String,Object> start(String thread,Map<String,Object> request) {

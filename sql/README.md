@@ -175,5 +175,6 @@ mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
 | `migration/V20260919_02__tag_semantic_pages.sql` | 语义维护/快照索引 C 菜单，继承已有语义查看角色；不扩大编辑复核权限 |
 | `migration/V20260921_01__agent_workbench_menu.sql` | 一级菜单「智能体工作台」(`/agent`)；`menu_id` 2200 与对象群冲突，实际插入被跳过，保留不改 |
 | `migration/V20260921_02__agent_workbench_menu.sql` | 改用 `menu_id` 2300 补齐「智能体工作台」；已有 `path=agent` 顶级菜单则只补角色授权 |
+| `migration/V20260922_02__agent_thread_pinned.sql` | 会话新增持久置顶状态与归属/归档/置顶排序索引；幂等前向迁移 |
 
 两条迁移已在本地隔离库重复验证并应用本地 ry；详情见 `docs/validation/语义索引层建设验收记录.md`。其它环境仍由 `bin/db-migrate.sh` 读取迁移记录按序执行，不重跑初始化 SQL。

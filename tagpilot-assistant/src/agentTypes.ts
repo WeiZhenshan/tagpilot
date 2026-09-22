@@ -86,6 +86,7 @@ export type Thread = {
   library_id: number;
   title: string;
   archived: boolean;
+  pinned: boolean;
   status: string;
   revision: number;
   messages: AgentMessage[];
@@ -114,6 +115,7 @@ export type ThreadRow = {
   title: string;
   updateTime: string;
   archived: string;
+  pinned: string;
 };
 export const busy = (t?: Thread | null) =>
   !!t && ["RUNNING", "SUBMITTING"].includes(t.status);

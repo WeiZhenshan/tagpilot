@@ -36,7 +36,7 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     TsAgentThread row;
     @BeforeEach void setup() throws Exception {
         ((LoginUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).setUserId(2L);
-        row=new TsAgentThread();row.setThreadId("owned");row.setUserId(2L);row.setLibraryId(107L);row.setRowVersion(0L);row.setTitle("测试");row.setArchived("0");
+        row=new TsAgentThread();row.setThreadId("owned");row.setUserId(2L);row.setLibraryId(107L);row.setRowVersion(0L);row.setTitle("测试");row.setArchived("0");row.setPinned("0");
         lenient().when(threads.lock("owned",2L)).thenReturn(row);
         lenient().when(permissions.hasAnyPermi(anyString())).thenReturn(true);
         lenient().when(permissions.hasPermi(anyString())).thenReturn(true);
@@ -89,6 +89,36 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         state(map("revision",2,"status","WAITING","interrupt_id","new"));
         assertThrows(ServiceException.class,()->service.resume("owned",map("base_revision",2,"interrupt_id","old","answer","回答")));
         verifyNoInteractions(agent);
+    }
+    @Test void pinIsPersistedAndArchivingClearsIt() {
+        Map<String,Object> pinned=service.rename("owned",map("pinned",true));
+        assertEquals(true,pinned.get("pinned"));
+        assertEquals("1",row.getPinned());
+        Map<String,Object> archived=service.rename("owned",map("archived",true));
+        assertEquals(true,archived.get("archived"));
+        assertEquals(false,archived.get("pinned"));
+    }
+    @Test void deleteRequiresArchivedIdleConversation() throws Exception {
+        assertThrows(ServiceException.class,()->service.delete("owned"));
+        verify(agent,never()).delete(anyString());
+        row.setArchived("1");state(map("revision",2,"status","WAITING"));
+        assertThrows(ServiceException.class,()->service.delete("owned"));
+        verify(agent,never()).delete(anyString());
+    }
+    @Test void deletesArchivedConversationAndItsAgentState() {
+        row.setArchived("1");
+        when(agent.delete("/agent/v2/threads/owned?owner_id=2")).thenReturn(map("deleted_runs",1));
+        when(threads.deleteThread("owned",2L,0L)).thenReturn(1);
+        service.delete("owned");
+        verify(threads).deleteExecutions("owned",2L);
+        verify(threads).deleteThread("owned",2L,0L);
+    }
+    @Test void agentCleanupFailureKeepsBusinessConversation() {
+        row.setArchived("1");
+        when(agent.delete(anyString())).thenThrow(new ServiceException("编排层暂不可用"));
+        assertThrows(ServiceException.class,()->service.delete("owned"));
+        verify(threads,never()).deleteExecutions(anyString(),anyLong());
+        verify(threads,never()).deleteThread(anyString(),anyLong(),anyLong());
     }
     @Test void authoritativeFailureStartsBoundedRepairAndKeepsDraft() throws Exception {
         state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>()));

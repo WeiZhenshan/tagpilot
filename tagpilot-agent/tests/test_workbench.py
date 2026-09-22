@@ -51,7 +51,8 @@ def test_interrupt_survives_restart_and_resume(tmp_path):
     conn.close()
 
 def test_runtime_owner_idempotence_and_event_replay(tmp_path):
-    app=FastAPI();register_workbench(app,lambda:None,lambda a,b:Retriever(),'secret',str(tmp_path/'runtime.sqlite'),Planner())
+    runtime_path=str(tmp_path/'runtime.sqlite')
+    app=FastAPI();register_workbench(app,lambda:None,lambda a,b:Retriever(),'secret',runtime_path,Planner())
     client=TestClient(app)
     assert client.post('/agent/v2/runs',json=REQ).status_code==200
     for _ in range(100):
@@ -66,6 +67,18 @@ def test_runtime_owner_idempotence_and_event_replay(tmp_path):
     assert client.get('/agent/v2/runs/'+REQ['run_id'],params={'owner_id':'7','after':seq}).json()['events']==[]
     changed={**REQ,'requirement':'不同内容'}
     assert client.post('/agent/v2/runs',json=changed).status_code==409
+    deleted=client.delete('/agent/v2/threads/'+REQ['thread_id'],params={'owner_id':'7'})
+    assert deleted.status_code==200 and deleted.json()['deleted_runs']==1
+    assert client.get('/agent/v2/runs/'+REQ['run_id'],params={'owner_id':'7'}).status_code==404
+    with sqlite3.connect(runtime_path+'.checkpoints') as checkpoint_db:
+        assert checkpoint_db.execute('SELECT count(*) FROM checkpoints WHERE thread_id=?',(REQ['run_id'],)).fetchone()[0]==0
+
+def test_delete_rejects_active_thread(tmp_path):
+    store=RunStore(str(tmp_path/'active.sqlite'),'key');store.create('active',REQ)
+    import pytest
+    with pytest.raises(ValueError,match='完成或停止'):
+        store.delete_thread(REQ['thread_id'],REQ['owner_id'])
+    assert store.get('active',REQ['owner_id'])['status']=='RUNNING'
 
 def test_store_recovery_cancel_and_encryption(tmp_path):
     path=str(tmp_path/'runs.sqlite');store=RunStore(path,'key');store.create('r',REQ)

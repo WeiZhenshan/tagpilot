@@ -39,7 +39,7 @@ class TsSnapshotArtifactStoreTest {
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
         configuration.getTypeAliasRegistry().registerAliases("com.ruoyi.taglibrary.domain");
         org.springframework.core.io.Resource[] resources = new org.springframework.core.io.support.PathMatchingResourcePatternResolver().getResources("classpath*:mapper/taglibrary/Ts*Mapper.xml");
-        assertTrue(resources.length >= 11);
+        assertTrue(resources.length >= 10);
         for (org.springframework.core.io.Resource resource : resources) {
             try (java.io.InputStream stream = resource.getInputStream()) {
                 new org.apache.ibatis.builder.xml.XMLMapperBuilder(stream, configuration, resource.toString(), configuration.getSqlFragments()).parse();

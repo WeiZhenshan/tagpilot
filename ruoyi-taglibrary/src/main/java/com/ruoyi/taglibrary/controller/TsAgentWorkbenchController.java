@@ -19,10 +19,11 @@ public class TsAgentWorkbenchController extends BaseController {
         return org.springframework.http.ResponseEntity.ok().header("Cache-Control","no-store").header("X-Accel-Buffering","no")
             .body("retry: 1000\nevent: state\ndata: "+json.writeValueAsString(service.get(id))+"\n\n");
     }
-    @GetMapping("/threads") public AjaxResult list(@RequestParam(defaultValue="false") boolean archived,@RequestParam(defaultValue="1") int page) { return success(service.listThreads(archived,page)); }
+    @GetMapping("/threads") public AjaxResult list(@RequestParam(defaultValue="false") boolean archived) { return success(service.listThreads(archived)); }
     @PostMapping("/threads") public AjaxResult create(@RequestBody Map<String,Object> body) { return success(service.create(Long.valueOf(String.valueOf(body.get("library_id"))))); }
     @GetMapping("/threads/{id}") public AjaxResult get(@PathVariable String id) { return success(service.get(id)); }
     @PatchMapping("/threads/{id}") public AjaxResult rename(@PathVariable String id,@RequestBody Map<String,Object> body) {return success(service.rename(id,body));}
+    @DeleteMapping("/threads/{id}") public AjaxResult delete(@PathVariable String id) {service.delete(id);return success();}
     @PostMapping("/threads/{id}/runs") public AjaxResult start(@PathVariable String id,@RequestBody Map<String,Object> body) {return success(service.start(id,body));}
     @PostMapping("/threads/{id}/resume") public AjaxResult resume(@PathVariable String id,@RequestBody Map<String,Object> body) {return success(service.resume(id,body));}
     @PostMapping("/threads/{id}/cancel") public AjaxResult cancel(@PathVariable String id) {return success(service.cancel(id));}

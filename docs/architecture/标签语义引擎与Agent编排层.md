@@ -8,7 +8,7 @@
 
 ## 0. 一句话定位
 
-标签语义引擎把「标签是谁、能不能用」和「标签怎么被理解」拆开：权威身份仍在 `tl_tag` / `dp_*`，理解层在 `ts_*`。`tagpilot-semantic` 只消费不可变快照和 Java 算好的资格集合，做 Embedding 与多路召回。自然语言查询走独立的 `tagpilot-agent`（LangGraph + DSL 门禁），结果一律 `auto_execute=false`，必须人工确认，**不会自动圈客**。
+标签语义引擎把「标签是谁、能不能用」和「标签怎么被理解」拆开：权威身份仍在 `tl_tag` / `dp_*`，理解层在 `ts_*`。`tagpilot-semantic` 只消费不可变快照和 Java 算好的资格集合，做 Embedding 与多路召回。自然语言圈选走独立的 `tagpilot-agent`（LangGraph 圈选工作台：需求拆解 → 证据检索 → 方案生成 → 校验修复），方案一律须人工确认后才由 Java 执行，**不会自动圈客**。
 
 ---
 
@@ -43,9 +43,9 @@
 | 发布门禁 + JSONL 落盘 | `TsSnapshotAssembler`、`TsSnapshotArtifactStore` | `L107-20260919-002` |
 | BGE-M3 + reranker + Milvus | `index/builder.py`、`index/milvus_store.py` | `bge-m3-l107-20260919-002-r3`，3374 文档 / 1024 维 |
 | 六通道检索（别名 / BM25 名 / BM25 正文 / 稠密 / 族 / 码值） | `retrieve/service.py` | 精确别名可走快路径 |
-| LangGraph Agent + AudienceQueryDSL | `tagpilot-agent/tagpilot_agent/graph.py`、`dsl.py` | `retrieve → select → validate → finalize` |
+| LangGraph 圈选工作台（threads/runs） | `tagpilot-agent/tagpilot_agent/workbench_graph.py`、`workbench_api.py` | 意图 → 证据检索 → 方案树 → 校验修复；支持中断恢复 |
 | Java ↔ Python 受控调用 | `TsRuntimeClient`、`TsAgentClient`、`tagpilot-semantic` / `tagpilot-agent` 的 `server.py` | Bearer 令牌，Python 无公开文档页 |
-| 自然语言查询页 + 反馈入库 | `tagpilot-assistant`（`/agent`）+ `TsRetrievalService` | 查询走 `/agent/query` |
+| 智能体工作台（React） | `tagpilot-assistant`（`/agent`）+ `TsAgentWorkbenchService` | 经 `/taglibrary/agent/threads` 驱动 V2 运行 |
 | 600 题本地封存回归 | `eval/acceptance.py` | 点估计通过，不是独立 Gold |
 
 ### 2.2 明确未完成或不得宣称
@@ -219,64 +219,32 @@ sequenceDiagram
 
 ### 4.2 查询流水线（见下一节 Agent）
 
-页面「查询标签」**不**调用 Python `/retrieve`。Java `TsRetrievalService.retrieve` 固定打 `/agent/query`。纯检索 HTTP 仍保留给运维和评测。
+页面「圈选客户」**不**直接调用 Python `/retrieve`。Java `TsAgentWorkbenchService` 经 `/taglibrary/agent/threads` 驱动编排层 `/agent/v2/runs`。纯检索 HTTP（`:8091 /retrieve`）仍保留给运维和评测。
 
 ---
 
-## 5. Agent 编排层：功能层级
+## 5. Agent 编排层：圈选工作台
 
-Agent 是检索之上的**受控选择图**，不是通用对话智能体。
+Agent 编排层现为 **V2 圈选工作台**（原 V1 同步选择图 `/agent/query` 与 DSL 门禁已于 2026-09 退役删除）。
 
 ```mermaid
 flowchart LR
-  START((START)) --> retrieve
-  retrieve --> select
-  select --> validate[validate_dsl]
-  validate --> finalize
-  finalize --> END((END))
+  START((START)) --> start[understand 理解需求]
+  start --> decide[decide 决策]
+  decide -->|tool| tool[证据检索]
+  tool --> decide
+  decide -->|replan| replan[方案重组]
+  replan --> decide
+  decide -->|finish| validate[validate 校验修复]
+  validate -->|待确认| ask[ask 业务澄清]
+  ask --> validate
+  validate -->|通过| END((END))
 ```
 
-| 节点 | 做什么 | 不能做什么 |
-|---|---|---|
-| `retrieve` | 调 `RetrieveService`，只展开资格内可见候选 | 不读全库、不读客户原值 |
-| `select` | 选择器在候选里建议 `decision / dsl / recommended_tag_ids` | 检索已判定 CLARIFY / INEXPRESSIBLE 时跳过 |
-| `validate_dsl` | `AudienceQueryDSL` 校验资格、操作符、已发布码值 | 不改写条件、不执行 SQL |
-| `finalize` | 汇总决策；`auto_execute=false`、`requires_confirmation=true` | 不写库、不圈客 |
-
-### 5.1 两种选择器
-
-| 选择器 | 何时启用 | 行为 |
-|---|---|---|
-| `openai-compatible:<model>` | 同时配置 `TAG_LLM_BASE_URL` + `TAG_LLM_MODEL` | 只发送最多 20 条已过滤候选的 tag_id/名称/定义/操作符/码值；要求 JSON：`decision, confidence, explanation, dsl` |
-| `exact-evidence-offline` | 未配置模型（当前演示默认） | 仅当查询归一化后唯一命中一条已复核名称或别名；数值边界词可生成简单数值 DSL；否则返回空，由 finalize 变成候选或澄清 |
-
-`model_connected` 仅当实际使用 OpenAI 兼容选择器时为 true。调用失败不得回退成「已连接 LLM」。
-
-### 5.2 DSL 契约
-
-```json
-{
-  "logic": "AND",
-  "conditions": [
-    { "tag_id": 1175, "operator": ">=", "value": 0 }
-  ]
-}
-```
-
-约束：1–20 条条件；`in / not_in / between` 用 `values`；枚举/布尔的值必须是快照里已发布码；`tag_id` 必须在本次 `eligible_tag_ids` 中。非法则 `REJECTED_BY_DSL_GATE`。
-
-### 5.3 决策码（页面文案）
-
-| decision | 含义 |
-|---|---|
-| `CANDIDATES_ONLY` | 有候选，需人工核对口径 |
-| `NEEDS_CONFIRMATION` | DSL 已过门禁，仍须确认后才可交给客群服务 |
-| `NEEDS_VALUE` | 标签已唯一识别，缺条件值 |
-| `CLARIFY` | 时间/口径/模糊词不清 |
-| `INEXPRESSIBLE` | 分档无法精确表达 |
-| `REJECTED_BY_DSL_GATE` | 模型建议未过 DSL |
-
-Java 在响应返回前再次校验：`snapshot_id / build_id / store_type / artifact_hash` 必须等于当前 ACTIVE bundle；候选 `tag_id` 必须 ⊆ 资格。然后写入 `action=TRACE`（查询原文只存 SHA-256）。用户点「符合需求」再写 `ACCEPT` 等决策行，且必须是**本人 Trace**。
+- 图节点与状态机在 `workbench_graph.py`；HTTP 协议（threads / runs / resume / cancel / repair）在 `workbench_api.py`；运行记录加密落 SQLite。
+- planner 通过 langchain `ChatOpenAI` 调用 OpenAI 兼容端点（`TAG_LLM_*`），temperature=0、JSON 输出，带格式修复环；未配置模型时启动即报错，不再有离线精确匹配后备。
+- 每个条件必须绑定**本轮检索证据**；资格、发布工件（build/snapshot/hash）逐次校验；方案经 `validate_plan` 校验后仍须人工确认，不生成 SQL、不直接统计或建群。
+- 详见 [`docs/development/Agent-V2实施说明.md`](../development/Agent-V2实施说明.md) 与 V3 设计文档。
 
 ---
 
@@ -285,28 +253,23 @@ Java 在响应返回前再次校验：`snapshot_id / build_id / store_type / art
 ```mermaid
 sequenceDiagram
   participant U as 业务用户
-  participant Vue as 智能体工作台
-  participant Java as TsRetrievalService
-  participant Auth as eligibleTagIds
-  participant Py as POST :8092 /agent/query
+  participant R as 智能体工作台 React
+  participant Java as TsAgentWorkbenchService
+  participant Py as POST :8092 /agent/v2/runs
+  participant G as LangGraph workbench
   participant Sem as POST :8091 /retrieve
-  participant G as LangGraph
-  participant Idx as 固定 ACTIVE build
 
-  U->>Vue: 输入自然语言
-  Vue->>Java: POST /taglibrary/semantic/retrieve
-  Java->>Auth: 当前资格 ∩ 快照已发布 ∩ 依据未漂移
-  Java->>Py: requirement, library_id, build_id, eligible_tag_ids
-  Py->>G: invoke
-  G->>Sem: retrieve
-  Sem->>Idx: 六通道检索
-  G->>G: select → validate_dsl → finalize
-  Py-->>Java: decision, candidates, dsl, selector, model_connected
-  Java->>Java: 身份与资格二次校验，写 TRACE
-  Java-->>Vue: 展示候选 / DSL 待确认
-  U->>Vue: 符合需求
-  Vue->>Java: POST /feedback ACCEPT
-  Java-->>U: 仅落库，不执行客群
+  U->>R: 输入自然语言
+  R->>Java: POST /taglibrary/agent/threads/{id}/runs
+  Java->>Py: 注入 owner/thread/发布版本/资格
+  Py->>G: invoke（checkpointer 持久化）
+  G->>Sem: search_tags / evidence / capabilities
+  Sem-->>G: 资格内候选与证据
+  G->>G: 理解 → 绑定 → 校验修复（可 interrupt 澄清）
+  Py-->>Java: plan / questions / 事件流
+  Java-->>R: SSE 状态与增量事件
+  U->>R: 确认方案 / 回答澄清
+  R->>Java: resume / count / create-group（Java 执行）
 ```
 
 服务间认证：Java `tag.runtime-token` 与 Python `TAG_RUNTIME_TOKEN` 必须相同（语义引擎与编排层共用）。Python 不暴露 Swagger。用户 JWT 到不了 Python。
@@ -423,17 +386,17 @@ VERIFY_UI=true bin/verify-tag-semantic.sh
 7. **查询与反馈**  
    从标签库管理 / 标签管理 / 快照页点「打开智能体」，或侧栏进入「智能体工作台」。结果必须人工确认。反馈动作：`ACCEPT / REPLACE / REMOVE / CLARIFY_PICKED / REJECT_ALL`。
 
-### 7.4 接入真实 LLM 选择器
+### 7.4 接入真实 LLM（工作台 planner）
 
-只把资格剪裁后的候选发给已批准的 OpenAI-compatible `chat/completions`。不发送客户原值、不发送整库快照。
+工作台 planner 经 langchain `ChatOpenAI` 调用已批准的 OpenAI-compatible 端点，只发送需求文本、方案上下文与**资格剪裁后的检索证据**。不发送客户原值、不发送整库快照。
 
 | 环境变量 | 用途 |
 |---|---|
-| `TAG_LLM_BASE_URL` | 服务基地址（不含 `/v1` 后缀以外的自定义路径时，代码会拼 `/v1/chat/completions`） |
+| `TAG_LLM_BASE_URL` | 服务基地址（不含 `/v1`，代码自动拼接） |
 | `TAG_LLM_MODEL` | 已批准模型名 |
 | `TAG_LLM_API_KEY` | 仅环境注入，不入库、不进 Git |
 
-重启 Python 运行时后，页面必须显示 `model_connected=true` 才能把该次查询记为 LLM 结果。未配置或失败时保持精确证据模式。
+未配置模型时运行启动即报错——V2 必须配置真实模型，无离线后备。
 
 ### 7.5 常用 HTTP（均需登录权限；运行时另需服务令牌）
 
@@ -441,8 +404,6 @@ Java（浏览器 Axios 前缀 `/dev-api`）：
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| POST | `/taglibrary/semantic/retrieve` | 自然语言查询（内部转 Agent） |
-| POST | `/taglibrary/semantic/feedback` | 本人 Trace 反馈 |
 | GET | `/taglibrary/semantic/snapshot/active` | 当前 ACTIVE bundle |
 | GET | `/taglibrary/semantic/eligible-tags` | 当前资格；取不到则拒绝服务 |
 | GET | `/taglibrary/semantic/snapshot/quality` | 发布门禁预演 |
@@ -467,7 +428,7 @@ Python 编排层 `:8092`（同一令牌）：
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/health` | 探活 |
-| POST | `/agent/query` | LangGraph；内部转调语义引擎 `/retrieve` |
+| POST | `/agent/v2/runs` / `resume` / `cancel` / `repair` | 圈选工作台运行协议（见 tagpilot-agent README） |
 
 ### 7.6 CLI 与评测
 
@@ -528,9 +489,9 @@ tagpilot-semantic/.venv-models/bin/python -m tag_semantic.eval.acceptance \
 | HTTP 面 | `TsSemanticController`、`tagpilot-semantic/tag_semantic/server.py`、`tagpilot-agent/tagpilot_agent/server.py` |
 | 资格与激活 | `TsCatalogRuntimeServiceImpl` |
 | 发布门禁 | `TsSnapshotAssembler` |
-| 查询与反馈 | `TsRetrievalService`、`TsAgentClient` |
+| 圈选工作台协议 | `TsAgentWorkbenchService`、`TsAgentClient` |
 | 检索 | `tagpilot-semantic/.../retrieve/service.py`、`family.py`、`facets.py` |
-| Agent / DSL | `tagpilot-agent/tagpilot_agent/graph.py`、`dsl.py` |
+| Agent 编排 | `tagpilot-agent/tagpilot_agent/workbench_graph.py`、`workbench_api.py` |
 | 索引 | `tagpilot-semantic/.../index/builder.py`、`milvus_store.py`、`docs/templates.py` |
 | 草稿生成 | `tagpilot-semantic/.../bootstrap/rule_init.py`、`expand_full.py`、`expert_review.py` |
 | 页面 | `ruoyi-ui/src/views/taglibrary/semantic/`、`semantic-index/` |

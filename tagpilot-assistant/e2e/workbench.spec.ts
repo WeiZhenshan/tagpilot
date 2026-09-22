@@ -45,7 +45,11 @@ const plan = {
   },
 };
 let t: any;
+let deleted = false;
+let createdThreads = 0;
 test.beforeEach(async ({ page }) => {
+  deleted = false;
+  createdThreads = 0;
   t = {
     thread_id: "test-thread",
     title: "跨行资金转入客户",
@@ -86,12 +90,20 @@ test.beforeEach(async ({ page }) => {
       body = route.request().postDataJSON();
     let data: any;
     if (url.pathname.endsWith("/getInfo"))
-      return route.fulfill({ json: { code: 200, user: { userId: 2 } } });
+      return route.fulfill({
+        json: {
+          code: 200,
+          user: { userId: 2, userName: "demo", nickName: "测试用户" },
+        },
+      });
     if (url.pathname.endsWith("/library/list"))
       return route.fulfill({
         json: {
           code: 200,
-          rows: [{ libraryId: 107, libraryName: "个人客户经营标签库" }],
+          rows: [
+            { libraryId: 107, libraryName: "个人客户经营标签库" },
+            { libraryId: 108, libraryName: "公司客户经营标签库" },
+          ],
         },
       });
     if (url.pathname.endsWith("/events")) {
@@ -101,19 +113,50 @@ test.beforeEach(async ({ page }) => {
         body: `event: state\ndata: ${JSON.stringify(t)}\n\n`,
       });
     }
-    if (url.pathname.endsWith("/threads"))
-      data =
-        route.request().method() === "GET"
-          ? [
+    if (url.pathname.endsWith("/threads")) {
+      if (route.request().method() === "GET") {
+        data = deleted || url.searchParams.get("archived") !== String(!!t.archived)
+          ? []
+          : [
               {
                 threadId: t.thread_id,
                 title: t.title,
                 libraryId: 107,
-                archived: "0",
+                archived: t.archived ? "1" : "0",
+                pinned: t.pinned ? "1" : "0",
                 updateTime: "2026-09-21 09:00:00",
               },
-            ]
-          : t;
+            ];
+      } else {
+        createdThreads++;
+        t = {
+          thread_id: `new-thread-${createdThreads}`,
+          title: "新的圈选",
+          library_id: Number(body.library_id),
+          archived: false,
+          pinned: false,
+          status: "IDLE",
+          revision: 0,
+          messages: [],
+          versions: [],
+          events: [],
+          capabilities: { count: true, create: true, preview: true },
+        };
+        data = t;
+      }
+    } else if (route.request().method() === "DELETE") {
+      deleted = true;
+      data = null;
+    }
+    else if (route.request().method() === "PATCH") {
+      if (typeof body.title === "string") t.title = body.title;
+      if (typeof body.pinned === "boolean") t.pinned = body.pinned;
+      if (typeof body.archived === "boolean") {
+        t.archived = body.archived;
+        if (body.archived) t.pinned = false;
+      }
+      data = t;
+    }
     else if (url.pathname.endsWith("/count")) {
       t.count = {
         value: 1268,
@@ -125,7 +168,7 @@ test.beforeEach(async ({ page }) => {
       url.pathname.endsWith("/runs") ||
       url.pathname.endsWith("/resume")
     ) {
-      t.plan = body.plan || body.answer?.plan || t.plan;
+      t.plan = body.plan || body.answer?.plan || t.plan || structuredClone(plan);
       t.revision++;
       t.plan.revision = t.revision;
       t.plan.valid = true;
@@ -262,6 +305,153 @@ test("mobile errors remain visible and history is accessible", async ({
   await expect(
     page.getByRole("navigation", { name: "圈选会话" })
   ).toBeVisible();
+});
+
+test("new draft keeps its identity while changing libraries", async ({ page }) => {
+  await page.goto("/agent-ui/?threadId=test-thread");
+  await page.getByRole("button", { name: "新建圈选" }).click();
+  await expect(page.locator(".conversation-heading")).toHaveText("新的圈选");
+
+  const composer = page.getByPlaceholder("描述客户条件，或继续修改当前方案…");
+  await composer.fill("圈选公司客户中的高价值客户");
+  const libraryPicker = page.getByRole("button", { name: "当前标签库" });
+  await libraryPicker.click();
+  await page.getByRole("option", { name: "公司客户经营标签库" }).click();
+
+  await expect(libraryPicker).toContainText("公司客户经营标签库");
+  await expect(composer).toHaveValue("圈选公司客户中的高价值客户");
+  expect(createdThreads).toBe(0);
+  await expect(page).not.toHaveURL(/threadId=/);
+  await page.getByRole("button", { name: "发送需求" }).click();
+  await expect.poll(() => createdThreads).toBe(1);
+  expect(t.library_id).toBe(108);
+});
+
+test("library picker opens below its trigger", async ({ page }) => {
+  await page.goto("/agent-ui/");
+  const trigger = page.getByRole("button", { name: "当前标签库" });
+  await trigger.click();
+  const listbox = page.getByRole("listbox", { name: "选择标签库" });
+  await expect(listbox).toBeVisible();
+
+  const triggerBox = await trigger.boundingBox();
+  const listboxBox = await listbox.boundingBox();
+  expect(triggerBox).not.toBeNull();
+  expect(listboxBox).not.toBeNull();
+  expect(listboxBox!.y).toBeGreaterThanOrEqual(triggerBox!.y + triggerBox!.height);
+
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(trigger).toContainText("公司客户经营标签库");
+});
+
+test("return to latest stays fixed while browsing older messages", async ({
+  page,
+}) => {
+  t.messages = Array.from({ length: 30 }, (_, index) => ({
+    id: `long-message-${index}`,
+    role: index % 2 === 0 ? "user" : "assistant",
+    text: `第 ${index + 1} 条用于验证滚动定位的对话消息`,
+    created_at: "2026-09-21T01:00:00Z",
+  }));
+  await page.setViewportSize({ width: 596, height: 773 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+
+  const viewport = page.locator(".thread-viewport");
+  const returnButton = page.getByRole("button", { name: "回到最新消息" });
+  await expect(returnButton).toBeHidden();
+  await viewport.evaluate((element) => {
+    element.scrollTop = 0;
+    element.dispatchEvent(new Event("scroll"));
+  });
+  await expect(returnButton).toBeVisible();
+  await expect(returnButton).toBeEnabled();
+
+  const initialBox = await returnButton.boundingBox();
+  await viewport.evaluate((element) => {
+    element.scrollTop = Math.floor(element.scrollHeight / 3);
+    element.dispatchEvent(new Event("scroll"));
+  });
+  const scrolledBox = await returnButton.boundingBox();
+  expect(initialBox).not.toBeNull();
+  expect(scrolledBox).not.toBeNull();
+  expect(Math.abs(scrolledBox!.y - initialBox!.y)).toBeLessThan(1);
+
+  await returnButton.click();
+  await expect
+    .poll(() =>
+      viewport.evaluate(
+        (element) =>
+          element.scrollHeight - element.scrollTop - element.clientHeight
+      )
+    )
+    .toBeLessThan(2);
+  await expect(returnButton).toBeHidden();
+});
+
+test("history rail supports collapse, inline rename, row actions and account menu", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+
+  await expect(page.getByRole("button", { name: "重命名" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "上一页" })).toHaveCount(0);
+  const row = page.getByRole("button", { name: /跨行资金转入客户/ }).first();
+  await row.dblclick();
+  const editor = page.getByLabel("编辑会话名称：跨行资金转入客户");
+  await editor.fill("重点资金转入客户");
+  await editor.press("Enter");
+  await expect(page.getByText("重点资金转入客户", { exact: true }).last()).toBeVisible();
+
+  const renamedRow = page.getByRole("button", { name: /重点资金转入客户/ }).first();
+  await renamedRow.hover();
+  const pin = page.getByRole("button", { name: "置顶：重点资金转入客户" });
+  await expect(pin).toHaveAttribute("data-tooltip", "置顶");
+  await pin.hover();
+  await expect.poll(() =>
+    pin.evaluate((node) => getComputedStyle(node, "::after").opacity)
+  ).toBe("1");
+  await pin.click();
+  await expect(
+    page.getByRole("button", { name: "取消置顶：重点资金转入客户" })
+  ).toBeVisible();
+  await expect(renamedRow.locator(".history-pinned")).toBeVisible();
+  const archive = page.getByRole("button", { name: "归档会话：重点资金转入客户" });
+  await expect(archive).toHaveAttribute("data-tooltip", "归档");
+  await archive.click();
+
+  await page.getByRole("button", { name: /测试用户/ }).click();
+  await expect(page.getByRole("menuitem", { name: "个人中心" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "退出登录" })).toBeVisible();
+  await page.getByRole("menuitem", { name: "查看归档" }).click();
+  await expect(page.getByText("已归档", { exact: true })).toBeVisible();
+  const archivedRow = page.getByRole("button", { name: /重点资金转入客户/ }).first();
+  await archivedRow.hover();
+  await expect(page.locator(".history-select small")).toHaveCount(0);
+  const restore = page.getByRole("button", { name: "取消归档：重点资金转入客户" });
+  const remove = page.getByRole("button", { name: "删除：重点资金转入客户" });
+  await expect(restore).toHaveAttribute("data-tooltip", "取消归档");
+  await expect(remove).toHaveAttribute("data-tooltip", "删除");
+  await remove.hover();
+  await expect.poll(() =>
+    remove.evaluate((node) => getComputedStyle(node, "::after").opacity)
+  ).toBe("1");
+  await remove.click();
+  const confirmation = page.getByRole("dialog", { name: "永久删除会话？" });
+  await expect(confirmation).toBeVisible();
+  await expect(confirmation).toContainText("都无法恢复");
+  await confirmation.getByRole("button", { name: "取消" }).click();
+  await expect(archivedRow).toBeVisible();
+  await archivedRow.hover();
+  await page.getByRole("button", { name: "删除：重点资金转入客户" }).click();
+  await page.getByRole("button", { name: "永久删除" }).click();
+  await expect(page.getByText("没有已归档的圈选")).toBeVisible();
+
+  await page.getByRole("button", { name: "收起历史侧边栏" }).click();
+  await expect(page.getByRole("navigation", { name: "圈选会话" })).toBeHidden();
+  await page.getByRole("button", { name: "展开历史侧边栏" }).click();
+  await expect(page.getByRole("navigation", { name: "圈选会话" })).toBeVisible();
 });
 
 test('计算草案展示缺口且禁止执行',async({page})=>{

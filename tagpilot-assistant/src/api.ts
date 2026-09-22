@@ -70,62 +70,6 @@ export type AjaxList<T> = {
   data?: T;
 };
 
-export type AjaxData<T> = {
-  data?: T;
-  msg?: string;
-};
-
 export function listLibraries(): Promise<AjaxList<LibraryRow>> {
   return apiRequest("/taglibrary/library/list?pageNum=1&pageSize=100");
-}
-
-export type Candidate = {
-  tag_id?: number;
-  name?: string;
-  family_key?: string;
-  code?: string;
-};
-
-export type RetrieveResult = {
-  decision?: string;
-  selector?: string;
-  model_connected?: boolean;
-  confidence?: number | null;
-  explanation?: string | null;
-  recommended_tag_ids?: number[];
-  dsl?: unknown;
-  dsl_valid?: boolean;
-  validation_error?: string | null;
-  candidates?: Candidate[];
-  auto_execute?: boolean;
-  requires_confirmation?: boolean;
-  trace_id?: string;
-  snapshot_id?: string;
-  build_id?: string;
-};
-
-export function retrieveSemantic(
-  libraryId: number,
-  requirement: string,
-  signal?: AbortSignal
-): Promise<AjaxData<RetrieveResult>> {
-  return apiRequest("/taglibrary/semantic/retrieve", {
-    method: "POST",
-    body: JSON.stringify({ libraryId: String(libraryId), requirement }),
-    signal,
-  });
-}
-
-export function submitFeedback(payload: {
-  traceId?: string;
-  buildId?: string;
-  snapshotId?: string;
-  recommendedTagId?: number;
-  finalTagId?: number;
-  action: string;
-}): Promise<unknown> {
-  return apiRequest("/taglibrary/semantic/feedback", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
 }

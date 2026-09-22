@@ -175,81 +175,87 @@ export function AgentConversation({
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <ThreadPrimitive.Root className="thread">
-        <ThreadPrimitive.Viewport className="thread-viewport">
-          <ThreadPrimitive.Empty>
-            <div className="welcome">
-              <h1>找到你要经营的客户</h1>
-              <p>描述客户特征，逐步核对标签与口径，形成可执行的圈选方案。</p>
-              <div className="suggestions">
-                {[
-                  "近30天有异名跨行转入的客户",
-                  "上月借记卡消费金额超过5000元的客户",
-                  "帮我梳理高价值客户的圈选口径",
-                ].map((s) => (
-                  <button
-                    key={s}
-                    disabled={disabled || pending}
-                    onClick={() => void onSend(s)}
-                  >
-                    {s}
-                    <span aria-hidden="true">→</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </ThreadPrimitive.Empty>
-          <ThreadPrimitive.Messages>
-            {({ message }) => (
-              <MessagePrimitive.Root
-                className={`message ${
-                  message.role === "user" ? "user-message" : "assistant-message"
-                }`}
-              >
-                <span className="speaker">
-                  {message.role === "user" ? "你" : "圈选助手"}
-                </span>
-                <div className="message-text">
-                  <MessagePrimitive.Parts />
+        <div className="thread-stage">
+          <ThreadPrimitive.Viewport className="thread-viewport">
+            <ThreadPrimitive.Empty>
+              <div className="welcome">
+                <h1>找到你要经营的客户</h1>
+                <p>描述客户特征，逐步核对标签与口径，形成可执行的圈选方案。</p>
+                <div className="suggestions">
+                  {[
+                    "近30天有异名跨行转入的客户",
+                    "上月借记卡消费金额超过5000元的客户",
+                    "帮我梳理高价值客户的圈选口径",
+                  ].map((s) => (
+                    <button
+                      key={s}
+                      disabled={disabled || pending}
+                      onClick={() => void onSend(s)}
+                    >
+                      {s}
+                      <span aria-hidden="true">→</span>
+                    </button>
+                  ))}
                 </div>
-              </MessagePrimitive.Root>
-            )}
-          </ThreadPrimitive.Messages>
-          {thread?.run_history?.map((r, i) => (
-            <Process
-              key={r.run_id}
-              events={r.events}
-              running={false}
-              label={`第 ${i + 1} 轮处理记录`}
-            />
-          ))}
-          {thread?.events?.length ? (
-            <Process events={thread.events} running={busy(thread)} />
-          ) : busy(thread) ? (
-            <p className="progress-text" role="status">
-              正在理解你的需求…
-            </p>
-          ) : null}
-          {thread?.status === "WAITING" ? (
-            <Ask
-              key={thread.interrupt_id}
-              thread={thread}
-              pending={pending}
-              onAnswer={onAnswer}
-            />
-          ) : null}
-          {thread && ["FAILED", "INTERRUPTED"].includes(thread.status) ? (
-            <div className="run-error" role="alert">
-              <strong>{stateText[thread.status]}</strong>
-              <p>{thread.error || "处理位置已保存，可以继续。"}</p>
-              <button disabled={pending} onClick={onRetry}>
-                从保存位置继续
-              </button>
-            </div>
-          ) : null}
-          <ThreadPrimitive.ScrollToBottom className="scroll-bottom">
-            回到最新消息
+              </div>
+            </ThreadPrimitive.Empty>
+            <ThreadPrimitive.Messages>
+              {({ message }) => (
+                <MessagePrimitive.Root
+                  className={`message ${
+                    message.role === "user" ? "user-message" : "assistant-message"
+                  }`}
+                >
+                  <span className="speaker">
+                    {message.role === "user" ? "你" : "圈选助手"}
+                  </span>
+                  <div className="message-text">
+                    <MessagePrimitive.Parts />
+                  </div>
+                </MessagePrimitive.Root>
+              )}
+            </ThreadPrimitive.Messages>
+            {thread?.run_history?.map((r, i) => (
+              <Process
+                key={r.run_id}
+                events={r.events}
+                running={false}
+                label={`第 ${i + 1} 轮处理记录`}
+              />
+            ))}
+            {thread?.events?.length ? (
+              <Process events={thread.events} running={busy(thread)} />
+            ) : busy(thread) ? (
+              <p className="progress-text" role="status">
+                正在理解你的需求…
+              </p>
+            ) : null}
+            {thread?.status === "WAITING" ? (
+              <Ask
+                key={thread.interrupt_id}
+                thread={thread}
+                pending={pending}
+                onAnswer={onAnswer}
+              />
+            ) : null}
+            {thread && ["FAILED", "INTERRUPTED"].includes(thread.status) ? (
+              <div className="run-error" role="alert">
+                <strong>{stateText[thread.status]}</strong>
+                <p>{thread.error || "处理位置已保存，可以继续。"}</p>
+                <button disabled={pending} onClick={onRetry}>
+                  从保存位置继续
+                </button>
+              </div>
+            ) : null}
+          </ThreadPrimitive.Viewport>
+          <ThreadPrimitive.ScrollToBottom
+            className="scroll-bottom"
+            behavior="smooth"
+          >
+            <DownIcon />
+            <span>回到最新消息</span>
           </ThreadPrimitive.ScrollToBottom>
-        </ThreadPrimitive.Viewport>
+        </div>
         <div className="composer-wrap">
           <ComposerPrimitive.Root className="composer">
             <ComposerPrimitive.Input
@@ -264,7 +270,13 @@ export function AgentConversation({
               }
             />
             <div className="composer-footer">
-              <span>{thread ? "会话自动保存" : "选择标签库后开始圈选"}</span>
+              <span>
+                {thread
+                  ? "会话自动保存"
+                  : disabled
+                  ? "选择标签库后开始圈选"
+                  : "发送后自动保存会话"}
+              </span>
               {busy(thread) ? (
                 <ComposerPrimitive.Cancel className="send-button">
                   停止处理
@@ -285,5 +297,21 @@ export function AgentConversation({
         </div>
       </ThreadPrimitive.Root>
     </AssistantRuntimeProvider>
+  );
+}
+
+function DownIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   );
 }

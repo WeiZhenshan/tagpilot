@@ -148,6 +148,18 @@ def register_workbench(app, authenticate, retriever_for, secret, storage_path=No
         return {'run_id': rid, 'status': row['status'], 'result': row['result'], 'error': row['error'],
                 'events': runtime()['store'].events(rid, after)}
 
+    @app.delete('/agent/v2/threads/{thread_id}', dependencies=[Depends(authenticate)])
+    def delete_thread(thread_id: str, owner_id: str):
+        res = runtime()
+        try:
+            run_ids = res['store'].runs_for_thread(thread_id, owner_id)
+            for rid in run_ids:
+                res['saver'].delete_thread(rid)
+            res['store'].delete_thread(thread_id, owner_id)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
+        return {'thread_id': thread_id, 'deleted_runs': len(run_ids)}
+
     @app.post('/agent/v2/runs/{rid}/resume', dependencies=[Depends(authenticate)])
     def resume_run(rid: str, request: ResumeRequest):
         row = lookup(rid, request.owner_id); res = runtime()

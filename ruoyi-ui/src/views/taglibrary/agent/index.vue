@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { AGENT_WORKBENCH_BACK_MESSAGE, AGENT_WORKBENCH_DEFAULT_FROM, parseAgentBackPath } from '@/utils/agentWorkbench'
+import { AGENT_WORKBENCH_BACK_MESSAGE, AGENT_WORKBENCH_DEFAULT_FROM, AGENT_WORKBENCH_LOGOUT_MESSAGE, parseAgentBackPath } from '@/utils/agentWorkbench'
 
 export default {
   name: 'AgentWorkbench',
@@ -48,6 +48,13 @@ export default {
       if (event.origin !== window.location.origin || !this.$refs.frame || event.source !== this.$refs.frame.contentWindow) return
       const data = event.data || {}
       if (data.type === 'tagpilot-agent:ready') { this.sendTheme(); return }
+      if (data.type === AGENT_WORKBENCH_LOGOUT_MESSAGE) {
+        const goLogin = () => { location.href = '/login' }
+        this.$store.dispatch('LogOut').then(() => {
+          goLogin()
+        }).catch(() => this.$store.dispatch('FedLogOut').then(goLogin))
+        return
+      }
       if (data.type !== AGENT_WORKBENCH_BACK_MESSAGE) return
       this.$router.push(parseAgentBackPath(data))
     }

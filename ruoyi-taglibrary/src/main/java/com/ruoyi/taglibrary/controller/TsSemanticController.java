@@ -92,16 +92,6 @@ public class TsSemanticController extends BaseController {
     @PostMapping("/profile/{tagId}/aggregate")
     public AjaxResult aggregateProfile(@PathVariable Long tagId) { return success(profileService.aggregate(tagId)); }
 
-    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
-    @PostMapping("/retrieve")
-    public AjaxResult retrieve(@RequestBody java.util.Map<String, String> request) {
-        return success(retrievalService.retrieve(Long.valueOf(request.get("libraryId")), request.get("requirement")));
-    }
-
-    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
-    @PostMapping("/feedback")
-    public AjaxResult feedback(@RequestBody com.ruoyi.taglibrary.domain.TsRetrievalFeedback request) { return toAjax(retrievalService.feedback(request)); }
-
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:bootstrap')")
     @PostMapping("/index-build/start")
     public AjaxResult startBuild(@RequestParam String snapshotId, @RequestParam String storeType) { return success(retrievalService.startBuild(snapshotId, storeType)); }

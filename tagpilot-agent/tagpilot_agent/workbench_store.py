@@ -103,3 +103,22 @@ class RunStore:
         with self.lock:
             return [{'seq': row['seq'], **self.unpack(row['payload'])} for row in self.db.execute(
                 'SELECT seq,payload FROM wb_events WHERE run=? AND seq>? ORDER BY seq LIMIT 500', (rid, after))]
+
+    def runs_for_thread(self, thread, owner):
+        with self.lock:
+            rows = self.db.execute(
+                'SELECT id,status FROM wb_runs WHERE thread=? AND owner=?', (thread, owner)
+            ).fetchall()
+            if any(row['status'] in ('RUNNING', 'WAITING') for row in rows):
+                raise ValueError('请先完成或停止当前运行')
+            return [row['id'] for row in rows]
+
+    def delete_thread(self, thread, owner):
+        with self.lock, self.db:
+            run_ids = self.runs_for_thread(thread, owner)
+            self.db.execute(
+                'DELETE FROM wb_events WHERE run IN (SELECT id FROM wb_runs WHERE thread=? AND owner=?)',
+                (thread, owner),
+            )
+            self.db.execute('DELETE FROM wb_runs WHERE thread=? AND owner=?', (thread, owner))
+            return run_ids

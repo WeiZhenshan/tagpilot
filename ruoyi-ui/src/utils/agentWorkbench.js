@@ -1,6 +1,7 @@
 export var AGENT_WORKBENCH_PATH = '/agent'
 export var AGENT_WORKBENCH_DEFAULT_FROM = '/taglibrary/list'
 export var AGENT_WORKBENCH_BACK_MESSAGE = 'tagpilot-agent:back'
+export var AGENT_WORKBENCH_LOGOUT_MESSAGE = 'tagpilot-agent:logout'
 
 function isSafeInternalPath(path) {
   return typeof path === 'string' && path.charAt(0) === '/' && path.indexOf('//') !== 0 && path.indexOf('://') === -1

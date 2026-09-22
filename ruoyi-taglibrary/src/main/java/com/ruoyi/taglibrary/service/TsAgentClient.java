@@ -15,6 +15,7 @@ public class TsAgentClient {
     @Value("${tag.runtime-token:}") private String token;
     public Map<String, Object> get(String path) { return exchange(path, HttpMethod.GET, null); }
     public Map<String, Object> post(String path, Object body) { return exchange(path, HttpMethod.POST, body); }
+    public Map<String, Object> delete(String path) { return exchange(path, HttpMethod.DELETE, null); }
     @SuppressWarnings("unchecked")
     private Map<String, Object> exchange(String path, HttpMethod method, Object body) {
         if (token == null || token.isEmpty()) throw new ServiceException("编排层服务认证未配置");

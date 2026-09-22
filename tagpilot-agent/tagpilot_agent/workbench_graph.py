@@ -6,7 +6,9 @@ import json
 import os
 import time
 from typing import TypedDict
-import httpx
+import openai
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from langgraph.types import interrupt
 from .plan import leaves, validate_plan
@@ -45,28 +47,29 @@ class Planner:
     def __init__(self):
         self.url = os.getenv('TAG_LLM_BASE_URL', '').rstrip('/')
         self.model = os.getenv('TAG_LLM_MODEL', '')
+        # 兼容端点可能免鉴权；openai SDK 拒绝空密钥，占位符不影响此类端点。
+        self.client = (ChatOpenAI(model_name=self.model, openai_api_base=self.url + '/v1',
+            openai_api_key=os.getenv('TAG_LLM_API_KEY', '') or 'EMPTY',
+            temperature=0, request_timeout=60, max_retries=0, use_responses_api=False,
+            model_kwargs={'response_format': {'type': 'json_object'}})
+            if self.url and self.model else None)
 
     def decide(self, context):
-        if not self.url or not self.model:
+        if not self.client:
             raise ValueError('尚未配置模型，请配置 TAG_LLM_BASE_URL 和 TAG_LLM_MODEL')
-        messages = [{'role': 'system', 'content': INSTRUCTION},
-                    {'role': 'user', 'content': json.dumps(context, ensure_ascii=False)}]
+        messages = [SystemMessage(content=INSTRUCTION), HumanMessage(content=json.dumps(context, ensure_ascii=False))]
         for attempt in range(2):
             try:
-                response = httpx.post(self.url + '/v1/chat/completions', timeout=60,
-                    headers={'authorization': 'Bearer ' + os.getenv('TAG_LLM_API_KEY', '')},
-                    json={'model': self.model, 'temperature': 0, 'response_format': {'type': 'json_object'}, 'messages': messages})
-                response.raise_for_status()
-            except (httpx.TimeoutException, httpx.NetworkError):
+                content = self.client.invoke(messages).content
+            except openai.APIConnectionError:
                 if attempt == 0:
                     continue
                 raise
-            except httpx.HTTPStatusError as exc:
+            except openai.APIStatusError as exc:
                 if attempt == 0 and exc.response.status_code in {429, 502, 503, 504}:
                     time.sleep(.5)
                     continue
                 raise
-            content = response.json()['choices'][0]['message']['content']
             try:
                 result = json.loads(content)
                 if isinstance(result, dict):
@@ -79,9 +82,9 @@ class Planner:
                     if result.get('action') in {'plan', 'tool', 'replan', 'finish', 'ask'}:
                         return result
             except (ValueError, TypeError, AttributeError) as exc:
-                messages.append({'role': 'assistant', 'content': content[:20000]})
-                messages.append({'role': 'user', 'content': '格式错误：'+str(exc)+'。plan.tree 必须是条件树对象，每个叶子都须有 clause_id；组须有 logic 和 children。修正后输出完整 JSON。'})
-            messages.append({'role': 'user', 'content': '上次输出不是合法行动 JSON，请仅输出一个 action=plan/tool/replan/finish/ask 的 JSON 对象。'})
+                messages.append(AIMessage(content=content[:20000]))
+                messages.append(HumanMessage(content='格式错误：'+str(exc)+'。plan.tree 必须是条件树对象，每个叶子都须有 clause_id；组须有 logic 和 children。修正后输出完整 JSON。'))
+            messages.append(HumanMessage(content='上次输出不是合法行动 JSON，请仅输出一个 action=plan/tool/replan/finish/ask 的 JSON 对象。'))
         raise ValueError('模型输出格式暂未修复，已保留运行状态')
 
 

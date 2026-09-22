@@ -28,7 +28,7 @@ RuoYi-Vue v3.9.2 — a Chinese-origin Java + Vue admin/RBAC rapid-development pl
 | `ruoyi-objectgroup` | ObjectGroup: visual rule editor, SQL generation, customer-segment preview and import/export. Routes `/objectgroup/**`, mappers in `resources/mapper/objectgroup/`. |
 | `ruoyi-ui` | Vue 2 frontend (separate npm project, see below). |
 | `tagpilot-semantic` | Python 标签语义引擎 + 向量检索索引（BGE / Milvus / `/retrieve`），原 `ai-runtime`。 |
-| `tagpilot-agent` | Python Agent 编排层（LangGraph / DSL 门禁 / `:8092 /agent/query`）。 |
+| `tagpilot-agent` | Python Agent 编排层（LangGraph 圈选工作台 / `:8092 /agent/v2/runs`）。 |
 | `tagpilot-assistant` | React 智能体工作台（Assistant UI / `:5174` / `/agent-ui/`），由若依 `/agent` 全屏嵌入。 |
 
 **Layer rule:** `ruoyi-common` is the only allowed cross-cutting dependency. Never introduce circular deps between business modules. Domain entities extend `BaseEntity` (or `TreeEntity` for dept/menu).
