@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsTagExampleMapper">
+
+    <resultMap type="TsTagExample" id="TsTagExampleResult">
+        <id     property="exampleId"         column="example_id"          />
+        <result property="tagId"             column="tag_id"              />
+        <result property="exampleType"       column="example_type"        />
+        <result property="utterance"         column="utterance"           />
+        <result property="expectedCondition" column="expected_condition"  />
+        <result property="source"            column="source"              />
+        <result property="reviewStatus"      column="review_status"       />
+        <result property="reviewBy"          column="review_by"           />
+        <result property="reviewTime"        column="review_time"         />
+        <result property="sourceRef"         column="source_ref"          />
+        <result property="createBy"          column="create_by"           />
+        <result property="createTime"        column="create_time"         />
+        <result property="updateBy"          column="update_by"           />
+        <result property="updateTime"        column="update_time"         />
+        <result property="remark"            column="remark"              />
+    </resultMap>
+
+    <sql id="selectVo">
+        select example_id, tag_id, example_type, utterance, expected_condition, source,
+               review_status, review_by, review_time, source_ref,
+               create_by, create_time, update_by, update_time, remark
+        from ts_tag_example
+    </sql>
+
+    <select id="selectById" parameterType="Long" resultMap="TsTagExampleResult">
+        <include refid="selectVo"/> where example_id = #{exampleId}
+    </select>
+
+    <select id="selectByTagId" parameterType="Long" resultMap="TsTagExampleResult">
+        <include refid="selectVo"/> where tag_id = #{tagId} order by example_id
+    </select>
+
+    <insert id="insertExample" parameterType="TsTagExample" useGeneratedKeys="true" keyProperty="exampleId">
+        insert into ts_tag_example (
+            tag_id, example_type, utterance, expected_condition, source,
+            review_status, review_by, review_time, source_ref, create_by, create_time, remark
+        ) values (
+            #{tagId}, #{exampleType}, #{utterance}, #{expectedCondition}, #{source},
+            #{reviewStatus}, #{reviewBy}, #{reviewTime}, #{sourceRef}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateExample" parameterType="TsTagExample">
+        update ts_tag_example
+        <set>
+            <if test="exampleType != null">example_type = #{exampleType},</if>
+            <if test="utterance != null">utterance = #{utterance},</if>
+            <if test="expectedCondition != null">expected_condition = #{expectedCondition},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="reviewBy != null">review_by = #{reviewBy},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where example_id = #{exampleId}
+    </update>
+</mapper>

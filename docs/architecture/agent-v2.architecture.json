@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "TagPilot Agent V2 架构与运行机制",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1260, 700],
+    "views": [
+      {
+        "id": "request-path",
+        "label": "圈选主路径",
+        "focus": ["user", "workbench", "java", "agent", "semantic", "index"],
+        "note": "浏览器只打 Java；资格与发布版本由网关注入后，Agent 再检索固定 ACTIVE 索引。"
+      },
+      {
+        "id": "model-loop",
+        "label": "模型交互",
+        "focus": ["agent", "llm"],
+        "note": "LangGraph 五节点里只有 start 与 decide 调用 chat/completions。"
+      },
+      {
+        "id": "durable-state",
+        "label": "状态归属",
+        "focus": ["java", "mysql", "agent", "sqlite"],
+        "note": "会话与方案在 MySQL；运行事件与检查点在 Agent 本地 SQLite。"
+      },
+      {
+        "id": "execute-gate",
+        "label": "执行门禁",
+        "focus": ["java", "objectgroup", "agent"],
+        "note": "方案校验通过后，人数统计与建群仍由 Java 对象群执行，Agent 不写 SQL。"
+      }
+    ]
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "业务用户", "sublabel": "圈选条件", "pos": [32, 340], "size": [128, 68] },
+    { "id": "workbench", "type": "frontend", "label": "tagpilot-assistant", "sublabel": "/agent-ui/", "pos": [196, 340], "size": [148, 68] },
+    { "id": "java", "type": "backend", "label": "TsAgentWorkbenchService", "sublabel": "/taglibrary/agent", "tag": "JWT + 资格", "pos": [384, 340], "size": [184, 68] },
+    { "id": "agent", "type": "backend", "label": "tagpilot-agent", "sublabel": "LangGraph V2 :8092", "tag": "start · decide", "brand": "fastapi", "pos": [612, 340], "size": [168, 68] },
+    { "id": "semantic", "type": "backend", "label": "tagpilot-semantic", "sublabel": "/retrieve · /evidence", "pos": [828, 340], "size": [168, 68] },
+    { "id": "index", "type": "database", "label": "ACTIVE 索引", "sublabel": "快照 + Milvus", "pos": [1044, 340], "size": [148, 68] },
+    { "id": "llm", "type": "external", "label": "Chat Completions", "sublabel": "TAG_LLM_BASE_URL", "tag": "仅 JSON", "pos": [612, 84], "size": [168, 68] },
+    { "id": "objectgroup", "type": "backend", "label": "对象群服务", "sublabel": "COUNT / 建群", "tag": "valid 后", "pos": [384, 84], "size": [184, 68] },
+    { "id": "mysql", "type": "database", "label": "MySQL", "sublabel": "ts_agent_thread", "brand": "mysql", "pos": [384, 556], "size": [184, 68] },
+    { "id": "sqlite", "type": "database", "label": "SQLite", "sublabel": "runs + checkpoints", "pos": [612, 556], "size": [168, 68] }
+  ],
+  "connections": [
+    { "id": "user-to-workbench", "from": "user", "to": "workbench", "label": "自然语言需求", "variant": "emphasis", "labelDy": -28 },
+    { "id": "workbench-to-java", "from": "workbench", "to": "java", "label": "JWT SSE", "variant": "security", "labelDy": -28 },
+    { "id": "java-to-agent", "from": "java", "to": "agent", "label": "/agent/v2/runs", "variant": "emphasis", "labelDy": -28 },
+    { "id": "agent-to-semantic", "from": "agent", "to": "semantic", "label": "/retrieve /evidence", "variant": "emphasis", "labelDy": -28 },
+    { "id": "semantic-to-index", "from": "semantic", "to": "index", "label": "资格内召回", "variant": "emphasis", "labelDy": -28 },
+    { "id": "agent-to-llm", "from": "agent", "to": "llm", "label": "start / decide", "variant": "security", "fromSide": "top", "toSide": "bottom", "labelDy": -8 },
+    { "id": "java-to-mysql", "from": "java", "to": "mysql", "label": "AES-GCM 会话", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "labelAt": [476, 424] },
+    { "id": "agent-to-sqlite", "from": "agent", "to": "sqlite", "label": "运行与检查点", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "labelAt": [696, 424] },
+    { "id": "java-to-objectgroup", "from": "java", "to": "objectgroup", "label": "compile 后执行", "variant": "dashed", "fromSide": "top", "toSide": "bottom", "labelDy": -8 }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "主路径",
+      "items": [
+        "Java 注入 owner、资格与发布版本，浏览器不直连 Python",
+        "tagpilot-agent 编排圈选，semantic 只返回发布态证据"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "LangGraph 五节点",
+      "items": [
+        "仅 start 与 decide 调用 chat/completions",
+        "tool 检索，validate 硬校验，ask 用 interrupt() 等人"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Fail-closed",
+      "items": [
+        "资格、口径、码值、单位由程序校验，模型不能猜相近时间面",
+        "COUNT 与建群只在 Java 二次编译通过后执行"
+      ]
+    }
+  ]
+}

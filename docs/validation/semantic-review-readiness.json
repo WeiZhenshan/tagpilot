@@ -1,0 +1,21 @@
+{
+  "scope": "FROZEN_SOURCE_REVIEW_INVENTORY",
+  "source_freeze_sha256": "b9288b16b73182d30f9ec7b16fb05d5cfef8cebfef1804229d1f7eef45e53781",
+  "business_tags": 969,
+  "object_keys_excluded": 1,
+  "code_fields": 177,
+  "code_values": 1723,
+  "concept_candidates": 676,
+  "unresolved_items": 584,
+  "unresolved_by_category": {
+    "UNIT": 456,
+    "COMPOSITE": 128
+  },
+  "tags_with_unresolved": 501,
+  "tags_with_fewer_than_3_draft_aliases": 919,
+  "queue_sha256": "ddfd739d7edaa69999eaa2a1ec7500047f5a17e3058673baad7c7a16b5cf3a42",
+  "queue_path": "ai-runtime/out/full-20260919/drafts/business_review_queue.jsonl",
+  "reviewed_in_this_run": 0,
+  "publish_coverage": "0/969",
+  "evidence": "当前登录后的发布门禁返回 publishable=false，969 条 NOT_REVIEWED；此队列不执行签字或入库。"
+}

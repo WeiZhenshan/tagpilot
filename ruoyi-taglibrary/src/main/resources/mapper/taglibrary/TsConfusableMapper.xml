@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsConfusableMapper">
+
+    <resultMap type="TsConfusable" id="TsConfusableResult">
+        <id     property="pairId"             column="pair_id"              />
+        <result property="tagIdA"             column="tag_id_a"             />
+        <result property="tagIdB"             column="tag_id_b"             />
+        <result property="confusionType"      column="confusion_type"       />
+        <result property="differenceNote"     column="difference_note"      />
+        <result property="disambiguationHint" column="disambiguation_hint"  />
+        <result property="source"             column="source"               />
+        <result property="reviewStatus"       column="review_status"        />
+        <result property="reviewBy"           column="review_by"            />
+        <result property="reviewTime"         column="review_time"          />
+        <result property="sourceRef"          column="source_ref"           />
+        <result property="createBy"           column="create_by"            />
+        <result property="createTime"         column="create_time"          />
+        <result property="updateBy"           column="update_by"            />
+        <result property="updateTime"         column="update_time"          />
+        <result property="remark"             column="remark"               />
+    </resultMap>
+
+    <sql id="selectVo">
+        select pair_id, tag_id_a, tag_id_b, confusion_type, difference_note, disambiguation_hint, source,
+               review_status, review_by, review_time, source_ref,
+               create_by, create_time, update_by, update_time, remark
+        from ts_confusable
+    </sql>
+
+    <select id="selectById" parameterType="Long" resultMap="TsConfusableResult">
+        <include refid="selectVo"/> where pair_id = #{pairId}
+    </select>
+
+    <select id="selectByPair" resultMap="TsConfusableResult">
+        <include refid="selectVo"/> where tag_id_a = #{tagIdA} and tag_id_b = #{tagIdB}
+    </select>
+
+    <select id="selectByTagId" parameterType="Long" resultMap="TsConfusableResult">
+        <include refid="selectVo"/>
+        where tag_id_a = #{tagId} or tag_id_b = #{tagId}
+        order by pair_id
+    </select>
+
+    <insert id="insertPair" parameterType="TsConfusable" useGeneratedKeys="true" keyProperty="pairId">
+        insert into ts_confusable (
+            tag_id_a, tag_id_b, confusion_type, difference_note, disambiguation_hint, source,
+            review_status, review_by, review_time, source_ref, create_by, create_time, remark
+        ) values (
+            #{tagIdA}, #{tagIdB}, #{confusionType}, #{differenceNote}, #{disambiguationHint}, #{source},
+            #{reviewStatus}, #{reviewBy}, #{reviewTime}, #{sourceRef}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updatePair" parameterType="TsConfusable">
+        update ts_confusable
+        <set>
+            <if test="confusionType != null">confusion_type = #{confusionType},</if>
+            <if test="differenceNote != null">difference_note = #{differenceNote},</if>
+            <if test="disambiguationHint != null">disambiguation_hint = #{disambiguationHint},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="reviewBy != null">review_by = #{reviewBy},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where pair_id = #{pairId}
+    </update>
+</mapper>

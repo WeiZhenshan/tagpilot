@@ -1,0 +1,342 @@
+{
+  "note": "合成契约样本；不代表已发布标签或业务验收",
+  "tags": [
+    {
+      "tag_id": 1,
+      "name": "当前存款",
+      "semantic_type": "NUM_AMOUNT",
+      "unit": "CNY",
+      "unit_scale": "1",
+      "grain": "CUSTOMER",
+      "caliber_struct": {
+        "calendar_mode": "CURRENT"
+      },
+      "allowed_operators": [
+        ">",
+        ">=",
+        "<",
+        "=",
+        "between"
+      ]
+    },
+    {
+      "tag_id": 2,
+      "name": "当前AUM",
+      "semantic_type": "NUM_AMOUNT",
+      "unit": "CNY",
+      "unit_scale": "1",
+      "grain": "CUSTOMER",
+      "caliber_struct": {
+        "calendar_mode": "CURRENT"
+      },
+      "allowed_operators": [
+        ">",
+        ">=",
+        "<",
+        "=",
+        "between"
+      ]
+    },
+    {
+      "tag_id": 3,
+      "name": "本月代发",
+      "semantic_type": "NUM_AMOUNT",
+      "unit": "CNY",
+      "unit_scale": "1",
+      "grain": "CUSTOMER",
+      "caliber_struct": {
+        "calendar_mode": "MONTH"
+      },
+      "allowed_operators": [
+        ">",
+        ">=",
+        "<",
+        "=",
+        "between"
+      ]
+    },
+    {
+      "tag_id": 4,
+      "name": "上月代发",
+      "semantic_type": "NUM_AMOUNT",
+      "unit": "CNY",
+      "unit_scale": "1",
+      "grain": "CUSTOMER",
+      "caliber_struct": {
+        "calendar_mode": "LAST_MONTH"
+      },
+      "allowed_operators": [
+        ">",
+        ">=",
+        "<",
+        "=",
+        "between"
+      ]
+    },
+    {
+      "tag_id": 5,
+      "name": "万元余额",
+      "semantic_type": "NUM_AMOUNT",
+      "unit": "CNY",
+      "unit_scale": "10000",
+      "grain": "CUSTOMER",
+      "caliber_struct": {
+        "calendar_mode": "CURRENT"
+      },
+      "allowed_operators": [
+        ">",
+        ">=",
+        "<",
+        "=",
+        "between"
+      ]
+    },
+    {
+      "tag_id": 6,
+      "name": "当前余额",
+      "semantic_type": "NUM_AMOUNT",
+      "unit": "CNY",
+      "unit_scale": "1",
+      "grain": "CUSTOMER",
+      "caliber_struct": {
+        "time_anchor_label": "当前",
+        "time_anchor_type": "POINT",
+        "period_edge": "END",
+        "statistic": "EOP"
+      },
+      "allowed_operators": [
+        ">",
+        ">=",
+        "<",
+        "=",
+        "between"
+      ]
+    },
+    {
+      "tag_id": 7,
+      "name": "当前时点余额",
+      "semantic_type": "NUM_AMOUNT",
+      "unit": "CNY",
+      "unit_scale": "1",
+      "grain": "CUSTOMER",
+      "caliber_struct": {
+        "time_anchor_label": "当前时点",
+        "time_anchor_type": "POINT",
+        "period_edge": "END",
+        "statistic": "EOP"
+      },
+      "allowed_operators": [
+        ">",
+        ">=",
+        "<",
+        "=",
+        "between"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "ratio",
+      "expression": {
+        "kind": "DIV",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 1
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 2
+          }
+        ]
+      },
+      "valid": true,
+      "unit": "RATIO"
+    },
+    {
+      "id": "scaled",
+      "expression": {
+        "kind": "ADD",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 1
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 5
+          }
+        ]
+      },
+      "valid": true,
+      "unit": "CNY"
+    },
+    {
+      "id": "classes",
+      "expression": {
+        "kind": "COUNT_POSITIVE",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 1
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 2
+          }
+        ]
+      },
+      "valid": true,
+      "unit": "COUNT"
+    },
+    {
+      "id": "cross_period",
+      "expression": {
+        "kind": "DIV",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 3,
+            "expected_caliber": {
+              "calendar_mode": "MONTH"
+            }
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 4,
+            "expected_caliber": {
+              "calendar_mode": "LAST_MONTH"
+            }
+          }
+        ],
+        "time_alignment": "EXPLICIT_PERIODS"
+      },
+      "valid": true,
+      "unit": "RATIO"
+    },
+    {
+      "id": "unexplained_period",
+      "expression": {
+        "kind": "DIV",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 3
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 4
+          }
+        ]
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "wrong_caliber",
+      "expression": {
+        "kind": "TAG",
+        "tag_id": 1,
+        "expected_caliber": {
+          "calendar_mode": "ROLLING"
+        }
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "unknown_tag",
+      "expression": {
+        "kind": "TAG",
+        "tag_id": 99
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "duplicate_count",
+      "expression": {
+        "kind": "COUNT_POSITIVE",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 1
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 1
+          }
+        ]
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "sql_injection",
+      "expression": {
+        "kind": "TAG",
+        "tag_id": 1,
+        "sql": "select 1"
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "nan",
+      "expression": {
+        "kind": "CONST",
+        "value": "NaN"
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "tiny_number",
+      "expression": {
+        "kind": "CONST",
+        "value": "1e-40"
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "unknown_operator",
+      "expression": {
+        "kind": "PYTHON",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 1
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 2
+          }
+        ]
+      },
+      "valid": false,
+      "unit": null
+    },
+    {
+      "id": "equivalent_current_labels",
+      "expression": {
+        "kind": "DIV",
+        "args": [
+          {
+            "kind": "TAG",
+            "tag_id": 6,
+            "expected_caliber": {
+              "time_anchor_label": "当前时点"
+            }
+          },
+          {
+            "kind": "TAG",
+            "tag_id": 7
+          }
+        ]
+      },
+      "valid": true,
+      "unit": "RATIO"
+    }
+  ]
+}

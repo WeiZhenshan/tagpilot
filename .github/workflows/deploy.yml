@@ -85,6 +85,24 @@ jobs:
         run: |
           npm run build:prod
 
+      - name: Setup Node.js 20 for assistant UI
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          package-manager-cache: false
+
+      - name: Build assistant UI
+        working-directory: tagpilot-assistant
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          npm run build
+
+      - name: Bundle assistant UI into Vue dist
+        run: |
+          mkdir -p ruoyi-ui/dist/agent-ui
+          cp -a tagpilot-assistant/dist/. ruoyi-ui/dist/agent-ui/
+
 
       # =========================
       # Database migration

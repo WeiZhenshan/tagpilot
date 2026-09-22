@@ -141,6 +141,20 @@ export const dynamicRoutes = [
     ]
   },
   {
+    path: '/agent',
+    component: Layout,
+    hidden: true,
+    permissions: ['taglibrary:semantic:list'],
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/taglibrary/agent/index'),
+        name: 'AgentWorkbench',
+        meta: { title: '智能体工作台', noCache: true }
+      }
+    ]
+  },
+  {
     path: '/system/user-auth',
     component: Layout,
     hidden: true,

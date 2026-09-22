@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsCodeValueSemanticMapper">
+
+    <resultMap type="TsCodeValueSemantic" id="TsCodeValueResult">
+        <id     property="tagId"            column="tag_id"             />
+        <id     property="code"             column="code"               />
+        <result property="rankNo"           column="rank_no"            />
+        <result property="lowerBound"       column="lower_bound"        />
+        <result property="upperBound"       column="upper_bound"        />
+        <result property="lowerInclusive"   column="lower_inclusive"    />
+        <result property="upperInclusive"   column="upper_inclusive"    />
+        <result property="boundUnit"        column="bound_unit"         />
+        <result property="parentTagId"      column="parent_tag_id"      />
+        <result property="parentCode"       column="parent_code"        />
+        <result property="levelNo"          column="level_no"           />
+        <result property="isUnknownBucket"  column="is_unknown_bucket"  />
+        <result property="basisHash"        column="basis_hash"         />
+        <result property="source"           column="source"             />
+        <result property="reviewStatus"     column="review_status"      />
+        <result property="reviewBy"         column="review_by"          />
+        <result property="reviewTime"       column="review_time"        />
+        <result property="sourceRef"        column="source_ref"         />
+        <result property="createBy"         column="create_by"          />
+        <result property="createTime"       column="create_time"        />
+        <result property="updateBy"         column="update_by"          />
+        <result property="updateTime"       column="update_time"        />
+        <result property="remark"           column="remark"             />
+    </resultMap>
+
+    <sql id="selectVo">
+        select tag_id, code, rank_no, lower_bound, upper_bound, lower_inclusive, upper_inclusive, bound_unit,
+               parent_tag_id, parent_code, level_no, is_unknown_bucket, basis_hash, source, review_status,
+               review_by, review_time, source_ref, create_by, create_time, update_by, update_time, remark
+        from ts_code_value_semantic
+    </sql>
+
+    <select id="selectByTagIdAndCode" resultMap="TsCodeValueResult">
+        <include refid="selectVo"/> where tag_id = #{tagId} and code = #{code}
+    </select>
+
+    <select id="selectByTagId" parameterType="Long" resultMap="TsCodeValueResult">
+        <include refid="selectVo"/> where tag_id = #{tagId} order by rank_no, code
+    </select>
+
+    <insert id="insertCodeValue" parameterType="TsCodeValueSemantic">
+        insert into ts_code_value_semantic (
+            tag_id, code, rank_no, lower_bound, upper_bound, lower_inclusive, upper_inclusive, bound_unit,
+            parent_tag_id, parent_code, level_no, is_unknown_bucket, basis_hash, source, review_status,
+            review_by, review_time, source_ref, create_by, create_time, remark
+        ) values (
+            #{tagId}, #{code}, #{rankNo}, #{lowerBound}, #{upperBound}, #{lowerInclusive}, #{upperInclusive}, #{boundUnit},
+            #{parentTagId}, #{parentCode}, #{levelNo}, #{isUnknownBucket}, #{basisHash}, #{source}, #{reviewStatus},
+            #{reviewBy}, #{reviewTime}, #{sourceRef}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateCodeValue" parameterType="TsCodeValueSemantic">
+        update ts_code_value_semantic
+        <set>
+            <if test="rankNo != null">rank_no = #{rankNo},</if>
+            <if test="lowerBound != null">lower_bound = #{lowerBound},</if>
+            <if test="upperBound != null">upper_bound = #{upperBound},</if>
+            <if test="lowerInclusive != null">lower_inclusive = #{lowerInclusive},</if>
+            <if test="upperInclusive != null">upper_inclusive = #{upperInclusive},</if>
+            <if test="boundUnit != null">bound_unit = #{boundUnit},</if>
+            <if test="parentTagId != null">parent_tag_id = #{parentTagId},</if>
+            <if test="parentCode != null">parent_code = #{parentCode},</if>
+            <if test="levelNo != null">level_no = #{levelNo},</if>
+            <if test="isUnknownBucket != null">is_unknown_bucket = #{isUnknownBucket},</if>
+            <if test="basisHash != null">basis_hash = #{basisHash},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="reviewBy != null">review_by = #{reviewBy},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where tag_id = #{tagId} and code = #{code}
+    </update>
+
+    <insert id="upsertCodeValueBatch">
+        insert into ts_code_value_semantic (
+            tag_id, code, rank_no, lower_bound, upper_bound, lower_inclusive, upper_inclusive, bound_unit,
+            parent_tag_id, parent_code, level_no, is_unknown_bucket, basis_hash, source, review_status,
+            review_by, review_time, source_ref, create_by, create_time, remark
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.tagId}, #{item.code}, #{item.rankNo}, #{item.lowerBound}, #{item.upperBound},
+                #{item.lowerInclusive}, #{item.upperInclusive}, #{item.boundUnit},
+                #{item.parentTagId}, #{item.parentCode}, #{item.levelNo}, #{item.isUnknownBucket},
+                #{item.basisHash}, #{item.source}, #{item.reviewStatus},
+                #{item.reviewBy}, #{item.reviewTime}, #{item.sourceRef}, #{item.createBy}, sysdate(), #{item.remark}
+            )
+        </foreach>
+        on duplicate key update
+            rank_no = values(rank_no),
+            lower_bound = values(lower_bound),
+            upper_bound = values(upper_bound),
+            lower_inclusive = values(lower_inclusive),
+            upper_inclusive = values(upper_inclusive),
+            bound_unit = values(bound_unit),
+            parent_tag_id = values(parent_tag_id),
+            parent_code = values(parent_code),
+            level_no = values(level_no),
+            is_unknown_bucket = values(is_unknown_bucket),
+            basis_hash = values(basis_hash),
+            source = values(source),
+            review_status = values(review_status),
+            remark = values(remark),
+            update_by = values(create_by),
+            update_time = sysdate()
+    </insert>
+</mapper>

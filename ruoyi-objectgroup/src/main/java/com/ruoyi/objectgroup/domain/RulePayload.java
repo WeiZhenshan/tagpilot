@@ -1,6 +1,9 @@
 package com.ruoyi.objectgroup.domain;
 
 import java.util.List;
+import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * 规则载荷（rule_json 的反序列化对象）
@@ -9,6 +12,13 @@ public class RulePayload {
 
     /** 规则结构版本 */
     private Integer schemaVersion;
+    /** V4 保留发布方案；每次保存/执行均由权威编译器重建，客户端不可提交可信标记。 */
+    private Map<String,Object> audiencePlan;
+    @JsonIgnore private boolean authorityValidated;
+    public Map<String,Object> getAudiencePlan() { return audiencePlan; }
+    public void setAudiencePlan(Map<String,Object> value) { audiencePlan = value; }
+    @JsonIgnore public boolean isAuthorityValidated() { return authorityValidated; }
+    @JsonIgnore public void setAuthorityValidated(boolean value) { authorityValidated = value; }
 
     /** 客户号字段名（别名） */
     private String objectKeyField;
@@ -23,6 +33,15 @@ public class RulePayload {
     private List<PreviewColumn> previewColumns;
 
     public static class Condition {
+        private JsonNode expression;
+        private JsonNode compareExpression;
+        private boolean scopeAll;
+        public JsonNode getExpression() { return expression; }
+        public void setExpression(JsonNode value) { expression = value; }
+        public JsonNode getCompareExpression() { return compareExpression; }
+        public void setCompareExpression(JsonNode value) { compareExpression = value; }
+        public boolean isScopeAll() { return scopeAll; }
+        public void setScopeAll(boolean value) { scopeAll = value; }
         private String conditionId;
         private String connector;      // AND / OR
         private Integer openParen;     // 前置括号数

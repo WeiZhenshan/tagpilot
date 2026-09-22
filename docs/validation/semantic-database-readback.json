@@ -1,0 +1,20 @@
+{
+  "scope": "LOCAL_DATABASE_READBACK",
+  "library_id": 107,
+  "tables": {
+    "ts_tag_semantic": {
+      "DRAFT": 970
+    },
+    "ts_code_value_semantic": {
+      "DRAFT": 1723
+    },
+    "ts_concept": {
+      "DRAFT": 676
+    },
+    "ts_alias": {},
+    "ts_business_term": {
+      "REVIEWED": 40
+    }
+  },
+  "production_snapshot_published": false
+}

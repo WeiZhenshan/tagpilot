@@ -51,6 +51,8 @@ The project is a 9-module Maven multi-module project (`pom.xml` at root):
 | `ruoyi-taglibrary` | TagLibrary — label directory/tag/dimension management, metadata audit, batch mapping sync. Prefix `tl_`. Routes `/taglibrary/**`. |
 | `ruoyi-objectgroup` | ObjectGroup — visual rule engine, SQL generation for customer segment selection, import/export. Routes `/objectgroup/**`. |
 
+Python backends (not Maven modules): `tagpilot-semantic` is the semantic engine + vector index on `:8091`; `tagpilot-agent` is the LangGraph orchestration layer on `:8092` and calls semantic `/retrieve`. `tagpilot-assistant` is the React Assistant UI workbench on `:5174` (`/agent-ui/`), loaded from the Vue `/agent` route.
+
 **Dependency direction**: `admin` -> `framework` -> `system` -> `common`; `admin` also directly depends on `quartz`, `generator`, `databroker`, `taglibrary` and `objectgroup`. Among the business modules, `databroker` depends on `framework`; `objectgroup` depends on `common` + `framework` + `databroker`; `taglibrary` depends on `common` + `framework` + `databroker` + `objectgroup`.
 
 ## Key Architecture Patterns

@@ -51,6 +51,8 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
 
     @Override
     public String buildSql(Long versionId, RulePayload rule, String mode) {
+        if (rule.getSchemaVersion()!=null && rule.getSchemaVersion()>=4 && !rule.isAuthorityValidated())
+            throw new ServiceException("发布方案须先经服务端核验");
         if (versionId == null) {
             throw new ServiceException("关联标签库的数据集不存在或未上线");
         }
@@ -147,11 +149,16 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
         boolean first = true;
         int parenBalance = 0;
         for (RulePayload.Condition c : rule.getConditions()) {
-            String col = extMapper.selectColumnNameByAlias(versionId, c.getFieldName());
-            if (col == null) {
+            boolean expression = c.isScopeAll() || c.getExpression()!=null;
+            if(expression && !rule.isAuthorityValidated())throw new ServiceException("计算条件须先经权威核验");
+            String col = expression ? null : extMapper.selectColumnNameByAlias(versionId, c.getFieldName());
+            if (!expression && col == null) {
                 throw new ServiceException("规则字段[" + c.getFieldName() + "]未在数据集中启用");
             }
-            String expr = buildConditionSql(c, col);
+            String expr = expression ? RuleExpressionSql.predicate(c, alias -> extMapper.selectColumnNameByAlias(versionId, alias),
+                    RuleExpressionSql.identifier(resolveTableName(versionId))+"."+RuleExpressionSql.identifier(resolveObjectKeyColumn(versionId,rule)))
+                    : rule.getSchemaVersion() != null && rule.getSchemaVersion() >= 3
+                    ? buildV3ConditionSql(c, col) : buildConditionSql(c, col);
             if (expr == null || expr.isEmpty()) {
                 continue;
             }
@@ -178,6 +185,47 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
             throw new ServiceException("规则括号不匹配，请检查分组设置");
         }
         return sb.toString();
+    }
+
+    /** schemaVersion 3 精确运算符；旧规则的闭区间语义不变。 */
+    private String buildV3ConditionSql(RulePayload.Condition c, String col) {
+        if ("客户号".equals(c.getTagType()) || "import".equals(c.getMatchType())) return buildConditionSql(c,col);
+        String op = c.getOperator();
+        String column = backtick(col);
+        if ("is_null".equals(op)) return "(" + column + " is null)";
+        if ("is_not_null".equals(op)) return "(" + column + " is not null)";
+        boolean ordered = "数值型".equals(c.getTagType()) || "日期型".equals(c.getTagType());
+        if (ordered && java.util.Arrays.asList("like","contains").contains(op)) throw new ServiceException("数值和日期不支持文本匹配");
+        if (java.util.Arrays.asList("布尔型","选项型").contains(c.getTagType()) && !java.util.Arrays.asList("=","!=","in","not_in").contains(op))
+            throw new ServiceException("选项条件不支持该运算符");
+        List<String> values = c.getValues();
+        if (values == null || values.isEmpty()) throw new ServiceException("条件值不能为空");
+        List<String> literals = new ArrayList<>();
+        for (String value : values) {
+            if (value == null || value.isEmpty()) throw new ServiceException("条件值不能为空");
+            literals.add("数值型".equals(c.getTagType()) ? numericLiteral(value, c)
+                    : "日期型".equals(c.getTagType()) ? dateLiteral(value, c) : quote(value));
+        }
+        if ("in".equals(op) || "not_in".equals(op)) {
+            return "(" + column + ("in".equals(op) ? " in (" : " not in (") + String.join(",", literals) + "))";
+        }
+        if ("between".equals(op)) {
+            if (values.size() != 2) throw new ServiceException("区间必须有两个端点");
+            if ("数值型".equals(c.getTagType()) && new BigDecimal(values.get(0)).compareTo(new BigDecimal(values.get(1))) > 0)
+                throw new ServiceException("区间下限不能大于上限");
+            if ("日期型".equals(c.getTagType()) && values.get(0).compareTo(values.get(1)) > 0)
+                throw new ServiceException("开始日期不能晚于结束日期");
+            return "(" + column + " >= " + literals.get(0) + " and " + column + " <= " + literals.get(1) + ")";
+        }
+        if (values.size() != 1) throw new ServiceException("比较条件必须提供一个值");
+        if ("contains".equals(op)) {
+            String value = values.get(0).replace("!", "!!").replace("%", "!%").replace("_", "!_");
+            return "(" + column + " like " + quote("%" + value + "%") + " escape '!')";
+        }
+        if ("like".equals(op)) return "(" + column + " like " + literals.get(0) + ")";
+        if (!java.util.Arrays.asList("=", "!=", ">", ">=", "<", "<=").contains(op))
+            throw new ServiceException("不支持的圈选运算符");
+        return "(" + column + " " + op + " " + literals.get(0) + ")";
     }
 
     private String buildConditionSql(RulePayload.Condition c, String col) {
@@ -276,7 +324,7 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
         if (value == null) {
             return "''";
         }
-        return "'" + value.replace("'", "''") + "'";
+        return "'" + value.replace("\\", "\\\\").replace("'", "''") + "'";
     }
 
     /** 数值型条件字面值：仅接受合法数字，拒绝一切原样拼接，防 SQL 注入 */

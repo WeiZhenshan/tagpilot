@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsCatalogSnapshotMapper">
+    <resultMap type="com.ruoyi.taglibrary.domain.TsCatalogSnapshot" id="SnapshotResult">
+        <id property="snapshotId" column="snapshot_id"/>
+        <result property="libraryId" column="library_id"/>
+        <result property="snapshotNo" column="snapshot_no"/>
+        <result property="tagCount" column="tag_count"/>
+        <result property="conceptCount" column="concept_count"/>
+        <result property="aliasCount" column="alias_count"/>
+        <result property="codeValueCount" column="code_value_count"/>
+        <result property="fileSha256" column="file_sha256"/>
+        <result property="contentHash" column="content_hash"/>
+        <result property="storageUri" column="storage_uri"/>
+        <result property="schemaVersion" column="schema_version"/>
+        <result property="status" column="status"/>
+        <result property="sourceManifest" column="source_manifest"/>
+        <result property="qualityReport" column="quality_report"/>
+        <result property="publishBy" column="publish_by"/>
+        <result property="publishTime" column="publish_time"/>
+    </resultMap>
+    <sql id="cols">
+        snapshot_id, library_id, snapshot_no, tag_count, concept_count, alias_count, code_value_count,
+        content_hash, file_sha256, storage_uri, schema_version, status, source_manifest, quality_report, publish_by, publish_time
+    </sql>
+    <select id="lockLibrary" resultType="Long">
+        select library_id from tl_tag_library where library_id = #{libraryId} for update
+    </select>
+    <select id="selectByLibraryId" resultMap="SnapshotResult">
+        select <include refid="cols"/> from ts_catalog_snapshot where library_id = #{libraryId} order by snapshot_no desc
+    </select>
+    <select id="selectById" resultMap="SnapshotResult">
+        select <include refid="cols"/> from ts_catalog_snapshot where snapshot_id = #{snapshotId}
+    </select>
+    <select id="selectActiveByLibraryId" resultMap="SnapshotResult">
+        select <include refid="cols"/> from ts_catalog_snapshot where library_id = #{libraryId} and status = 'ACTIVE' limit 1
+    </select>
+    <select id="selectMaxSnapshotNo" resultType="Integer">
+        select max(snapshot_no) from ts_catalog_snapshot where library_id = #{libraryId}
+    </select>
+    <insert id="insertSnapshot">
+        insert into ts_catalog_snapshot (
+            snapshot_id, library_id, snapshot_no, tag_count, concept_count, alias_count, code_value_count,
+            content_hash, file_sha256, storage_uri, schema_version, status, source_manifest, quality_report,
+            publish_by, publish_time, create_by, create_time
+        ) values (
+            #{snapshotId}, #{libraryId}, #{snapshotNo}, #{tagCount}, #{conceptCount}, #{aliasCount}, #{codeValueCount},
+            #{contentHash}, #{fileSha256}, #{storageUri}, #{schemaVersion}, #{status}, #{sourceManifest}, #{qualityReport},
+            #{publishBy}, #{publishTime}, #{createBy}, sysdate()
+        )
+    </insert>
+    <update id="updateSnapshot">
+        update ts_catalog_snapshot
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="storageUri != null">storage_uri = #{storageUri},</if>
+            <if test="qualityReport != null">quality_report = #{qualityReport},</if>
+            update_time = sysdate()
+        </set>
+        where snapshot_id = #{snapshotId}
+    </update>
+    <update id="retireActive">
+        update ts_catalog_snapshot set status = 'RETIRED', update_time = sysdate()
+        where library_id = #{libraryId} and status = 'ACTIVE'
+        <if test="exceptId != null">and snapshot_id &lt;&gt; #{exceptId}</if>
+    </update>
+</mapper>

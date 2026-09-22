@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsTagSemanticMapper">
+
+    <resultMap type="TsTagSemantic" id="TsTagSemanticResult">
+        <id     property="tagId"              column="tag_id"              />
+        <result property="conceptId"          column="concept_id"          />
+        <result property="familyKey"          column="family_key"          />
+        <result property="caliberVariant"     column="caliber_variant"     />
+        <result property="semanticType"       column="semantic_type"       />
+        <result property="allowedOperators"   column="allowed_operators"   />
+        <result property="defaultOperator"    column="default_operator"    />
+        <result property="unit"               column="unit"                />
+        <result property="unitScale"          column="unit_scale"          />
+        <result property="caliberStruct"      column="caliber_struct"      />
+        <result property="definitionLong"     column="definition_long"     />
+        <result property="sensitivity"        column="sensitivity"         />
+        <result property="completenessScore"  column="completeness_score"  />
+        <result property="basisHash"          column="basis_hash"          />
+        <result property="source"             column="source"              />
+        <result property="reviewStatus"       column="review_status"       />
+        <result property="semanticVersion"    column="semantic_version"    />
+        <result property="reviewBy"           column="review_by"           />
+        <result property="reviewTime"         column="review_time"         />
+        <result property="sourceRef"          column="source_ref"          />
+        <result property="createBy"           column="create_by"           />
+        <result property="createTime"         column="create_time"         />
+        <result property="updateBy"           column="update_by"           />
+        <result property="updateTime"         column="update_time"         />
+        <result property="remark"             column="remark"              />
+        <result property="libraryId"          column="library_id"          />
+        <result property="fieldName"          column="field_name"          />
+        <result property="tagName"            column="tag_name"            />
+    </resultMap>
+
+    <sql id="selectVo">
+        select s.tag_id, s.concept_id, s.family_key, s.caliber_variant, s.semantic_type, s.allowed_operators,
+               s.default_operator, s.unit, s.unit_scale, s.caliber_struct, s.definition_long, s.sensitivity,
+               s.completeness_score, s.basis_hash, s.source, s.review_status, s.semantic_version,
+               s.review_by, s.review_time, s.source_ref, s.create_by, s.create_time, s.update_by, s.update_time, s.remark,
+               t.library_id, t.field_name, t.tag_name
+        from ts_tag_semantic s
+        left join tl_tag t on t.tag_id = s.tag_id
+    </sql>
+
+    <select id="selectByTagId" parameterType="Long" resultMap="TsTagSemanticResult">
+        <include refid="selectVo"/> where s.tag_id = #{tagId}
+    </select>
+
+    <select id="selectByLibraryId" parameterType="Long" resultMap="TsTagSemanticResult">
+        <include refid="selectVo"/>
+        where t.library_id = #{libraryId} and t.del_flag = '0'
+        order by s.tag_id
+    </select>
+
+    <insert id="insertTagSemantic" parameterType="TsTagSemantic">
+        insert into ts_tag_semantic (
+            tag_id, concept_id, family_key, caliber_variant, semantic_type, allowed_operators,
+            default_operator, unit, unit_scale, caliber_struct, definition_long, sensitivity,
+            completeness_score, basis_hash, source, review_status, semantic_version,
+            review_by, review_time, source_ref, create_by, create_time, remark
+        ) values (
+            #{tagId}, #{conceptId}, #{familyKey}, #{caliberVariant}, #{semanticType}, #{allowedOperators},
+            #{defaultOperator}, #{unit}, #{unitScale}, #{caliberStruct}, #{definitionLong}, #{sensitivity},
+            #{completenessScore}, #{basisHash}, #{source}, #{reviewStatus}, #{semanticVersion},
+            #{reviewBy}, #{reviewTime}, #{sourceRef}, #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateTagSemantic" parameterType="TsTagSemantic">
+        update ts_tag_semantic
+        <set>
+            concept_id = #{conceptId},
+            <if test="familyKey != null">family_key = #{familyKey},</if>
+            <if test="caliberVariant != null">caliber_variant = #{caliberVariant},</if>
+            <if test="semanticType != null">semantic_type = #{semanticType},</if>
+            <if test="allowedOperators != null">allowed_operators = #{allowedOperators},</if>
+            <if test="defaultOperator != null">default_operator = #{defaultOperator},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="unitScale != null">unit_scale = #{unitScale},</if>
+            <if test="caliberStruct != null">caliber_struct = #{caliberStruct},</if>
+            <if test="definitionLong != null">definition_long = #{definitionLong},</if>
+            <if test="sensitivity != null">sensitivity = #{sensitivity},</if>
+            <if test="completenessScore != null">completeness_score = #{completenessScore},</if>
+            <if test="basisHash != null">basis_hash = #{basisHash},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="semanticVersion != null">semantic_version = #{semanticVersion},</if>
+            <if test="reviewBy != null">review_by = #{reviewBy},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where tag_id = #{tagId}
+    </update>
+
+    <insert id="upsertTagSemanticBatch">
+        insert into ts_tag_semantic (
+            tag_id, concept_id, family_key, caliber_variant, semantic_type, allowed_operators,
+            default_operator, unit, unit_scale, caliber_struct, definition_long, sensitivity,
+            completeness_score, basis_hash, source, review_status, semantic_version,
+            review_by, review_time, source_ref, create_by, create_time, remark
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.tagId}, #{item.conceptId}, #{item.familyKey}, #{item.caliberVariant}, #{item.semanticType}, #{item.allowedOperators},
+                #{item.defaultOperator}, #{item.unit}, #{item.unitScale}, #{item.caliberStruct}, #{item.definitionLong}, #{item.sensitivity},
+                #{item.completenessScore}, #{item.basisHash}, #{item.source}, #{item.reviewStatus}, #{item.semanticVersion},
+                #{item.reviewBy}, #{item.reviewTime}, #{item.sourceRef}, #{item.createBy}, sysdate(), #{item.remark}
+            )
+        </foreach>
+        on duplicate key update
+            concept_id = values(concept_id),
+            family_key = values(family_key),
+            caliber_variant = values(caliber_variant),
+            semantic_type = values(semantic_type),
+            allowed_operators = values(allowed_operators),
+            default_operator = values(default_operator),
+            unit = values(unit),
+            unit_scale = values(unit_scale),
+            caliber_struct = values(caliber_struct),
+            definition_long = values(definition_long),
+            sensitivity = values(sensitivity),
+            completeness_score = values(completeness_score),
+            basis_hash = values(basis_hash),
+            source = values(source),
+            review_status = values(review_status),
+            semantic_version = values(semantic_version),
+            remark = values(remark),
+            update_by = values(create_by),
+            update_time = sysdate()
+    </insert>
+</mapper>

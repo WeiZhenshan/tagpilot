@@ -23,6 +23,8 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | 文档 | 类别 | 所属模块 | 路径 | 用途 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 标签系统核心功能模块详解 | 架构 / 模块说明 | 全局 | [`architecture/标签系统核心功能模块详解.md`](architecture/标签系统核心功能模块详解.md) | 统一标签管理系统的定位与四大核心模块（数据代理 / 标签库 / 对象群 / 审批流程）的功能定义与机制 | 现行 |
+| 标签语义引擎与 Agent 编排层 | 架构 / 使用指南 | taglibrary + tagpilot-semantic + tagpilot-agent + tagpilot-assistant | [`architecture/标签语义引擎与Agent编排层.md`](architecture/标签语义引擎与Agent编排层.md) | 对照代码整理：`ts_*` 语义层、快照/索引、六通道检索、LangGraph 受控选择图与 DSL 门禁、智能体工作台；含本机启动与运营使用指南 | 现行（2026-09-21 增加独立 Assistant UI 工作台） |
+| Agent V2 圈选工作台 | 实施说明 / 验证 | taglibrary + objectgroup + agent + assistant | [`development/Agent-V2实施说明.md`](development/Agent-V2实施说明.md) | 持久会话、条件树、工具循环、Ask、版本统计与确认创建；含开发计划和验证边界 | 现行（2026-09-21） |
 
 ### 设计 `docs/design/`
 
@@ -30,6 +32,8 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 数据代理模块-数据源管理开发文档 | 详细设计 / 开发文档 | databroker | [`design/数据代理模块-数据源管理开发文档.md`](design/数据代理模块-数据源管理开发文档.md) | 数据源管理模块的应用架构、Maven 模块调整、数据库设计、菜单权限、后端接口设计 | 现行 |
 | 标签系统数据链路评估与优化方案 | 技术方案 / 评估报告 | databroker + taglibrary + objectgroup | [`design/标签系统数据链路评估与优化方案.md`](design/标签系统数据链路评估与优化方案.md) | 数据流向总览、删除链路依赖保护缺失的 P0/P1/P2 问题与优化方案 | 部分落地：P0-5 → `sql/migration/V20260905_01__tag_system_del_flag_widen.sql`；P0-6 → `sql/maintenance/cleanup_orphan_data.sql` |
+| 标签语义层与检索索引建设方案 | 架构方案 / 详细设计 | taglibrary + AI Runtime | [`design/标签语义层与检索索引建设方案.md`](design/标签语义层与检索索引建设方案.md) | 标签智能体模块 A 基础数据架构：`ts_*` 语义层（概念/族/结构化口径/别名/码值语义/易混淆/词典）、`TagCatalogSnapshot` 版本快照、Milvus Standalone 索引（BM25 + 向量 + 标量过滤 + 别名切换）与构建流水线、评测与治理 | 现行方案（2026-09-16，待评审） |
+| 标签语义层与检索索引建设方案 v1（本地索引版） | 架构方案 / 历史版本 | taglibrary + AI Runtime | [`design/标签语义层与检索索引建设方案-v1-本地索引版.md`](design/标签语义层与检索索引建设方案-v1-本地索引版.md) | 同上方案的首版：索引层采用 numpy 内存向量矩阵 + rank_bm25 本地产物、不引入向量数据库；语义层设计与现行版一致 | 历史参考（已被 Milvus 版取代） |
 
 ### 计划 `docs/plans/`
 
@@ -121,3 +125,13 @@ superpowers 工作流按约定把计划与规格写入 `docs/superpowers/{plans,
 | `superpowers/` | superpowers 工作流固定产物目录，**不要手工往里放东西** |
 
 只创建有实际文档的目录；某个分类暂时没有文档就不要创建空目录。跨模块、项目级的文档放 `docs/`；模块自身的运行说明留在模块根目录。
+
+
+### 语义索引层实施与验收（2026-09-19）
+
+- [标签语义引擎与 Agent 编排层](architecture/标签语义引擎与Agent编排层.md)：功能层级、数据流与使用指南（对照当前代码）。
+- [补齐任务清单](design/语义层与索引层补齐任务清单.md)：按完整验收口径回填，未完成项保持显式。
+- [建设验收记录](validation/语义索引层建设验收记录.md)：实测数据、代码交付、偏差与待业务/模型/生产验证项。
+- [运行与恢复说明](../tagpilot-semantic/README.md)：语义引擎外部服务连接、认证、冻结复核发布、备份重建与封存评测。
+- [Agent 编排层](../tagpilot-agent/README.md)：LangGraph 受控选择图的独立后端。
+- [智能体工作台](../tagpilot-assistant/README.md)：Assistant UI 对话页，经 `/agent` 全屏嵌入。

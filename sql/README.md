@@ -41,6 +41,10 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `V20260905_01__tag_system_del_flag_widen.sql` | del_flag 由 char(1) 拓宽为 varchar(64)，修复逻辑删除唯一键冲突（P0-5） | **是**（CI Deploy） | 否 | 3 | 无 | 全局（dp_*/tl_*） | 全部 | 自研迁移器 | 来源 `sql/archive/tag_system_del_flag_migration.sql` |
 | `V20260905_02__taglibrary_metadata_change.sql` | tl_tag_library_dimension + tl_tag_metadata_change 建表 | **是**（CI Deploy） | 否 | 4 | 无 | taglibrary | 全部 | 自研迁移器 | 来源 `ruoyi-taglibrary/src/main/resources/sql/taglibrary_metadata_migration.sql` |
 | `V20260905_03__tag_mapping_sync_upgrade.sql` | 批量映射同步：tl_tag_library/tl_tag/tl_tag_metadata_change 加列、新增权限菜单 2136–2137、存量草稿迁入 status='4' | **是**（CI Deploy） | 否 | 5 | **须在 V20260905_02 之后** | taglibrary | 全部 | 自研迁移器 | 来源 `sql/archive/tag_mapping_sync_upgrade_migration.sql` |
+| `V20260918_01__tag_semantic_layer.sql` | 标签语义层：11 张 `ts_*` 表 + 权限按钮 2140–2143（list/edit/review/bootstrap） | **是**（CI Deploy） | 否 | 6 | 无（不改 tl_*/dp_*） | taglibrary | 全部 | 自研迁移器 | 对应 `docs/design/标签语义层与检索索引建设方案.md` S1；本阶段不开放 publish |
+| `V20260918_02__tag_semantic_runtime.sql` | 语义发布权限 2144 + 业务词典种子 | **是**（CI Deploy） | 否 | 7 | **须在 V20260918_01 之后** | taglibrary | 全部 | 自研迁移器 | S7 词典首批；完整约 40 条以 Python `seed_terms()` 为准 |
+
+| `V20260921_03__agent_workbench_v2.sql` | 用户会话密文与按方案版本的幂等执行记录 | **是**（CI Deploy） | 否 | 按文件名排序 | 现有若依用户、标签库与对象群模块 | taglibrary | 全部 | 自研迁移器 | 无历史数据覆盖；运行和检查点另存 Python 加密 SQLite |
 
 **新增迁移脚本规范**：命名 `V<yyyymmdd>_<序号>__<描述>.sql`；幂等、只向前、不得包含 `drop table`。已应用的迁移文件**内容不可再修改**（因此其中标注的"来源"路径保留移动前的历史写法，实际文件见 `sql/archive/`）。
 
@@ -59,6 +63,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | 文件 | 用途 | 是否自动执行 | 允许手动执行 | 执行顺序 | 前置依赖 | 所属模块 | 运行环境 | 框架管理 | 备注 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `cleanup_orphan_data.sql` | 标签系统孤儿数据一次性清理（维表关系残留、孤儿码值、孤儿对象群、空导入批次），对应《标签系统数据链路评估与优化方案》P0-6 | 否 | **是（需逐段确认）** | 一次性 | `ry` 库为已升级版本 | taglibrary / objectgroup | 测试库核对后再上生产 | 否 | 每段先给出"受影响行数预估"，确认无误后放开对应 `DELETE`；后续此类清理已由代码级联逻辑承接，**勿重复定时执行** |
+| `s0_tag_semantic_inventory.sql` | 标签语义层 S0 只读核验：宽表/码表、库 107、在线版本、码表绑定、试点字段 | 否 | **是（仅 SELECT）** | 实施前 | `ry` + `indiv_cust` | taglibrary | 开发/测试 | 否 | 无写操作；结果填入 `docs/design/s0_source_inventory.json` |
 
 ## 5. 历史留档（`sql/archive/`）
 
@@ -160,3 +165,15 @@ mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
 | `indiv_cust/` | `indiv_cust` 库个人客户经营标签大宽表的独立交付（建表 / 码值 / 回退 / 校验） | 开发/测试手工，按序号执行 |
 
 新增脚本时：先判断它属于上表哪一类，不要直接丢在 `sql/` 根目录；不要创建 `database/`、`db/` 等第二套顶层体系。开发阶段的临时数据备份不要提交到仓库（需要时放在本地或备份系统，不要进 `sql/`）。
+
+
+### 2026-09-19 语义层增量补齐
+
+| 文件 | 内容 |
+|---|---|
+| `migration/V20260919_01__tag_snapshot_artifact.sql` | 快照文件 SHA-256、反馈决策唯一键；幂等前向迁移 |
+| `migration/V20260919_02__tag_semantic_pages.sql` | 语义维护/快照索引 C 菜单，继承已有语义查看角色；不扩大编辑复核权限 |
+| `migration/V20260921_01__agent_workbench_menu.sql` | 一级菜单「智能体工作台」(`/agent`)；`menu_id` 2200 与对象群冲突，实际插入被跳过，保留不改 |
+| `migration/V20260921_02__agent_workbench_menu.sql` | 改用 `menu_id` 2300 补齐「智能体工作台」；已有 `path=agent` 顶级菜单则只补角色授权 |
+
+两条迁移已在本地隔离库重复验证并应用本地 ry；详情见 `docs/validation/语义索引层建设验收记录.md`。其它环境仍由 `bin/db-migrate.sh` 读取迁移记录按序执行，不重跑初始化 SQL。

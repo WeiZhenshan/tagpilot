@@ -1,0 +1,51 @@
+{
+  "phase": "S2",
+  "library_id": 107,
+  "freeze_source": "docs/design/s0_source_inventory.json + sql/indiv_cust/03|04|05 码表脚本（不连业务库补知识）",
+  "pilot_tag_count": 31,
+  "coverage_note": "试点 31 个字段 / 全库 969 个业务标签 ≈ 3.2%，不得写成 100% 覆盖。",
+  "rule_init": {
+    "tag_semantic_draft": 31,
+    "code_value_semantic_draft": 543,
+    "unresolved_count": 22,
+    "source": "RULE",
+    "review_status": "DRAFT",
+    "reviewed_count": 0
+  },
+  "semantic_type_counts": {
+    "ENUM_NOMINAL": 6,
+    "ENUM_ORDINAL": 6,
+    "NUM_AMOUNT": 6,
+    "BOOL": 5,
+    "NUM_COUNT": 2,
+    "NUM_RATIO": 2,
+    "DATE": 2,
+    "ID_KEY": 1,
+    "TEXT_FREE": 1
+  },
+  "checks": {
+    "OUTSIDE_ASSET_WAN_KYC_03": {
+      "lower_bound": 1000000,
+      "upper_bound": 3000000,
+      "lower_inclusive": 1,
+      "upper_inclusive": 0
+    },
+    "CUR_POINT_AUM_family": "AUM|EOP|ALL|NONE|NONE|BASE",
+    "LAST_12_MONTHS_MAX_AUM_family": "最高AUM|MAX|ALL|NONE|NONE|BASE",
+    "HIST_MAX_POINT_AUM_time_and_stat": ["HIST", "MAX"],
+    "institution_semantic_type": "ENUM_NOMINAL",
+    "no_llm": true,
+    "no_milvus": true,
+    "no_snapshot_publish": true
+  },
+  "unresolved_issues": {
+    "UNIT_UNKNOWN": 6,
+    "HIERARCHY_SKIPPED": 3,
+    "RATIO_SCALE_UNKNOWN": 2,
+    "ORDINAL_INTERVAL_UNPARSED": 11
+  },
+  "write_path": {
+    "java_api": "POST /taglibrary/semantic/bootstrap/import",
+    "local_applied": "ai-runtime/tag_semantic/out/rule_init_import.sql -> ry.ts_tag_semantic / ts_code_value_semantic"
+  }
+}

@@ -1,0 +1,22 @@
+{"tag_id":564,"field_name":"CUR_PB_KYC_COMPLETENESS","issue":"RATIO_SCALE_UNKNOWN","message":"占比量纲 0-1 与 0-100 不自动判定"}
+{"tag_id":567,"field_name":"HIGHEST_EDUCATION","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: 初中及以下","code":"01"}
+{"tag_id":567,"field_name":"HIGHEST_EDUCATION","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: 高中/中专","code":"02"}
+{"tag_id":567,"field_name":"HIGHEST_EDUCATION","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: 大专","code":"03"}
+{"tag_id":567,"field_name":"HIGHEST_EDUCATION","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: 本科","code":"04"}
+{"tag_id":567,"field_name":"HIGHEST_EDUCATION","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: 硕士","code":"05"}
+{"tag_id":567,"field_name":"HIGHEST_EDUCATION","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: 博士","code":"06"}
+{"tag_id":717,"field_name":"LAST_12_MONTHS_MAX_AUM","issue":"UNIT_UNKNOWN","message":"金额单位无法从来源口径确认，禁止自动换算"}
+{"tag_id":718,"field_name":"T3_MONTH_END_AUM","issue":"UNIT_UNKNOWN","message":"金额单位无法从来源口径确认，禁止自动换算"}
+{"tag_id":719,"field_name":"CUR_FIXED_INCOME_AUM_RATIO","issue":"RATIO_SCALE_UNKNOWN","message":"占比量纲 0-1 与 0-100 不自动判定"}
+{"tag_id":721,"field_name":"CUR_POINT_AUM","issue":"UNIT_UNKNOWN","message":"金额单位无法从来源口径确认，禁止自动换算"}
+{"tag_id":722,"field_name":"CUR_AUM_MONTH_AVG_DAILY_BALANCE","issue":"UNIT_UNKNOWN","message":"金额单位无法从来源口径确认，禁止自动换算"}
+{"tag_id":727,"field_name":"HIST_MAX_POINT_AUM","issue":"UNIT_UNKNOWN","message":"金额单位无法从来源口径确认，禁止自动换算"}
+{"tag_id":735,"field_name":"CUR_POINT_AUM_OUR_BANK","issue":"UNIT_UNKNOWN","message":"金额单位无法从来源口径确认，禁止自动换算"}
+{"tag_id":1386,"field_name":"CUR_CORE_CM_LEVEL3_BRANCH","issue":"HIERARCHY_SKIPPED","message":"机构字段先按 ENUM_NOMINAL，禁止用联行号前缀猜父子树"}
+{"tag_id":1409,"field_name":"CUR_CORE_CM_LEVEL1_BRANCH","issue":"HIERARCHY_SKIPPED","message":"机构字段先按 ENUM_NOMINAL，禁止用联行号前缀猜父子树"}
+{"tag_id":1410,"field_name":"CUR_CORE_CM_LEVEL2_BRANCH","issue":"HIERARCHY_SKIPPED","message":"机构字段先按 ENUM_NOMINAL，禁止用联行号前缀猜父子树"}
+{"tag_id":1466,"field_name":"CUR_WMP_RISK_ASSESSMENT_LEVEL","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: C1 谨慎型","code":"C1"}
+{"tag_id":1466,"field_name":"CUR_WMP_RISK_ASSESSMENT_LEVEL","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: C2 稳健型","code":"C2"}
+{"tag_id":1466,"field_name":"CUR_WMP_RISK_ASSESSMENT_LEVEL","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: C3 平衡型","code":"C3"}
+{"tag_id":1466,"field_name":"CUR_WMP_RISK_ASSESSMENT_LEVEL","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: C4 成长型","code":"C4"}
+{"tag_id":1466,"field_name":"CUR_WMP_RISK_ASSESSMENT_LEVEL","issue":"ORDINAL_INTERVAL_UNPARSED","message":"有序码值未能解析区间: C5 进取型","code":"C5"}

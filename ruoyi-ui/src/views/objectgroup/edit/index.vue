@@ -1,7 +1,7 @@
 <template>
   <div class="rule-editor">
     <!-- 左侧：标签库 + 标签树 -->
-    <div class="left-panel">
+    <div v-if="ruleSchemaVersion < 4" class="left-panel">
       <el-select v-model="libraryId" placeholder="请选择标签库" size="small" style="width: 100%; margin-bottom: 8px;" @change="handleLibraryChange">
         <el-option v-for="lib in libraryOptions" :key="lib.libraryId" :label="lib.libraryName" :value="lib.libraryId" />
       </el-select>
@@ -36,16 +36,22 @@
         <span class="user-count-label">用户数</span>
         <span class="user-count-num">{{ userCount }}</span>
         <el-button size="small" icon="el-icon-document" @click="handleSqlPreview" v-hasPermi="['objectgroup:group:run']">SQL预览</el-button>
-        <el-button size="small" icon="el-icon-delete" @click="handleClear">清空</el-button>
+        <el-button size="small" icon="el-icon-delete" :disabled="ruleSchemaVersion >= 4" @click="handleClear">清空</el-button>
         <el-button size="small" icon="el-icon-view" @click="handleSamplePreview" v-hasPermi="['objectgroup:group:preview']">样例预览</el-button>
         <div class="toolbar-right">
           <el-button size="small" @click="handleBack">返回</el-button>
-          <el-button size="small" type="success" icon="el-icon-check" @click="handleSave">保存</el-button>
+          <el-button size="small" type="success" icon="el-icon-check" :disabled="ruleSchemaVersion >= 4" @click="handleSave">保存</el-button>
         </div>
       </div>
 
       <!-- 预览列区（拖入标签加入样例预览列） -->
-      <div class="preview-col-area">
+      <div v-if="ruleSchemaVersion >= 4" class="advanced-rule-summary">
+        <el-alert title="此客群包含经过核验的智能体方案" type="info" :closable="false"
+          description="可在此统计人数和查看样例。请回到智能体会话修改条件，避免高级计算规则被简化。" show-icon />
+        <p>{{ advancedRule && advancedRule.audiencePlan && advancedRule.audiencePlan.summary }}</p>
+        <ol><li v-for="cond in conditions" :key="cond.conditionId">{{ cond.tagName || '已发布条件' }}</li></ol>
+      </div>
+      <div v-if="ruleSchemaVersion < 4" class="preview-col-area">
         <span class="area-label">预览列</span>
         <draggable :list="previewColumns" :group="previewGroup" class="preview-col-list" @add="onPreviewColAdd">
           <el-tag v-for="col in previewColumns" :key="col.tagId" closable size="small" class="preview-col-tag" @close="removePreviewCol(col)">{{ col.tagName }}</el-tag>
@@ -54,7 +60,7 @@
       </div>
 
       <!-- 第二部分：规则编辑区 -->
-      <div class="rule-area">
+      <div v-if="ruleSchemaVersion < 4" class="rule-area">
         <draggable :list="conditions" group="ruleGroup" class="rule-list" :animation="200" @add="onRuleAdd">
           <div v-for="(cond, index) in conditions" :key="cond.conditionId" class="rule-row"
             :class="{ 'is-active': activeConditionId === cond.conditionId, 'is-invalid': !isConditionValid(cond) }"
@@ -76,8 +82,20 @@
               <el-button type="text" size="mini" icon="el-icon-close" class="row-delete" @click.stop="removeCondition(cond)" />
             </div>
             <div class="rule-row-body">
+              <!-- V3 按实际操作符编辑，禁止退化成旧版固定闭区间 -->
+              <template v-if="ruleSchemaVersion >= 3 && cond.tagType !== '客户号'">
+                <el-select v-model="cond.operator" size="small" style="width: 110px;" @change="cond.values = []">
+                  <el-option v-for="op in v3Operators(cond)" :key="op" :label="({ '=': '等于', '!=': '不等于', '>': '大于', '>=': '至少', '<': '小于', '<=': '不超过', between: '区间', in: '属于', not_in: '不属于', contains: '包含', like: '匹配', is_null: '为空', is_not_null: '不为空' })[op]" :value="op" />
+                </el-select>
+                <template v-if="!['is_null', 'is_not_null'].includes(cond.operator)">
+                  <el-select v-if="['选项型', '布尔型'].includes(cond.tagType)" v-model="cond.values" multiple size="small" placeholder="选择条件值" style="width: 260px;">
+                    <el-option v-for="opt in codeOptions(cond)" :key="opt.code" :label="opt.codeDefinition || opt.code" :value="opt.code" />
+                  </el-select>
+                  <el-input v-else :value="(cond.values || []).join(', ')" size="small" placeholder="填写条件值；区间使用逗号分隔" style="width: 260px;" @input="val => cond.values = val.split(/[,，]/).map(v => v.trim())" />
+                </template>
+              </template>
               <!-- 客户号（主键）特殊控件 -->
-              <template v-if="cond.tagType === '客户号'">
+              <template v-else-if="cond.tagType === '客户号'">
                 <el-radio-group v-model="cond.matchType" size="small" @change="onMatchTypeChange(cond)">
                   <el-radio-button label="exact">精准匹配</el-radio-button>
                   <el-radio-button label="like">模糊匹配</el-radio-button>
@@ -135,7 +153,7 @@
       </div>
 
       <!-- 第三部分：逻辑关系区 -->
-      <div class="logic-area">
+      <div v-if="ruleSchemaVersion < 4" class="logic-area">
         <span class="area-label">逻辑关系</span>
         <el-button size="mini" icon="el-icon-arrow-left" @click="addParen('open')">左括号</el-button>
         <el-button size="mini" icon="el-icon-arrow-right" @click="addParen('close')">右括号</el-button>
@@ -229,6 +247,8 @@ export default {
     return {
       // 表单
       groupId: undefined,
+      ruleSchemaVersion: 2,
+      advancedRule: null,
       groupName: '',
       groupDesc: '',
       // 标签库 + 树
@@ -320,6 +340,8 @@ export default {
       this.loadLibraries()
     },
     resetState() {
+      this.ruleSchemaVersion = 2
+      this.advancedRule = null
       this.groupId = undefined
       this.groupName = ''
       this.groupDesc = ''
@@ -348,6 +370,8 @@ export default {
         this.libraryId = g.libraryId
         if (g.ruleJson) {
           const rule = JSON.parse(g.ruleJson)
+          this.ruleSchemaVersion = rule.schemaVersion || 2
+          this.advancedRule = this.ruleSchemaVersion >= 4 ? rule : null
           this.conditions = rule.conditions || []
           this.previewColumns = rule.previewColumns || []
           this.objectKeyField = rule.objectKeyField
@@ -482,7 +506,7 @@ export default {
         tagName: data.label,
         tagType: type,
         dataType: data.dataType,
-        operator: type === '文本型' ? 'eq' : type === '客户号' ? 'eq' : 'between',
+        operator: this.ruleSchemaVersion >= 3 ? (type === '选项型' ? 'in' : '=') : (type === '文本型' ? 'eq' : type === '客户号' ? 'eq' : 'between'),
         values: [],
         dateRange: [],
         matchType: 'exact',
@@ -504,7 +528,17 @@ export default {
         this.activeConditionId = undefined
       }
     },
+    v3Operators(cond) {
+      const nullOps = ['is_null', 'is_not_null']
+      if (['布尔型', '选项型'].includes(cond.tagType)) return ['=', '!=', 'in', 'not_in'].concat(nullOps)
+      if (['数值型', '日期型'].includes(cond.tagType)) return ['=', '!=', '>', '>=', '<', '<=', 'between', 'in', 'not_in'].concat(nullOps)
+      return ['=', '!=', 'in', 'not_in', 'contains', 'like'].concat(nullOps)
+    },
     isConditionValid(cond) {
+      if (this.ruleSchemaVersion >= 3 && cond.tagType !== '客户号') {
+        if (['is_null', 'is_not_null'].includes(cond.operator)) return true
+        return Array.isArray(cond.values) && cond.values.length > 0 && cond.values.every(v => v !== null && v !== undefined && String(v) !== '') && (cond.operator !== 'between' || cond.values.length === 2)
+      }
       if (cond.tagType === '客户号') {
         if (cond.matchType === 'import') return !!cond.importedCount
         return !!(cond.values && cond.values[0])
@@ -589,6 +623,7 @@ export default {
       this.formatVisible = true
     },
     handleClear() {
+      if (this.ruleSchemaVersion >= 4) return
       this.$confirm('确认清空全部规则？', '提示', { type: 'warning' }).then(() => {
         this.conditions = []
         this.previewColumns = []
@@ -597,8 +632,9 @@ export default {
     },
     // ==================== 工具栏 ====================
     buildRule() {
+      if (this.ruleSchemaVersion >= 4) return JSON.parse(JSON.stringify(this.advancedRule))
       return {
-        schemaVersion: 2,
+        schemaVersion: this.ruleSchemaVersion,
         objectKeyField: this.objectKeyField,
         conditions: this.conditions.map(c => this.buildCondition(c)),
         previewColumns: this.previewColumns
@@ -624,6 +660,7 @@ export default {
       return true
     },
     validateRule() {
+      if (this.ruleSchemaVersion >= 4) return !!(this.advancedRule && this.advancedRule.audiencePlan)
       if (this.conditions.length === 0) {
         this.$modal.msgWarning('请先拖入标签构建规则')
         return false
@@ -696,6 +733,7 @@ export default {
     },
     // ==================== 保存/返回 ====================
     handleSave() {
+      if (this.ruleSchemaVersion >= 4) return
       if (!this.libraryId) {
         this.$modal.msgWarning('请选择标签库')
         return
@@ -762,6 +800,7 @@ export default {
 </script>
 
 <style scoped>
+.advanced-rule-summary { padding: 20px; line-height: 1.7; overflow-wrap: anywhere; }
 .rule-editor {
   display: flex;
   height: calc(100vh - 84px);

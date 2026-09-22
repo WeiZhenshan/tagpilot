@@ -1,0 +1,2 @@
+# 本地 mysqldump 备份，勿提交仓库
+.backups/

@@ -1,0 +1,10 @@
+{
+  "source_build_id": "b1",
+  "build_id": "recovered",
+  "seconds": 0.01832079200539738,
+  "reconciled": true,
+  "activated": false,
+  "scope": "SYNTHETIC_PILOT_LOCAL_REBUILD",
+  "backup_sha256": "53878ae03898c040ecd71798fff2bebb0cfaa92a307a3d120b85318a93706738",
+  "production_rto": false
+}

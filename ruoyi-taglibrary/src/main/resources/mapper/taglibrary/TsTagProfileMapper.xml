@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsTagProfileMapper">
+  <resultMap id="Profile" type="com.ruoyi.taglibrary.domain.TsTagProfile">
+    <result property="tagId" column="tag_id"/>
+    <result property="profileDate" column="profile_date"/>
+    <result property="rowCount" column="row_count"/>
+    <result property="nullRate" column="null_rate"/>
+    <result property="distinctCount" column="distinct_count"/>
+    <result property="minVal" column="min_val"/>
+    <result property="maxVal" column="max_val"/>
+    <result property="p50" column="p50"/>
+    <result property="p90" column="p90"/>
+    <result property="p99" column="p99"/>
+    <result property="topValues" column="top_values"/>
+    <result property="sampleSize" column="sample_size"/>
+    <result property="sampled" column="sampled"/>
+    <result property="sourceVersionId" column="source_version_id"/>
+    <result property="sourceFingerprint" column="source_fingerprint"/>
+  </resultMap>
+  <select id="selectLatest" resultMap="Profile">select * from ts_tag_profile where tag_id = #{tagId} order by profile_date desc limit 1</select>
+  <insert id="upsert">
+    insert into ts_tag_profile (tag_id,profile_date,row_count,null_rate,distinct_count,min_val,max_val,p50,p90,p99,top_values,sample_size,sampled,source_version_id,source_fingerprint,create_by,create_time) values (#{tagId},#{profileDate},#{rowCount},#{nullRate},#{distinctCount},#{minVal},#{maxVal},#{p50},#{p90},#{p99},#{topValues},#{sampleSize},#{sampled},#{sourceVersionId},#{sourceFingerprint},#{createBy},sysdate())
+    on duplicate key update row_count = values(row_count),null_rate = values(null_rate),distinct_count = values(distinct_count),min_val = values(min_val),max_val = values(max_val),p50 = values(p50),p90 = values(p90),p99 = values(p99),top_values = values(top_values),sample_size = values(sample_size),sampled = values(sampled),source_version_id = values(source_version_id),source_fingerprint = values(source_fingerprint),update_by = values(create_by),update_time = sysdate()
+  </insert>
+</mapper>

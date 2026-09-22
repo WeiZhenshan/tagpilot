@@ -42,6 +42,11 @@ module.exports = {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
       },
+      '/agent-ui': {
+        target: 'http://127.0.0.1:5174',
+        changeOrigin: true,
+        ws: true
+      },
       // springdoc proxy
       '^/v3/api-docs/(.*)': {
         target: baseUrl,

@@ -1,0 +1,140 @@
+{
+  "scope": "REAL_MODELS_SYNTHETIC_SANITY",
+  "production_acceptance": false,
+  "business_gold_cases": 0,
+  "load_seconds": 7.908304250013316,
+  "embedding_model_hash": "850878161cfd72e0cb99eacc56632f7614333319e4fa76be01de8b6169e36a94",
+  "reranker_model_hash": "98d1b6ae3e07214cf16618aec28b2fcea6c6a5c43b00a8e92328f6c7432fd305",
+  "embedding_dim": 1024,
+  "embedding_ab": [
+    {
+      "model": "hash-v1",
+      "seconds": 0.00018558299052529037,
+      "results": [
+        {
+          "expected_doc": 0,
+          "ranked_doc_ids": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "hit_top1": true
+        },
+        {
+          "expected_doc": 1,
+          "ranked_doc_ids": [
+            1,
+            2,
+            3,
+            0
+          ],
+          "hit_top1": true
+        },
+        {
+          "expected_doc": 2,
+          "ranked_doc_ids": [
+            1,
+            3,
+            0,
+            2
+          ],
+          "hit_top1": false
+        }
+      ]
+    },
+    {
+      "model": "BAAI/bge-m3",
+      "seconds": 3.664056375011569,
+      "results": [
+        {
+          "expected_doc": 0,
+          "ranked_doc_ids": [
+            0,
+            3,
+            2,
+            1
+          ],
+          "hit_top1": true
+        },
+        {
+          "expected_doc": 1,
+          "ranked_doc_ids": [
+            1,
+            3,
+            2,
+            0
+          ],
+          "hit_top1": true
+        },
+        {
+          "expected_doc": 2,
+          "ranked_doc_ids": [
+            2,
+            1,
+            3,
+            0
+          ],
+          "hit_top1": true
+        }
+      ]
+    }
+  ],
+  "reranker_results": [
+    {
+      "expected_doc": 0,
+      "ranked_doc_ids": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "scores": [
+        0.9748009143240732,
+        0.011258931644709204,
+        0.0002643545184232227,
+        8.878868029221074e-05
+      ],
+      "hit_top1": true
+    },
+    {
+      "expected_doc": 1,
+      "ranked_doc_ids": [
+        1,
+        3,
+        0,
+        2
+      ],
+      "scores": [
+        0.9888137756694313,
+        0.0014256597452423911,
+        8.58470211692337e-05,
+        1.650001703215458e-05
+      ],
+      "hit_top1": true
+    },
+    {
+      "expected_doc": 2,
+      "ranked_doc_ids": [
+        2,
+        3,
+        1,
+        0
+      ],
+      "scores": [
+        0.7783627233200502,
+        3.189214588024819e-05,
+        1.6244661391964815e-05,
+        1.6229687664061107e-05
+      ],
+      "hit_top1": true
+    }
+  ],
+  "reranker_seconds": 1.3396026250266004,
+  "total_seconds": 12.91216483298922,
+  "peak_rss_platform_units": 3092889600,
+  "limitations": [
+    "4 条通用合成文档、3 个探针，仅验证模型加载、数值和基础排序。",
+    "不是 600 条封存评测，不证明 969 标签覆盖，不是生产容量验收。"
+  ]
+}

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TsConceptMapper">
+
+    <resultMap type="TsConcept" id="TsConceptResult">
+        <id     property="conceptId"    column="concept_id"    />
+        <result property="libraryId"    column="library_id"    />
+        <result property="conceptCode"  column="concept_code"  />
+        <result property="conceptName"  column="concept_name"  />
+        <result property="domainDirId"  column="domain_dir_id" />
+        <result property="tagObject"    column="tag_object"    />
+        <result property="definition"   column="definition"    />
+        <result property="parentId"     column="parent_id"     />
+        <result property="status"       column="status"        />
+        <result property="source"       column="source"        />
+        <result property="reviewStatus" column="review_status" />
+        <result property="reviewBy"     column="review_by"     />
+        <result property="reviewTime"   column="review_time"   />
+        <result property="sourceRef"    column="source_ref"    />
+        <result property="createBy"     column="create_by"     />
+        <result property="createTime"   column="create_time"   />
+        <result property="updateBy"     column="update_by"     />
+        <result property="updateTime"   column="update_time"   />
+        <result property="remark"       column="remark"        />
+    </resultMap>
+
+    <sql id="selectVo">
+        select concept_id, library_id, concept_code, concept_name, domain_dir_id, tag_object, definition,
+               parent_id, status, source, review_status, review_by, review_time, source_ref,
+               create_by, create_time, update_by, update_time, remark
+        from ts_concept
+    </sql>
+
+    <select id="selectConceptById" parameterType="Long" resultMap="TsConceptResult">
+        <include refid="selectVo"/> where concept_id = #{conceptId}
+    </select>
+
+    <select id="selectByLibraryAndCode" resultMap="TsConceptResult">
+        <include refid="selectVo"/> where library_id = #{libraryId} and concept_code = #{conceptCode}
+    </select>
+
+    <select id="selectConceptList" parameterType="TsConcept" resultMap="TsConceptResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="libraryId != null">and library_id = #{libraryId}</if>
+            <if test="reviewStatus != null and reviewStatus != ''">and review_status = #{reviewStatus}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="conceptName != null and conceptName != ''">and concept_name like concat('%', #{conceptName}, '%')</if>
+        </where>
+        order by concept_id
+    </select>
+
+    <insert id="insertConcept" parameterType="TsConcept" useGeneratedKeys="true" keyProperty="conceptId">
+        insert into ts_concept (
+            library_id, concept_code, concept_name, domain_dir_id, tag_object, definition,
+            parent_id, status, source, review_status, review_by, review_time, source_ref,
+            create_by, create_time, remark
+        ) values (
+            #{libraryId}, #{conceptCode}, #{conceptName}, #{domainDirId}, #{tagObject}, #{definition},
+            #{parentId}, #{status}, #{source}, #{reviewStatus}, #{reviewBy}, #{reviewTime}, #{sourceRef},
+            #{createBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateConcept" parameterType="TsConcept">
+        update ts_concept
+        <set>
+            <if test="conceptName != null">concept_name = #{conceptName},</if>
+            <if test="domainDirId != null">domain_dir_id = #{domainDirId},</if>
+            <if test="tagObject != null">tag_object = #{tagObject},</if>
+            <if test="definition != null">definition = #{definition},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="reviewStatus != null">review_status = #{reviewStatus},</if>
+            <if test="reviewBy != null">review_by = #{reviewBy},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="sourceRef != null">source_ref = #{sourceRef},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where concept_id = #{conceptId}
+    </update>
+</mapper>

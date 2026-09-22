@@ -48,8 +48,10 @@ nbdist/
 # Redis 快照
 dump.rdb
 
-# 本机数据代理加密密钥（dev.sh 自动生成）
+# 本机密钥/令牌（dev.sh 自动生成/读取）
 .databroker-crypto-secret
+.tag-runtime-token
+.tag-llm-config
 
 # Agent / AI 工具的本机会话产物（不提交）
 # 注意：项目知识文档在 docs/superpowers/specs/，仍正常跟踪
@@ -68,3 +70,12 @@ docs/项目参考文档/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+
+# Local immutable semantic artifacts (backup separately)
+/data/tag-snapshots/
+/data/tag-index/
+/logs/runtime/
+
+# Encrypted local Agent V2 state (keep with its key, never commit)
+/data/agent/
+/tagpilot-agent/out/

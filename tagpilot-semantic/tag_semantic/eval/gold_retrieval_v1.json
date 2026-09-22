@@ -1,0 +1,8 @@
+{
+  "name": "gold_retrieval_v1",
+  "sealed": true,
+  "target_size": 600,
+  "status": "PLACEHOLDER",
+  "note": "封存集与开发集/LLM/反馈隔离。试点闭环只用 GOLD_DEV 20 条，不得用本文件训练别名。",
+  "queries": []
+}

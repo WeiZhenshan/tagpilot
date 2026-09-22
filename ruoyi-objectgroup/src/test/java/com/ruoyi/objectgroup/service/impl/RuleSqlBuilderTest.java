@@ -128,4 +128,41 @@ class RuleSqlBuilderTest {
         assertTrue(sql.startsWith("select `cust_no`, `sex_code` as `性别` from `wide_tbl`"), sql);
         assertTrue(sql.endsWith("limit 100"), sql);
     }
+    @Test
+    void V3严格比较不退化为闭区间且旧规则保持原语义() {
+        mockVersion();
+        RulePayload rule=importRule(BATCH);
+        RulePayload.Condition c=rule.getConditions().get(0);
+        c.setMatchType(null); c.setTagType("数值型");c.setOperator(">");c.setValues(Collections.singletonList("500000"));
+        rule.setSchemaVersion(3);
+        String sql=builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_COUNT);
+        assertTrue(sql.contains(" > 500000"),sql);
+        rule.setSchemaVersion(2);
+        assertTrue(builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_COUNT).contains(" >= 500000"));
+    }
+    @Test
+    void V3排除集合与空值显式处理() {
+        mockVersion();RulePayload rule=importRule(BATCH);rule.setSchemaVersion(3);
+        RulePayload.Condition c=rule.getConditions().get(0);c.setMatchType(null);c.setTagType("选项型");c.setOperator("not_in");c.setValues(Arrays.asList("closed","unknown"));
+        assertTrue(builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_COUNT).contains("not in ('closed','unknown')"));
+        c.setOperator("is_null");c.setValues(Collections.emptyList());
+        assertTrue(builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_COUNT).contains("is null"));
+    }
+    @Test
+    void V3拒绝非法操作符与反向区间() {
+        mockVersion();RulePayload rule=importRule(BATCH);rule.setSchemaVersion(3);
+        RulePayload.Condition c=rule.getConditions().get(0);c.setMatchType(null);c.setTagType("数值型");c.setOperator("between");c.setValues(Arrays.asList("10","1"));
+        assertThrows(ServiceException.class,()->builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_COUNT));
+        c.setOperator("or 1=1");c.setValues(Collections.singletonList("1"));
+        assertThrows(ServiceException.class,()->builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_COUNT));
+    }
+    @Test
+    void V3文本中的反斜线和单引号不能逃逸字面量() {
+        mockVersion();RulePayload rule=importRule(BATCH);rule.setSchemaVersion(3);
+        RulePayload.Condition c=rule.getConditions().get(0);c.setMatchType(null);c.setTagType("文本型");c.setOperator("=");
+        c.setValues(Collections.singletonList("\\' OR 1=1 --"));
+        String sql=builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_COUNT);
+        assertTrue(sql.contains("= '\\\\'' OR 1=1 --'"),sql);
+    }
+
 }
