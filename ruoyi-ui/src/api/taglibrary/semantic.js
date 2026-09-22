@@ -58,6 +58,9 @@ export function bootstrapExport(data) {
 export function bootstrapImport(data) {
   return request({ url: '/taglibrary/semantic/bootstrap/import', method: 'post', data, timeout: 120000 })
 }
+export function bootstrapExpand(data) {
+  return request({ url: '/taglibrary/semantic/bootstrap/expand', method: 'post', data, timeout: 180000 })
+}
 export function listSnapshots(params) { return semanticList('snapshot', params) }
 export function listBuilds(snapshotId) { return semanticList('index-build', { snapshotId }) }
 export function startBuild(snapshotId, storeType) {

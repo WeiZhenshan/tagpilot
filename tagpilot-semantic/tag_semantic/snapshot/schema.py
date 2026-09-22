@@ -1,7 +1,7 @@
 """不可变目录契约。仅校验快照，不查询实时数据或权限。"""
 from collections import Counter
 
-KINDS = ("meta", "domain", "concept", "tag", "code_value", "term")
+KINDS = ("meta", "domain", "concept", "tag", "code_value", "term", "capability")
 SCHEMA_VERSION = "v1"
 
 
@@ -25,7 +25,8 @@ def validate_catalog(rows: list[dict]) -> None:
         identity = {'meta': 'meta', 'domain': row.get('dir_id'),
                     'concept': row.get('concept_id') or row.get('concept_code'),
                     'tag': row.get('tag_id'), 'code_value': (row.get('tag_id'), row.get('code')),
-                    'term': row.get('term_id') or row.get('term_norm')}.get(kind)
+                    'term': row.get('term_id') or row.get('term_norm'),
+                    'capability': row.get('capability_id')}.get(kind)
         if identity is None or (kind, identity) in keys:
             raise ValueError(f'缺少标识或重复行: {kind}/{identity}')
         keys.add((kind, identity))
@@ -45,6 +46,16 @@ def validate_catalog(rows: list[dict]) -> None:
         cid = tag.get('concept_id') or tag.get('concept_code')
         if str(cid) not in concepts:
             raise ValueError(f'标签 {tid} 引用悬空概念 {cid}')
+    for row in rows:
+        if row['kind'] == 'capability':
+            if row.get('review_status') != 'REVIEWED' or not row.get('version') or not row.get('source_ref'):
+                raise ValueError('能力必须具有复核、版本及来源')
+            if row.get('capability_type') not in {'BUSINESS_DEFINITION', 'DERIVED_METRIC', 'AGGREGATION_TEMPLATE'}:
+                raise ValueError('能力类型非法')
+            if not set(map(str, row.get('input_tag_ids') or [])) <= set(tags):
+                raise ValueError('能力引用未发布标签')
+            if not row.get('applicability') or not row.get('definition'):
+                raise ValueError('能力缺少适用范围或业务定义')
     for cid, concept in concepts.items():
         seen, cur = set(), concept
         while cur.get('parent_id') not in (None, 0, '0'):
@@ -71,6 +82,10 @@ def validate_catalog(rows: list[dict]) -> None:
     pairs = {}
     occurrences = Counter()
     for row in rows:
+        if row['kind'] == 'capability':
+            if not isinstance(row.get('aliases', []), list) or any(not isinstance(v, str) for v in row.get('aliases', [])):
+                raise ValueError('能力别名必须是字符串数组')
+            continue
         for alias in row.get('aliases') or []:
             if alias.get('review_status') != 'REVIEWED':
                 raise ValueError('别名必须 REVIEWED')

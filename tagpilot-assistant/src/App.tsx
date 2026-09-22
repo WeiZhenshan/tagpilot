@@ -11,6 +11,7 @@ import { PlanPanel } from "./PlanPanel";
 import {
   busy,
   stateText,
+  planStateText,
   type Thread,
   type ThreadRow,
   type Plan,
@@ -271,7 +272,7 @@ export function App() {
           {pending
             ? "正在保存…"
             : thread
-            ? stateText[thread.status]
+            ? (thread.status === "COMPLETED" && thread.plan?.plan_status ? planStateText[thread.plan.plan_status] : stateText[thread.status])
             : "准备就绪"}
         </span>
       </header>

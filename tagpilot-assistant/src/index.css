@@ -983,3 +983,6 @@ textarea {
     right: 0;
   }
 }
+
+.plan-state { margin: 0 0 12px; color: var(--text-secondary, #475569); font-size: 13px; }
+.condition p, .inline-warning p { overflow-wrap: anywhere; }

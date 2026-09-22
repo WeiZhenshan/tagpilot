@@ -24,16 +24,16 @@ def canonical_json(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
-def sort_value(value: Any) -> Any:
+def sort_value(value: Any, ordered: bool = False) -> Any:
     if isinstance(value, dict):
-        return {k: sort_value(value[k]) for k in sorted(value.keys())}
+        return {k: sort_value(value[k], ordered) for k in sorted(value.keys())}
     if isinstance(value, list):
-        if value and all(isinstance(x, dict) for x in value):
+        if not ordered and value and all(isinstance(x, dict) for x in value):
             return [sort_value(x) for x in sorted(value, key=lambda x: canonical_json(sort_value(x)))]
         if value and all(not isinstance(x, (dict, list)) for x in value):
             # 有序路径/区间保留；无序标量集合排序
             return value
-        return [sort_value(x) for x in value]
+        return [sort_value(x, ordered) for x in value]
     return value
 
 
@@ -42,7 +42,7 @@ def canonical_row(row: dict[str, Any]) -> dict[str, Any]:
     cleaned = {k: v for k, v in row.items() if k not in excluded and k != "hit_count"}
     if row.get("kind") == "meta" and isinstance(cleaned.get("source_manifest"), dict):
         cleaned["source_manifest"] = {k: v for k, v in cleaned["source_manifest"].items() if k not in {"frozen_at", "freeze_sha256"}}
-    return sort_value(cleaned)
+    return sort_value(cleaned, ordered=row.get("kind") == "capability")
 
 
 def row_sort_key(row: dict[str, Any]) -> tuple:
@@ -59,6 +59,8 @@ def row_sort_key(row: dict[str, Any]) -> tuple:
         return (4, str(row.get("tag_id") or ""), str(row.get("code") or ""))
     if kind == "term":
         return (5, str(row.get("term_id") or row.get("term_norm") or ""), "")
+    if kind == 'capability':
+        return (6, str(row.get('capability_id') or ''), '')
     return (9, kind, json.dumps(row, ensure_ascii=False, sort_keys=True))
 
 

@@ -16,6 +16,7 @@ public class TsSnapshotAssembler {
     @Autowired private ITsBootstrapService bootstrap;
     @Autowired private ITsSemanticService semantics;
     @Autowired private com.ruoyi.taglibrary.mapper.TsTagProfileMapper profiles;
+    @Autowired private TsAgentCapabilityService agentCapabilities;
 
     public static class Result {
         public final List<Map<String, Object>> rows = new ArrayList<>();
@@ -159,7 +160,9 @@ public class TsSnapshotAssembler {
             Map<String, Object> row = project(term, "term_id", "term", "term_norm", "review_status", "tag_object", "source_ref");
             row.put("kind", "term"); row.put("type", term.getTermType()); row.put("options", parse(term.getOptions(), Collections.emptyList())); row.put("policy", term.getDefaultPolicy()); row.put("applicable_semantic_types", parseTypes(term.getApplicableSemanticTypes())); result.rows.add(row);
         }
-        meta.put("counts", map("tag", selected.size(), "concept", result.concepts, "code_value", result.codes, "domain", domains.size(), "term", result.rows.stream().filter(r -> "term".equals(r.get("kind"))).count()));
+        if(agentCapabilities!=null)result.rows.addAll(agentCapabilities.publishedRows(libraryId,result.tagIds));
+        meta.put("counts", map("tag", selected.size(), "concept", result.concepts, "code_value", result.codes, "domain", domains.size(), "term", result.rows.stream().filter(r -> "term".equals(r.get("kind"))).count(),
+                "capability",result.rows.stream().filter(r -> "capability".equals(r.get("kind"))).count()));
         result.report.putAll(map("published_tag_ids", result.tagIds, "excluded", excluded, "tag_count", selected.size(), "denominator", denominator,
                 "coverage", selected.size() + "/" + denominator, "scope", meta.get("scope"), "mean_completeness", scoreSum / selected.size(), "minimum_completeness", 70));
         result.report.put("publishable", true);

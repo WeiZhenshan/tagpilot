@@ -43,6 +43,8 @@ public class RuleTagValidator {
     private DpOnlineVersionResolver onlineVersionResolver;
     @Autowired
     private IDimensionCodeOptionService dimensionCodeOptionService;
+    @Autowired(required = false)
+    private List<com.ruoyi.objectgroup.service.IRuleAuthorityValidator> authorityValidators;
 
     /**
      * 校验规则引用的全部标签（条件字段、预览列、客户号字段）。
@@ -53,6 +55,13 @@ public class RuleTagValidator {
     public void validateRule(Long libraryId, Long versionId, RulePayload rule) {
         if (rule == null) {
             return;
+        }
+        if (rule.getSchemaVersion() != null && rule.getSchemaVersion() >= 4) {
+            if (rule.getSchemaVersion() != 4 || authorityValidators == null || authorityValidators.isEmpty())
+                throw new ServiceException("当前服务无法核验此版本的圈选方案");
+            rule.setAuthorityValidated(false);
+            for (com.ruoyi.objectgroup.service.IRuleAuthorityValidator validator : authorityValidators) validator.validate(libraryId, rule);
+            if (!rule.isAuthorityValidated()) throw new ServiceException("发布方案尚未核验");
         }
         Map<String, TagStatusRef> tagsByField = new LinkedHashMap<>();
         List<TagStatusRef> tags = extMapper.selectTagRefsByLibrary(libraryId);
@@ -71,6 +80,12 @@ public class RuleTagValidator {
 
         if (rule.getConditions() != null) {
             for (RulePayload.Condition c : rule.getConditions()) {
+                if (c.isScopeAll() || c.getExpression() != null) {
+                    if (!rule.isAuthorityValidated()) throw new ServiceException("计算条件必须来自已核验的发布方案");
+                    validateExpressionFields(c.getExpression(), tagsByField, enabledByAlias);
+                    validateExpressionFields(c.getCompareExpression(), tagsByField, enabledByAlias);
+                    continue;
+                }
                 TagStatusRef tag = validateFieldUsable(tagsByField, enabledByAlias, c.getFieldName(), c.getTagName());
                 validateTypeConsistent(tag, c.getTagType(), c.getDataType());
             }
@@ -95,6 +110,16 @@ public class RuleTagValidator {
                 throw new ServiceException("客户号字段[" + objectKey + "]未在当前数据集版本中启用");
             }
         }
+    }
+
+    private void validateExpressionFields(com.fasterxml.jackson.databind.JsonNode node, Map<String, TagStatusRef> tags,
+                                           Map<String, DpResolvedField> fields) {
+        if (node == null) return;
+        if ("TAG".equals(node.path("kind").asText())) {
+            TagStatusRef tag = validateFieldUsable(tags, fields, node.path("field_name").asText(), node.path("name").asText());
+            validateTypeConsistent(tag, "数值型", null);
+        }
+        for (com.fasterxml.jackson.databind.JsonNode child : node.path("args")) validateExpressionFields(child, tags, fields);
     }
 
     /**

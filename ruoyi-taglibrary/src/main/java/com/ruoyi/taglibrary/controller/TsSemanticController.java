@@ -1,6 +1,8 @@
 package com.ruoyi.taglibrary.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.taglibrary.domain.TsAlias;
 import com.ruoyi.taglibrary.domain.TsBusinessTerm;
 import com.ruoyi.taglibrary.domain.TsCodeValueSemantic;
@@ -22,7 +25,9 @@ import com.ruoyi.taglibrary.domain.TsConfusable;
 import com.ruoyi.taglibrary.domain.TsTagExample;
 import com.ruoyi.taglibrary.domain.TsTagSemantic;
 import com.ruoyi.taglibrary.domain.dto.BootstrapExportRequest;
+import com.ruoyi.taglibrary.domain.dto.BootstrapExportResult;
 import com.ruoyi.taglibrary.domain.dto.BootstrapImportRequest;
+import com.ruoyi.taglibrary.domain.dto.BootstrapImportResult;
 import com.ruoyi.taglibrary.domain.dto.SemanticReviewRequest;
 import com.ruoyi.taglibrary.domain.TsIndexBuild;
 import com.ruoyi.taglibrary.service.ITsBootstrapService;
@@ -236,6 +241,42 @@ public class TsSemanticController extends BaseController {
     @PostMapping("/bootstrap/import")
     public AjaxResult bootstrapImport(@RequestBody BootstrapImportRequest request) {
         return success(bootstrapService.importDrafts(request));
+    }
+
+    /** 按当前库实时冻结运行 expand_full，导入概念/标签/码值草稿。不自动复核。 */
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:bootstrap')")
+    @PostMapping("/bootstrap/expand")
+    public AjaxResult bootstrapExpand(@RequestBody BootstrapExportRequest request) {
+        if (request == null || request.getLibraryId() == null) {
+            throw new ServiceException("标签库不能为空");
+        }
+        BootstrapExportResult freeze = bootstrapService.exportFreeze(request);
+        if (freeze.getIssues() != null && !freeze.getIssues().isEmpty()) {
+            throw new ServiceException("实时冻结存在 " + freeze.getIssues().size() + " 个来源问题，已拒绝生成草稿");
+        }
+        if (freeze.getJsonl() == null || freeze.getJsonl().trim().isEmpty()) {
+            throw new ServiceException("实时冻结内容为空");
+        }
+        Map<String, Object> body = new LinkedHashMap<String, Object>();
+        body.put("jsonl", freeze.getJsonl());
+        Map<String, Object> expanded = runtimeClient.post("/bootstrap/expand", body);
+        Object jsonl = expanded.get("jsonl");
+        if (!(jsonl instanceof String) || ((String) jsonl).trim().isEmpty()) {
+            throw new ServiceException("规则扩展未返回草稿");
+        }
+        BootstrapImportRequest importRequest = new BootstrapImportRequest();
+        importRequest.setLibraryId(request.getLibraryId());
+        importRequest.setJsonl((String) jsonl);
+        BootstrapImportResult imported = bootstrapService.importDrafts(importRequest);
+        Map<String, Object> data = new LinkedHashMap<String, Object>();
+        data.put("importedConceptCount", imported.getImportedConceptCount());
+        data.put("importedTagCount", imported.getImportedTagCount());
+        data.put("importedCodeCount", imported.getImportedCodeCount());
+        data.put("skippedReviewedCount", imported.getSkippedReviewedCount());
+        data.put("rejected", imported.getRejected());
+        data.put("unresolved", expanded.get("unresolved"));
+        data.put("coverageNote", expanded.get("coverage_note"));
+        return success(data);
     }
 
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:review')")

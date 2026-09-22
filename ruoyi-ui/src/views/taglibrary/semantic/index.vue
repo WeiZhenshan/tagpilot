@@ -11,15 +11,19 @@
         <el-button v-hasPermi="['taglibrary:semantic:bootstrap']" icon="el-icon-download" :loading="exporting" :disabled="!libraryId" @click="exportCurrentFreeze">导出实时冻结</el-button>
       </el-form-item>
       <el-form-item>
+        <el-button v-hasPermi="['taglibrary:semantic:bootstrap']" type="primary" plain icon="el-icon-document-add" :loading="expanding" :disabled="!libraryId" @click="expandDrafts">生成并导入规则草稿</el-button>
+      </el-form-item>
+      <el-form-item>
         <el-button ref="importDraftBtn" v-hasPermi="['taglibrary:semantic:bootstrap']" icon="el-icon-upload2" :loading="importing" :disabled="!libraryId" @click="pickImportFile">导入规则草稿</el-button>
         <input ref="importFile" type="file" accept=".jsonl,.txt" style="display: none" @change="handleImportFile">
       </el-form-item>
     </el-form>
     <el-alert v-if="!loadedLibrary" title="选择标签库，维护语义草稿、复核依据和检索词典。" type="info" :closable="false" />
-    <el-alert v-else title="导入请使用 Python 生成的 rule_init_result.jsonl（含 tag_semantic / concept / code_value_semantic）。「导出实时冻结」的 semantic-freeze-*.jsonl 不能直接导入，需先运行 expand_full 生成规则草稿。" type="warning" :closable="false" show-icon class="import-hint" />
-    <el-tabs v-else v-model="tab">
+    <template v-else>
+      <el-alert title="「生成并导入规则草稿」会按当前库导出实时冻结、运行规则扩展并导入。也可手动导入已生成的 rule_init_result.jsonl（含 tag_semantic / concept / code_value_semantic）。semantic-freeze-*.jsonl 不能直接导入。" type="warning" :closable="false" show-icon class="import-hint" />
+      <el-tabs v-model="tab">
       <el-tab-pane label="标签与族" name="tags">
-        <el-table v-loading="loading" :data="tags" size="small" empty-text="该库尚无语义草稿，请先点击上方「导入规则草稿」上传 rule_init_result.jsonl">
+        <el-table v-loading="loading" :data="tags" size="small" empty-text="该库尚无语义草稿，请点击「生成并导入规则草稿」，或上传已有的 rule_init_result.jsonl">
           <el-table-column prop="tagName" label="标签" min-width="180" show-overflow-tooltip />
           <el-table-column prop="conceptId" label="概念编号" width="100" />
           <el-table-column prop="familyKey" label="所属族" min-width="260" show-overflow-tooltip />
@@ -34,6 +38,7 @@
       <el-tab-pane label="全部别名" name="all-aliases" lazy><semantic-records resource="alias" title="别名" id-key="aliasId" :fields="allAliasFields" :query="{}" :defaults="{ targetType: 'TAG', aliasType: 'SYNONYM', weight: 1 }" /></el-tab-pane>
       <el-tab-pane label="业务词典" name="terms" lazy><semantic-records resource="term" title="词条" id-key="termId" :fields="termFields" :query="{}" /></el-tab-pane>
     </el-tabs>
+    </template>
     <el-drawer :title="selected.tagName || '标签语义'" :visible.sync="drawer" size="78%" :wrapper-closable="false">
       <div v-if="drawer" class="semantic-detail">
         <el-alert :title="'来源：' + (selected.source || '未注明') + '；依据哈希：' + (selected.basisHash || '缺失，需重新初始化')" type="info" :closable="false" />
@@ -71,12 +76,12 @@
 <script>
 import SemanticRecords from './Records'
 import { listLibrary } from '@/api/taglibrary/library'
-import { profileTag, aggregateProfile, semanticList, semanticDetail, saveSemantic, reviewSemantic, bootstrapExport, bootstrapImport } from '@/api/taglibrary/semantic'
+import { profileTag, aggregateProfile, semanticList, semanticDetail, saveSemantic, reviewSemantic, bootstrapExport, bootstrapImport, bootstrapExpand } from '@/api/taglibrary/semantic'
 const f = (key, label, extra = {}) => ({ key, label, ...extra })
 export default {
   name: 'TagSemantic', components: { SemanticRecords },
   data() { return {
-    libraryId: Number(this.$route.query.libraryId) || undefined, libraries: [], loadedLibrary: null, tags: [], profile: null, profileLoading: false, loading: false, saving: false, exporting: false, importing: false, tab: 'tags', drawer: false, selected: {}, detailTab: 'semantic', page: 1, pageSize: 20, total: 0,
+    libraryId: Number(this.$route.query.libraryId) || undefined, libraries: [], loadedLibrary: null, tags: [], profile: null, profileLoading: false, loading: false, saving: false, exporting: false, importing: false, expanding: false, tab: 'tags', drawer: false, selected: {}, detailTab: 'semantic', page: 1, pageSize: 20, total: 0,
     types: ['BOOL', 'ENUM_NOMINAL', 'ENUM_ORDINAL', 'ENUM_HIERARCHY', 'NUM_AMOUNT', 'NUM_COUNT', 'NUM_RATIO', 'NUM_SCORE', 'TEXT_FREE', 'DATE', 'ID_KEY'],
     conceptFields: [f('conceptCode', '概念编码', { required: true, immutable: true }), f('conceptName', '概念名称', { required: true }), f('tagObject', '标签对象', { required: true }), f('domainDirId', '业务域编号', { number: true, required: true }), f('definition', '定义', { multiline: true }), f('parentId', '父概念编号', { number: true }), f('status', '状态', { options: ['0', '1'] })],
     termFields: [f('term', '词条', { required: true }), f('termType', '类别', { options: ['FUZZY_TIME', 'FUZZY_QUANTITY', 'FUZZY_CATEGORY', 'ORDINAL_WORD', 'NEGATION', 'BOUNDARY'], required: true }), f('options', '候选含义 JSON', { multiline: true }), f('defaultPolicy', '处理策略', { options: ['ASK', 'SUGGEST'] })],
@@ -106,7 +111,46 @@ export default {
       if (!this.libraryId) return
       if (this.libraryId !== this.loadedLibrary) this.page = 1
       this.loading = true
-      try { const result = await semanticList('tag', { libraryId: this.libraryId, pageNum: this.page, pageSize: this.pageSize }); this.tags = result.rows; this.total = result.total; this.loadedLibrary = this.libraryId } finally { this.loading = false }
+      try {
+        const result = await semanticList('tag', { libraryId: this.libraryId, pageNum: this.page, pageSize: this.pageSize })
+        this.tags = result.rows
+        this.total = result.total
+        this.loadedLibrary = this.libraryId
+      } finally { this.loading = false }
+    },
+    draftSummary(result) {
+      const rejected = (result && result.rejected) || []
+      return {
+        rejected,
+        text: `概念 ${result.importedConceptCount || 0}、标签 ${result.importedTagCount || 0}、码值 ${result.importedCodeCount || 0}；跳过已复核 ${result.skippedReviewedCount || 0}；拒绝 ${rejected.length}`
+      }
+    },
+    async expandDrafts() {
+      if (!this.libraryId || this.expanding) return
+      try {
+        await this.$modal.confirm('将按当前标签库导出实时冻结，运行规则扩展并导入草稿。不会自动复核。全库可能需要一两分钟。')
+      } catch (_) {
+        return
+      }
+      const libraryId = this.libraryId
+      this.expanding = true
+      try {
+        const response = await bootstrapExpand({ libraryId })
+        const result = response.data || {}
+        const summary = this.draftSummary(result)
+        const unresolved = result.unresolved == null ? '' : `；规则未能自动判定的口径 ${result.unresolved} 条，未当作导入失败`
+        const onlyReviewed = summary.rejected.length > 0 && summary.rejected.every(row => row && row.code === 'REVIEWED_SKIP')
+        if (onlyReviewed) {
+          this.$alert(`没有改写已复核内容。跳过 ${result.skippedReviewedCount || summary.rejected.length} 行，概念、标签、码值都保持原复核结果。规则草稿不能覆盖已复核口径。${unresolved}`, '导入结果', { type: 'info' })
+        } else if (summary.rejected.length) {
+          this.$alert(`导入完成：${summary.text}${unresolved}。部分行被拒绝，请核对冻结依据。`, '导入结果', { type: 'warning' })
+        } else {
+          this.$modal.msgSuccess(`导入完成：${summary.text}${unresolved}`)
+        }
+        if (this.libraryId === libraryId) await this.load()
+      } finally {
+        this.expanding = false
+      }
     },
     pickImportFile() {
       if (!this.libraryId || this.importing) return
@@ -168,15 +212,14 @@ export default {
         }
         const response = await bootstrapImport({ libraryId, jsonl })
         const result = response.data || {}
-        const rejected = result.rejected || []
-        const summary = `概念 ${result.importedConceptCount || 0}、标签 ${result.importedTagCount || 0}、码值 ${result.importedCodeCount || 0}；跳过已复核 ${result.skippedReviewedCount || 0}；拒绝 ${rejected.length}`
+        const summary = this.draftSummary(result)
         // #region agent log
-        fetch('http://127.0.0.1:7923/ingest/dac5aaad-b99d-4ea5-a7be-f107aa919733', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '3fe355' }, body: JSON.stringify({ sessionId: '3fe355', runId: 'post-fix', hypothesisId: 'H3', location: 'semantic/index.vue:handleImportFile', message: 'import finished', data: { libraryId, importedConceptCount: result.importedConceptCount, importedTagCount: result.importedTagCount, importedCodeCount: result.importedCodeCount, skippedReviewedCount: result.skippedReviewedCount, rejectedCount: rejected.length }, timestamp: Date.now() }) }).catch(() => {})
+        fetch('http://127.0.0.1:7923/ingest/dac5aaad-b99d-4ea5-a7be-f107aa919733', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '3fe355' }, body: JSON.stringify({ sessionId: '3fe355', runId: 'post-fix', hypothesisId: 'H3', location: 'semantic/index.vue:handleImportFile', message: 'import finished', data: { libraryId, importedConceptCount: result.importedConceptCount, importedTagCount: result.importedTagCount, importedCodeCount: result.importedCodeCount, skippedReviewedCount: result.skippedReviewedCount, rejectedCount: summary.rejected.length }, timestamp: Date.now() }) }).catch(() => {})
         // #endregion
-        if (rejected.length) {
-          this.$alert(`导入完成：${summary}。部分行被拒绝，请检查 rule_init_result.jsonl 是否与当前冻结依据一致。`, '导入结果', { type: 'warning' })
+        if (summary.rejected.length) {
+          this.$alert(`导入完成：${summary.text}。部分行被拒绝，请检查 rule_init_result.jsonl 是否与当前冻结依据一致。`, '导入结果', { type: 'warning' })
         } else {
-          this.$modal.msgSuccess(`导入完成：${summary}`)
+          this.$modal.msgSuccess(`导入完成：${summary.text}`)
         }
         if (this.libraryId === libraryId) await this.load()
       } catch (error) {

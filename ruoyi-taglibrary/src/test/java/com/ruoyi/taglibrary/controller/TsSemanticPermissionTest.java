@@ -20,6 +20,7 @@ import com.ruoyi.framework.web.exception.GlobalExceptionHandler;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
 import com.ruoyi.taglibrary.service.*;
+import com.ruoyi.taglibrary.domain.dto.BootstrapImportRequest;
 import com.ruoyi.objectgroup.service.IDimensionCodeOptionService;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -100,5 +101,49 @@ class TsSemanticPermissionTest {
             .andExpect(jsonPath("$.data[0].codeDefinition").value("来源中文含义"));
         verify(context.getBean(IDimensionCodeOptionService.class)).listCodeOptions(107L, "GENDER");
         verifyNoInteractions(context.getBean(ITsBootstrapService.class));
+    }
+
+    @Test void expandDraftRequiresBootstrapPermission() throws Exception {
+        login("list");
+        mvc.perform(post("/taglibrary/semantic/bootstrap/expand").contentType("application/json").content("{\"libraryId\":107}"))
+            .andExpect(jsonPath("$.code").value(403));
+        verifyNoInteractions(context.getBean(TsRuntimeClient.class));
+    }
+
+    @Test void expandDraftImportsRuntimeDraft() throws Exception {
+        login("bootstrap");
+        com.ruoyi.taglibrary.domain.dto.BootstrapExportResult freeze = new com.ruoyi.taglibrary.domain.dto.BootstrapExportResult();
+        freeze.setLibraryId(107L);
+        freeze.setJsonl("{\"kind\":\"meta\"}\n");
+        when(context.getBean(ITsBootstrapService.class).exportFreeze(any())).thenReturn(freeze);
+        Map<String, Object> expanded = new LinkedHashMap<>();
+        expanded.put("jsonl", "{\"kind\":\"concept\"}\n{\"kind\":\"tag_semantic\"}\n");
+        expanded.put("unresolved", 2);
+        expanded.put("coverage_note", "1/1（仅规则草稿生成，非复核发布覆盖）");
+        when(context.getBean(TsRuntimeClient.class).post(eq("/bootstrap/expand"), any())).thenReturn(expanded);
+        com.ruoyi.taglibrary.domain.dto.BootstrapImportResult imported = new com.ruoyi.taglibrary.domain.dto.BootstrapImportResult();
+        imported.setImportedConceptCount(1);
+        imported.setImportedTagCount(3);
+        imported.setImportedCodeCount(4);
+        when(context.getBean(ITsBootstrapService.class).importDrafts(any())).thenReturn(imported);
+        mvc.perform(post("/taglibrary/semantic/bootstrap/expand").contentType("application/json").content("{\"libraryId\":107}"))
+            .andExpect(jsonPath("$.code").value(200))
+            .andExpect(jsonPath("$.data.importedTagCount").value(3))
+            .andExpect(jsonPath("$.data.importedConceptCount").value(1))
+            .andExpect(jsonPath("$.data.unresolved").value(2));
+        verify(context.getBean(ITsBootstrapService.class)).importDrafts(argThat(request ->
+            request != null && Long.valueOf(107L).equals(request.getLibraryId())
+                && request.getJsonl().contains("tag_semantic")));
+    }
+
+    @Test void expandDraftStopsWhenFreezeHasIssues() throws Exception {
+        login("bootstrap");
+        com.ruoyi.taglibrary.domain.dto.BootstrapExportResult freeze = new com.ruoyi.taglibrary.domain.dto.BootstrapExportResult();
+        freeze.setJsonl("{\"kind\":\"meta\"}\n");
+        freeze.getIssues().add(Collections.singletonMap("code", "DIM_DISABLED"));
+        when(context.getBean(ITsBootstrapService.class).exportFreeze(any())).thenReturn(freeze);
+        mvc.perform(post("/taglibrary/semantic/bootstrap/expand").contentType("application/json").content("{\"libraryId\":107}"))
+            .andExpect(jsonPath("$.code").value(500));
+        verifyNoInteractions(context.getBean(TsRuntimeClient.class));
     }
 }

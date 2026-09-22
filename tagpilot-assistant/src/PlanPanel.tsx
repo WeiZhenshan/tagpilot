@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Clause, Plan, Thread, Tree } from "./agentTypes";
-import { busy, clauses, planDiff } from "./agentTypes";
+import { busy, clauses, planDiff, planStateText, expressionText } from "./agentTypes";
 const unitLabels: Record<string, string> = {
   CNY: "元",
   COUNT: "次",
@@ -122,6 +122,18 @@ function TreeEditor({
   const c = tree;
   const patch = (p: Partial<Clause>) =>
     onChange({ ...c, ...p, unresolved: null });
+  if (c.kind === "SCOPE_ALL") return <section className="condition">
+    <strong>当前授权范围内的全部客户</strong>
+    <p className="muted">统计沿用当前标签库的数据范围与权限。</p>
+  </section>;
+  if (c.kind === "DERIVED_PREDICATE") return <section className="condition">
+    <div className="condition-title"><strong>{c.name || c.source_span || "计算条件"}</strong>
+      <span className={`status-dot ${c.status === "BOUND" ? "bound" : ""}`}>{c.status === "BOUND" ? "已核验" : "待核验"}</span></div>
+    <p>{expressionText(c.expression)}</p>
+    <p>{operatorNames[c.operator || "="] || c.operator} {c.compare_expression ? expressionText(c.compare_expression) : (c.values || []).join(" 至 ")}</p>
+    <p className="muted">缺失值保留为未知；比例的分母须大于零。可在对话中修改指标或阈值。</p>
+    {c.unresolved ? <p className="field-error">{c.unresolved}</p> : null}
+  </section>;
   return (
     <section className="condition">
       <div className="condition-title">
@@ -356,6 +368,11 @@ export function PlanPanel({
         ) : null}
       </div>
       <div className="plan-scroll">
+        {shown?.plan_status ? <p className="plan-state" role="status">{planStateText[shown.plan_status] || "方案待核验"}</p> : null}
+        {shown?.intent_plan?.requirements?.length ? <details className="evidence">
+          <summary>原始业务要求</summary>
+          {shown.intent_plan.requirements.map((r) => <p key={r.requirement_id}>{r.business_meaning}</p>)}
+        </details> : null}
         {shown?.tree ? (
           <>
             <TreeEditor
@@ -367,11 +384,11 @@ export function PlanPanel({
                 setConfirm(false);
               }}
             />
-            {shown.validation_errors?.length ? (
+            {(shown.diagnostics || shown.validation_errors)?.length ? (
               <div className="inline-warning">
-                <strong>需要处理</strong>
-                {shown.validation_errors.map((e, i) => (
-                  <p key={i}>{e.message}</p>
+                <strong>{shown.plan_status === "NEEDS_DECISION" ? "需要你决定" : "尚未完成的条件"}</strong>
+                {(shown.diagnostics || shown.validation_errors || []).map((e, i) => (
+                  <div key={i}><p>{e.message}</p>{e.expected || e.actual ? <details className="evidence"><summary>查看口径差异</summary><p>要求：{JSON.stringify(e.expected)}</p><p>当前证据：{JSON.stringify(e.actual)}</p></details> : null}</div>
                 ))}
               </div>
             ) : null}

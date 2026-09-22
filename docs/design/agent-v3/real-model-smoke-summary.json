@@ -1,0 +1,214 @@
+{
+  "assessment": "四条开发冒烟，迭代调试后各生成有效方案；非独立盲测、非客户人数验收",
+  "date": "2026-09-22",
+  "model_endpoint": "api.deepseek.com",
+  "build": {
+    "build_id": "bge-m3-l107-20260919-002-r3",
+    "snapshot_id": "L107-20260919-002",
+    "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+  },
+  "capability_count": 0,
+  "business_queries_executed": false,
+  "runs": [
+    {
+      "artifact": "v3-evaluation-first.json",
+      "model": "deepseek-flash",
+      "results": [
+        {
+          "case": "A01",
+          "seconds": 9.62,
+          "valid": false,
+          "status": "NEEDS_DECISION",
+          "error_type": null,
+          "interrupted": true,
+          "tool_calls": 0,
+          "repairs": 1
+        },
+        {
+          "case": "A04",
+          "seconds": 44.91,
+          "valid": null,
+          "status": null,
+          "error_type": "ReadTimeout",
+          "interrupted": null,
+          "tool_calls": null,
+          "repairs": null
+        },
+        {
+          "case": "B02",
+          "seconds": 74.08,
+          "valid": false,
+          "status": "DRAFT",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 4,
+          "repairs": 0
+        },
+        {
+          "case": "D02",
+          "seconds": 78.72,
+          "valid": false,
+          "status": "NEEDS_DECISION",
+          "error_type": null,
+          "interrupted": true,
+          "tool_calls": 3,
+          "repairs": 1
+        }
+      ]
+    },
+    {
+      "artifact": "v3-evaluation-second.json",
+      "model": "deepseek-flash",
+      "results": [
+        {
+          "case": "A01",
+          "seconds": 3.0,
+          "valid": true,
+          "status": "READY",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 0,
+          "repairs": 1
+        },
+        {
+          "case": "A04",
+          "seconds": 11.1,
+          "valid": null,
+          "status": null,
+          "error_type": "ValueError",
+          "interrupted": null,
+          "tool_calls": null,
+          "repairs": null
+        },
+        {
+          "case": "B02",
+          "seconds": 13.28,
+          "valid": null,
+          "status": null,
+          "error_type": "ValueError",
+          "interrupted": null,
+          "tool_calls": null,
+          "repairs": null
+        },
+        {
+          "case": "D02",
+          "seconds": 94.32,
+          "valid": null,
+          "status": null,
+          "error_type": "AttributeError",
+          "interrupted": null,
+          "tool_calls": null,
+          "repairs": null
+        }
+      ]
+    },
+    {
+      "artifact": "v3-evaluation-third.json",
+      "model": "deepseek-flash",
+      "results": [
+        {
+          "case": "A01",
+          "seconds": 1.69,
+          "valid": true,
+          "status": "READY",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 0,
+          "repairs": 1
+        },
+        {
+          "case": "A04",
+          "seconds": 38.89,
+          "valid": null,
+          "status": null,
+          "error_type": "ReadTimeout",
+          "interrupted": null,
+          "tool_calls": null,
+          "repairs": null
+        },
+        {
+          "case": "B02",
+          "seconds": 97.86,
+          "valid": true,
+          "status": "READY",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 4,
+          "repairs": 2
+        },
+        {
+          "case": "D02",
+          "seconds": 90.16,
+          "valid": null,
+          "status": null,
+          "error_type": "AttributeError",
+          "interrupted": null,
+          "tool_calls": null,
+          "repairs": null
+        }
+      ]
+    },
+    {
+      "artifact": "v3-evaluation-final.json",
+      "model": "deepseek-flash",
+      "results": [
+        {
+          "case": "A01",
+          "seconds": 4.68,
+          "valid": true,
+          "status": "READY",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 0,
+          "repairs": 1
+        },
+        {
+          "case": "A04",
+          "seconds": 125.27,
+          "valid": false,
+          "status": "DRAFT",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 5,
+          "repairs": 3
+        },
+        {
+          "case": "B02",
+          "seconds": 27.65,
+          "valid": true,
+          "status": "READY",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 4,
+          "repairs": 1
+        },
+        {
+          "case": "D02",
+          "seconds": 60.55,
+          "valid": true,
+          "status": "READY",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 3,
+          "repairs": 1
+        }
+      ]
+    },
+    {
+      "artifact": "v3-evaluation-a04.json",
+      "model": "deepseek-flash",
+      "results": [
+        {
+          "case": "A04",
+          "seconds": 105.1,
+          "valid": true,
+          "status": "READY",
+          "error_type": null,
+          "interrupted": false,
+          "tool_calls": 4,
+          "repairs": 2
+        }
+      ]
+    }
+  ]
+}

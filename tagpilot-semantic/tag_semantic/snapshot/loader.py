@@ -21,6 +21,7 @@ class Catalog:
     tags: dict[int, dict[str, Any]] = field(default_factory=dict)
     code_values: list[dict[str, Any]] = field(default_factory=list)
     terms: list[dict[str, Any]] = field(default_factory=list)
+    capabilities: dict[str, dict[str, Any]] = field(default_factory=dict)
     aliases: list[dict[str, Any]] = field(default_factory=list)
     rows: list[dict[str, Any]] = field(default_factory=list)
 
@@ -73,6 +74,8 @@ def load_catalog(path: Path, expected_hash: str | None = None) -> Catalog:
             catalog.aliases.extend(row.get("aliases") or [])
         elif kind == "term":
             catalog.terms.append(row)
+        elif kind == 'capability':
+            catalog.capabilities[row['capability_id']] = row
         if kind == "concept":
             catalog.aliases.extend(row.get("aliases") or [])
     return catalog

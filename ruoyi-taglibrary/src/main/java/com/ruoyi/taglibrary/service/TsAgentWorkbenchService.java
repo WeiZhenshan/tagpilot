@@ -103,12 +103,24 @@ public class TsAgentWorkbenchService {
             Map<String,Object> plan=obj(result.get("plan"));
             if(plan.containsKey("tree")) {
                 try { if(Boolean.TRUE.equals(plan.get("valid"))) groups.buildRuleSql(row.getLibraryId(),compiler.compile(row.getLibraryId(),plan)); }
-                catch(ServiceException e) {plan.put("valid",false);plan.put("validation_errors",Arrays.asList(map("message",e.getMessage())));}
+                catch(ServiceException e) {
+                    plan.put("valid",false);plan.put("plan_status","DRAFT");
+                    List<Map<String,Object>> errors=Arrays.asList(map("code","AUTHORITATIVE_VALIDATION","message",e.getMessage(),"user_decision_required",false));
+                    plan.put("validation_errors",errors);plan.put("diagnostics",errors);
+                    String reason=String.valueOf(e.getMessage());
+                    if(number(state.get("authority_repairs"))<2 && !reason.contains("版本") && !reason.contains("权限") && !reason.contains("资格")) {
+                        try {
+                            agent.post("/agent/v2/runs/"+run+"/repair",map("owner_id",String.valueOf(uid()),"diagnostics",errors,
+                                "eligible_tag_ids",catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(plan.get("snapshot_id")))));
+                            state.put("authority_repairs",number(state.get("authority_repairs"))+1);state.put("status","RUNNING");
+                        } catch(ServiceException repairError) { /* 原方案及权威诊断已保留，不阻塞会话读取。 */ }
+                    }
+                }
                 applyPlan(state,plan);
             }
             state.put("questions",result.get("questions"));state.put("interrupt_id",result.get("interrupt_id"));state.put("applied_result",resultKey);
             List<Map<String,Object>> messages=list(state.get("messages"));
-            messages.add(map("id",id(),"role","assistant","text","WAITING".equals(remote.get("status"))?"有条件需要补充，请在下方回答或编辑右侧方案。":Boolean.TRUE.equals(plan.get("valid"))?"圈选方案已生成，可以核对条件并统计人数。":"方案已保留，仍有条件需要修正。",
+            messages.add(map("id",id(),"role","assistant","text","RUNNING".equals(state.get("status"))?"正在根据服务端核验结果继续修复方案。":"WAITING".equals(remote.get("status"))?"有一项业务解释需要你决定，请在下方选择或补充。":Boolean.TRUE.equals(plan.get("valid"))?"圈选方案已生成，可以核对条件并统计人数。":"CAPABILITY_GAP".equals(plan.get("plan_status"))?"需求已保留，当前数据或计算能力还不能覆盖全部条件。右侧列出了具体缺口。":"方案和处理进度已保留，右侧列出了尚未完成的条件。",
                 "revision",state.get("revision"),"run_id",run,"created_at",Instant.now().toString()));state.put("messages",messages);
         }
         save(row,state);
@@ -151,7 +163,7 @@ public class TsAgentWorkbenchService {
         List<Map<String,Object>> messages=new ArrayList<>(history);messages.add(map("id",id(),"role","user","text",text,"run_id",client,"created_at",Instant.now().toString()));
         if("新的圈选".equals(row.getTitle()))row.setTitle(text.substring(0,Math.min(40,text.length())));
         state.putAll(map("run_id",client,"run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
-        state.remove("error");state.remove("live_plan");state.remove("count");state.remove("execution");save(row,state);return view(row,state);
+        state.remove("error");state.remove("authority_repairs");state.remove("live_plan");state.remove("count");state.remove("execution");save(row,state);return view(row,state);
     }
     @Transactional
     public Map<String,Object> resume(String thread,Map<String,Object> request) {

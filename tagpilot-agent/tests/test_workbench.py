@@ -23,7 +23,7 @@ class Planner:
         self.calls+=1
         if self.calls==1:return {'action':'tool','tool':'search_tags','clause_id':'a','query':'转入金额'}
         plan=copy.deepcopy(PLAN)
-        if self.missing:plan['tree']['children'][0]['values']=[]
+        if self.missing:return {'action':'ask','questions':[{'prompt':'高价值客户按资产规模还是交易活跃度定义？'}]}
         return {'action':'finish','plan':plan}
 
 def test_tree_and_numeric_boundaries():
@@ -93,6 +93,24 @@ def test_cancelled_run_does_not_advance_graph(tmp_path):
     graph=build_workbench(Retriever(),SqliteSaver(sqlite3.connect(str(tmp_path/'c'),check_same_thread=False)),lambda e:None,lambda:True,Planner())
     import pytest
     with pytest.raises(InterruptedError):graph.invoke({'request':REQ},{'configurable':{'thread_id':'cancel'}})
+
+def test_replan_inherits_retrieved_candidates(tmp_path):
+    """模型重组条件树（replan）不得丢失已取得的检索候选，否则已绑定条件被误判缺少检索证据。"""
+    class ReplanPlanner:
+        def __init__(self):self.calls=0;self.fixed=None
+        def decide(self,ctx):
+            if ctx['phase']=='understand':return {'action':'plan','plan':copy.deepcopy(PLAN)}
+            self.calls+=1
+            if self.calls==1:return {'action':'tool','tool':'search_tags','clause_id':'a','query':'转入金额'}
+            if self.calls==2:
+                self.fixed=copy.deepcopy(PLAN);self.fixed['tree']['children'][0]['values']=['600000']
+                return {'action':'replan','plan':copy.deepcopy(self.fixed)}
+            return {'action':'finish','plan':copy.deepcopy(self.fixed)}
+    graph=build_workbench(Retriever(),SqliteSaver(sqlite3.connect(str(tmp_path/'r'),check_same_thread=False)),lambda e:None,lambda:False,ReplanPlanner())
+    result=graph.invoke({'request':REQ},{'configurable':{'thread_id':'replan'}})
+    node=leaves(result['plan']['tree'])[0]
+    assert result['plan']['valid'],result['plan']['diagnostics']
+    assert node['values']==['600000'] and any(c['tag_id']==1 for c in node['candidates'])
 
 def test_negative_enum_excludes_published_unknown_codes():
     p=copy.deepcopy(PLAN);n=leaves(p['tree'])[0];n.update(operator='not_in',values=['CLOSED'])

@@ -13,13 +13,18 @@ import com.ruoyi.common.exception.ServiceException;
 public class TsRuntimeClient {
     @Value("${tag.runtime-url:http://127.0.0.1:8091}") private String baseUrl;
     @Value("${tag.runtime-token:}") private String token;
+    private static int readTimeout(String path) {
+        if ("/build".equals(path)) return 600000;
+        if ("/bootstrap/expand".equals(path)) return 180000;
+        return 30000;
+    }
     public Map<String, Object> get(String path) { return exchange(path, HttpMethod.GET, null); }
     public Map<String, Object> post(String path, Object body) { return exchange(path, HttpMethod.POST, body); }
     @SuppressWarnings("unchecked")
     private Map<String, Object> exchange(String path, HttpMethod method, Object body) {
         if (token == null || token.isEmpty()) throw new ServiceException("语义运行时服务认证未配置");
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(3000); factory.setReadTimeout("/build".equals(path) ? 600000 : 30000);
+        factory.setConnectTimeout(3000); factory.setReadTimeout(readTimeout(path));
         HttpHeaders headers = new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.setBearerAuth(token);
         try {
             Map<String, Object> response = new RestTemplate(factory).exchange(baseUrl + path, method, new HttpEntity<>(body, headers), Map.class).getBody();

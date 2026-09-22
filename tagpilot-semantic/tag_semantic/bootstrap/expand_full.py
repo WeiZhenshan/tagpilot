@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import tempfile
 from pathlib import Path
 
 from tag_semantic.bootstrap.concept_cluster import apply_cluster, build_concept_rows, review_pack
@@ -44,6 +45,29 @@ def expand(freeze_jsonl: Path, out_dir: Path, review: bool = False, confirmation
     (out_dir / "s3_concept_review_pack.md").write_text(review_pack(concepts, clustered, confirmations or {}), encoding="utf-8")
     coverage = f"{sum(t.get('semantic_type') != 'ID_KEY' for t in tags)}/{total}（仅规则草稿生成，非复核发布覆盖）"
     return {"tags": len(tags), "unresolved": len(init["unresolved"]), "coverage_note": coverage}
+
+
+def importable_draft(freeze_text: str) -> dict:
+    """把实时冻结展开成可导入的规则草稿。概念行在前，随后是已赋概念编码的标签与码值。"""
+    if not freeze_text or not freeze_text.strip():
+        raise ValueError("冻结内容为空")
+    with tempfile.TemporaryDirectory(prefix="semantic-expand-") as tmp:
+        root = Path(tmp)
+        freeze_path = root / "freeze.jsonl"
+        freeze_path.write_text(freeze_text, encoding="utf-8")
+        out_dir = root / "out"
+        summary = expand(freeze_path, out_dir, review=False)
+        concepts = (out_dir / "s3_concepts.jsonl").read_text(encoding="utf-8")
+        clustered = (out_dir / "s3_clustered.jsonl").read_text(encoding="utf-8")
+        jsonl = concepts + clustered
+        if jsonl and not jsonl.endswith("\n"):
+            jsonl += "\n"
+        return {
+            "jsonl": jsonl,
+            "tags": summary["tags"],
+            "unresolved": summary["unresolved"],
+            "coverage_note": summary["coverage_note"],
+        }
 
 
 def main() -> int:

@@ -190,6 +190,32 @@ def test_expand_full_keeps_coverage_denominator(tmp_path):
     assert "100%" not in summary["coverage_note"].replace("不得写成 100%", "")
 
 
+def test_importable_draft_joins_concepts_and_clustered_rows(tmp_path):
+    from tag_semantic.bootstrap.expand_full import importable_draft
+    draft = importable_draft(freeze_jsonl(tmp_path).read_text(encoding="utf-8"))
+    rows = [json.loads(line) for line in draft["jsonl"].splitlines() if line.strip()]
+    kinds = [row["kind"] for row in rows]
+    assert kinds[0] == "concept"
+    assert "tag_semantic" in kinds
+    assert "code_value_semantic" in kinds
+    assert "meta" not in kinds
+    business = [row for row in rows if row["kind"] == "tag_semantic" and not row.get("skip_concept")]
+    assert business and all(row.get("concept_code") for row in business)
+
+
+def test_bootstrap_expand_http_requires_token_and_rejects_draft(tmp_path):
+    from fastapi.testclient import TestClient
+    from tag_semantic.server import create_app
+    client = TestClient(create_app(tmp_path, tmp_path, "secret"))
+    payload = {"jsonl": freeze_jsonl(tmp_path).read_text(encoding="utf-8")}
+    assert client.post("/bootstrap/expand", json=payload).status_code == 401
+    ok = client.post("/bootstrap/expand", json=payload, headers={"Authorization": "Bearer secret"})
+    assert ok.status_code == 200, ok.text
+    assert "tag_semantic" in ok.json()["jsonl"]
+    rejected = client.post("/bootstrap/expand", json={"jsonl": '{"kind":"tag_semantic"}\n'}, headers={"Authorization": "Bearer secret"})
+    assert rejected.status_code == 422
+
+
 def test_cli_query_smoke(tmp_path):
     from tag_semantic.cli import main
     _pilot_bundle(tmp_path)

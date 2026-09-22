@@ -1,4 +1,27 @@
+export type Expression = {
+  kind: string;
+  tag_id?: number;
+  name?: string;
+  value?: string;
+  unit?: string;
+  args?: Expression[];
+  capability_id?: string;
+  version?: number;
+};
+export type Diagnostic = {
+  clause_id?: string;
+  code?: string;
+  message: string;
+  expected?: unknown;
+  actual?: unknown;
+  user_decision_required?: boolean;
+};
 export type Clause = {
+  kind?: string;
+  requirement_ids?: string[];
+  expression?: Expression;
+  compare_expression?: Expression;
+  time_alignment?: string;
   clause_id: string;
   source_span?: string;
   query?: string;
@@ -25,6 +48,10 @@ export type Clause = {
 export type Group = { logic: "AND" | "OR"; children: Tree[] };
 export type Tree = Clause | Group;
 export type Plan = {
+  schema_version?: number;
+  plan_status?: string;
+  intent_plan?: { requirements: { requirement_id: string; business_meaning: string }[]; assumptions?: { status: string; question?: string }[] };
+  diagnostics?: Diagnostic[];
   tree: Tree;
   valid?: boolean;
   revision?: number;
@@ -33,7 +60,7 @@ export type Plan = {
   build_id?: string;
   snapshot_id?: string;
   artifact_hash?: string;
-  validation_errors?: { clause_id?: string; message: string }[];
+  validation_errors?: Diagnostic[];
 };
 export type RunEvent = {
   seq: number;
@@ -101,12 +128,26 @@ export const stateText: Record<string, string> = {
   IDLE: "准备就绪",
   RUNNING: "处理中",
   SUBMITTING: "正在提交",
-  WAITING: "待补充",
+  WAITING: "待业务选择",
   COMPLETED: "处理完成",
   CANCELLED: "已停止",
-  FAILED: "处理失败",
+  FAILED: "暂未完成",
   INTERRUPTED: "可恢复",
 };
+export const planStateText: Record<string, string> = {
+  DRAFT: "方案草稿", NEEDS_DECISION: "待业务选择", CAPABILITY_GAP: "缺少数据或计算能力",
+  READY: "条件已核验", RETRYABLE_FAILURE: "已保存进度，可稍后继续",
+};
+export function expressionText(e?: Expression): string {
+  if (!e) return "待补充计算方式";
+  if (e.kind === "TAG") return e.name || "待核验指标";
+  if (e.kind === "CONST") return e.value || "0";
+  if (e.kind === "CAPABILITY") return e.name || "已发布计算能力";
+  const args = (e.args || []).map(expressionText);
+  if (e.kind === "COUNT_POSITIVE") return `以下 ${args.length} 类中余额大于零的类数：${args.join("、")}`;
+  const signs: Record<string, string> = { ADD: "+", SUB: "−", MUL: "×", DIV: "÷" };
+  return `(${args.join(` ${signs[e.kind] || e.kind} `)})`;
+}
 export function planDiff(before: Plan | undefined, after: Plan): string[] {
   const old = new Map(clauses(before?.tree).map((c) => [c.clause_id, c]));
   const changes: string[] = [];
@@ -114,8 +155,8 @@ export function planDiff(before: Plan | undefined, after: Plan): string[] {
     const prior = old.get(c.clause_id);
     if (!prior) changes.push(`新增：${c.name || c.source_span || c.clause_id}`);
     else if (
-      JSON.stringify([prior.tag_id, prior.operator, prior.values]) !==
-      JSON.stringify([c.tag_id, c.operator, c.values])
+      JSON.stringify([prior.kind, prior.tag_id, prior.operator, prior.values, prior.expression, prior.compare_expression, prior.expected_caliber, prior.time_alignment]) !==
+      JSON.stringify([c.kind, c.tag_id, c.operator, c.values, c.expression, c.compare_expression, c.expected_caliber, c.time_alignment])
     )
       changes.push(
         `修改：${c.name || c.source_span || c.clause_id} ${

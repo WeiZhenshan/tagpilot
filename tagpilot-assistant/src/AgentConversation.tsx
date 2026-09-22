@@ -104,7 +104,7 @@ function Ask({
         );
       }}
     >
-      <h3>补充这些信息即可继续</h3>
+      <h3>确认业务选择后继续</h3>
       {qs.map((q, i) => (
         <fieldset key={i}>
           <legend>{q.prompt}</legend>

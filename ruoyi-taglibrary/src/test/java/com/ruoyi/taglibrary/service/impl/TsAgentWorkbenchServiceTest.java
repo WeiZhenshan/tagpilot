@@ -90,4 +90,20 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         assertThrows(ServiceException.class,()->service.resume("owned",map("base_revision",2,"interrupt_id","old","answer","回答")));
         verifyNoInteractions(agent);
     }
+    @Test void authoritativeFailureStartsBoundedRepairAndKeepsDraft() throws Exception {
+        state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>()));
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("plan",map("valid",true,"tree",map("clause_id","a"),"snapshot_id","s1"))));
+        when(compiler.compile(eq(107L),any())).thenThrow(new ServiceException("比较值数量非法"));
+        when(catalog.eligibleTagIds(107L,"s1")).thenReturn(Arrays.asList(1L));
+        Map<String,Object> result=service.get("owned");
+        assertEquals("RUNNING",result.get("status"));assertFalse((Boolean)((Map)result.get("plan")).get("valid"));
+        verify(agent).post(eq("/agent/v2/runs/r/repair"),any());
+    }
+    @Test void publishedVersionFailureDoesNotTriggerStaleRepair() throws Exception {
+        state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>()));
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("plan",map("valid",true,"tree",map("clause_id","a")))));
+        when(compiler.compile(eq(107L),any())).thenThrow(new ServiceException("发布版本已变化"));
+        Map<String,Object> result=service.get("owned");
+        assertEquals("COMPLETED",result.get("status"));verify(agent,never()).post(anyString(),any());
+    }
 }

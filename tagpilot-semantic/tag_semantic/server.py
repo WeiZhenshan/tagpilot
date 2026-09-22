@@ -37,6 +37,14 @@ class EvidenceRequest(RetrieveRequest):
     tag_ids: list[int] = Field(default_factory=list, max_length=50)
 
 
+class CapabilityRequest(RetrieveRequest):
+    capability_ids: list[str] = Field(default_factory=list, max_length=20)
+
+
+class ExpandFreezeRequest(BaseModel):
+    jsonl: str = Field(min_length=1, max_length=20_000_000)
+
+
 def create_app(artifact_root=None, snapshot_root=None, token=None):
     root = Path(artifact_root or os.getenv('TAG_INDEX_DIR', './data/tag-index')).resolve()
     snapshots = Path(snapshot_root or os.getenv('TAG_SNAPSHOT_DIR', './data/tag-snapshots')).resolve()
@@ -77,6 +85,14 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
     @app.get('/health')
     def health():
         return {'status': 'ok', 'configured': bool(secret)}
+
+    @app.post('/bootstrap/expand', dependencies=[Depends(authenticate)])
+    def bootstrap_expand(request: ExpandFreezeRequest):
+        from tag_semantic.bootstrap.expand_full import importable_draft
+        try:
+            return importable_draft(request.jsonl)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
 
     @app.post('/build', dependencies=[Depends(authenticate)])
     def build(request: BuildRequest):
@@ -144,6 +160,22 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                      for term in built['catalog'].terms if term.get('term') and term['term'] in request.requirement]
             return {**context, 'terms': terms, 'snapshot_id': built['manifest']['snapshot_id'],
                     'build_id': request.build_id, 'artifact_hash': built['artifact_hash']}
+
+    @app.post('/capabilities', dependencies=[Depends(authenticate)])
+    def capabilities(request: CapabilityRequest):
+        from tag_semantic.retrieve.capabilities import search_capabilities
+        with build_lease(root, request.build_id):
+            built = bundle(request.build_id)
+            if built['manifest']['library_id'] != request.library_id:
+                raise HTTPException(409, '构建不属于请求标签库')
+            catalog = built['catalog']
+            eligible = set(request.eligible_tag_ids) & set(catalog.tags)
+            caps = search_capabilities(catalog, request.requirement, eligible, request.capability_ids)
+            inputs = sorted({tid for cap in caps for tid in cap.get('input_tag_ids', [])})
+            context = selection_context([{'tag_id': tid} for tid in inputs], catalog)
+            return {**context, 'capabilities': caps, 'trace_id': uuid.uuid4().hex,
+                    'snapshot_id': built['manifest']['snapshot_id'], 'build_id': request.build_id,
+                    'artifact_hash': built['artifact_hash']}
 
     @app.get('/stats', dependencies=[Depends(authenticate)])
     def stats(build_id: str):

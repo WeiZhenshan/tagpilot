@@ -31,6 +31,12 @@ class RunRequest(BaseModel):
     history: list[dict] = Field(default_factory=list, max_length=20)
 
 
+class RepairRequest(BaseModel):
+    owner_id: str
+    diagnostics: list[dict] = Field(min_length=1, max_length=20)
+    eligible_tag_ids: list[int] = Field(max_length=100000)
+
+
 class ResumeRequest(BaseModel):
     owner_id: str
     answer: str | dict | None = None
@@ -85,13 +91,22 @@ def register_workbench(app, authenticate, retriever_for, secret, storage_path=No
         except KeyError:
             raise HTTPException(404, '运行不存在')
 
-    def execute(rid, req, answer=None, resume=False):
+    def execute(rid, req, answer=None, resume=False, repair=None):
         res = runtime(); store = res['store']
         graph = build_workbench(retriever_for(req['library_id'], req['build_id']), res['saver'],
             lambda event: store.emit(rid, event), lambda: store.get(rid, req['owner_id'])['status']=='CANCELLED', planner)
-        config = {'configurable': {'thread_id': rid}, 'recursion_limit': 80}
+        config = {'configurable': {'thread_id': rid}, 'recursion_limit': 240}
         try:
-            if resume:
+            if repair:
+                snapshot = graph.get_state(config)
+                values = snapshot.values
+                plan = dict(values.get('plan') or {})
+                plan.update(valid=False, plan_status='DRAFT', diagnostics=repair, validation_errors=repair)
+                graph.update_state(config, {'request': req, 'plan': plan, 'done': False, 'terminal': False,
+                    'no_progress': 0, 'repairs': 0, 'authority_repairs': values.get('authority_repairs', 0)+1,
+                    'questions': [], 'action': {'action': 'continue'}}, as_node='replan')
+                arg = None
+            elif resume:
                 snapshot = graph.get_state(config)
                 # 权限可收紧；检查点不保留旧的资格来绕过最新授权。
                 graph.update_state(config, {'request': req})
@@ -107,7 +122,8 @@ def register_workbench(app, authenticate, retriever_for, secret, storage_path=No
                 output.update(interrupt_id=interrupts[0].id, **interrupts[0].value)
             status = 'WAITING' if interrupts else 'COMPLETED'
             store.status(rid, status, output)
-            store.emit(rid, {'type': 'run.'+status.lower(), 'message': '等待补充信息' if interrupts else '圈选方案已生成'})
+            ready = output['plan'].get('valid')
+            store.emit(rid, {'type': 'run.'+status.lower(), 'message': '等待业务选择' if interrupts else '圈选方案已生成' if ready else '已保留方案与待处理事项'})
         except InterruptedError:
             store.cancel(rid, req['owner_id'])
         except Exception as exc:
@@ -140,6 +156,22 @@ def register_workbench(app, authenticate, retriever_for, secret, storage_path=No
         req = row['payload']
         req['eligible_tag_ids'] = sorted(set(req['eligible_tag_ids']) & set(request.eligible_tag_ids))
         res['pool'].submit(execute, rid, req, request.answer, True)
+        return {'run_id': rid}
+
+
+    @app.post('/agent/v2/runs/{rid}/repair', dependencies=[Depends(authenticate)])
+    def repair_run(rid: str, request: RepairRequest):
+        row = lookup(rid, request.owner_id); res = runtime()
+        config = {'configurable': {'thread_id': rid}}
+        graph = build_workbench(retriever_for(row['payload']['library_id'], row['payload']['build_id']), res['saver'], lambda e:None, lambda:False, planner)
+        snapshot = graph.get_state(config)
+        if snapshot.values.get('authority_repairs', 0) >= 2:
+            raise HTTPException(409, '权威校验自动修复次数已用完')
+        if row['status'] != 'COMPLETED' or not res['store'].claim(rid, request.owner_id, completed=True):
+            raise HTTPException(409, '当前运行不能自动修复')
+        req = row['payload']; req['eligible_tag_ids'] = sorted(set(req['eligible_tag_ids']) & set(request.eligible_tag_ids))
+        res['store'].emit(rid, {'type':'plan.repairing','message':'正在根据服务端核验结果修复方案'})
+        res['pool'].submit(execute, rid, req, repair=request.diagnostics)
         return {'run_id': rid}
 
     @app.post('/agent/v2/runs/{rid}/cancel', dependencies=[Depends(authenticate)])

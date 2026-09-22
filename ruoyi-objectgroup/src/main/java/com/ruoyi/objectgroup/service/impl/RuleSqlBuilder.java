@@ -51,6 +51,8 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
 
     @Override
     public String buildSql(Long versionId, RulePayload rule, String mode) {
+        if (rule.getSchemaVersion()!=null && rule.getSchemaVersion()>=4 && !rule.isAuthorityValidated())
+            throw new ServiceException("发布方案须先经服务端核验");
         if (versionId == null) {
             throw new ServiceException("关联标签库的数据集不存在或未上线");
         }
@@ -147,11 +149,15 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
         boolean first = true;
         int parenBalance = 0;
         for (RulePayload.Condition c : rule.getConditions()) {
-            String col = extMapper.selectColumnNameByAlias(versionId, c.getFieldName());
-            if (col == null) {
+            boolean expression = c.isScopeAll() || c.getExpression()!=null;
+            if(expression && !rule.isAuthorityValidated())throw new ServiceException("计算条件须先经权威核验");
+            String col = expression ? null : extMapper.selectColumnNameByAlias(versionId, c.getFieldName());
+            if (!expression && col == null) {
                 throw new ServiceException("规则字段[" + c.getFieldName() + "]未在数据集中启用");
             }
-            String expr = rule.getSchemaVersion() != null && rule.getSchemaVersion() >= 3
+            String expr = expression ? RuleExpressionSql.predicate(c, alias -> extMapper.selectColumnNameByAlias(versionId, alias),
+                    RuleExpressionSql.identifier(resolveTableName(versionId))+"."+RuleExpressionSql.identifier(resolveObjectKeyColumn(versionId,rule)))
+                    : rule.getSchemaVersion() != null && rule.getSchemaVersion() >= 3
                     ? buildV3ConditionSql(c, col) : buildConditionSql(c, col);
             if (expr == null || expr.isEmpty()) {
                 continue;

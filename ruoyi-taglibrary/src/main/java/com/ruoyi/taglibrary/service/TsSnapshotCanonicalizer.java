@@ -38,7 +38,9 @@ public final class TsSnapshotCanonicalizer {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object canonicalize(Object value) {
+    public static Object canonicalize(Object value) { return canonicalize(value, false); }
+
+    private static Object canonicalize(Object value, boolean ordered) {
         if (value instanceof Map) {
             Map<String, Object> cleaned = new LinkedHashMap<String, Object>();
             Map<?, ?> raw = (Map<?, ?>) value;
@@ -49,7 +51,7 @@ public final class TsSnapshotCanonicalizer {
             }
             Collections.sort(keys);
             for (String key : keys) {
-                cleaned.put(key, canonicalize(raw.get(key)));
+                cleaned.put(key, canonicalize(raw.get(key), ordered));
             }
             return cleaned;
         }
@@ -59,7 +61,7 @@ public final class TsSnapshotCanonicalizer {
             boolean allMaps = !list.isEmpty();
             boolean allScalars = true;
             for (Object item : list) {
-                Object next = canonicalize(item);
+                Object next = canonicalize(item, ordered);
                 mapped.add(next);
                 if (!(next instanceof Map)) {
                     allMaps = false;
@@ -68,7 +70,7 @@ public final class TsSnapshotCanonicalizer {
                     allScalars = false;
                 }
             }
-            if (allMaps) {
+            if (allMaps && !ordered) {
                 mapped.sort(new Comparator<Object>() {
                     @Override
                     public int compare(Object a, Object b) {
@@ -103,7 +105,7 @@ public final class TsSnapshotCanonicalizer {
                 }
                 value = row;
             }
-            return MAPPER.writeValueAsString(canonicalize(value));
+            return MAPPER.writeValueAsString(canonicalize(value, value instanceof Map && "capability".equals(((Map<?,?>) value).get("kind"))));
         } catch (Exception e) {
             throw new ServiceException("规范化 JSON 失败");
         }
@@ -146,6 +148,7 @@ public final class TsSnapshotCanonicalizer {
         if ("term".equals(kind)) {
             return new String[] {"5", first(row, "term_id", "term_norm"), ""};
         }
+        if ("capability".equals(kind)) return new String[]{"6",stringVal(row.get("capability_id")),""};
         return new String[] {"9", kind, dumps(row)};
     }
 

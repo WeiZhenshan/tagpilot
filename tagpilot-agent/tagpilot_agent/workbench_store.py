@@ -84,9 +84,10 @@ class RunStore:
             self.db.execute("UPDATE wb_runs SET status=?,result=?,error=?,updated=? WHERE id=? AND status!='CANCELLED'",
                             (status, self.pack(result) if result is not None else None, error, time.time(), rid))
 
-    def claim(self, rid, owner):
+    def claim(self, rid, owner, completed=False):
+        states = "('COMPLETED')" if completed else "('WAITING','INTERRUPTED','FAILED')"
         with self.lock, self.db:
-            return self.db.execute("UPDATE wb_runs SET status='RUNNING',result=NULL,error=NULL,updated=? WHERE id=? AND owner=? AND status IN ('WAITING','INTERRUPTED','FAILED')",
+            return self.db.execute("UPDATE wb_runs SET status='RUNNING',result=NULL,error=NULL,updated=? WHERE id=? AND owner=? AND status IN " + states,
                                    (time.time(), rid, owner)).rowcount == 1
 
     def cancel(self, rid, owner):

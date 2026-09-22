@@ -61,4 +61,13 @@ class TsAudiencePlanCompilerTest {
         assertThrows(ServiceException.class,()->compiler.compile(107L,plan(leaf)));
         assertThrows(ServiceException.class,()->compiler.compile(107L,plan(map("logic","AND","children",Arrays.asList(leaf("a"),leaf("a"))))));
     }
+    @Test void modernIntentAndLogicalStructureAreMandatory() {
+        Map<String,Object> p=plan(leaf("a"));p.put("schema_version",3);
+        assertThrows(ServiceException.class,()->compiler.compile(107L,p));
+        p.put("intent_plan",map("requirements",Arrays.asList(map("requirement_id","a")),"logic_tree",map("requirement_id","a")));
+        assertEquals(4,compiler.compile(107L,p).getSchemaVersion());
+        p.put("tree",map("logic","OR","children",Arrays.asList(leaf("a"),leaf("b"))));
+        p.put("intent_plan",map("requirements",Arrays.asList(map("requirement_id","a"),map("requirement_id","b")),"logic_tree",map("logic","AND","children",Arrays.asList(map("requirement_id","a"),map("requirement_id","b")))));
+        assertThrows(ServiceException.class,()->compiler.compile(107L,p));
+    }
 }

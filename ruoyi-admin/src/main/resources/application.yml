@@ -131,7 +131,8 @@ xss:
   # 过滤开关
   enabled: true
   # 排除链接（多个用逗号分隔）
-  excludes: /system/notice
+  # 语义草稿 JSON 含比较符 < >。HTML 过滤会把操作符里的 < 一直删到后面的 >，截断 allowedOperators
+  excludes: /system/notice,/taglibrary/semantic/**
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*,/databroker/*,/taglibrary/*
 
