@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.taglibrary.domain.agent.TsPlanValidationException;
+import com.ruoyi.taglibrary.domain.agent.TsAgentOutcome;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.framework.web.service.PermissionService;
@@ -99,24 +101,29 @@ public class TsAgentWorkbenchService {
         state.put("events",events);state.put("status",remote.get("status"));state.put("error",remote.get("error"));
         Map<String,Object> result=obj(remote.get("result"));
         String resultKey=run+":"+remote.get("status")+":"+TsSnapshotCanonicalizer.sha256(encode(result));
-        if(!result.isEmpty() && !resultKey.equals(state.get("applied_result"))) {
+        if(!"RUNNING".equals(remote.get("status")) && !result.isEmpty() && !resultKey.equals(state.get("applied_result"))) {
             Map<String,Object> plan=obj(result.get("plan"));
             if(plan.containsKey("tree")) {
                 try { if(Boolean.TRUE.equals(plan.get("valid"))) groups.buildRuleSql(row.getLibraryId(),compiler.compile(row.getLibraryId(),plan)); }
                 catch(ServiceException e) {
                     plan.put("valid",false);plan.put("plan_status","DRAFT");
-                    List<Map<String,Object>> errors=Arrays.asList(map("code","AUTHORITATIVE_VALIDATION","message",e.getMessage(),"user_decision_required",false));
-                    plan.put("validation_errors",errors);plan.put("diagnostics",errors);
-                    String reason=String.valueOf(e.getMessage());
-                    if(number(state.get("authority_repairs"))<2 && !reason.contains("版本") && !reason.contains("权限") && !reason.contains("资格")) {
+                    String code=e instanceof TsPlanValidationException?((TsPlanValidationException)e).getDiagnosticCode():"AUTHORITATIVE_VALIDATION";
+                    String clauseId=e instanceof TsPlanValidationException?((TsPlanValidationException)e).getClauseId():null;
+                    List<Map<String,Object>> errors=Arrays.asList(map("code",code,"clause_id",clauseId,"message",e.getMessage(),"source","JAVA_AUTHORITY","user_decision_required",false));
+                    plan.remove("validation_errors");plan.put("diagnostics",errors);
+                    if(number(state.get("authority_repairs"))<2 && !Arrays.asList("VERSION_MISMATCH","INELIGIBLE_TAG","PERMISSION_DENIED","BUSINESS_AMBIGUITY").contains(code)) {
                         try {
-                            agent.post("/agent/v2/runs/"+run+"/repair",map("owner_id",String.valueOf(uid()),"diagnostics",errors,
+                            agent.post("/agent/v2/runs/"+run+"/repair",map("owner_id",String.valueOf(uid()),"diagnostics",errors,"confirmed_clause_ids",state.getOrDefault("confirmed_clause_ids",new ArrayList<>()),
                                 "eligible_tag_ids",catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(plan.get("snapshot_id")))));
                             state.put("authority_repairs",number(state.get("authority_repairs"))+1);state.put("status","RUNNING");
                         } catch(ServiceException repairError) { /* 原方案及权威诊断已保留，不阻塞会话读取。 */ }
                     }
                 }
                 applyPlan(state,plan);
+            }
+            if(result.get("outcome") instanceof Map) {
+                TsAgentOutcome outcome=json.convertValue(result.get("outcome"),TsAgentOutcome.class);
+                outcome.setQuestions(list(result.get("questions")));state.put("outcome",json.convertValue(outcome,Map.class));
             }
             state.put("questions",result.get("questions"));state.put("interrupt_id",result.get("interrupt_id"));state.put("applied_result",resultKey);
             List<Map<String,Object>> messages=list(state.get("messages"));
@@ -167,11 +174,16 @@ public class TsAgentWorkbenchService {
         String text=String.valueOf(request.getOrDefault("message","编辑圈选条件"));
         if(text.trim().isEmpty()||text.length()>2000)throw new ServiceException("消息须为1至2000字");
         if(list(state.get("messages")).size()>500)throw new ServiceException("会话已达到500条消息，请新建圈选");
+        if(request.get("confirmed_clause_ids") instanceof List) {
+            Set<String> assumed=new HashSet<>();collectAssumed(obj(obj(state.get("plan")).get("tree")),assumed);
+            List<String> confirmed=new ArrayList<>();for(Object value:(List<?>)request.get("confirmed_clause_ids"))if(assumed.contains(String.valueOf(value)))confirmed.add(String.valueOf(value));
+            state.put("confirmed_clause_ids",confirmed);
+        }
         Map<String,Object> bundle=catalog.activeBundle(row.getLibraryId());
         Map<String,Object> req=map("run_id",client,"owner_id",String.valueOf(uid()),"thread_id",thread,"library_id",row.getLibraryId(),
             "build_id",bundle.get("build_id"),"snapshot_id",bundle.get("snapshot_id"),"artifact_hash",bundle.get("artifact_hash"),
             "eligible_tag_ids",catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(bundle.get("snapshot_id"))),"requirement",text,
-            "previous_plan",obj(state.get("plan")),"edited_plan",request.get("plan"));
+            "previous_plan",obj(state.get("plan")),"edited_plan",request.get("plan"),"confirmed_clause_ids",state.getOrDefault("confirmed_clause_ids",new ArrayList<>()));
         List<Map<String,Object>> priorRuns=list(state.get("run_history"));
         if(state.get("run_id")!=null)priorRuns.add(map("run_id",state.get("run_id"),"events",state.get("events")));
         state.put("run_history",priorRuns);
@@ -192,7 +204,7 @@ public class TsAgentWorkbenchService {
         Object answer=request.get("answer");
         if(answer!=null && encode(answer).length()>100000)throw new ServiceException("补充信息过长");
         if("WAITING".equals(state.get("status")) && (answer==null || String.valueOf(answer).trim().isEmpty()))throw new ServiceException("请填写回答");
-        agent.post("/agent/v2/runs/"+state.get("run_id")+"/resume",map("owner_id",String.valueOf(uid()),"answer",answer,
+        agent.post("/agent/v2/runs/"+state.get("run_id")+"/resume",map("owner_id",String.valueOf(uid()),"answer",answer,"confirmed_clause_ids",state.getOrDefault("confirmed_clause_ids",new ArrayList<>()),
             "eligible_tag_ids",catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(active.get("snapshot_id")))));
         List<Map<String,Object>> messages=list(state.get("messages"));messages.add(map("id",id(),"role","user","text",answer instanceof Map?"已更新圈选条件":answer==null?"继续处理":String.valueOf(answer),"created_at",Instant.now().toString()));
         state.put("messages",messages);state.put("status","RUNNING");state.put("questions",new ArrayList<>());state.remove("error");save(row,state);return view(row,state);
@@ -208,9 +220,22 @@ public class TsAgentWorkbenchService {
         List<Map<String,Object>> events=list(state.get("events"));events.add(map("seq",-1,"type","run.cancelled","message","已停止；已完成条件保留"));state.put("events",events);
         state.put("status","CANCELLED");state.put("questions",new ArrayList<>());save(row,state);return view(row,state);
     }
+    private void collectAssumed(Map<String,Object> node,Set<String> result) {
+        if(node.containsKey("children")){for(Map<String,Object> child:list(node.get("children")))collectAssumed(child,result);}
+        else if("ASSUMED".equals(node.get("status")) || node.get("assumption") instanceof Map)result.add(String.valueOf(node.get("clause_id")));
+    }
+
+    private void checkClauseState(Map<String,Object> node,Set<String> confirmed) {
+        if(node.containsKey("children")){for(Map<String,Object> child:list(node.get("children")))checkClauseState(child,confirmed);return;}
+        String status=String.valueOf(node.get("status")),id=String.valueOf(node.get("clause_id"));
+        if(Arrays.asList("GAP","NEEDS_DECISION","UNRESOLVED").contains(status))throw new ServiceException("请先处理条件缺口与业务选择");
+        if("ASSUMED".equals(status) && !confirmed.contains(id))throw new ServiceException("请先确认采用的业务定义");
+    }
+
     private Map<String,Object> currentPlan(Map<String,Object> state,Map<String,Object> request) {
         revision(state,request);idle(state);Map<String,Object> plan=obj(state.get("plan"));
         if(!Boolean.TRUE.equals(plan.get("valid")))throw new ServiceException("圈选条件尚未校验通过");
+        checkClauseState(obj(plan.get("tree")),new HashSet<>((List<String>)state.getOrDefault("confirmed_clause_ids",new ArrayList<>())));
         if(!Objects.equals(plan.get("hash"),request.get("plan_hash")))throw new ServiceException("确认的方案已变化",409);
         return plan;
     }

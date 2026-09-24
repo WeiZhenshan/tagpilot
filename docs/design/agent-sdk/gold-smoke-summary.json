@@ -1,0 +1,146 @@
+{
+  "recorded_on": "2026-09-24",
+  "scope": "development smoke only; no full evaluation or production acceptance",
+  "runtime": "claude_sdk",
+  "sdk_version": "0.1.50",
+  "model": "deepseek-flash",
+  "build": {
+    "build_id": "bge-m3-l107-20260919-002-r3",
+    "snapshot_id": "L107-20260919-002",
+    "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+  },
+  "eligible_source": "fixed snapshot; not current Java user authorization",
+  "real_model_cases": [
+    {
+      "case": "A01",
+      "source": "tagpilot-agent/out/sdk-gold-smoke.json",
+      "source_sha256": "6e7f8692ecd60faa258e2ce60637241a7d68f3fc376b2adf1e2019ac13b1d9b6",
+      "seconds": 4.76,
+      "status": "COMPLETED",
+      "outcome": "READY",
+      "valid": true,
+      "stats": {
+        "tools": 2,
+        "deep": 0,
+        "details": 0,
+        "submit_rejections": 0,
+        "llm_turns": 4,
+        "cli_start_ms": 407,
+        "cli_peak_rss_mb": 275.78,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "usage": {
+          "input_tokens": 14299,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 14464,
+          "output_tokens": 657,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "synthetic_boundaries": 1,
+      "synthetic_mismatches": 0
+    },
+    {
+      "case": "B02",
+      "source": "tagpilot-agent/out/sdk-gold-b02-final.json",
+      "source_sha256": "52629966bab7f4c25f9096e8fac1f9111563a9985ed0fce568aec4e520db45ae",
+      "seconds": 9.31,
+      "status": "COMPLETED",
+      "outcome": "READY",
+      "valid": true,
+      "stats": {
+        "tools": 3,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 4,
+        "cli_start_ms": 167,
+        "cli_peak_rss_mb": 328.66,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.08609040000000001,
+        "usage": {
+          "input_tokens": 16453,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 31488,
+          "output_tokens": 1819,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "synthetic_boundaries": 54,
+      "synthetic_mismatches": 0
+    }
+  ],
+  "fake_gateway": {
+    "case": "A01",
+    "mode": "real_sdk_fake_gateway",
+    "accepted": "READY",
+    "stats": {
+      "tools": 1,
+      "deep": 0,
+      "details": 0,
+      "submit_rejections": 0,
+      "llm_turns": 2,
+      "cli_start_ms": 509,
+      "cli_peak_rss_mb": 245.64,
+      "stop_reason": "submitted",
+      "sdk_result": "success",
+      "sdk_cost_estimate_usd": 0.0018,
+      "usage": {
+        "input_tokens": 100,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 100,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "",
+        "iterations": [],
+        "speed": "standard"
+      }
+    },
+    "requests": 1
+  },
+  "java": {
+    "case": "B02",
+    "test": "TsAgentSdkGoldenSmokeTest",
+    "compile_rule_payload": 4,
+    "executed_count": false,
+    "created_group": false
+  },
+  "deferred": [
+    "61x3 baseline comparison",
+    "600 sealed semantic cases",
+    "12-concurrency load and RSS P99",
+    "real customer COUNT/IDs",
+    "production observation"
+  ]
+}

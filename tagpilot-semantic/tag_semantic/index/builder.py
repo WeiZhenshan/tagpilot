@@ -43,7 +43,7 @@ def build_index(catalog, out_dir: Path, build_id: str, store_type='LOCAL', embed
     out_dir.parent.mkdir(parents=True, exist_ok=True)
     temp = Path(tempfile.mkdtemp(prefix='.building-', dir=out_dir.parent))
     embedder = embedder or HashEmbedder()
-    config = {'channel_k': 30, 'rrf_k': 60, 'rerank_k': 50, 'domain_prior_weight': 0.002,
+    config = {'channel_k': 30, 'rrf_k': 60, 'rerank_k': 30, 'domain_prior_weight': 0.002,
               'exact_alias_fast_path': True, 'exact_alias_fast_path_version': 'v2-multicondition-aware', **(config or {})}
     docs = render_documents(list(catalog.tags.values()), list(catalog.concepts.values()), catalog.code_values)
     if not docs:

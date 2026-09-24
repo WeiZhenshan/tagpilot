@@ -1,1 +1,1 @@
-"""TagPilot Agent 编排层：LangGraph 圈选工作台。"""
+"""TagPilot Agent 编排层：Claude Agent SDK 单 Agent 圈选工作台。"""

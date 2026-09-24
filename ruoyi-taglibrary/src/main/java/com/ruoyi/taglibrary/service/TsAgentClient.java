@@ -26,6 +26,9 @@ public class TsAgentClient {
             Map<String, Object> response = new RestTemplate(factory).exchange(baseUrl + path, method, new HttpEntity<>(body, headers), Map.class).getBody();
             if (response == null) throw new ServiceException("编排层响应为空");
             return response;
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            if(e.getRawStatusCode()==429)throw new ServiceException("当前使用人数较多，请稍后重试",429);
+            throw new ServiceException("编排层拒绝请求，请重新核验会话状态");
         } catch (org.springframework.web.client.RestClientException e) {
             throw new ServiceException("编排层暂不可用或拒绝请求，请检查语义引擎与编排层日志");
         }

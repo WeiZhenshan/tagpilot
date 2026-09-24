@@ -3,10 +3,7 @@ import sqlite3
 import time
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from langgraph.checkpoint.sqlite import SqliteSaver
-from langgraph.types import Command
 from tagpilot_agent.plan import validate_plan, leaves
-from tagpilot_agent.workbench_graph import build_workbench
 from tagpilot_agent.workbench_store import CipherSerializer, RunStore
 from tagpilot_agent.workbench_api import register_workbench
 
@@ -16,15 +13,6 @@ REQ={'run_id':'run-0000000000001','thread_id':'thread-1','owner_id':'7','library
 class Retriever:
     def evidence(self,*args): return {'build_id':'b1','snapshot_id':'s1','artifact_hash':'h1','tags':[TAG],'code_values':[]}
     def retrieve(self,*args):return {**self.evidence(),'candidates':[{'tag_id':1,'name':TAG['name']}],'trace_id':'ev1','selection_context':{'tags':[TAG],'code_values':[]}}
-class Planner:
-    def __init__(self,missing=False):self.calls=0;self.missing=missing
-    def decide(self,ctx):
-        if ctx['phase']=='understand':return {'action':'plan','plan':copy.deepcopy(PLAN)}
-        self.calls+=1
-        if self.calls==1:return {'action':'tool','tool':'search_tags','clause_id':'a','query':'转入金额'}
-        plan=copy.deepcopy(PLAN)
-        if self.missing:return {'action':'ask','questions':[{'prompt':'高价值客户按资产规模还是交易活跃度定义？'}]}
-        return {'action':'finish','plan':plan}
 
 def test_tree_and_numeric_boundaries():
     plan=validate_plan(copy.deepcopy(PLAN),{1:TAG},[],{1})
@@ -35,43 +23,7 @@ def test_tree_and_numeric_boundaries():
     bad=copy.deepcopy(PLAN);bad['tree']['children'][0].update(operator='between',values=['10','1'])
     assert not validate_plan(bad,{1:TAG},[],{1})['valid']
 
-def test_interrupt_survives_restart_and_resume(tmp_path):
-    path=str(tmp_path/'checkpoints.sqlite');config={'configurable':{'thread_id':'t1'}}
-    conn=sqlite3.connect(path,check_same_thread=False)
-    saver=SqliteSaver(conn,serde=CipherSerializer('private-test-key'))
-    events=[];graph=build_workbench(Retriever(),saver,events.append,lambda:False,Planner(missing=True))
-    result=graph.invoke({'request':REQ},config)
-    assert result['__interrupt__'] and not result['plan']['valid']
-    conn.close()
-    assert b'500000' not in (tmp_path/'checkpoints.sqlite').read_bytes()
-    conn=sqlite3.connect(path,check_same_thread=False)
-    graph=build_workbench(Retriever(),SqliteSaver(conn,serde=CipherSerializer('private-test-key')),events.append,lambda:False,Planner())
-    result=graph.invoke(Command(resume={'plan':copy.deepcopy(PLAN)}),config)
-    assert result['plan']['valid'] and result['plan']['tree']['children'][0]['operator']=='>'
-    conn.close()
 
-def test_runtime_owner_idempotence_and_event_replay(tmp_path):
-    runtime_path=str(tmp_path/'runtime.sqlite')
-    app=FastAPI();register_workbench(app,lambda:None,lambda a,b:Retriever(),'secret',runtime_path,Planner())
-    client=TestClient(app)
-    assert client.post('/agent/v2/runs',json=REQ).status_code==200
-    for _ in range(100):
-        result=client.get('/agent/v2/runs/'+REQ['run_id'],params={'owner_id':'7'}).json()
-        if result['status']!='RUNNING':break
-        time.sleep(.02)
-    assert result['status']=='COMPLETED',result
-    assert result['result']['plan']['valid']
-    assert client.get('/agent/v2/runs/'+REQ['run_id'],params={'owner_id':'8'}).status_code==404
-    assert client.post('/agent/v2/runs',json=REQ).status_code==200
-    seq=result['events'][-1]['seq']
-    assert client.get('/agent/v2/runs/'+REQ['run_id'],params={'owner_id':'7','after':seq}).json()['events']==[]
-    changed={**REQ,'requirement':'不同内容'}
-    assert client.post('/agent/v2/runs',json=changed).status_code==409
-    deleted=client.delete('/agent/v2/threads/'+REQ['thread_id'],params={'owner_id':'7'})
-    assert deleted.status_code==200 and deleted.json()['deleted_runs']==1
-    assert client.get('/agent/v2/runs/'+REQ['run_id'],params={'owner_id':'7'}).status_code==404
-    with sqlite3.connect(runtime_path+'.checkpoints') as checkpoint_db:
-        assert checkpoint_db.execute('SELECT count(*) FROM checkpoints WHERE thread_id=?',(REQ['run_id'],)).fetchone()[0]==0
 
 def test_delete_rejects_active_thread(tmp_path):
     store=RunStore(str(tmp_path/'active.sqlite'),'key');store.create('active',REQ)
@@ -102,28 +54,7 @@ def test_units_and_time_are_not_silently_relaxed():
     n.update(time_constraint=None,expected_caliber={},value_unit='USD')
     assert not validate_plan(p,{1:tag},[],{1})['valid']
 
-def test_cancelled_run_does_not_advance_graph(tmp_path):
-    graph=build_workbench(Retriever(),SqliteSaver(sqlite3.connect(str(tmp_path/'c'),check_same_thread=False)),lambda e:None,lambda:True,Planner())
-    import pytest
-    with pytest.raises(InterruptedError):graph.invoke({'request':REQ},{'configurable':{'thread_id':'cancel'}})
 
-def test_replan_inherits_retrieved_candidates(tmp_path):
-    """模型重组条件树（replan）不得丢失已取得的检索候选，否则已绑定条件被误判缺少检索证据。"""
-    class ReplanPlanner:
-        def __init__(self):self.calls=0;self.fixed=None
-        def decide(self,ctx):
-            if ctx['phase']=='understand':return {'action':'plan','plan':copy.deepcopy(PLAN)}
-            self.calls+=1
-            if self.calls==1:return {'action':'tool','tool':'search_tags','clause_id':'a','query':'转入金额'}
-            if self.calls==2:
-                self.fixed=copy.deepcopy(PLAN);self.fixed['tree']['children'][0]['values']=['600000']
-                return {'action':'replan','plan':copy.deepcopy(self.fixed)}
-            return {'action':'finish','plan':copy.deepcopy(self.fixed)}
-    graph=build_workbench(Retriever(),SqliteSaver(sqlite3.connect(str(tmp_path/'r'),check_same_thread=False)),lambda e:None,lambda:False,ReplanPlanner())
-    result=graph.invoke({'request':REQ},{'configurable':{'thread_id':'replan'}})
-    node=leaves(result['plan']['tree'])[0]
-    assert result['plan']['valid'],result['plan']['diagnostics']
-    assert node['values']==['600000'] and any(c['tag_id']==1 for c in node['candidates'])
 
 def test_negative_enum_excludes_published_unknown_codes():
     p=copy.deepcopy(PLAN);n=leaves(p['tree'])[0];n.update(operator='not_in',values=['CLOSED'])

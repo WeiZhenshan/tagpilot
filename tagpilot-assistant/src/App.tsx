@@ -661,6 +661,7 @@ export function App() {
           thread={thread}
           pending={pending}
           onSave={savePlan}
+          onRefine={send}
           onCount={() => void act(api.countPlan)}
           onCreate={(name) => void create(name)}
           onPreview={() => {

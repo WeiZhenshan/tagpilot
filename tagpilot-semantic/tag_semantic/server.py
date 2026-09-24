@@ -31,10 +31,17 @@ class RetrieveRequest(BaseModel):
     build_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,48}$')
     eligible_tag_ids: list[int] = Field(max_length=100000)
     k: int = Field(default=20, ge=1, le=50)
+    mode: Literal["fast", "deep"] = "deep"
+
+
+class BatchRequest(RetrieveRequest):
+    queries: list[str] = Field(min_length=1, max_length=8)
 
 
 class EvidenceRequest(RetrieveRequest):
     tag_ids: list[int] = Field(default_factory=list, max_length=50)
+    value_query: str | None = Field(default=None, max_length=200)
+    max_values: int | None = Field(default=None, ge=1, le=30)
 
 
 class CapabilityRequest(RetrieveRequest):
@@ -124,10 +131,14 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                 counters['retrieve_requests'] += 1
                 if (root / request.build_id / 'purged.json').exists():
                     raise ValueError('构建已清理')
-                response = built['service'].retrieve(request.requirement, eligible, request.k)
+                response = built['service'].retrieve(request.requirement, eligible, request.k, mode=request.mode)
         except Exception as exc:
             counters['retrieve_failures'] += 1
             raise HTTPException(503, '检索服务暂不可用；未降级') from exc
+        return present(request,built,eligible,response)
+
+    def present(request,built,eligible,response):
+        manifest,catalog=built['manifest'],built['catalog']
         # 返回可见候选和可观测特征；不回传向量或带隐藏成员的完整目录对象。
         candidates = visible_candidates(response['candidates'], catalog, eligible, request.k)
         family = response.get('family') or {}
@@ -145,6 +156,35 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                                   'unresolved_fuzzy_terms': response['facets'].get('unresolved_fuzzy_terms', []),
                                   'retrieval_config_hash': manifest['retrieval_config_hash']}}
 
+    @app.post('/lookup', dependencies=[Depends(authenticate)])
+    def lookup(request: RetrieveRequest):
+        # 只读发布目录和 AC 索引；不触发向量搜索或重排。
+        with build_lease(root, request.build_id):
+            built = bundle(request.build_id)
+            if built['manifest']['library_id'] != request.library_id:
+                raise HTTPException(409, '构建不属于请求标签库')
+            eligible = set(request.eligible_tag_ids) & set(built['catalog'].tags)
+            candidates = built['service'].lookup(request.requirement, eligible, request.k)
+            terms = [{k:t.get(k) for k in ('term','definition','default_policy','policy')}
+                     for t in built['catalog'].terms if t.get('term') and t['term'] in request.requirement]
+            return {'build_id':request.build_id,'snapshot_id':built['manifest']['snapshot_id'],
+                    'artifact_hash':built['artifact_hash'],'eligible_hash':id_hash(str(t) for t in eligible),
+                    'trace_id':uuid.uuid4().hex,'candidates':candidates,'selection_context':selection_context(candidates,built['catalog']),
+                    'terms':terms,'decision':'CANDIDATES_ONLY','auto_execute':False}
+
+    @app.post('/retrieve_batch', dependencies=[Depends(authenticate)])
+    def retrieve_batch(request: BatchRequest):
+        # 批次使用同一发布租约；共享 eligible 签名，不允许中途换 build。
+        with build_lease(root, request.build_id):
+            built=bundle(request.build_id)
+            if built['manifest']['library_id']!=request.library_id:raise HTTPException(409,'构建不属于请求标签库')
+            if any(not q.strip() or len(q)>500 for q in request.queries):raise HTTPException(422,'每条检索词须为1至500字')
+            eligible=set(request.eligible_tag_ids)&set(built['catalog'].tags)
+            try:responses=built['service'].retrieve_batch(request.queries,eligible,request.k,request.mode)
+            except Exception as exc:raise HTTPException(503,'批量检索暂不可用；未降级') from exc
+            results=[present(request,built,eligible,response) for response in responses]
+            return {'results':results,'build_id':request.build_id}
+
     @app.post('/evidence', dependencies=[Depends(authenticate)])
     def evidence(request: EvidenceRequest):
         with build_lease(root, request.build_id):
@@ -155,6 +195,18 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
             if not set(request.tag_ids) <= eligible:
                 raise HTTPException(403, '标签不在当前资格范围')
             context = selection_context([{'tag_id': tid} for tid in request.tag_ids], built['catalog'])
+            catalog = built['catalog']
+            for tag in context['tags']:
+                family = catalog.family_members.get(tag.get('family_key'), [])
+                tag['family_members'] = [{'tag_id':int(m['tag_id']),'name':m.get('name'),'caliber_struct':m.get('caliber_struct',{})}
+                                         for m in family if int(m['tag_id']) in eligible]
+            if request.value_query:
+                query = request.value_query.lower()
+                context['code_values'] = [c for c in context['code_values'] if query in c['code'].lower() or query in str(c.get('label') or '').lower()]
+            if request.max_values is not None:
+                values = context['code_values']
+                context['code_values'] = [c for tid in request.tag_ids for c in [v for v in values if v['tag_id']==tid][:request.max_values]]
+                context['values_truncated'] = len(values)>len(context['code_values'])
             # 术语仅返回描述与默认策略，不透出可能指向资格外标签的映射。
             terms = [{k: term.get(k) for k in ('term', 'definition', 'default_policy', 'policy')}
                      for term in built['catalog'].terms if term.get('term') and term['term'] in request.requirement]

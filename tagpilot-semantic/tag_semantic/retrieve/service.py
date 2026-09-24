@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from typing import Any
+import os
+from collections import OrderedDict
+from threading import RLock
 
 from tag_semantic.index.alias_index import AliasIndex
 from tag_semantic.index.embedder import HashEmbedder, cosine
@@ -21,16 +24,46 @@ class RetrieveService:
         self.embedder = embedder or HashEmbedder()
         self.reranker = reranker
         self.config = config or {}
+        self._eligible_cache = OrderedDict()
+        self._cache_lock = RLock()
+        self._docs = {d['doc_id']: d for d in store.docs}
 
-    def retrieve(self, requirement: str, eligible_tag_ids: set[int] | None, k: int = 20) -> dict[str, Any]:
+    def lookup(self, requirement, eligible, k=8):
+        query = requirement.lower().replace(' ', '')
+        scores = {}
+        def add(tid, score, by):
+            if tid in eligible and (tid not in scores or score>scores[tid][0]):scores[tid]=(score,by)
+        for alias in self.alias_index.lookup(requirement):
+            doc = self._alias_to_doc(alias)
+            if not doc:continue
+            score=100+len(alias.get('alias_norm') or '')
+            if doc.get('doc_type')=='concept':
+                for tag in self._expand_concept(doc,eligible):add(int(tag['tag_id']),score,'EXACT_ALIAS')
+            elif doc.get('tag_id'):add(int(doc['tag_id']),score,'EXACT_ALIAS')
+        grams={query[i:i+2] for i in range(len(query)-1)}
+        for tid,t in self.catalog.tags.items():
+            if tid not in eligible:continue
+            name=str(t.get('name') or '').lower().replace(' ','')
+            if name and name in query:add(tid,90+len(name),'LEXICAL')
+            else:
+                overlap=len(grams & {name[i:i+2] for i in range(len(name)-1)})
+                if overlap>=2:add(tid,overlap,'LEXICAL')
+        return [{'tag_id':tid,'name':self.catalog.tags[tid].get('name'),'matched_by':by}
+                for tid,(score,by) in sorted(scores.items(),key=lambda v:(-v[1][0],v[0]))[:k]]
+
+    def retrieve(self, requirement: str, eligible_tag_ids: set[int] | None, k: int = 20, mode: str = "deep", *, dense_vector=None, defer=False) -> dict[str, Any]:
         facets = parse_facets(requirement, self.catalog.terms)
         filters = {"eligible_tag_ids": eligible_tag_ids}
         if eligible_tag_ids is not None:
-            concept_ids = set()
-            for tag in self.catalog.tags.values():
-                if int(tag["tag_id"]) in eligible_tag_ids:
-                    concept_ids.add(tag.get("concept_id") or tag.get("concept_code"))
-            filters["eligible_concept_ids"] = concept_ids
+            key = frozenset(eligible_tag_ids)
+            with self._cache_lock:
+                concept_ids = self._eligible_cache.get(key)
+                if concept_ids is None:
+                    concept_ids = {tag.get('concept_id') or tag.get('concept_code') for tid,tag in self.catalog.tags.items() if tid in eligible_tag_ids}
+                    self._eligible_cache[key] = concept_ids
+                self._eligible_cache.move_to_end(key)
+                while len(self._eligible_cache)>128:self._eligible_cache.popitem(last=False)
+            filters['eligible_concept_ids'] = concept_ids
             if not eligible_tag_ids:
                 return {"candidates": [], "recall_candidates": [], "facets": facets, "family": None,
                         "decision": "CANDIDATES_ONLY", "code_selection": None, "auto_execute": False}
@@ -53,7 +86,7 @@ class RetrieveService:
         else:
             bm25_name = self.store.search("bm25_name", requirement, filters, budget)
             bm25_body = self.store.search("bm25_body", requirement, filters, budget)
-            dense_hits = self._dense(requirement, filters, budget)
+            dense_hits = self._dense(requirement, filters, budget, dense_vector)
             fused = rrf([alias_hits, bm25_name, bm25_body, dense_hits], k=int(self.config.get("rrf_k", 60)))
         # 域只作软先验，不能剪掉其它业务域；权重固化在 build manifest。
         for item in fused:
@@ -65,9 +98,29 @@ class RetrieveService:
             item['rrf_score'] += prior
         fused.sort(key=lambda c: (-c['rrf_score'], c['doc']['doc_id']))
         recall_candidates = fused[:20]
-        if self.reranker and not exact_hits:
-            budget = min(50, max(1, int(self.config.get('rerank_k', 50))))
-            fused = self.reranker.rerank(requirement, fused[:budget], k=max(k, 10))
+        # 高置信跳过策略默认关闭，待 A/B 后通过环境变量启用。
+        margin = fused[0]['rrf_score']-fused[1]['rrf_score'] if len(fused)>1 else 0
+        skip_confident = os.getenv('TAG_RERANK_SKIP_CONFIDENT','false')=='true' and margin>=float(os.getenv('TAG_RERANK_MARGIN','0.03'))
+        needs_rerank = bool(self.reranker and not exact_hits and mode != 'fast' and not skip_confident)
+        budget = min(50, max(1, int(os.getenv('TAG_RERANK_K', '30'))))
+        if defer:
+            return {'fused':fused[:budget] if needs_rerank else fused,'recall':recall_candidates,'facets':facets,'aliases':alias_hits,'rerank':needs_rerank}
+        if needs_rerank:fused = self.reranker.rerank(requirement, fused[:budget], k=max(k, 10))
+        return self._finish(requirement,eligible_tag_ids,k,fused,recall_candidates,facets,alias_hits)
+
+    def retrieve_batch(self, queries, eligible, k=8, mode='deep'):
+        if not eligible:return [self.retrieve(q,eligible,k,mode) for q in queries]
+        # 一次批量编码；排序器把所有 query/candidate 对合并为一次模型调用。
+        vectors = self.embedder.encode(queries)
+        pending=[self.retrieve(q,eligible,k,mode,dense_vector=v,defer=True) for q,v in zip(queries,vectors)]
+        indexes=[i for i,p in enumerate(pending) if p.get('rerank')]
+        if indexes:
+            batches=[(queries[i],pending[i]['fused']) for i in indexes]
+            ranked=self.reranker.rerank_batch(batches,k=max(k,10))
+            for i,items in zip(indexes,ranked):pending[i]['fused']=items
+        return [self._finish(q,eligible,k,p['fused'],p['recall'],p['facets'],p['aliases']) for q,p in zip(queries,pending)]
+
+    def _finish(self,requirement,eligible_tag_ids,k,fused,recall_candidates,facets,alias_hits):
         tag_candidates = []
         for item in fused:
             doc = item["doc"]
@@ -134,10 +187,10 @@ class RetrieveService:
             return []
         return strongest
 
-    def _dense(self, query: str, filters: dict[str, Any], k: int) -> list[dict[str, Any]]:
+    def _dense(self, query: str, filters: dict[str, Any], k: int, vector=None) -> list[dict[str, Any]]:
         if getattr(self.store, "store_type", "LOCAL") == "MILVUS":
-            return self.store.search("dense", query, filters, k)
-        qv = self.embedder.encode([query])[0]
+            return self.store.search("dense", query, filters, k, query_vector=vector)
+        qv = vector if vector is not None else self.embedder.encode([query])[0]
         scored = []
         for doc in self.store.docs:
             if not _doc_allowed(doc, filters):
@@ -157,7 +210,7 @@ class RetrieveService:
         if not prefix:
             return None
         doc_id = prefix + str(alias.get("target_id"))
-        return next((doc for doc in self.store.docs if doc["doc_id"] == doc_id), None)
+        return self._docs.get(doc_id)
 
     def _expand_concept(self, doc: dict[str, Any], eligible: set[int] | None) -> list[dict[str, Any]]:
         cid = doc.get("concept_id")

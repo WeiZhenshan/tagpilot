@@ -73,11 +73,17 @@ class BGEReranker:
         self._model = FlagReranker(path, use_fp16=False, devices=['cpu'])
 
     def rerank(self, query, candidates, k=10):
-        if not candidates:
-            return []
-        pairs = [[query, c['doc'].get('body_text', '') + '\n[族] ' + str(c['doc'].get('family_key') or '')] for c in candidates[:50]]
-        scores = self._model.compute_score(pairs, normalize=True)
-        if isinstance(scores, (int, float)):
-            scores = [scores]
-        result = [dict(c, rerank_score=float(score)) for c, score in zip(candidates, scores)]
-        return sorted(result, key=lambda x: (-x['rerank_score'], x['doc']['doc_id']))[:k]
+        return self.rerank_batch([(query,candidates)],k)[0]
+
+    def rerank_batch(self, batches, k=10):
+        pairs=[[query,c['doc'].get('body_text','')[:2000]+'\n[族] '+str(c['doc'].get('family_key') or '')]
+               for query,candidates in batches for c in candidates[:50]]
+        if not pairs:return [[] for _ in batches]
+        scores=self._model.compute_score(pairs,normalize=True)
+        if isinstance(scores,(int,float)):scores=[scores]
+        offset=0;results=[]
+        for query,candidates in batches:
+            candidates=candidates[:50]
+            items=[dict(c,rerank_score=float(score)) for c,score in zip(candidates,scores[offset:offset+len(candidates)])]
+            results.append(sorted(items,key=lambda x:(-x['rerank_score'],x['doc']['doc_id']))[:k]);offset+=len(candidates)
+        return results

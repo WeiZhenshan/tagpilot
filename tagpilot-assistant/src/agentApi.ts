@@ -33,6 +33,7 @@ export const startRun = (
     base_revision: t.revision,
     message,
     plan,
+    confirmed_clause_ids: plan?.confirmed_clause_ids,
   });
 export const resumeRun = (t: Thread, answer?: unknown) =>
   data<Thread>(`${prefix}/${t.thread_id}/resume`, "POST", {

@@ -455,10 +455,12 @@ test("history rail supports collapse, inline rename, row actions and account men
 });
 
 test('计算草案展示缺口且禁止执行',async({page})=>{
+  t.outcome={outcome:'CAPABILITY_GAP',gaps:[{requirement_id:'ratio',reason:'NO_CAPABILITY',nearest_tag_ids:[]}]};
   t.plan={...structuredClone(plan),valid:false,plan_status:'CAPABILITY_GAP',tree:{kind:'DERIVED_PREDICATE',clause_id:'ratio',name:'存款占 AUM 至少八成',operator:'>=',values:['0.8'],expression:{kind:'DIV',args:[{kind:'TAG',tag_id:1,name:'当前存款余额'},{kind:'TAG',tag_id:2,name:'当前 AUM'}]}},diagnostics:[{code:'CAPABILITY_UNAVAILABLE',message:'当前发布版本缺少可核验的基金持仓明细能力',user_decision_required:false}]};
   await page.goto('/agent-ui/?threadId=test-thread');
   await expect(page.getByText('存款占 AUM 至少八成',{exact:true})).toBeVisible();
   await expect(page.getByText('当前发布版本缺少可核验的基金持仓明细能力')).toBeVisible();
+  await expect(page.getByRole('region',{name:'需求缺口'})).toBeVisible();
   await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeDisabled();
   for(const width of [1440,390]){
     await page.setViewportSize({width,height:900});

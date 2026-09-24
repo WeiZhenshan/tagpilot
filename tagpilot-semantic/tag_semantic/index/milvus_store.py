@@ -87,16 +87,16 @@ class MilvusStore(IndexStore):
         concept_expr = 'concept_id in ' + json.dumps(sorted(str(x) for x in concepts)) if concepts else 'tag_id == -999999999'
         return f'library_id == {int(self.library_id)} and ((doc_type != "concept" and {tag_expr}) or (doc_type == "concept" and {concept_expr}))'
 
-    def search(self, channel, query, filters, k):
+    def search(self, channel, query, filters, k, query_vector=None):
         expression = self._filter(filters)
         if expression is None:
             return []
         dense = channel == 'dense'
         field = 'dense' if dense else {'bm25_name': 'sparse_name', 'bm25_body': 'sparse_body'}[channel]
-        data = self.embedder.encode([query]) if dense else [query]
+        data = ([query_vector] if query_vector is not None else self.embedder.encode([query])) if dense else [query]
         results = self.client.search(collection_name=self.collection, data=data, anns_field=field,
                                      filter=expression, limit=k, output_fields=['doc_id'],
-                                     search_params={'metric_type': 'COSINE' if dense else 'BM25'}, consistency_level='Strong')
+                                     search_params={'metric_type': 'COSINE' if dense else 'BM25'}, consistency_level=os.getenv('TAG_MILVUS_READ_CONSISTENCY', 'Strong'))
         by_id = {d['doc_id']: d for d in self.docs}
         hits = []
         for hit in results[0]:

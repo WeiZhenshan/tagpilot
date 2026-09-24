@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Clause, Plan, Thread, Tree } from "./agentTypes";
-import { busy, clauses, planDiff, planStateText, expressionText } from "./agentTypes";
+import { busy, clauses, planDiff, planStateText, expressionText, gapText } from "./agentTypes";
 const unitLabels: Record<string, string> = {
   CNY: "元",
   COUNT: "次",
@@ -271,6 +271,7 @@ function TreeEditor({
           排除空值；{c.unknown_policy === "INCLUDE" ? "包含" : "排除"}未知码值。
         </p>
       ) : null}
+      {c.gap_reason ? <p className="field-error">{gapText[c.gap_reason] || c.gap_reason}</p> : null}
       {c.unresolved ? <p className="field-error">{c.unresolved}</p> : null}
       <details className="evidence">
         <summary>查看口径与依据</summary>
@@ -296,6 +297,7 @@ export function PlanPanel({
   thread,
   pending,
   onSave,
+  onRefine,
   onCount,
   onCreate,
   onPreview,
@@ -304,6 +306,7 @@ export function PlanPanel({
   thread: Thread | null;
   pending: boolean;
   onSave: (p: Plan) => void;
+  onRefine: (message: string) => void;
   onCount: () => void;
   onCreate: (name: string) => void;
   onPreview: () => void;
@@ -315,8 +318,14 @@ export function PlanPanel({
   const [version, setVersion] = useState("current");
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState(false);
+  const [approximation, setApproximation] = useState("");
+  const [showApproximation, setShowApproximation] = useState(false);
+  const [confirmedIds, setConfirmedIds] = useState<string[]>([]);
   useEffect(() => {
     setDraft(active);
+    setShowApproximation(false);
+    setApproximation("");
+    setConfirmedIds(thread?.confirmed_clause_ids || []);
     setDirty(false);
     setConfirm(false);
     setVersion("current");
@@ -373,6 +382,37 @@ export function PlanPanel({
           <summary>原始业务要求</summary>
           {shown.intent_plan.requirements.map((r) => <p key={r.requirement_id}>{r.business_meaning}</p>)}
         </details> : null}
+        {!historical && thread?.outcome?.gaps?.length ? (
+          <section className="inline-warning" aria-label="需求缺口">
+            <strong>这些要求暂未满足</strong>
+            {thread.outcome.gaps.map((gap) => <div key={gap.requirement_id}>
+              <p>{shown?.intent_plan?.requirements.find((r) => r.requirement_id === gap.requirement_id)?.business_meaning || items.find((c) => c.requirement_ids?.includes(gap.requirement_id))?.source_span || "一项圈选要求"}</p>
+              <p>{gapText[gap.reason] || "当前证据不足"}</p>
+              <button className="text-button" disabled={disabled || items.length <= 1}
+                onClick={() => onRefine(`请移除这项要求：${shown?.intent_plan?.requirements.find((r) => r.requirement_id === gap.requirement_id)?.business_meaning || items.find((c) => c.requirement_ids?.includes(gap.requirement_id))?.source_span || gap.requirement_id}，保留其余条件。`)}>移除此项要求</button>
+            </div>)}
+            <p>调整要求后将重新核验，不会直接执行。</p>
+            <button className="text-button" disabled={disabled} onClick={() => setShowApproximation(!showApproximation)}>说明可接受的近似范围</button>
+            {showApproximation ? <div className="create-form">
+              <label className="field-label">你愿意如何调整这项要求？
+                <textarea value={approximation} maxLength={1500} onChange={(e) => setApproximation(e.target.value)} disabled={disabled} />
+              </label>
+              <button disabled={disabled || !approximation.trim()} onClick={() => onRefine(`我确认调整以下要求：${approximation.trim()}。保留未提及的其余条件，并重新核验。`)}>确认调整并重新核验</button>
+            </div> : null}
+          </section>
+        ) : null}
+        {items.some((c) => c.status === "ASSUMED") ? (
+          <section className="inline-warning" aria-label="确认业务定义">
+            <strong>请核对采用的业务定义</strong>
+            {items.filter((c) => c.status === "ASSUMED").map((c) => <label className="field-label" key={c.clause_id}>
+              <input type="checkbox" disabled={disabled} checked={confirmedIds.includes(c.clause_id)}
+                onChange={(e) => setConfirmedIds((ids) => e.target.checked ? [...ids, c.clause_id] : ids.filter((id) => id !== c.clause_id))} />
+              {c.assumption?.question || c.name || c.source_span}
+            </label>)}
+            <button disabled={disabled || items.some((c) => c.status === "ASSUMED" && !confirmedIds.includes(c.clause_id))}
+              onClick={() => shown && onSave({ ...shown, confirmed_clause_ids: confirmedIds })}>确认定义并重新核验</button>
+          </section>
+        ) : null}
         {shown?.tree ? (
           <>
             <TreeEditor

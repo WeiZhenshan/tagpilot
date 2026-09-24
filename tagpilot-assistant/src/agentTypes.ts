@@ -15,6 +15,7 @@ export type Diagnostic = {
   expected?: unknown;
   actual?: unknown;
   user_decision_required?: boolean;
+  resolution?: "AGENT_FIXABLE" | "USER_DECISION" | "CAPABILITY_GAP";
 };
 export type Clause = {
   kind?: string;
@@ -30,6 +31,9 @@ export type Clause = {
   operator?: string;
   values?: string[];
   unresolved?: string | null;
+  gap_reason?: string;
+  assumption?: { question?: string; status: string };
+  assumption_confirmed?: boolean;
   status?: string;
   unit?: string;
   value_unit?: string;
@@ -61,6 +65,7 @@ export type Plan = {
   snapshot_id?: string;
   artifact_hash?: string;
   validation_errors?: Diagnostic[];
+  confirmed_clause_ids?: string[];
 };
 export type RunEvent = {
   seq: number;
@@ -99,6 +104,8 @@ export type Thread = {
   questions?: { clause_id?: string; prompt: string; options?: string[] }[];
   interrupt_id?: string;
   error?: string;
+  outcome?: { outcome: string; gaps: { requirement_id: string; reason: string; nearest_tag_ids: number[] }[]; stats?: Record<string, unknown> };
+  confirmed_clause_ids?: string[];
   capabilities: { count: boolean; create: boolean; preview: boolean };
   count?: {
     value: number;
@@ -185,3 +192,12 @@ export function planDiff(before: Plan | undefined, after: Plan): string[] {
     changes.push("条件组合结构已变化");
   return changes;
 }
+
+export const toolText: Record<string, string> = {
+  find_tags: "查找相关标签", get_tag_details: "核对标签口径与码值", find_capabilities: "查找已发布业务能力",
+  check_plan: "核验圈选条件", submit_result: "整理圈选方案",
+};
+export const gapText: Record<string, string> = {
+  NO_PUBLISHED_TAG: "尚无已发布标签覆盖这项要求", NO_CAPABILITY: "尚无已发布计算能力覆盖这项要求",
+  CALIBER_UNAVAILABLE: "缺少符合要求的时间或统计口径", METADATA_INCOMPLETE: "发布信息不足，暂时无法核验",
+};

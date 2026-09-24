@@ -8,7 +8,7 @@ import {
   type ThreadMessageLike,
 } from "@assistant-ui/react";
 import type { Thread, AgentMessage, RunEvent } from "./agentTypes";
-import { busy, clauses, stateText } from "./agentTypes";
+import { busy, clauses, stateText, toolText } from "./agentTypes";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
@@ -39,10 +39,10 @@ function Process({
     <details className="process" open={running}>
       <summary>
         {running
-          ? "正在处理圈选需求"
+          ? (events.at(-1)?.type === "run.queued" ? events.at(-1)?.message : "正在处理圈选需求")
           : `${label} · ${
               tools.filter((e) => e.type === "tool.completed").length
-            } 次证据查询`}
+            } 次处理操作`}
       </summary>
       <ol className="todo-plan">
         {[
@@ -59,10 +59,10 @@ function Process({
       </ol>
       <ol className="event-list">
         {events
-          .filter((e) => e.message)
+          .filter((e) => e.message || (e.tool && toolText[e.tool]))
           .map((e) => (
             <li key={e.seq}>
-              <span>{e.message}</span>
+              <span>{e.message || (e.tool && toolText[e.tool])}</span>
               {e.occurred_at ? (
                 <time>
                   {new Date(e.occurred_at * 1000).toLocaleTimeString("zh-CN")}
