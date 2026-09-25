@@ -119,6 +119,26 @@ def test_threshold_authorization_does_not_change_logic():
     assert any(e['code']=='LOGIC_CHANGED' for e in frozen_errors(old,new,'改为60万'))
 
 
+def test_langgraph_runtime_is_rejected(tmp_path,monkeypatch):
+    monkeypatch.setenv('TAG_AGENT_RUNTIME','langgraph')
+    app=FastAPI();register_workbench(app,lambda:None,lambda a,b:Evidence(),'secret',tmp_path/'runs.sqlite',GoldRunner())
+    with TestClient(app) as client:
+        assert client.post('/agent/v2/runs',json=REQ).status_code==503
+
+
+def test_second_process_lease_is_rejected(tmp_path):
+    import fcntl
+    path=tmp_path/'lease.sqlite'
+    holder=open(str(path)+'.lock','a')
+    fcntl.flock(holder,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    try:
+        app=FastAPI();register_workbench(app,lambda:None,lambda a,b:Evidence(),'secret',path,GoldRunner())
+        with TestClient(app) as client:
+            assert client.post('/agent/v2/runs',json=REQ).status_code==503
+    finally:
+        holder.close()
+
+
 def test_assumption_confirmation_is_bound_to_previous_condition():
     from tagpilot_agent.guards.guard import unchanged_confirmations
     from tagpilot_agent.domain.plan_model import AudiencePlan

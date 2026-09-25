@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.objectgroup.domain.RulePayload;
 import com.ruoyi.taglibrary.domain.*;
+import com.ruoyi.taglibrary.domain.agent.TsPlanValidationException;
 import com.ruoyi.taglibrary.mapper.*;
 import static com.ruoyi.taglibrary.service.TsSnapshotAssembler.map;
 import static org.mockito.Mockito.*;
@@ -69,5 +70,31 @@ class TsAudiencePlanCompilerTest {
         p.put("tree",map("logic","OR","children",Arrays.asList(leaf("a"),leaf("b"))));
         p.put("intent_plan",map("requirements",Arrays.asList(map("requirement_id","a"),map("requirement_id","b")),"logic_tree",map("logic","AND","children",Arrays.asList(map("requirement_id","a"),map("requirement_id","b")))));
         assertThrows(ServiceException.class,()->compiler.compile(107L,p));
+    }
+
+    @Test void structuredDiagnosticsCarryCodeAndClause() {
+        Map<String,Object> scaled=leaf("a");scaled.put("value_scale","10000");
+        TsPlanValidationException unit=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,plan(scaled)));
+        assertEquals("UNIT_MISMATCH",unit.getDiagnosticCode());assertEquals("a",unit.getClauseId());
+
+        Map<String,Object> op=leaf("a");op.put("operator",">=");
+        TsPlanValidationException operator=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,plan(op)));
+        assertEquals("INVALID_OPERATOR",operator.getDiagnosticCode());assertEquals("a",operator.getClauseId());
+
+        Map<String,Object> gap=leaf("a");gap.put("status","GAP");
+        TsPlanValidationException missing=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,plan(gap)));
+        assertEquals("REQUIREMENT_MISSING",missing.getDiagnosticCode());assertEquals("a",missing.getClauseId());
+
+        Map<String,Object> assumed=leaf("a");assumed.put("status","ASSUMED");
+        TsPlanValidationException decision=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,plan(assumed)));
+        assertEquals("BUSINESS_AMBIGUITY",decision.getDiagnosticCode());assertEquals("a",decision.getClauseId());
+
+        when(catalog.eligibleTagIds(107L,"s1")).thenReturn(Collections.emptyList());
+        TsPlanValidationException ineligible=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,plan(leaf("a"))));
+        assertEquals("INELIGIBLE_TAG",ineligible.getDiagnosticCode());assertEquals("a",ineligible.getClauseId());
+
+        Map<String,Object> version=plan(leaf("a"));version.put("build_id","old");
+        TsPlanValidationException mismatch=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,version));
+        assertEquals("VERSION_MISMATCH",mismatch.getDiagnosticCode());assertNull(mismatch.getClauseId());
     }
 }

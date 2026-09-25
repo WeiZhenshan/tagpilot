@@ -12,8 +12,10 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.databroker.crypto.DataBrokerCryptoService;
 import com.ruoyi.framework.web.service.PermissionService;
 import com.ruoyi.objectgroup.domain.*;
+import com.ruoyi.objectgroup.domain.vo.RuleRunResultVO;
 import com.ruoyi.objectgroup.service.ITlObjectGroupService;
 import com.ruoyi.taglibrary.domain.*;
+import com.ruoyi.taglibrary.domain.agent.TsPlanValidationException;
 import com.ruoyi.taglibrary.mapper.*;
 import com.ruoyi.taglibrary.service.*;
 import static com.ruoyi.taglibrary.service.TsSnapshotAssembler.map;
@@ -131,9 +133,55 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     }
     @Test void publishedVersionFailureDoesNotTriggerStaleRepair() throws Exception {
         state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>()));
-        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("plan",map("valid",true,"tree",map("clause_id","a")))));
-        when(compiler.compile(eq(107L),any())).thenThrow(new ServiceException("发布版本已变化"));
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("plan",map("valid",true,"tree",map("clause_id","a"),"snapshot_id","s1"))));
+        when(compiler.compile(eq(107L),any())).thenThrow(new TsPlanValidationException("VERSION_MISMATCH",null,"发布版本已变化，请重新核验方案"));
         Map<String,Object> result=service.get("owned");
         assertEquals("COMPLETED",result.get("status"));verify(agent,never()).post(anyString(),any());
+        Map<String,Object> plan=(Map<String,Object>)result.get("plan");
+        assertEquals(false,plan.get("valid"));
+        assertEquals("VERSION_MISMATCH",((List<Map<String,Object>>)plan.get("diagnostics")).get(0).get("code"));
+    }
+    @Test void structuredDiagnosticsAreReplayedWithClauseIdAndSource() throws Exception {
+        state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>()));
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("plan",map("valid",true,"tree",map("clause_id","a"),"snapshot_id","s1"))));
+        when(compiler.compile(eq(107L),any())).thenThrow(new TsPlanValidationException("UNIT_MISMATCH","a","数值单位未经核验"));
+        when(catalog.eligibleTagIds(107L,"s1")).thenReturn(Arrays.asList(1L));
+        Map<String,Object> result=service.get("owned");
+        assertEquals("RUNNING",result.get("status"));
+        Map<String,Object> plan=(Map<String,Object>)result.get("plan");
+        assertEquals(false,plan.get("valid"));
+        List<Map<String,Object>> diagnostics=(List<Map<String,Object>>)plan.get("diagnostics");
+        assertEquals("UNIT_MISMATCH",diagnostics.get(0).get("code"));
+        assertEquals("a",diagnostics.get(0).get("clause_id"));
+        assertEquals("JAVA_AUTHORITY",diagnostics.get(0).get("source"));
+        ArgumentCaptor<Map<String,Object>> body=ArgumentCaptor.forClass(Map.class);
+        verify(agent).post(eq("/agent/v2/runs/r/repair"),body.capture());
+        assertEquals("UNIT_MISMATCH",((List<Map<String,Object>>)body.getValue().get("diagnostics")).get(0).get("code"));
+        assertEquals("a",((List<Map<String,Object>>)body.getValue().get("diagnostics")).get(0).get("clause_id"));
+        assertEquals(1L,result.get("authority_repairs"));
+    }
+    @Test void agentOutcomeAndGapsAreSurfacedForDisplay() throws Exception {
+        state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>()));
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),
+            "result",map("plan",map("valid",true,"tree",map("clause_id","a"),"snapshot_id","s1"),"questions",Collections.emptyList(),
+                "outcome",map("outcome","CAPABILITY_GAP","gaps",Arrays.asList(map("requirement_id","R1","reason","NO_PUBLISHED_TAG","nearest_tag_ids",Arrays.asList(1))),"stats",map("deep",2)))));
+        Map<String,Object> result=service.get("owned");
+        Map<String,Object> outcome=(Map<String,Object>)result.get("outcome");
+        assertEquals("CAPABILITY_GAP",outcome.get("outcome"));
+        assertEquals(1,((List<?>)outcome.get("gaps")).size());
+        assertEquals(2,((Map<?,?>)outcome.get("stats")).get("deep"));
+    }
+    @Test void executionGateBlocksGapAndUnconfirmedAssumedCondition() throws Exception {
+        state(map("revision",2,"status","COMPLETED","plan",map("valid",true,"hash","h","tree",map("clause_id","a","status","GAP")),"messages",new ArrayList<>()));
+        assertThrows(ServiceException.class,()->service.count("owned",confirmation()));
+        state(map("revision",2,"status","COMPLETED","plan",map("valid",true,"hash","h","tree",map("clause_id","a","status","ASSUMED")),"messages",new ArrayList<>()));
+        assertThrows(ServiceException.class,()->service.count("owned",confirmation()));
+        verifyNoInteractions(groups);
+
+        state(map("revision",2,"status","COMPLETED","plan",map("valid",true,"hash","h","tree",map("clause_id","a","status","ASSUMED")),"confirmed_clause_ids",Arrays.asList("a"),"messages",new ArrayList<>()));
+        when(compiler.compile(eq(107L),any())).thenReturn(new RulePayload());
+        when(groups.runRule(isNull(),eq(107L),any())).thenReturn(new RuleRunResultVO(203,null));
+        Map<String,Object> result=service.count("owned",confirmation());
+        assertEquals(203L,((Map<String,Object>)result.get("count")).get("value"));
     }
 }

@@ -59,6 +59,7 @@ dump.rdb
 .superpowers/
 .agents/
 .claude/
+.cursor/
 skills-lock.json
 
 # Windows 上传路径误建目录（RuoYi 默认 uploadPath）

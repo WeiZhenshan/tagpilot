@@ -12,14 +12,21 @@ def capture_intent(plan, requirement, rebuild=False):
     if not rebuild and supplied.get('requirements') and supplied.get('logic_tree'):
         return deepcopy(supplied)
     nodes = leaves(plan['tree'])
-    requirements = []
+    requirements = []; merged = {}
     for node in nodes:
         refs=node.get('requirement_ids') or [node['clause_id']]
         rid = refs[0] if rebuild and len(refs)==1 else node['clause_id']
         node['requirement_ids'] = [rid]
-        requirements.append({'requirement_id': rid, 'source_spans': [node.get('source_span') or requirement],
-                             'business_meaning': node.get('source_span') or node.get('query') or requirement,
-                             'origin': 'USER', 'resolution_state': 'PENDING'})
+        span = node.get('source_span') or requirement
+        # 一个业务要求可以拆分到多个执行条件；重建台账时按 requirement_id 合并，避免重复条目。
+        if rid in merged:
+            if span not in merged[rid]['source_spans']: merged[rid]['source_spans'].append(span)
+            continue
+        entry = {'requirement_id': rid, 'source_spans': [span],
+                 'business_meaning': node.get('source_span') or node.get('query') or requirement,
+                 'origin': 'USER', 'resolution_state': 'PENDING'}
+        merged[rid] = entry
+        requirements.append(entry)
     def structure(tree):
         if 'children' in tree:
             return {'logic': tree['logic'], 'children': [structure(c) for c in tree['children']]}

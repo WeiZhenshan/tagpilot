@@ -32,4 +32,14 @@ class XssOperatorCleanTest {
         assertTrue(yml.contains("/taglibrary/semantic/**"));
         assertTrue(StringUtils.isMatch("/taglibrary/semantic/**", "/taglibrary/semantic/tag"));
     }
+
+    @Test
+    void agentPlanUrlsAreExcludedFromXss() throws Exception {
+        String yml = new String(Files.readAllBytes(Paths.get("../ruoyi-admin/src/main/resources/application.yml")), StandardCharsets.UTF_8);
+        int excludes = yml.indexOf("excludes:");
+        String line = yml.substring(excludes, yml.indexOf('\n', excludes));
+        assertTrue(line.contains("/taglibrary/agent/**"), line);
+        assertTrue(StringUtils.isMatch("/taglibrary/agent/**", "/taglibrary/agent/threads/abc/runs"));
+        assertTrue(StringUtils.isMatch("/taglibrary/agent/**", "/taglibrary/agent/threads/abc/resume"));
+    }
 }

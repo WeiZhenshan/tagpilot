@@ -286,6 +286,28 @@ def test_coverage_follows_requirement_ledger():
     assert any(d['requirement_id'] == 'R2' and '方案遗漏' in d['message'] for d in result2['diagnostics'])
 
 
+def test_manual_edit_dedupes_requirements_shared_by_clauses():
+    plan = {'tree': {'logic': 'AND', 'children': [
+        {'kind': 'TAG_PREDICATE', 'clause_id': 'c1a', 'source_span': 'AUM 20万以上', 'tag_id': 1,
+         'operator': '>=', 'values': ['200000'], 'requirement_ids': ['R1']},
+        {'kind': 'TAG_PREDICATE', 'clause_id': 'c1b', 'source_span': 'AUM 100万以下', 'tag_id': 1,
+         'operator': 'between', 'values': ['200000', '1000000'], 'requirement_ids': ['R1']},
+        {'kind': 'TAG_PREDICATE', 'clause_id': 'c2', 'source_span': '没有持有理财', 'tag_id': 1,
+         'operator': '>', 'values': ['0'], 'requirement_ids': ['R2']}]},
+        'intent_plan': {'original_request': 'x', 'requirements': [
+            {'requirement_id': 'R1', 'source_spans': ['AUM 20万以上'], 'business_meaning': '区间'},
+            {'requirement_id': 'R2', 'source_spans': ['没有持有理财'], 'business_meaning': '理财'}],
+            'logic_tree': {'logic': 'AND', 'children': [{'requirement_id': 'R1'}, {'requirement_id': 'R2'}]},
+            'assumptions': []}}
+    ctx = ctx_for(_manual_edit=True)
+    result = asyncio.run(check(plan, ctx, trusted=True))
+    assert result['valid'], result['diagnostics']
+    ids = [r['requirement_id'] for r in result['intent_plan']['requirements']]
+    assert ids == ['R1', 'R2'], ids
+    assert result['intent_plan']['requirements'][0]['source_spans'] == ['AUM 20万以上', 'AUM 100万以下']
+    assert [n['requirement_ids'] for n in leaves(result['tree'])] == [['R1'], ['R1'], ['R2']]
+
+
 def test_manual_edit_skips_drift_and_freeze_but_keeps_contract():
     plan = bound_plan(values=['600000'])
     ctx = ctx_for()

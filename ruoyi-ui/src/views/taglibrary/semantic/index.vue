@@ -14,7 +14,7 @@
         <el-button v-hasPermi="['taglibrary:semantic:bootstrap']" type="primary" plain icon="el-icon-document-add" :loading="expanding" :disabled="!libraryId" @click="expandDrafts">生成并导入规则草稿</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button ref="importDraftBtn" v-hasPermi="['taglibrary:semantic:bootstrap']" icon="el-icon-upload2" :loading="importing" :disabled="!libraryId" @click="pickImportFile">导入规则草稿</el-button>
+        <el-button v-hasPermi="['taglibrary:semantic:bootstrap']" icon="el-icon-upload2" :loading="importing" :disabled="!libraryId" @click="pickImportFile">导入规则草稿</el-button>
         <input ref="importFile" type="file" accept=".jsonl,.txt" style="display: none" @change="handleImportFile">
       </el-form-item>
     </el-form>
@@ -93,11 +93,6 @@ export default {
   } },
   mounted() {
     this.loadLibraries()
-    // #region agent log
-    this.$nextTick(() => {
-      fetch('http://127.0.0.1:7923/ingest/dac5aaad-b99d-4ea5-a7be-f107aa919733', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '3fe355' }, body: JSON.stringify({ sessionId: '3fe355', runId: 'post-fix', hypothesisId: 'H1', location: 'semantic/index.vue:mounted', message: 'semantic maintenance toolbar', data: { hasImportButton: !!this.$refs.importDraftBtn, hasExportButton: true, libraryId: this.libraryId || null }, timestamp: Date.now() }) }).catch(() => {})
-    })
-    // #endregion
   },
   methods: {
     loadLibraries() {
@@ -189,9 +184,6 @@ export default {
       if (!file || !this.libraryId) return
       const libraryId = this.libraryId
       this.importing = true
-      // #region agent log
-      fetch('http://127.0.0.1:7923/ingest/dac5aaad-b99d-4ea5-a7be-f107aa919733', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '3fe355' }, body: JSON.stringify({ sessionId: '3fe355', runId: 'post-fix', hypothesisId: 'H3', location: 'semantic/index.vue:handleImportFile', message: 'import file selected', data: { libraryId, fileName: file.name, fileSize: file.size }, timestamp: Date.now() }) }).catch(() => {})
-      // #endregion
       try {
         const jsonl = await this.readTextFile(file)
         if (!jsonl.trim()) {
@@ -199,9 +191,6 @@ export default {
           return
         }
         const format = this.detectImportJsonlFormat(jsonl)
-        // #region agent log
-        fetch('http://127.0.0.1:7923/ingest/dac5aaad-b99d-4ea5-a7be-f107aa919733', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '3fe355' }, body: JSON.stringify({ sessionId: '3fe355', runId: 'post-fix-v2', hypothesisId: 'H4', location: 'semantic/index.vue:detectImportJsonlFormat', message: 'import format detected', data: { libraryId, fileName: file.name, format }, timestamp: Date.now() }) }).catch(() => {})
-        // #endregion
         if (format === 'freeze') {
           this.$modal.msgError('这是「实时冻结」文件（semantic-freeze-*.jsonl），不能直接导入。请先对冻结文件运行 Python expand_full，再导入生成的 rule_init_result.jsonl。')
           return
@@ -213,19 +202,14 @@ export default {
         const response = await bootstrapImport({ libraryId, jsonl })
         const result = response.data || {}
         const summary = this.draftSummary(result)
-        // #region agent log
-        fetch('http://127.0.0.1:7923/ingest/dac5aaad-b99d-4ea5-a7be-f107aa919733', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '3fe355' }, body: JSON.stringify({ sessionId: '3fe355', runId: 'post-fix', hypothesisId: 'H3', location: 'semantic/index.vue:handleImportFile', message: 'import finished', data: { libraryId, importedConceptCount: result.importedConceptCount, importedTagCount: result.importedTagCount, importedCodeCount: result.importedCodeCount, skippedReviewedCount: result.skippedReviewedCount, rejectedCount: summary.rejected.length }, timestamp: Date.now() }) }).catch(() => {})
-        // #endregion
         if (summary.rejected.length) {
           this.$alert(`导入完成：${summary.text}。部分行被拒绝，请检查 rule_init_result.jsonl 是否与当前冻结依据一致。`, '导入结果', { type: 'warning' })
         } else {
           this.$modal.msgSuccess(`导入完成：${summary.text}`)
         }
         if (this.libraryId === libraryId) await this.load()
-      } catch (error) {
-        // #region agent log
-        fetch('http://127.0.0.1:7923/ingest/dac5aaad-b99d-4ea5-a7be-f107aa919733', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '3fe355' }, body: JSON.stringify({ sessionId: '3fe355', runId: 'post-fix', hypothesisId: 'H3', location: 'semantic/index.vue:handleImportFile', message: 'import failed', data: { libraryId, error: error.message || 'unknown' }, timestamp: Date.now() }) }).catch(() => {})
-        // #endregion
+      } catch (_) {
+        /* 统一请求层已提示失败 */
       } finally {
         this.importing = false
         if (event.target) event.target.value = ''

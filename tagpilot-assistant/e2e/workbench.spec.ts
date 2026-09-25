@@ -367,12 +367,28 @@ test("return to latest stays fixed while browsing older messages", async ({
   await expect(returnButton).toBeVisible();
   await expect(returnButton).toBeEnabled();
 
-  const initialBox = await returnButton.boundingBox();
+  const settledBox = async () => {
+    let previous = await returnButton.boundingBox();
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      await page.waitForTimeout(25);
+      const current = await returnButton.boundingBox();
+      if (
+        previous &&
+        current &&
+        Math.abs(current.y - previous.y) < 0.01 &&
+        Math.abs(current.x - previous.x) < 0.01
+      )
+        return current;
+      previous = current;
+    }
+    return previous;
+  };
+  const initialBox = await settledBox();
   await viewport.evaluate((element) => {
     element.scrollTop = Math.floor(element.scrollHeight / 3);
     element.dispatchEvent(new Event("scroll"));
   });
-  const scrolledBox = await returnButton.boundingBox();
+  const scrolledBox = await settledBox();
   expect(initialBox).not.toBeNull();
   expect(scrolledBox).not.toBeNull();
   expect(Math.abs(scrolledBox!.y - initialBox!.y)).toBeLessThan(1);

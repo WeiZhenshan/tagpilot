@@ -1,8 +1,13 @@
-"""真实 SDK/CLI 的本地 Messages API：按剧本返回原生 tool_use，不调用外部模型。"""
+"""真实 SDK/CLI 的本地 Messages API：按剧本返回原生 tool_use，不调用外部模型。
+
+剧本条目：call 列表（正常应答）、'error'（5xx）、'stall'（挂起直到客户端中断）。
+"""
+import asyncio
 import json
+import time
 import uuid
 from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 
 def create_gateway(script):
@@ -13,7 +18,14 @@ def create_gateway(script):
     async def messages(request:Request):
         body=await request.json();app.state.requests.append(body)
         index=min(len(app.state.requests)-1,len(app.state.script)-1)
-        calls=app.state.script[index]
+        calls=app.state.script[index] if app.state.script else []
+        if calls in ('error','stall'):
+            if calls=='stall':
+                deadline=time.monotonic()+15
+                while time.monotonic()<deadline:
+                    if await request.is_disconnected():break
+                    await asyncio.sleep(.2)
+            return JSONResponse(status_code=500,content={'type':'error','error':{'type':'api_error','message':'fake gateway failure'}})
         content=[{'type':'tool_use','id':'toolu_'+uuid.uuid4().hex,'name':name,'input':args} for name,args in calls]
         if not content:content=[{'type':'text','text':'已处理'}]
         response={'id':'msg_'+uuid.uuid4().hex,'type':'message','role':'assistant','model':body.get('model','fake'),
