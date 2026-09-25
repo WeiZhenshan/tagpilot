@@ -1,0 +1,277 @@
+{
+  "date": "2026-09-24",
+  "scope": "实施记录“后续需要执行”清单（生产观察除外，本地执行）",
+  "tests": {
+    "agent_pytest": 78,
+    "java_taglibrary": 131,
+    "semantic_pytest": 33,
+    "assistant_vitest": 8,
+    "assistant_playwright": 9,
+    "notes": "Java 金标编译用例需 -Dtagpilot.sdk.smoke/-Dtagpilot.sdk.snapshot 参数，已在本地跑通"
+  },
+  "sealed_ab": {
+    "build": "bge-m3-l107-20260919-002-r3",
+    "variants_passed": true,
+    "rerank_calls_observed": 3,
+    "retrieval_seconds_per_600": "20.7–21.7",
+    "verdict": {
+      "quality": "四种配置均通过全部门禁，命中率(1.0)、最终命中(1.0)、精确匹配(1.0)、失败项数量(2)一致；本封存集对两个开关质量中性",
+      "rerank_exposure": "600 题仅 3 次真正触发重排（其余走精确别名快路径），因此该集无法度量跳过开关的影响面",
+      "latency": "纯检索耗时 20.7–21.7 秒/600 题（约 35 毫秒/题），开关差异在噪声内",
+      "bounded": "Bounded 一致性在本数据规模下未见质量回退；但未覆盖构建后立即读取的并发场景",
+      "recommendation": "可启用 TAG_MILVUS_READ_CONSISTENCY=Bounded（质量中性、读取成本更低）；TAG_RERANK_SKIP_CONFIDENT 建议先在真实业务 query 集（如 61 案例的 deep 路径）上再验证影响面"
+    }
+  },
+  "capacity": {
+    "profiles": {
+      "simple": {
+        "n": 10,
+        "p50": 253.31,
+        "p95": 254.17,
+        "p99": 254.17,
+        "max": 254.17,
+        "cli_start_ms_p50": 255
+      },
+      "medium": {
+        "n": 10,
+        "p50": 259.05,
+        "p95": 260.27,
+        "p99": 260.27,
+        "max": 260.27,
+        "cli_start_ms_p50": 258
+      },
+      "complex": {
+        "n": 10,
+        "p50": 259.39,
+        "p95": 260.48,
+        "p99": 260.48,
+        "max": 260.48,
+        "cli_start_ms_p50": 248
+      },
+      "full_turns": {
+        "n": 13,
+        "p50": 210.27,
+        "p95": 214.14,
+        "p99": 268.23,
+        "max": 268.23,
+        "cli_start_ms_p50": 232
+      }
+    },
+    "concurrency12": {
+      "aggregate_rss_mb_peak": 2477.7,
+      "aggregate_rss_mb_avg": 1931.2,
+      "seconds": 9.0
+    },
+    "node_options_effective": false,
+    "recommendation": {
+      "dev_2gb": 2,
+      "prod_8gb_formula": 20,
+      "pilot_config": 12
+    }
+  },
+  "evaluation_61x3": {
+    "runs": 183,
+    "ready_and_valid_rate": 0.4044,
+    "outcome_counts": {
+      "READY": 74,
+      "PARTIAL": 50,
+      "NEEDS_USER_INPUT": 18,
+      "CAPABILITY_GAP": 41
+    },
+    "seconds": {
+      "n": 183,
+      "p50": 36.73,
+      "p95": 90.22,
+      "max": 91.15
+    },
+    "first_draft_ms": {
+      "n": 149,
+      "p50": 15396,
+      "p95": 76913,
+      "max": 88779
+    },
+    "timeouts": 37,
+    "outcome_stability": {
+      "cases": 61,
+      "stable_cases": 32,
+      "stable_rate": 0.5246
+    },
+    "per_gold_flag": {
+      "明细": {
+        "runs": 30,
+        "ready_rate": 0.0,
+        "seconds": {
+          "n": 30,
+          "p50": 75.5,
+          "p95": 90.16,
+          "max": 90.35
+        }
+      },
+      "明细·需澄清": {
+        "runs": 15,
+        "ready_rate": 0.0,
+        "seconds": {
+          "n": 15,
+          "p50": 29.5,
+          "p95": 59.76,
+          "max": 82.7
+        }
+      },
+      "明细·需组合": {
+        "runs": 6,
+        "ready_rate": 0.0,
+        "seconds": {
+          "n": 6,
+          "p50": 90.09,
+          "p95": 90.22,
+          "max": 90.22
+        }
+      },
+      "直达": {
+        "runs": 69,
+        "ready_rate": 0.7826,
+        "seconds": {
+          "n": 69,
+          "p50": 13.64,
+          "p95": 74.66,
+          "max": 91.15
+        }
+      },
+      "直达·空集": {
+        "runs": 3,
+        "ready_rate": 0.0,
+        "seconds": {
+          "n": 3,
+          "p50": 66.23,
+          "p95": 90.85,
+          "max": 90.85
+        }
+      },
+      "需澄清": {
+        "runs": 33,
+        "ready_rate": 0.303,
+        "seconds": {
+          "n": 33,
+          "p50": 47.86,
+          "p95": 90.27,
+          "max": 90.57
+        }
+      },
+      "需澄清·空集": {
+        "runs": 12,
+        "ready_rate": 0.5833,
+        "seconds": {
+          "n": 12,
+          "p50": 45.4,
+          "p95": 90.3,
+          "max": 90.45
+        }
+      },
+      "需组合": {
+        "runs": 15,
+        "ready_rate": 0.2,
+        "seconds": {
+          "n": 15,
+          "p50": 78.18,
+          "p95": 90.2,
+          "max": 90.25
+        }
+      }
+    },
+    "real_run_cli_peak_rss_mb": {
+      "n": 183,
+      "p50": 323.25,
+      "p95": 350.97,
+      "max": 369.89
+    },
+    "deep_calls_total": 237,
+    "sdk_cost_estimate_usd_total": 26.2977
+  },
+  "count_alignment": {
+    "ready": 29,
+    "processed": 29,
+    "counted": 28,
+    "matched": 27,
+    "java_rejected": 1
+  },
+  "count_cases_matched": [
+    "A01",
+    "A02",
+    "A03",
+    "A04",
+    "A05",
+    "A07",
+    "B01",
+    "B02",
+    "B04",
+    "B05",
+    "D02",
+    "D04",
+    "D05",
+    "E01",
+    "E04",
+    "F01",
+    "F02",
+    "G01",
+    "G04",
+    "G05",
+    "I05",
+    "J05",
+    "K01",
+    "K02",
+    "K03",
+    "K04",
+    "C02"
+  ],
+  "count_cases_problem": [
+    {
+      "case": "C01",
+      "plan_valid": false,
+      "count": null,
+      "gold": 150
+    },
+    {
+      "case": "J06",
+      "plan_valid": true,
+      "count": 0,
+      "gold": 65
+    }
+  ],
+  "defects": [
+    {
+      "id": "xss-plan-body",
+      "status": "fixed",
+      "evidence": "docs/design/agent-sdk/xss-filter-finding-20260924.md"
+    },
+    {
+      "id": "duplicate-requirement-id-on-manual-edit",
+      "status": "fixed",
+      "evidence": "tagpilot-agent/tests/test_guards.py::test_manual_edit_dedupes_requirements_shared_by_clauses"
+    },
+    {
+      "id": "silent-empty-negative-condition",
+      "status": "open",
+      "evidence": "docs/design/agent-sdk/silent-empty-negative-condition-20260924.md"
+    },
+    {
+      "id": "date-value-form-not-validated-in-python",
+      "status": "open",
+      "evidence": "docs/development/Agent-SDK重构实施记录.md 缺陷 4"
+    }
+  ],
+  "not_executed": [
+    "生产观察（需部署后连续两周）",
+    "旧数据升级演练（备份/恢复）",
+    "回滚演练",
+    "ID 集金标准比对（文件不在仓库）"
+  ],
+  "artifacts": {
+    "evaluation_report": "tagpilot-agent/out/sdk-eval-61x3-20260924.json",
+    "evaluation_metrics": "tagpilot-agent/out/sdk-eval-61x3-20260924-metrics.json",
+    "count_alignment": "tagpilot-agent/out/sdk-count-alignment-20260924.json",
+    "count_alignment_pre_fix": "tagpilot-agent/out/sdk-count-alignment-preworkaround.json",
+    "capacity": "tagpilot-agent/out/capacity-20260924.json",
+    "sealed_ab": "tagpilot-semantic/out/full-20260919/eval/ab-20260924/",
+    "calibration": "tagpilot-agent/out/sdk-calibration-20260924.json"
+  }
+}

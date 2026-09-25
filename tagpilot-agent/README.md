@@ -47,4 +47,4 @@ SQLite 仍限定单个服务进程，文件锁阻止多进程共用。运行中�
 
 终态工具返回 `READY / NEEDS_USER_INPUT / CAPABILITY_GAP / PARTIAL`，映射为兼容的 `result.plan/questions/interrupt_id` 和新增 `result.outcome`。`schema_version=3`，新诊断统一使用 `diagnostics`。历史 UI 仍兼容读取 `validation_errors`。
 
-本次只做金标流程冒烟。实施范围、证据、后续完整评测入口及回滚边界见 [SDK 重构实施记录](../docs/development/Agent-SDK重构实施记录.md)。
+本地金标冒烟与后续完整验证（测试、600 封存 A/B、61×3 真模型评测、容量压测、Java 人数对齐、缺陷清单）结果见 [SDK 重构实施记录](../docs/development/Agent-SDK重构实施记录.md)。生产观察尚未执行。

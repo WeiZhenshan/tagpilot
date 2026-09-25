@@ -45,7 +45,7 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 
 | 文档 | 类别 | 所属模块 | 路径 | 用途 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Agent SDK 重构实施记录 | 实施 / 验证边界 | tagpilot-agent + semantic + Java + assistant | [`development/Agent-SDK重构实施记录.md`](development/Agent-SDK重构实施记录.md) | SDK 替换、渐进检索、诊断、金标冒烟证据和后续评测入口 | 本地实施完成；完整评测与部署待执行 |
+| Agent SDK 重构实施记录 | 实施 / 验证边界 | tagpilot-agent + semantic + Java + assistant | [`development/Agent-SDK重构实施记录.md`](development/Agent-SDK重构实施记录.md) | SDK 替换、渐进检索、诊断、金标冒烟与 2026-09-24 完整验证（测试、封存 A/B、61×3 评测、容量、人数对齐、缺陷） | 本地实施与完整验证完成；生产观察待部署 |
 | 若依环境使用手册 | 开发环境 / 部署指南 | 全局 | [`development/若依环境使用手册.docx`](development/若依环境使用手册.docx) | 若依系统开发环境搭建（Maven、Eclipse、数据库与日志配置）、启动验证、war/jar 部署 | 现行（注意：文内指向的初始化脚本名为旧版 `sql/ry_20180423.sql`/`quartz.sql`，当前初始化脚本为 `sql/init/ry_init.sql`） |
 
 ### 工作流固定路径（保留在 `docs/superpowers/specs/`）
