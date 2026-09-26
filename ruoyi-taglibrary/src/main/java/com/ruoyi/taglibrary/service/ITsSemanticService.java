@@ -33,6 +33,8 @@ public interface ITsSemanticService {
 
     List<TsAlias> selectAliasList(String targetType, String targetId);
 
+    List<TsAlias> selectAliasList(Long libraryId, String targetType, String targetId);
+
     int saveAlias(TsAlias alias);
 
     int reviewAlias(Long aliasId, String sourceRef);
@@ -44,6 +46,8 @@ public interface ITsSemanticService {
     int reviewCodeValue(Long tagId, String code, String sourceRef);
 
     List<TsBusinessTerm> selectTermList(String termNorm, String termType);
+
+    List<TsBusinessTerm> selectTermList(String termNorm, String termType, String tagObject);
 
     int saveTerm(TsBusinessTerm term);
 

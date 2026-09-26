@@ -14,14 +14,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.ruoyi.taglibrary.domain.TlTag;
+import com.ruoyi.taglibrary.domain.TsAlias;
+import com.ruoyi.taglibrary.domain.TsBusinessTerm;
 import com.ruoyi.taglibrary.domain.TsCodeValueSemantic;
 import com.ruoyi.taglibrary.domain.TsConcept;
+import com.ruoyi.taglibrary.domain.TsConfusable;
 import com.ruoyi.taglibrary.domain.TsTagSemantic;
 import com.ruoyi.taglibrary.domain.dto.BootstrapImportRequest;
 import com.ruoyi.taglibrary.domain.dto.BootstrapImportResult;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
+import com.ruoyi.taglibrary.mapper.TsAliasMapper;
+import com.ruoyi.taglibrary.mapper.TsBusinessTermMapper;
 import com.ruoyi.taglibrary.mapper.TsCodeValueSemanticMapper;
 import com.ruoyi.taglibrary.mapper.TsConceptMapper;
+import com.ruoyi.taglibrary.mapper.TsConfusableMapper;
 import com.ruoyi.taglibrary.mapper.TsTagSemanticMapper;
 
 /**
@@ -38,6 +44,12 @@ class TsBootstrapImportServiceTest extends BaseServiceTest {
     private TsCodeValueSemanticMapper codeValueMapper;
     @Mock
     private TsConceptMapper conceptMapper;
+    @Mock
+    private TsAliasMapper aliasMapper;
+    @Mock
+    private TsConfusableMapper confusableMapper;
+    @Mock
+    private TsBusinessTermMapper termMapper;
 
     @InjectMocks
     private TsBootstrapExportService bootstrapService;
@@ -121,6 +133,59 @@ class TsBootstrapImportServiceTest extends BaseServiceTest {
         assertEquals("CNY", tagCaptor.getValue().getUnit());
     }
 
+    @Test
+    void importResolvesConceptAliasToConceptId() {
+        TsConcept concept = new TsConcept();
+        concept.setConceptId(211L);
+        concept.setLibraryId(107L);
+        concept.setConceptCode("AUM");
+        when(conceptMapper.selectByLibraryAndCode(107L, "AUM")).thenReturn(concept);
+        when(aliasMapper.selectByTargetNorm("CONCEPT", "211", "aum")).thenReturn(null);
+        when(aliasMapper.insertAlias(any(TsAlias.class))).thenReturn(1);
+
+        BootstrapImportResult result = bootstrapService.importDrafts(request(107L, conceptAliasLine()));
+        assertEquals(1, result.getImportedAliasCount());
+
+        ArgumentCaptor<TsAlias> captor = ArgumentCaptor.forClass(TsAlias.class);
+        verify(aliasMapper).insertAlias(captor.capture());
+        assertEquals("211", captor.getValue().getTargetId());
+        assertEquals("CONCEPT", captor.getValue().getTargetType());
+    }
+
+    @Test
+    void importNormalizesConfusablePairOrder() {
+        when(tagMapper.selectTagById(10L)).thenReturn(tag(10L, 107L, "A", "text", "口径A"));
+        when(tagMapper.selectTagById(20L)).thenReturn(tag(20L, 107L, "B", "text", "口径B"));
+        when(confusableMapper.selectByPair(10L, 20L)).thenReturn(null);
+        when(confusableMapper.insertPair(any(TsConfusable.class))).thenReturn(1);
+
+        String jsonl = "{\"kind\":\"confusable\",\"tag_id_a\":20,\"tag_id_b\":10,"
+                + "\"confusion_type\":\"TIME_FACET\",\"difference_note\":\"差异\",\"disambiguation_hint\":\"提示\"}\n";
+        BootstrapImportResult result = bootstrapService.importDrafts(request(107L, jsonl));
+        assertEquals(1, result.getImportedConfusableCount());
+
+        ArgumentCaptor<TsConfusable> captor = ArgumentCaptor.forClass(TsConfusable.class);
+        verify(confusableMapper).selectByPair(10L, 20L);
+        verify(confusableMapper).insertPair(captor.capture());
+        assertEquals(Long.valueOf(10L), captor.getValue().getTagIdA());
+        assertEquals(Long.valueOf(20L), captor.getValue().getTagIdB());
+    }
+
+    @Test
+    void importTermSkipsWhenNormExists() {
+        TsBusinessTerm existing = new TsBusinessTerm();
+        existing.setTermId(1L);
+        existing.setReviewStatus("REVIEWED");
+        when(termMapper.selectByNorm("最近", "FUZZY_TIME", "客户")).thenReturn(existing);
+
+        String jsonl = "{\"kind\":\"term\",\"term\":\"最近\",\"term_norm\":\"最近\",\"term_type\":\"FUZZY_TIME\","
+                + "\"tag_object\":\"客户\",\"review_status\":\"REVIEWED\"}\n";
+        BootstrapImportResult result = bootstrapService.importDrafts(request(107L, jsonl));
+        assertEquals(0, result.getImportedTermCount());
+        assertEquals("TERM_EXISTS_SKIP", result.getRejected().get(0).get("code"));
+        verify(termMapper, never()).insertTerm(any());
+    }
+
     private BootstrapImportRequest request(Long libraryId, String jsonl) {
         BootstrapImportRequest req = new BootstrapImportRequest();
         req.setLibraryId(libraryId);
@@ -160,6 +225,11 @@ class TsBootstrapImportServiceTest extends BaseServiceTest {
         return "{\"kind\":\"concept\",\"library_id\":107,\"concept_code\":\"AUM\",\"concept_name\":\"AUM\","
                 + "\"domain_dir_id\":9001,\"tag_object\":\"客户\",\"definition\":\"资产管理规模\","
                 + "\"parent_id\":0,\"status\":\"0\",\"source\":\"RULE\",\"review_status\":\"DRAFT\"}\n";
+    }
+
+    private String conceptAliasLine() {
+        return "{\"kind\":\"alias\",\"target_type\":\"CONCEPT\",\"target_id\":\"AUM\","
+                + "\"alias_text\":\"资产管理规模\",\"alias_norm\":\"aum\",\"alias_type\":\"FORMAL\",\"weight\":1}\n";
     }
 
     private String aumTagLine() {

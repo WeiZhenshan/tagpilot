@@ -198,6 +198,9 @@ def test_importable_draft_joins_concepts_and_clustered_rows(tmp_path):
     assert kinds[0] == "concept"
     assert "tag_semantic" in kinds
     assert "code_value_semantic" in kinds
+    assert "alias" in kinds
+    assert "confusable" in kinds
+    assert "term" in kinds
     assert "meta" not in kinds
     business = [row for row in rows if row["kind"] == "tag_semantic" and not row.get("skip_concept")]
     assert business and all(row.get("concept_code") for row in business)

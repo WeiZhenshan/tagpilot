@@ -181,10 +181,11 @@ public class TsSemanticController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
     @GetMapping("/alias/list")
-    public TableDataInfo aliasList(@RequestParam(required = false) String targetType,
+    public TableDataInfo aliasList(@RequestParam(required = false) Long libraryId,
+                                   @RequestParam(required = false) String targetType,
                                    @RequestParam(required = false) String targetId) {
         startPage();
-        return getDataTable(semanticService.selectAliasList(targetType, targetId));
+        return getDataTable(semanticService.selectAliasList(libraryId, targetType, targetId));
     }
 
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:edit')")
@@ -233,7 +234,7 @@ public class TsSemanticController extends BaseController {
         return success(bootstrapService.importDrafts(request));
     }
 
-    /** 按当前库实时冻结运行 expand_full，导入概念/标签/码值草稿。不自动复核。 */
+    /** 按当前库实时冻结运行 expand_full，导入概念/标签/码值/别名/易混淆/补缺词典草稿。不自动复核。 */
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:bootstrap')")
     @PostMapping("/bootstrap/expand")
     public AjaxResult bootstrapExpand(@RequestBody BootstrapExportRequest request) {
@@ -262,6 +263,9 @@ public class TsSemanticController extends BaseController {
         data.put("importedConceptCount", imported.getImportedConceptCount());
         data.put("importedTagCount", imported.getImportedTagCount());
         data.put("importedCodeCount", imported.getImportedCodeCount());
+        data.put("importedAliasCount", imported.getImportedAliasCount());
+        data.put("importedConfusableCount", imported.getImportedConfusableCount());
+        data.put("importedTermCount", imported.getImportedTermCount());
         data.put("skippedReviewedCount", imported.getSkippedReviewedCount());
         data.put("rejected", imported.getRejected());
         data.put("unresolved", expanded.get("unresolved"));
@@ -280,9 +284,10 @@ public class TsSemanticController extends BaseController {
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list')")
     @GetMapping("/term/list")
     public TableDataInfo termList(@RequestParam(required = false) String termNorm,
-                                  @RequestParam(required = false) String termType) {
+                                  @RequestParam(required = false) String termType,
+                                  @RequestParam(required = false) String tagObject) {
         startPage();
-        return getDataTable(semanticService.selectTermList(termNorm, termType));
+        return getDataTable(semanticService.selectTermList(termNorm, termType, tagObject));
     }
 
     @PreAuthorize("@ss.hasPermi('taglibrary:semantic:edit')")

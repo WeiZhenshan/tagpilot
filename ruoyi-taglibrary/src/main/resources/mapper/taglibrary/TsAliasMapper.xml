@@ -43,6 +43,37 @@
         order by alias_id
     </select>
 
+    <select id="selectAliasListByLibrary" resultMap="TsAliasResult">
+        <include refid="selectVo"/> a
+        <where>
+            <if test="libraryId != null">
+                and (
+                    (a.target_type = 'TAG' and exists (
+                        select 1 from tl_tag t where t.tag_id = a.target_id and t.library_id = #{libraryId} and t.del_flag = '0'
+                    ))
+                    or (a.target_type = 'CODE_VALUE' and exists (
+                        select 1 from tl_tag t
+                        where t.tag_id = substring_index(a.target_id, '#', 1)
+                          and t.library_id = #{libraryId} and t.del_flag = '0'
+                    ))
+                    or (a.target_type = 'CONCEPT' and exists (
+                        select 1 from ts_concept c
+                        where c.concept_id = a.target_id and c.library_id = #{libraryId}
+                    ))
+                )
+            </if>
+            <if test="targetType != null and targetType != ''">and a.target_type = #{targetType}</if>
+            <if test="targetId != null and targetId != ''">and a.target_id = #{targetId}</if>
+        </where>
+        order by a.alias_id
+    </select>
+
+    <select id="selectByTargetNorm" resultMap="TsAliasResult">
+        <include refid="selectVo"/>
+        where target_type = #{targetType} and target_id = #{targetId} and alias_norm = #{aliasNorm}
+        limit 1
+    </select>
+
     <insert id="insertAlias" parameterType="TsAlias" useGeneratedKeys="true" keyProperty="aliasId">
         insert into ts_alias (
             target_type, target_id, alias_text, alias_norm, alias_type, weight, source,

@@ -359,22 +359,26 @@ VERIFY_UI=true bin/verify-tag-semantic.sh
 
 ### 7.3 从零建设一条可查询链路
 
-1. **冻结权威**  
-   维护页「导出实时冻结」，或 `POST /taglibrary/semantic/bootstrap/export`。`issues` 非空则不要继续。
+1. **冻结权威（运维可选）**  
+   `POST /taglibrary/semantic/bootstrap/export` 导出实时冻结；`issues` 非空则不要继续。维护页默认不再暴露该按钮。
 
-2. **生成并导入 DRAFT**
+2. **生成并导入 DRAFT（主路径）**
 
-   维护页「生成并导入规则草稿」会导出当前库实时冻结，调用语义引擎 `POST /bootstrap/expand`（内部即 `expand_full`，禁止自动复核），再把概念、标签和码值草稿导入。等价分步仍可用：先下载冻结，再执行下面的命令，最后「导入规则草稿」。
+   维护页「生成并导入规则草稿」= 导出当前库实时冻结 → 语义引擎 `POST /bootstrap/expand`（`expand_full`，禁止 `--review` 自动复核）→ Java `importDrafts` 落库。
+
+   一次导入的 JSONL `kind` 覆盖：**`concept`、`tag_semantic`、`code_value_semantic`、`alias`、`confusable`、`term`**（`importable_draft` 由 `s3_concepts.jsonl` + `s3_clustered.jsonl` + `aliases.jsonl` + `confusable.jsonl` + `terms.jsonl` 拼接）。业务词典采用策略 B：仅当 `(term_norm, term_type, tag_object)` 不存在时插入 DRAFT，已有种子（含迁移 REVIEWED）不覆盖。
+
+   运维分步仍可用 Python 扩展冻结（不经过维护页按钮）：
 
    ```bash
    tagpilot-semantic/.venv/bin/python -m tag_semantic.bootstrap.expand_full \
      path/to/freeze.jsonl --out-dir /tmp/semantic-drafts
    ```
 
-   产出 `rule_init_result.jsonl`、概念复核包、别名、易混淆。`semantic-freeze-*.jsonl` 不能直接当草稿导入。全量扩展**禁止** `--review` 自动复核。
+   再通过 `POST /taglibrary/semantic/bootstrap/import` 提交 `importable_draft` 等价 JSONL。`semantic-freeze-*.jsonl` 不能直接当草稿导入。
 
-3. **导入草稿**  
-   维护页工具栏「生成并导入规则草稿」，或「导入规则草稿」选择 Python 产出的 `rule_init_result.jsonl`（或同等 `kind=concept/tag_semantic/code_value_semantic` 的 JSONL）。生成接口为 `POST /taglibrary/semantic/bootstrap/expand`，手动导入为 `POST /taglibrary/semantic/bootstrap/import`。对象键不进业务概念。
+3. **列表作用域**  
+   「全部别名」按 `libraryId` 过滤（TAG/CODE_VALUE 经 `tl_tag`，CONCEPT 经 `ts_concept`）。「业务词典」按所选标签库的 `tag_object` 过滤（`ts_business_term` 无 `library_id` 列）。易混淆仍在单标签抽屉维护；批量草稿依赖 expand 导入。
 
 4. **复核**  
    页面逐条复核，或建设期用 `TsSemanticBatchReviewService`（无跳过权限的 HTTP）。修改已 REVIEWED 的内容会回落 DRAFT。本地 AI 专家包会永久写入 `review_mode=AI_EXPERT_LOCAL_DEMO`，不能当成银行签字。

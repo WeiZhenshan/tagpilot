@@ -38,6 +38,7 @@
         <where>
             <if test="termNorm != null and termNorm != ''">and term_norm = #{termNorm}</if>
             <if test="termType != null and termType != ''">and term_type = #{termType}</if>
+            <if test="tagObject != null and tagObject != ''">and tag_object = #{tagObject}</if>
         </where>
         order by term_id
     </select>

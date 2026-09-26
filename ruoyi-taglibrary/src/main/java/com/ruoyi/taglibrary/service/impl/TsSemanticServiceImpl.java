@@ -203,6 +203,14 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
     }
 
     @Override
+    public List<TsAlias> selectAliasList(Long libraryId, String targetType, String targetId) {
+        if (libraryId != null) {
+            return aliasMapper.selectAliasListByLibrary(libraryId, targetType, targetId);
+        }
+        return aliasMapper.selectAliasList(targetType, targetId);
+    }
+
+    @Override
     public int saveAlias(TsAlias alias) {
         if (alias == null || StringUtils.isEmpty(alias.getTargetType()) || StringUtils.isEmpty(alias.getTargetId())) {
             throw new ServiceException("别名目标不能为空");
@@ -295,7 +303,12 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
 
     @Override
     public List<TsBusinessTerm> selectTermList(String termNorm, String termType) {
-        return termMapper.selectTermList(termNorm, termType);
+        return termMapper.selectTermList(termNorm, termType, null);
+    }
+
+    @Override
+    public List<TsBusinessTerm> selectTermList(String termNorm, String termType, String tagObject) {
+        return termMapper.selectTermList(termNorm, termType, tagObject);
     }
 
     @Override

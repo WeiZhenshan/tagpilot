@@ -9,6 +9,12 @@ public interface TsAliasMapper {
 
     List<TsAlias> selectAliasList(@Param("targetType") String targetType, @Param("targetId") String targetId);
 
+    List<TsAlias> selectAliasListByLibrary(@Param("libraryId") Long libraryId, @Param("targetType") String targetType,
+            @Param("targetId") String targetId);
+
+    TsAlias selectByTargetNorm(@Param("targetType") String targetType, @Param("targetId") String targetId,
+            @Param("aliasNorm") String aliasNorm);
+
     int insertAlias(TsAlias alias);
 
     int updateAlias(TsAlias alias);

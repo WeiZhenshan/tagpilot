@@ -35,8 +35,11 @@ import com.ruoyi.databroker.service.DpOnlineVersionResolver;
 import com.ruoyi.taglibrary.domain.TlTag;
 import com.ruoyi.taglibrary.domain.TlTagDir;
 import com.ruoyi.taglibrary.domain.TlTagLibrary;
+import com.ruoyi.taglibrary.domain.TsAlias;
+import com.ruoyi.taglibrary.domain.TsBusinessTerm;
 import com.ruoyi.taglibrary.domain.TsCodeValueSemantic;
 import com.ruoyi.taglibrary.domain.TsConcept;
+import com.ruoyi.taglibrary.domain.TsConfusable;
 import com.ruoyi.taglibrary.domain.TsTagSemantic;
 import com.ruoyi.taglibrary.domain.dto.BootstrapExportRequest;
 import com.ruoyi.taglibrary.domain.dto.BootstrapExportResult;
@@ -46,8 +49,11 @@ import com.ruoyi.taglibrary.mapper.TlTagDirMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryDimensionMapper;
 import com.ruoyi.taglibrary.mapper.TlTagLibraryMapper;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
+import com.ruoyi.taglibrary.mapper.TsAliasMapper;
+import com.ruoyi.taglibrary.mapper.TsBusinessTermMapper;
 import com.ruoyi.taglibrary.mapper.TsCodeValueSemanticMapper;
 import com.ruoyi.taglibrary.mapper.TsConceptMapper;
+import com.ruoyi.taglibrary.mapper.TsConfusableMapper;
 import com.ruoyi.taglibrary.mapper.TsTagSemanticMapper;
 import com.ruoyi.taglibrary.service.ITsBootstrapService;
 
@@ -90,6 +96,12 @@ public class TsBootstrapExportService implements ITsBootstrapService {
     private TsCodeValueSemanticMapper codeValueMapper;
     @Autowired
     private TsConceptMapper conceptMapper;
+    @Autowired
+    private TsAliasMapper aliasMapper;
+    @Autowired
+    private TsConfusableMapper confusableMapper;
+    @Autowired
+    private TsBusinessTermMapper termMapper;
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
@@ -208,6 +220,9 @@ public class TsBootstrapExportService implements ITsBootstrapService {
         List<JsonNode> conceptNodes = new ArrayList<JsonNode>();
         List<JsonNode> tagNodes = new ArrayList<JsonNode>();
         List<JsonNode> codeNodes = new ArrayList<JsonNode>();
+        List<JsonNode> aliasNodes = new ArrayList<JsonNode>();
+        List<JsonNode> confusableNodes = new ArrayList<JsonNode>();
+        List<JsonNode> termNodes = new ArrayList<JsonNode>();
         String[] lines = request.getJsonl().split("\\r?\\n");
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
@@ -227,6 +242,12 @@ public class TsBootstrapExportService implements ITsBootstrapService {
                 tagNodes.add(node);
             } else if ("code_value_semantic".equals(kind)) {
                 codeNodes.add(node);
+            } else if ("alias".equals(kind)) {
+                aliasNodes.add(node);
+            } else if ("confusable".equals(kind)) {
+                confusableNodes.add(node);
+            } else if ("term".equals(kind)) {
+                termNodes.add(node);
             } else {
                 throw new ServiceException("导入 JSONL 第 " + (i + 1) + " 行未知 kind=" + kind);
             }
@@ -326,6 +347,96 @@ public class TsBootstrapExportService implements ITsBootstrapService {
         }
         result.setImportedTagCount(importedTags);
         result.setImportedCodeCount(importedCodes);
+
+        int importedAliases = 0;
+        for (JsonNode node : aliasNodes) {
+            String targetType = text(node, "target_type");
+            String rawTargetId = text(node, "target_id");
+            String aliasNorm = text(node, "alias_norm");
+            if (StringUtils.isEmpty(targetType) || StringUtils.isEmpty(rawTargetId) || StringUtils.isEmpty(aliasNorm)) {
+                result.getRejected().add(reject(null, "INVALID_ROW", "别名 target_type/target_id/alias_norm 为空"));
+                continue;
+            }
+            String targetId = resolveAliasTargetId(targetType, rawTargetId, libraryId, conceptByCode, result);
+            if (targetId == null) {
+                continue;
+            }
+            TsAlias existing = aliasMapper.selectByTargetNorm(targetType, targetId, aliasNorm);
+            if (existing != null && isProtectedSemantic(existing.getReviewStatus(), existing.getSource())) {
+                skipped++;
+                result.getRejected().add(reject(parseTagIdFromReject(targetType, targetId), "REVIEWED_SKIP", "已复核别名不允许被 RULE 草稿覆盖"));
+                continue;
+            }
+            TsAlias row = toAlias(node, targetType, targetId, username);
+            if (existing == null) {
+                aliasMapper.insertAlias(row);
+            } else {
+                row.setAliasId(existing.getAliasId());
+                row.setUpdateBy(username);
+                aliasMapper.updateAlias(row);
+            }
+            importedAliases++;
+        }
+        result.setImportedAliasCount(importedAliases);
+
+        int importedConfusables = 0;
+        for (JsonNode node : confusableNodes) {
+            Long tagIdA = longValue(node, "tag_id_a");
+            Long tagIdB = longValue(node, "tag_id_b");
+            if (tagIdA == null || tagIdB == null) {
+                result.getRejected().add(reject(null, "INVALID_ROW", "易混淆 tag_id_a/tag_id_b 为空"));
+                continue;
+            }
+            if (tagIdA.longValue() > tagIdB.longValue()) {
+                Long swap = tagIdA;
+                tagIdA = tagIdB;
+                tagIdB = swap;
+            }
+            if (tagIdA.equals(tagIdB)) {
+                result.getRejected().add(reject(tagIdA, "INVALID_ROW", "易混淆对不能是同一标签"));
+                continue;
+            }
+            if (!tagInLibrary(tagIdA, libraryId) || !tagInLibrary(tagIdB, libraryId)) {
+                result.getRejected().add(reject(tagIdA, "TAG_NOT_IN_LIBRARY", "易混淆标签不属于该库"));
+                continue;
+            }
+            TsConfusable existing = confusableMapper.selectByPair(tagIdA, tagIdB);
+            if (existing != null && isProtectedSemantic(existing.getReviewStatus(), existing.getSource())) {
+                skipped++;
+                result.getRejected().add(reject(tagIdA, "REVIEWED_SKIP", "已复核易混淆对不允许被 RULE 草稿覆盖"));
+                continue;
+            }
+            TsConfusable row = toConfusable(node, tagIdA, tagIdB, username);
+            if (existing == null) {
+                confusableMapper.insertPair(row);
+            } else {
+                row.setPairId(existing.getPairId());
+                row.setUpdateBy(username);
+                confusableMapper.updatePair(row);
+            }
+            importedConfusables++;
+        }
+        result.setImportedConfusableCount(importedConfusables);
+
+        int importedTerms = 0;
+        for (JsonNode node : termNodes) {
+            String termNorm = text(node, "term_norm");
+            String termType = text(node, "term_type");
+            String tagObject = nz(text(node, "tag_object"), "客户");
+            if (StringUtils.isEmpty(termNorm) || StringUtils.isEmpty(termType)) {
+                result.getRejected().add(reject(null, "INVALID_ROW", "词条 term_norm/term_type 为空"));
+                continue;
+            }
+            TsBusinessTerm existing = termMapper.selectByNorm(termNorm, termType, tagObject);
+            if (existing != null) {
+                result.getRejected().add(reject(null, "TERM_EXISTS_SKIP", "词条已存在，跳过：" + termNorm));
+                continue;
+            }
+            termMapper.insertTerm(toTerm(node, tagObject, username));
+            importedTerms++;
+        }
+        result.setImportedTermCount(importedTerms);
+
         result.setSkippedReviewedCount(skipped);
         return result;
     }
@@ -671,6 +782,148 @@ public class TsBootstrapExportService implements ITsBootstrapService {
             return loaded.getConceptId();
         }
         return null;
+    }
+
+    private String resolveAliasTargetId(String targetType, String rawTargetId, Long libraryId,
+            Map<String, TsConcept> conceptByCode, BootstrapImportResult result) {
+        if ("CONCEPT".equals(targetType)) {
+            TsConcept concept = conceptByCode.get(rawTargetId);
+            if (concept == null) {
+                concept = conceptMapper.selectByLibraryAndCode(libraryId, rawTargetId);
+            }
+            if (concept == null || !libraryId.equals(concept.getLibraryId()) || concept.getConceptId() == null) {
+                result.getRejected().add(reject(null, "CONCEPT_LIBRARY_MISMATCH", "别名概念不属于该库：" + rawTargetId));
+                return null;
+            }
+            conceptByCode.put(concept.getConceptCode(), concept);
+            return String.valueOf(concept.getConceptId());
+        }
+        if ("TAG".equals(targetType)) {
+            Long tagId = parseLongId(rawTargetId);
+            if (tagId == null || !tagInLibrary(tagId, libraryId)) {
+                result.getRejected().add(reject(tagId, "TAG_NOT_IN_LIBRARY", "别名标签不属于该库"));
+                return null;
+            }
+            return String.valueOf(tagId);
+        }
+        if ("CODE_VALUE".equals(targetType)) {
+            int hash = rawTargetId.indexOf('#');
+            if (hash <= 0) {
+                result.getRejected().add(reject(null, "INVALID_ROW", "码值别名 target_id 格式错误"));
+                return null;
+            }
+            Long tagId = parseLongId(rawTargetId.substring(0, hash));
+            if (tagId == null || !tagInLibrary(tagId, libraryId)) {
+                result.getRejected().add(reject(tagId, "TAG_NOT_IN_LIBRARY", "码值别名所属标签不属于该库"));
+                return null;
+            }
+            return rawTargetId;
+        }
+        result.getRejected().add(reject(null, "INVALID_ROW", "未知别名 target_type=" + targetType));
+        return null;
+    }
+
+    private boolean tagInLibrary(Long tagId, Long libraryId) {
+        if (tagId == null) {
+            return false;
+        }
+        TlTag tag = tagMapper.selectTagById(tagId);
+        return tag != null && libraryId.equals(tag.getLibraryId());
+    }
+
+    private Long parseLongId(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return null;
+        }
+        try {
+            return Long.valueOf(value);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private Long parseTagIdFromReject(String targetType, String targetId) {
+        if ("TAG".equals(targetType)) {
+            return parseLongId(targetId);
+        }
+        if ("CODE_VALUE".equals(targetType)) {
+            int hash = targetId.indexOf('#');
+            return hash > 0 ? parseLongId(targetId.substring(0, hash)) : null;
+        }
+        return parseLongId(targetId);
+    }
+
+    private boolean isProtectedSemantic(String reviewStatus, String source) {
+        return STATUS_REVIEWED.equals(reviewStatus) || "HUMAN".equals(source) || "LLM".equals(source);
+    }
+
+    private TsAlias toAlias(JsonNode node, String targetType, String targetId, String username) {
+        TsAlias row = new TsAlias();
+        row.setTargetType(targetType);
+        row.setTargetId(targetId);
+        row.setAliasText(text(node, "alias_text"));
+        row.setAliasNorm(text(node, "alias_norm"));
+        row.setAliasType(nz(text(node, "alias_type"), "FORMAL"));
+        JsonNode weight = node.get("weight");
+        row.setWeight(weight == null || weight.isNull() ? BigDecimal.ONE : new BigDecimal(weight.asText()));
+        row.setSource("RULE");
+        row.setReviewStatus(STATUS_DRAFT);
+        row.setHitCount(0);
+        row.setSourceRef("rule_init");
+        row.setCreateBy(username);
+        return row;
+    }
+
+    private TsConfusable toConfusable(JsonNode node, Long tagIdA, Long tagIdB, String username) {
+        TsConfusable row = new TsConfusable();
+        row.setTagIdA(tagIdA);
+        row.setTagIdB(tagIdB);
+        row.setConfusionType(text(node, "confusion_type"));
+        row.setDifferenceNote(text(node, "difference_note"));
+        row.setDisambiguationHint(text(node, "disambiguation_hint"));
+        row.setSource("RULE");
+        row.setReviewStatus(STATUS_DRAFT);
+        row.setSourceRef("rule_init");
+        row.setCreateBy(username);
+        return row;
+    }
+
+    private TsBusinessTerm toTerm(JsonNode node, String tagObject, String username) {
+        TsBusinessTerm row = new TsBusinessTerm();
+        row.setTerm(text(node, "term"));
+        row.setTermNorm(text(node, "term_norm"));
+        row.setTermType(text(node, "term_type"));
+        row.setOptions(termJsonField(node, "options"));
+        row.setDefaultPolicy(text(node, "default_policy"));
+        row.setApplicableSemanticTypes(termTypesField(node));
+        row.setTagObject(tagObject);
+        row.setReviewStatus(STATUS_DRAFT);
+        row.setSourceRef("rule_init");
+        row.setCreateBy(username);
+        return row;
+    }
+
+    private String termJsonField(JsonNode node, String field) {
+        JsonNode value = node.get(field);
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        if (value.isTextual()) {
+            return value.asText();
+        }
+        return value.toString();
+    }
+
+    private String termTypesField(JsonNode node) {
+        String raw = text(node, "applicable_semantic_types");
+        if (!StringUtils.isEmpty(raw)) {
+            return raw;
+        }
+        JsonNode value = node.get("applicable_semantic_types");
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        return value.toString();
     }
 
     private boolean sameAuthority(TlTag tag, JsonNode node) {

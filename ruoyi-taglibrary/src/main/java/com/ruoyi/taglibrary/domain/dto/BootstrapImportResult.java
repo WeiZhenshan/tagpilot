@@ -12,6 +12,9 @@ public class BootstrapImportResult {
     private int importedTagCount;
     private int importedCodeCount;
     private int importedConceptCount;
+    private int importedAliasCount;
+    private int importedConfusableCount;
+    private int importedTermCount;
     private int skippedReviewedCount;
     private List<Map<String, Object>> rejected = new ArrayList<Map<String, Object>>();
 
@@ -23,6 +26,12 @@ public class BootstrapImportResult {
     public void setImportedCodeCount(int importedCodeCount) { this.importedCodeCount = importedCodeCount; }
     public int getImportedConceptCount() { return importedConceptCount; }
     public void setImportedConceptCount(int importedConceptCount) { this.importedConceptCount = importedConceptCount; }
+    public int getImportedAliasCount() { return importedAliasCount; }
+    public void setImportedAliasCount(int importedAliasCount) { this.importedAliasCount = importedAliasCount; }
+    public int getImportedConfusableCount() { return importedConfusableCount; }
+    public void setImportedConfusableCount(int importedConfusableCount) { this.importedConfusableCount = importedConfusableCount; }
+    public int getImportedTermCount() { return importedTermCount; }
+    public void setImportedTermCount(int importedTermCount) { this.importedTermCount = importedTermCount; }
     public int getSkippedReviewedCount() { return skippedReviewedCount; }
     public void setSkippedReviewedCount(int skippedReviewedCount) { this.skippedReviewedCount = skippedReviewedCount; }
     public List<Map<String, Object>> getRejected() { return rejected; }

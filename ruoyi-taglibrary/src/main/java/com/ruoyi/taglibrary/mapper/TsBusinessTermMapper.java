@@ -7,7 +7,8 @@ import com.ruoyi.taglibrary.domain.TsBusinessTerm;
 public interface TsBusinessTermMapper {
     TsBusinessTerm selectTermById(Long termId);
 
-    List<TsBusinessTerm> selectTermList(@Param("termNorm") String termNorm, @Param("termType") String termType);
+    List<TsBusinessTerm> selectTermList(@Param("termNorm") String termNorm, @Param("termType") String termType,
+            @Param("tagObject") String tagObject);
 
     TsBusinessTerm selectByNorm(@Param("termNorm") String termNorm, @Param("termType") String termType,
             @Param("tagObject") String tagObject);

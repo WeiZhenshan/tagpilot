@@ -40,7 +40,8 @@ def expand(freeze_jsonl: Path, out_dir: Path, review: bool = False, confirmation
     write_jsonl(out_dir / "s3_concepts.jsonl", concepts)
     write_jsonl(out_dir / "aliases.jsonl", aliases)
     write_jsonl(out_dir / "confusable.jsonl", confusable)
-    write_jsonl(out_dir / "terms.jsonl", seed_terms())
+    tag_object = str(freeze["meta"].get("tag_object") or "客户")
+    write_jsonl(out_dir / "terms.jsonl", seed_terms(tag_object))
     total = sum(t.get("is_object_key") != "1" and t.get("business_candidate", True) for t in freeze["tags"])
     (out_dir / "s3_concept_review_pack.md").write_text(review_pack(concepts, clustered, confirmations or {}), encoding="utf-8")
     coverage = f"{sum(t.get('semantic_type') != 'ID_KEY' for t in tags)}/{total}（仅规则草稿生成，非复核发布覆盖）"
@@ -59,7 +60,10 @@ def importable_draft(freeze_text: str) -> dict:
         summary = expand(freeze_path, out_dir, review=False)
         concepts = (out_dir / "s3_concepts.jsonl").read_text(encoding="utf-8")
         clustered = (out_dir / "s3_clustered.jsonl").read_text(encoding="utf-8")
-        jsonl = concepts + clustered
+        aliases = (out_dir / "aliases.jsonl").read_text(encoding="utf-8")
+        confusable = (out_dir / "confusable.jsonl").read_text(encoding="utf-8")
+        terms = (out_dir / "terms.jsonl").read_text(encoding="utf-8")
+        jsonl = concepts + clustered + aliases + confusable + terms
         if jsonl and not jsonl.endswith("\n"):
             jsonl += "\n"
         return {
