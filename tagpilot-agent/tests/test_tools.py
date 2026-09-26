@@ -187,6 +187,26 @@ def test_capabilities_records_trail_and_rejects_out_of_scope_inputs():
     assert result['is_error'] and ctx2.stats['fatal_status'] == 403
 
 
+def test_cards_and_details_carry_taxonomy_and_disambiguation():
+    tag = {**TAG, 'dir_path': ['负债', '转账'], 'concept_name': '资金转入', 'update_cycle': '日更新',
+           'confusable_notes': ['与跨行转入仅统计时点不同：近30天 vs 当前']}
+    terms = [{'term': '大额', 'type': 'FUZZY_QUANTITY', 'options': ['20万', '50万', '100万'],
+              'policy': 'ASK', 'applicable_semantic_types': ['NUM_AMOUNT', 'ENUM_ORDINAL']}]
+    ctx = ctx_for(CountingEvidence({'selection_context': {'tags': [tag], 'code_values': []}, 'terms': terms}))
+    result = asyncio.run(dispatch(ctx, 'find_tags', {'queries': [{'text': '转入金额'}]}))
+    data = payload(result)['results'][0]
+    assert data['terms'] == terms
+    card = data['cards'][0]
+    assert card['dir_path'] == '负债 > 转账' and card['concept_name'] == '资金转入'
+    assert card['update_cycle'] == '日更新'
+    assert card['confusable_notes'] == '与跨行转入仅统计时点不同：近30天 vs 当前'
+    detail = asyncio.run(dispatch(ctx, 'get_tag_details', {'tag_ids': [1]}))
+    detail_tag = payload(detail)['tags'][0]
+    assert detail_tag['dir_path'] == ['负债', '转账'] and detail_tag['concept_name'] == '资金转入'
+    assert detail_tag['update_cycle'] == '日更新'
+    assert detail_tag['confusable_notes'] == ['与跨行转入仅统计时点不同：近30天 vs 当前']
+
+
 def test_working_set_keeps_details_and_codes_for_validation():
     ctx = ctx_for()
     asyncio.run(dispatch(ctx, 'get_tag_details', {'tag_ids': [1], 'value_query': '转入'}))

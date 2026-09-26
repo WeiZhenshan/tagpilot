@@ -165,7 +165,7 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                 raise HTTPException(409, '构建不属于请求标签库')
             eligible = set(request.eligible_tag_ids) & set(built['catalog'].tags)
             candidates = built['service'].lookup(request.requirement, eligible, request.k)
-            terms = [{k:t.get(k) for k in ('term','definition','default_policy','policy')}
+            terms = [{k:t.get(k) for k in ('term','type','options','policy','applicable_semantic_types')}
                      for t in built['catalog'].terms if t.get('term') and t['term'] in request.requirement]
             return {'build_id':request.build_id,'snapshot_id':built['manifest']['snapshot_id'],
                     'artifact_hash':built['artifact_hash'],'eligible_hash':id_hash(str(t) for t in eligible),
@@ -207,8 +207,8 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                 values = context['code_values']
                 context['code_values'] = [c for tid in request.tag_ids for c in [v for v in values if v['tag_id']==tid][:request.max_values]]
                 context['values_truncated'] = len(values)>len(context['code_values'])
-            # 术语仅返回描述与默认策略，不透出可能指向资格外标签的映射。
-            terms = [{k: term.get(k) for k in ('term', 'definition', 'default_policy', 'policy')}
+            # 术语仅返回类型与候选选项，不透出可能指向资格外标签的映射。
+            terms = [{k: term.get(k) for k in ('term', 'type', 'options', 'policy', 'applicable_semantic_types')}
                      for term in built['catalog'].terms if term.get('term') and term['term'] in request.requirement]
             return {**context, 'terms': terms, 'snapshot_id': built['manifest']['snapshot_id'],
                     'build_id': request.build_id, 'artifact_hash': built['artifact_hash']}

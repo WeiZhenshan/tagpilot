@@ -13,6 +13,6 @@ async def tag_details(ctx,args):
         codes=[c for c in ctx.codes if int(c['tag_id'])==tid]
         if args.get('value_query'):
             q=args['value_query'].lower();codes=[c for c in codes if q in str(c.get('code','')).lower() or q in str(c.get('label','')).lower()]
-        result.append({**{k:t.get(k) for k in ('tag_id','name','definition_long','allowed_operators','unit','unit_scale','caliber_struct','unknown_policy','family_members')},'code_values':codes[:args['max_values']],'code_count':len(codes)})
+        result.append({**{k:t.get(k) for k in ('tag_id','name','definition_long','allowed_operators','unit','unit_scale','caliber_struct','unknown_policy','family_members','dir_path','concept_name','update_cycle','confusable_notes')},'code_values':codes[:args['max_values']],'code_count':len(codes)})
     return {'tags':result}
 

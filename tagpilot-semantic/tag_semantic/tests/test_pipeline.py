@@ -235,6 +235,21 @@ def test_sealed_gold_not_used_for_learning():
     assert sealed["target_size"] == 600
 
 
+def test_selection_context_exposes_confusable_notes_and_filters_draft(tmp_path):
+    from types import SimpleNamespace
+    from tag_semantic.retrieve.service import selection_context
+    _, catalog, _ = _pilot_bundle(tmp_path)
+    tag_id = next(int(t['tag_id']) for t in catalog.tags.values() if t.get('confusable'))
+    tag = selection_context([{'tag_id': tag_id}], catalog)['tags'][0]
+    assert 'dir_path' in tag and 'concept_name' in tag and 'update_cycle' in tag
+    assert tag['confusable_notes'] and any('统计时点' in note for note in tag['confusable_notes'])
+    drafty = dict(catalog.tags)
+    drafty[tag_id] = {**catalog.tags[tag_id],
+                      'confusable': [{**p, 'review_status': 'DRAFT'} for p in catalog.tags[tag_id]['confusable']]}
+    filtered = selection_context([{'tag_id': tag_id}], SimpleNamespace(tags=drafty, code_values=[]))
+    assert filtered['tags'][0]['confusable_notes'] == []
+
+
 def hit_ids(result: dict) -> list[int]:
     ids = []
     for item in result["candidates"]:

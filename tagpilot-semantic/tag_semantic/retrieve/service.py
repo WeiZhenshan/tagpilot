@@ -255,7 +255,7 @@ def visible_candidates(candidates, catalog, eligible, k):
 
 
 def selection_context(candidates, catalog):
-    """给 Agent 编排层的目录切片：仅可见候选的名称/别名/操作符/已发布码值，不含向量。"""
+    """给 Agent 编排层的目录切片：仅可见候选的名称/别名/操作符/已发布码值/目录与易混淆说明，不含向量。"""
     tag_ids = {int(item['tag_id']) for item in candidates}
     tags = []
     for tag_id in sorted(tag_ids):
@@ -270,6 +270,12 @@ def selection_context(candidates, catalog):
             'caliber_struct': tag.get('caliber_struct') or {},
             'unit': tag.get('unit'), 'unit_scale': tag.get('unit_scale', 1),
             'unknown_policy': tag.get('unknown_policy'),
+            'dir_path': tag.get('dir_path'), 'concept_name': tag.get('concept_name'),
+            'update_cycle': tag.get('update_cycle'),
+            'confusable_notes': [
+                '；'.join(x for x in (c.get('difference_note'), c.get('disambiguation_hint')) if x)
+                for c in tag.get('confusable') or [] if c.get('review_status') == 'REVIEWED'
+            ],
             'aliases': [{'alias_text': alias.get('alias_text'), 'review_status': alias.get('review_status')}
                         for alias in tag.get('aliases') or []],
         })

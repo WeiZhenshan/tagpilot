@@ -114,6 +114,7 @@ def assemble_snapshot(
                 "type": term.get("term_type"),
                 "options": term.get("options"),
                 "policy": term.get("default_policy"),
+                "applicable_semantic_types": [t for t in str(term.get("applicable_semantic_types") or "").split(",") if t],
             }
         )
     hashed = content_hash(rows)

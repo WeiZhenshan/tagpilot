@@ -5,6 +5,9 @@ from copy import deepcopy
 def card(t):
     return {'tag_id':t['tag_id'],'name':t.get('name'),'def_short':(t.get('definition_long') or '')[:60],
             **{k:t.get(k) for k in ('semantic_type','unit','family_key','matched_by','code_count')},
+            'dir_path':' > '.join(t.get('dir_path') or []),
+            'concept_name':t.get('concept_name'),'update_cycle':t.get('update_cycle'),
+            'confusable_notes':'；'.join(t.get('confusable_notes') or [])[:200],
             'caliber_short':json.dumps(t.get('caliber_struct') or {},ensure_ascii=False,separators=(',',':'))[:250]}
 
 
