@@ -126,8 +126,8 @@
     </el-dialog>
 
     <!-- 详情抽屉 -->
-    <el-drawer :title="'维表详情：' + (detail.dimensionName || '')" :visible.sync="drawerVisible" size="55%">
-      <div class="drawer-body" v-loading="detailLoading">
+    <el-drawer :title="'维表详情：' + (detail.dimensionName || '')" :visible.sync="drawerVisible" size="55%" append-to-body destroy-on-close>
+      <div class="drawer-body">
         <!-- 登记基础信息 -->
         <div class="drawer-section-title">登记基础信息</div>
         <el-descriptions v-if="detail.dimensionId" :key="'dim-base-' + detail.dimensionId" :column="2" border size="small">
@@ -145,12 +145,14 @@
 
         <!-- 标准字段校验结果 -->
         <div class="drawer-section-title">标准字段校验结果</div>
-        <el-alert v-if="detailFieldChecks === null" type="error" :closable="false" :title="detailCheckError || '连接失败，无法校验标准字段'" />
-        <div v-else class="field-check-list">
-          <div v-for="f in detailFieldChecks" :key="f.columnName" class="field-check-item">
-            <span class="field-check-name">{{ f.columnName }}</span>
-            <span v-if="f.exists" class="field-check-ok"><i class="el-icon-circle-check" /> 存在</span>
-            <span v-else class="field-check-miss"><i class="el-icon-circle-close" /> 缺失</span>
+        <div v-loading="detailLoading">
+          <el-alert v-if="!detailLoading && detailFieldChecks === null" type="error" :closable="false" :title="detailCheckError || '连接失败，无法校验标准字段'" />
+          <div v-else class="field-check-list">
+            <div v-for="f in (detailFieldChecks || [])" :key="f.columnName" class="field-check-item">
+              <span class="field-check-name">{{ f.columnName }}</span>
+              <span v-if="f.exists" class="field-check-ok"><i class="el-icon-circle-check" /> 存在</span>
+              <span v-else class="field-check-miss"><i class="el-icon-circle-close" /> 缺失</span>
+            </div>
           </div>
         </div>
 
@@ -384,8 +386,7 @@ export default {
     },
     /** 详情抽屉 */
     handleDetail(row) {
-      this.drawerVisible = true
-      this.detailLoading = true
+      this.currentDimensionId = row.dimensionId
       this.detail = {
         dimensionId: row.dimensionId,
         dimensionName: row.dimensionName,
@@ -403,11 +404,22 @@ export default {
       this.valuesList = []
       this.valuesTotal = 0
       this.valuesQuery = { pageNum: 1, pageSize: 10 }
-      this.currentDimensionId = row.dimensionId
+      this.drawerVisible = true
+      this.detailLoading = true
       getDimension(row.dimensionId).then(response => {
         const data = response.data || {}
         const dim = (data.dimension && typeof data.dimension === 'object') ? data.dimension : data
-        this.detail = Object.assign({}, dim)
+        this.detail = {
+          dimensionId: dim.dimensionId || row.dimensionId,
+          dimensionName: dim.dimensionName || row.dimensionName,
+          dimensionCode: dim.dimensionCode || row.dimensionCode,
+          datasourceName: dim.datasourceName || row.datasourceName,
+          sourceTableName: dim.sourceTableName || row.sourceTableName,
+          status: dim.status || row.status,
+          createBy: dim.createBy || row.createBy,
+          createTime: dim.createTime || row.createTime,
+          remark: dim.remark != null && dim.remark !== '' ? dim.remark : row.remark
+        }
         this.detailFieldChecks = data.fieldChecks
         this.detailCheckError = data.checkError || ''
         this.detailLoading = false
@@ -462,6 +474,10 @@ export default {
 
 .drawer-section-title:first-child {
   margin-top: 0;
+}
+
+.drawer-body ::v-deep .el-descriptions {
+  width: 100%;
 }
 
 .field-check-list {

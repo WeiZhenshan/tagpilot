@@ -273,6 +273,27 @@ public class DpDimensionServiceImplTest {
         assertNull(update.getSourceTableId());
     }
 
+    @Test
+    public void 详情_顶层含登记名称供页面直接绑定() throws Exception {
+        DpDimensionTable dim = newDimension();
+        dim.setDimensionId(2L);
+        dim.setDimensionName("个人客户经营标签码值表");
+        dim.setDatasourceName("个人客户集市");
+        dim.setSourceTableName("L_INDVCST_LABEL_CODE_MAP");
+        dim.setStatus("0");
+        when(dimensionMapper.selectDimensionById(2L)).thenReturn(dim);
+        when(dataSourceMapper.selectDataSourceById(1L)).thenReturn(newDataSource());
+        stubJdbcColumns(ALL_STANDARD_COLUMNS);
+
+        java.util.Map<String, Object> data = dimensionService.getDimensionDetail(2L);
+
+        assertEquals("个人客户经营标签码值表", data.get("dimensionName"));
+        assertEquals("dim_gender", data.get("dimensionCode"));
+        assertEquals("L_INDVCST_LABEL_CODE_MAP", data.get("sourceTableName"));
+        assertEquals("个人客户集市", data.get("datasourceName"));
+        assertTrue(data.get("dimension") instanceof DpDimensionTable);
+    }
+
     // ---- 测试数据与JDBC模拟 ----
 
     private DpDimensionTable newDimension() {

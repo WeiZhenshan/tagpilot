@@ -17,7 +17,8 @@ public interface IDpDimensionService {
 
     /**
      * 查询维表详情
-     * 返回 map：dimension（登记信息含数据源名称）、fieldChecks（六个标准列校验结果，
+     * 返回 map：顶层含登记字段（dimensionName 等，供详情页直接绑定），
+     * 同时保留 dimension（完整实体）、fieldChecks（六个标准列校验结果，
      * 连接失败时为 null）、checkError（连接失败原因，成功时为 null）
      */
     Map<String, Object> getDimensionDetail(Long dimensionId);

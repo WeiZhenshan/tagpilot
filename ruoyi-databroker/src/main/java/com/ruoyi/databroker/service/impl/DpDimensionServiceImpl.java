@@ -71,6 +71,19 @@ public class DpDimensionServiceImpl implements IDpDimensionService {
         }
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("dimension", dimension);
+        data.put("dimensionId", dimension.getDimensionId());
+        data.put("dimensionName", dimension.getDimensionName());
+        data.put("dimensionCode", dimension.getDimensionCode());
+        data.put("datasourceId", dimension.getDatasourceId());
+        data.put("sourceTableId", dimension.getSourceTableId());
+        data.put("sourceTableName", dimension.getSourceTableName());
+        data.put("status", dimension.getStatus());
+        data.put("datasourceName", dimension.getDatasourceName());
+        data.put("createBy", dimension.getCreateBy());
+        data.put("createTime", dimension.getCreateTime());
+        data.put("updateBy", dimension.getUpdateBy());
+        data.put("updateTime", dimension.getUpdateTime());
+        data.put("remark", dimension.getRemark());
         // 标准字段校验失败不拖累详情整体返回，仅附带错误信息
         try {
             DpDataSource ds = dataSourceMapper.selectDataSourceById(dimension.getDatasourceId());

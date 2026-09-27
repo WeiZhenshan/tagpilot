@@ -20,6 +20,15 @@ export function getDimension(dimensionId) {
   return request({
     url: '/databroker/dimension/' + dimensionId,
     method: 'get'
+  }).then(response => {
+    const raw = response && response.data
+    if (raw && raw.dimension && typeof raw.dimension === 'object' && !Array.isArray(raw.dimension)) {
+      response.data = Object.assign({}, raw.dimension, {
+        fieldChecks: raw.fieldChecks,
+        checkError: raw.checkError
+      })
+    }
+    return response
   })
 }
 
