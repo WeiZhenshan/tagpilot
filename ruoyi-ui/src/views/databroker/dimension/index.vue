@@ -130,7 +130,7 @@
       <div class="drawer-body" v-loading="detailLoading">
         <!-- 登记基础信息 -->
         <div class="drawer-section-title">登记基础信息</div>
-        <el-descriptions :column="2" border size="small">
+        <el-descriptions v-if="detail.dimensionId" :key="'dim-base-' + detail.dimensionId" :column="2" border size="small">
           <el-descriptions-item label="维表名称">{{ detail.dimensionName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="维表名">{{ detail.dimensionCode || '-' }}</el-descriptions-item>
           <el-descriptions-item label="数据连接">{{ detail.datasourceName || '-' }}</el-descriptions-item>
@@ -234,7 +234,8 @@ export default {
       valuesList: [],
       valuesTotal: 0,
       valuesLoading: false,
-      valuesQuery: { pageNum: 1, pageSize: 10 }
+      valuesQuery: { pageNum: 1, pageSize: 10 },
+      currentDimensionId: undefined
     }
   },
   computed: {
@@ -385,35 +386,51 @@ export default {
     handleDetail(row) {
       this.drawerVisible = true
       this.detailLoading = true
-      this.detail = {}
+      this.detail = {
+        dimensionId: row.dimensionId,
+        dimensionName: row.dimensionName,
+        dimensionCode: row.dimensionCode,
+        datasourceName: row.datasourceName,
+        sourceTableName: row.sourceTableName,
+        status: row.status,
+        createBy: row.createBy,
+        createTime: row.createTime,
+        remark: row.remark
+      }
       this.detailFieldChecks = null
       this.detailCheckError = ''
       this.libraryList = []
       this.valuesList = []
       this.valuesTotal = 0
       this.valuesQuery = { pageNum: 1, pageSize: 10 }
+      this.currentDimensionId = row.dimensionId
       getDimension(row.dimensionId).then(response => {
         const data = response.data || {}
-        this.detail = data
+        const dim = (data.dimension && typeof data.dimension === 'object') ? data.dimension : data
+        this.detail = Object.assign({}, dim)
         this.detailFieldChecks = data.fieldChecks
         this.detailCheckError = data.checkError || ''
         this.detailLoading = false
       }).catch(() => { this.detailLoading = false })
-      this.getLibraryList(row.dimensionId)
-      this.getValuesList(row.dimensionId)
+      this.getLibraryList()
+      this.getValuesList()
     },
     /** 已关联标签库 */
-    getLibraryList(dimensionId) {
+    getLibraryList() {
+      const dimensionId = this.currentDimensionId
+      if (!dimensionId) return
       this.libraryLoading = true
-      listLinkedLibraries(dimensionId || this.detail.dimensionId).then(response => {
+      listLinkedLibraries(dimensionId).then(response => {
         this.libraryList = response.data || []
         this.libraryLoading = false
       }).catch(() => { this.libraryLoading = false })
     },
-    /** 物理码值分页预览 */
-    getValuesList(dimensionId) {
+    /** 物理码值分页预览（分页组件会传入 {page,limit}，不能当维表ID用） */
+    getValuesList() {
+      const dimensionId = this.currentDimensionId
+      if (!dimensionId) return
       this.valuesLoading = true
-      listDimensionValues(dimensionId || this.detail.dimensionId, this.valuesQuery).then(response => {
+      listDimensionValues(dimensionId, this.valuesQuery).then(response => {
         this.valuesList = response.rows
         this.valuesTotal = response.total
         this.valuesLoading = false
