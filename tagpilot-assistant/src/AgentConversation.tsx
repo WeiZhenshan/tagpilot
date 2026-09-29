@@ -8,8 +8,9 @@ import {
   type ThreadMessageLike,
 } from "@assistant-ui/react";
 import type { Thread, AgentMessage } from "./agentTypes";
-import { busy, clauses, stateText, degradedOf, degradedText, runNotice } from "./agentTypes";
+import { busy, clauses, stateText, degradedOf, degradedMessage, degradedText, runNotice } from "./agentTypes";
 import { RunTimeline } from "./RunTimeline.tsx";
+import { stagedQuestions } from "./clarification";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
@@ -28,7 +29,7 @@ function Ask({
   onCancel: () => void;
 }) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const qs = thread.questions || [];
+  const qs = stagedQuestions(thread.questions || []);
   return (
     <form
       className="ask-card"
@@ -44,6 +45,7 @@ function Ask({
       }}
     >
       <h3>确认业务选择后继续</h3>
+      {qs.length < (thread.questions || []).length ? <p>先确认采用的指标，再选择该指标对应的档位或阈值。</p> : null}
       {qs.map((q, i) => (
         <fieldset key={i}>
           <legend>{q.prompt}</legend>
@@ -191,9 +193,9 @@ export function AgentConversation({
             ) : null}
             {thread && runNotice(thread) === "partial" && degraded ? (
               <div className="run-degraded" role="status">
-                <strong>已保留 {degraded.kept_clauses.length}/{clauses(thread.plan?.tree).length} 项条件</strong>
-                <p>{degraded.user_message || degradedText[degraded.reason]}</p>
-                {degraded.level === "L3" ? <p>已找到可能相关的标签，请在方案中选择并核验。</p> : null}
+                <strong>{degraded.kept_clauses.length ? `已保留 ${degraded.kept_clauses.length}/${clauses(thread.plan?.tree).length} 项条件` : "尚未形成可用条件"}</strong>
+                <p>{degradedMessage(degraded)}</p>
+                {degraded.level === "L3" && clauses(thread.plan?.tree).some((c) => c.candidates?.length) ? <p>已找到可能相关的标签，请在方案中选择并核验。</p> : null}
                 <div className="degraded-actions">
                   {degraded.resumable ? <button disabled={disabled || pending} onClick={() => void onSend("请继续补全尚未确定的条件")}>补全剩余条件</button> : null}
                   <button disabled={disabled || pending} onClick={onEdit}>手工编辑方案</button>

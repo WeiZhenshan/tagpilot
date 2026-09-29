@@ -25,6 +25,7 @@ export ANTHROPIC_API_KEY='<模型密钥>'
 | `TAG_AGENT_MAX_TURNS / TAG_AGENT_MAX_TOOLS` | `16 / 16` |
 | `TAG_AGENT_MAX_DEEP / TAG_AGENT_MAX_DETAILS` | `4 / 6`；详情限额也覆盖 Guard 自动读取 |
 | `TAG_AGENT_SOFT_TIMEOUT / TAG_AGENT_HARD_TIMEOUT` | `40 / 90` 秒 |
+| `TAG_AGENT_MODEL_IDLE_TIMEOUT` | `25` 秒；单次模型请求连接/读取无响应上限，仍受整体软硬预算约束 |
 | `TAG_AGENT_CONVERGE_RATIO / TAG_AGENT_SALVAGE_MARGIN` | `0.65 / 12`；任一预算进入收敛期；提前收尾预留秒数（最多硬预算的 20%） |
 | `TAG_AGENT_RETRY_MIN_S` | `25`；剩余收尾前时间不足时不重试 CLI，网关重试一次前退避 0.5 秒 |
 | `TAG_AGENT_MAX_DEGRADE_RESUMES` | `2`；首次降级后最多提供两轮补全入口，再次降级提示拆分需求或手工编辑 |
@@ -52,8 +53,12 @@ SQLite 仍限定单个服务进程，文件锁阻止多进程共用。运行中�
 | POST | `/agent/v2/runs/{id}/cancel` | 取消并保留草案 |
 | DELETE | `/agent/v2/threads/{thread_id}?owner_id=…` | 删除该所有者的运行记录 |
 
-终态工具返回 `READY / NEEDS_USER_INPUT / CAPABILITY_GAP / PARTIAL`，映射为兼容的 `result.plan/questions/interrupt_id` 和新增 `result.outcome`。`schema_version=3`，新诊断统一使用 `diagnostics`。历史 UI 仍兼容读取 `validation_errors`。预算类停止有草案时返回 L2 `COMPLETED / DRAFT`，无草案但有合资格候选时返回 L3 `COMPLETED / CAPABILITY_GAP`；两者都保持 `valid=false`，不能统计或建群。模型、检索或排队故障返回 L4 `FAILED / RETRYABLE_FAILURE`；401/403/409 保持原失败路径。降级契约只写 `outcome.stats.degraded`，无需增加 Java 状态或字段。
+终态工具返回 `READY / NEEDS_USER_INPUT / CAPABILITY_GAP / PARTIAL`，映射为兼容的 `result.plan/questions/interrupt_id` 和新增 `result.outcome`。`schema_version=3`，新诊断统一使用 `diagnostics`。历史 UI 仍兼容读取 `validation_errors`。预算类停止保留了可核验条件时返回 L2；零可用条件但已取得候选证据时返回 L3（旧草案只有占位树也适用），二者均为 `COMPLETED / DRAFT / valid=false`，不能统计或建群；预算耗尽不宣称业务能力缺失。模型、检索或排队故障返回 L4 `FAILED / RETRYABLE_FAILURE`；401/403/409 保持原失败路径。降级契约写入 `outcome.stats.degraded`，历史事件保留部分完成、保留数量与未解决数量。
 
 收敛期每个工具观察均包含 `budget`，拒绝 deep、新详情与能力检索，允许 quick、已加载详情、校验与提交。程序收尾只使用已有校验结果，冻结已确认叶子，未完成叶子标记 `BUDGET_EXHAUSTED`，不发网络请求。L3 候选只是建议，不能据此断言没有已发布标签。前端以琥珀提示展示部分完成，补全通过新消息发送；内存超限写告警并关闭补全按钮，避免盲目重试。手工编辑仍直接走 Guard。
+
+软预算或任一预算比例达到阈值时，SDK 只执行一次中断和收敛提示，要求消费已有证据并提交或澄清；硬预算仍负责最终收尾。每轮 SDK 经独立回环转发请求已配置的 Anthropic 端点，`outcome.stats.model_requests` 与 `model.request.started/completed` 记录阶段、请求开始时刻、响应头/首字节/总耗时、HTTP 状态和停止原因，不保存消息正文、响应正文或密钥。回环转发仅监听本机并核验运行密钥，退出即关闭。
+
+同一需求先选业务指标，再询问该指标对应的码值阈值；旧并列题在 UI 和提交端使用相同顺序。`clarification_state` 保存最近 20 组结构化问题和回答，跨新运行、降级和历史截断继续使用；Java 提供 `continuation_of`，Python 只在同一所有者和会话内恢复旧版记录。旧并列题的混合回答重新请求确认，不作为冻结条件的修改授权。
 
 本地金标冒烟与后续完整验证（测试、600 封存 A/B、61×3 真模型评测、容量压测、Java 人数对齐、缺陷清单）结果见 [SDK 重构实施记录](../docs/development/Agent-SDK重构实施记录.md)。生产观察尚未执行。

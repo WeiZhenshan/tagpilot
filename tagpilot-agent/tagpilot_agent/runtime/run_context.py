@@ -28,6 +28,7 @@ class RunContext:
     diagnostic_repeats: int = 0
     budget: Budget = field(default_factory=Budget.from_env)
     lean: bool = False
+    convergence_pending: bool = False
 
     @property
     def eligible(self):return set(self.request['eligible_tag_ids'])

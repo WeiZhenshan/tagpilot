@@ -62,7 +62,7 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
   // 当前快照中的 live_plan 可能来自尚在队列中的事件，不能提前显示其进度。
   const initialPlan = useRef(plan).current;
   const [now, setNow] = useState(Date.now() / 1000);
-  const effectiveStatus = status || [...events].reverse().map((e) => ({ "run.cancelled": "CANCELLED", "run.failed": "FAILED", "run.interrupted": "INTERRUPTED" }[e.type])).find(Boolean);
+  const effectiveStatus = status || [...events].reverse().map((e) => ({ "run.cancelled": "CANCELLED", "run.failed": "FAILED", "run.interrupted": "INTERRUPTED", "run.waiting": "WAITING", "run.degraded": "COMPLETED", "run.completed": "COMPLETED" }[e.type])).find(Boolean);
   const waiting = effectiveStatus === "WAITING";
   const [open, setOpen] = useState(running || waiting);
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
@@ -75,11 +75,11 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
   const view = buildRunView(paced.events, running ? initialPlan : plan, running, { runId, questions, status: effectiveStatus, now });
   const latest = view.items.at(-1)?.id;
   const narrationId = [...view.items].reverse().find((i) => i.kind === "narration")?.id;
-  const summary = running ? `正在${view.phase}` : waiting ? "等待业务选择" : effectiveStatus === "CANCELLED" ? "已停止处理" : ["FAILED", "INTERRUPTED"].includes(effectiveStatus || "") ? "已保存处理进度" : "已处理";
+  const summary = running ? `正在${view.phase}` : waiting ? "等待业务选择" : effectiveStatus === "CANCELLED" ? "已停止处理" : ["FAILED", "INTERRUPTED"].includes(effectiveStatus || "") ? "已保存处理进度" : view.degraded ? `部分完成 · 已保留 ${view.degraded.kept_clauses.length} 项条件，${view.degraded.unresolved_clause_ids.length} 项待处理` : "已处理";
   const progress = view.todos.filter((t) => t.status === "done").length;
   return <section className="run-timeline" aria-label={label || "处理记录"}>
     <button type="button" className="run-heading" aria-expanded={open} onClick={() => setOpen(!open)}>
-      <StatusIcon status={running ? "active" : waiting || ["FAILED", "INTERRUPTED", "CANCELLED"].includes(effectiveStatus || "") ? "blocked" : "done"} />
+      <StatusIcon status={running ? "active" : waiting || view.degraded || ["FAILED", "INTERRUPTED", "CANCELLED"].includes(effectiveStatus || "") ? "blocked" : "done"} />
       <span>{label ? `${label} · ` : ""}{view.notice || summary}</span>
       <small>{view.elapsedMs ? `${Math.round(view.elapsedMs / 1000)} 秒 · ` : ""}{view.stats.steps} 步 · {view.stats.conditions} 个条件</small><Chevron open={open} />
     </button>

@@ -128,6 +128,7 @@ public class TsAgentWorkbenchService {
                 outcome.setQuestions(list(result.get("questions")));state.put("outcome",json.convertValue(outcome,Map.class));
             }
             state.put("questions",result.get("questions"));state.put("interrupt_id",result.get("interrupt_id"));state.put("applied_result",resultKey);
+            if(result.get("clarification_state") instanceof Map)state.put("clarification_state",result.get("clarification_state"));
             List<Map<String,Object>> messages=list(state.get("messages"));
             messages.add(map("id",id(),"role","assistant","text","RUNNING".equals(state.get("status"))?"正在根据服务端核验结果继续修复方案。":"WAITING".equals(remote.get("status"))?"有一项业务解释需要你决定，请在下方选择或补充。":Boolean.TRUE.equals(plan.get("valid"))?"圈选方案已生成，可以核对条件并统计人数。":"CAPABILITY_GAP".equals(plan.get("plan_status"))?"需求已保留，当前数据或计算能力还不能覆盖全部条件。右侧列出了具体缺口。":"方案和处理进度已保留，右侧列出了尚未完成的条件。",
                 "revision",state.get("revision"),"run_id",run,"created_at",Instant.now().toString()));state.put("messages",messages);
@@ -192,6 +193,8 @@ public class TsAgentWorkbenchService {
         // 基准日由服务端注入并随运行持久化，恢复时沿用；明确写出的年份优先。
         req.put("reference_date",LocalDate.now(ZoneId.of("Asia/Shanghai")).toString());
         req.put("timezone","Asia/Shanghai");
+        if(state.get("clarification_state") instanceof Map)req.put("clarification_state",state.get("clarification_state"));
+        if(state.get("run_id")!=null)req.put("continuation_of",state.get("run_id"));
         List<Map<String,Object>> priorRuns=list(state.get("run_history"));
         if(state.get("run_id")!=null)priorRuns.add(map("run_id",state.get("run_id"),"events",state.get("events")));
         state.put("run_history",priorRuns);
@@ -218,6 +221,13 @@ public class TsAgentWorkbenchService {
         if("WAITING".equals(state.get("status")) && (answer==null || String.valueOf(answer).trim().isEmpty()))throw new ServiceException("请填写回答");
         agent.post("/agent/v2/runs/"+state.get("run_id")+"/resume",map("owner_id",String.valueOf(uid()),"answer",answer,"confirmed_clause_ids",state.getOrDefault("confirmed_clause_ids",new ArrayList<>()),
             "eligible_tag_ids",catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(active.get("snapshot_id")))));
+        if(answer!=null && !list(state.get("questions")).isEmpty()) {
+            Map<String,Object> clarification=new LinkedHashMap<>(obj(state.get("clarification_state")));
+            List<Map<String,Object>> records=new ArrayList<>(list(clarification.get("records")));
+            records.add(map("questions",state.get("questions"),"answer",answer));
+            clarification.put("records",new ArrayList<>(records.subList(Math.max(0,records.size()-20),records.size())));
+            clarification.put("pending_questions",new ArrayList<>());state.put("clarification_state",clarification);
+        }
         List<Map<String,Object>> messages=list(state.get("messages"));messages.add(map("id",id(),"role","user","text",answer instanceof Map?"已更新圈选条件":answer==null?"继续处理":String.valueOf(answer),"created_at",Instant.now().toString()));
         state.put("messages",messages);state.put("status","RUNNING");state.put("questions",new ArrayList<>());state.remove("error");save(row,state);return view(row,state);
     }

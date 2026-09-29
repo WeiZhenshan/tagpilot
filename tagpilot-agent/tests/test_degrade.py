@@ -107,9 +107,9 @@ def test_l3_candidates_are_eligible_and_not_executable(tmp_path):
     ctx=RunContext(REQ,Evidence());asyncio.run(build_context(ctx))
     result=manager.salvage(ctx,Reason.TIMEOUT)
     assert result['outcome']['stats']['degraded']['level']=='L3'
-    assert result['outcome']['gaps'][0]['nearest_tag_ids']==[1]
+    assert result['outcome']['gaps']==[]
     assert result['plan']['tree']['candidates'][0]['name']==TAG['name']
-    assert not result['plan']['valid'] and result['plan']['plan_status']=='CAPABILITY_GAP'
+    assert not result['plan']['valid'] and result['plan']['plan_status']=='DRAFT'
     store.db.close()
 
 
@@ -261,7 +261,7 @@ def test_sdk_result_records_budget_reason(monkeypatch,subtype,reason):
     monkeypatch.setenv('ANTHROPIC_BASE_URL','http://fake.invalid')
     monkeypatch.setenv('ANTHROPIC_API_KEY','fake')
     ctx=RunContext(REQ,Evidence());ctx.stats['llm_turns']=2
-    asyncio.run(module.ClaudeRunner().run(ctx,'test'))
+    asyncio.run(module.ClaudeRunner().session(ctx,'test','http://fake.invalid','fake'))
     assert ctx.stats['stop_reason']==reason and ctx.stats['llm_turns']==3
     assert options[0].max_turns==ctx.budget.max_turns-2
 
@@ -273,7 +273,7 @@ def test_partial_budget_gap_can_submit_without_claiming_capability_gap(tmp_path)
     result=asyncio.run(dispatch(ctx,'submit_result',{'outcome':'PARTIAL','plan':partial}))
     assert not result['is_error'],payload(result)
     saved=manager.salvage(ctx,classify(ctx))
-    assert saved['outcome']['stats']['degraded']['level']=='L2'
+    assert saved['outcome']['stats']['degraded']['level']=='L3'
     assert not saved['plan']['valid'] and saved['plan']['diagnostics'][-1]['code']=='BUDGET_EXHAUSTED'
     normal=RunContext(REQ,Evidence())
     rejected=asyncio.run(dispatch(normal,'submit_result',{'outcome':'CAPABILITY_GAP','plan':partial,'gaps':[{'requirement_id':'a','reason':'NO_PUBLISHED_TAG'}]}))
@@ -294,3 +294,19 @@ def test_budget_resume_does_not_unlock_kept_sibling_of_same_requirement():
     proposed['tree']['children'][0]['values']=['500000']
     proposed['intent_plan']['requirements'][0]['business_meaning']='放宽后的要求'
     assert any(d['code']=='REQUIREMENT_MISSING' for d in frozen_errors(previous,proposed,'请补全',budget_clause_ids=['pending']))
+
+
+def test_existing_zero_condition_tree_recovers_candidates(tmp_path):
+    store,manager=manager_for(tmp_path)
+    ctx=RunContext(REQ,Evidence());asyncio.run(build_context(ctx))
+    ctx.request={**REQ,'previous_plan':{'tree':{'kind':'TAG_PREDICATE','clause_id':'C1',
+        'source_span':'高价值客户','requirement_ids':['R1'],'status':'GAP','values':[]},
+        'intent_plan':{'original_request':'高价值客户'}}}
+    saved=manager.salvage(ctx,Reason.TIMEOUT)
+    info=saved['outcome']['stats']['degraded']
+    assert info['level']=='L3' and info['usable_condition_count']==0
+    assert '尚未形成可用条件' in info['user_message']
+    assert saved['plan']['tree']['candidates']==[{'tag_id':1,'name':TAG['name']}]
+    assert saved['plan']['intent_plan']['original_request']=='高价值客户'
+    assert saved['plan']['valid'] is False and saved['outcome']['gaps']==[]
+    store.db.close()

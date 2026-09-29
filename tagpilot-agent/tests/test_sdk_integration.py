@@ -83,11 +83,50 @@ def test_multi_turn_loop_terminates_on_submit(tmp_path, gateway):
     stats = row['result']['outcome']['stats']
     assert stats['deep'] == 1 and stats['tools'] >= 3 and stats['llm_turns'] >= 3
     assert stats['cli_start_ms'] >= 0 and stats['cli_peak_rss_mb'] > 0
+    assert len(stats['model_requests'])==3
+    assert all(m['http_status']==200 and m['outcome']=='ok' and m['first_byte_ms']>=0 for m in stats['model_requests'])
+    assert 'local-fake-key' not in json.dumps(stats)
     assert len(app.state.requests) == 3, len(app.state.requests)
     assert all(t['name'].startswith('mcp__tagpilot__') for t in app.state.requests[0]['tools'])
     completed = [e['tool'] for e in store.events('r-a') if e['type'] == 'tool.completed']
     assert sorted(completed) == ['check_plan', 'find_tags', 'get_tag_details', 'submit_result']
     store.db.close()
+
+
+def test_soft_budget_interrupts_stall_and_queries_convergence_once(tmp_path,gateway,monkeypatch):
+    monkeypatch.setenv('TAG_AGENT_SOFT_TIMEOUT','1.5')
+    monkeypatch.setenv('TAG_AGENT_HARD_TIMEOUT','8')
+    app=gateway([[('mcp__tagpilot__check_plan',{'plan':PLAN})],'stall',
+                 [('mcp__tagpilot__submit_result',{'outcome':'READY','plan':PLAN})],[]])
+    store,manager=manager_for(tmp_path)
+    request=request_for('soft-converge');store.create('soft-converge',request)
+    asyncio.run(manager.execute('soft-converge',request))
+    row=store.get('soft-converge','7');stats=row['result']['outcome']['stats']
+    assert row['status']=='COMPLETED' and row['result']['outcome']['outcome']=='READY',row
+    assert stats['convergence_queries']==1 and len(app.state.requests)==3
+    assert '运行已进入收敛阶段' in json.dumps(app.state.requests[-1],ensure_ascii=False)
+    assert [m['phase'] for m in stats['model_requests']]==['explore','explore','converge']
+    assert stats['model_requests'][1]['outcome']=='interrupted'
+    assert stats['elapsed_s']<8
+    store.db.close()
+
+
+def test_model_transport_idle_timeout_is_observable(gateway,monkeypatch):
+    import httpx,os
+    from tagpilot_agent.runtime.model_transport import model_transport
+    from tagpilot_agent.runtime.run_context import RunContext
+    monkeypatch.setenv('TAG_AGENT_MODEL_IDLE_TIMEOUT','.15');gateway(['stall'])
+    ctx=RunContext(REQ,Evidence())
+    async def scenario():
+        async with model_transport(ctx,os.environ['ANTHROPIC_BASE_URL'],'local-fake-key') as base:
+            async with httpx.AsyncClient() as client:
+                denied=await client.post(base+'/v1/messages',json={})
+                assert denied.status_code==401
+                response=await client.post(base+'/v1/messages',json={},headers={'x-api-key':'local-fake-key'})
+                assert response.status_code==504
+    asyncio.run(scenario())
+    assert ctx.stats['model_requests'][0]['outcome']=='idle_timeout'
+    assert ctx.stats['model_requests'][0]['duration_ms']>=100
 
 
 def test_ask_outcome_returns_waiting_with_interrupt(tmp_path, gateway):
@@ -199,9 +238,10 @@ def test_hard_timeout_without_draft_returns_retryable_partial(tmp_path, gateway,
     asyncio.run(scenario())
     row = store.get('r-g', '7')
     assert row['status'] == 'COMPLETED'
-    assert row['result']['plan']['plan_status'] == 'CAPABILITY_GAP'
+    assert row['result']['plan']['plan_status'] == 'DRAFT'
     assert row['result']['outcome']['stats']['degraded']['level'] == 'L3'
-    assert row['result']['outcome']['gaps'][0]['nearest_tag_ids'] == [1]
+    assert row['result']['outcome']['gaps'] == []
+    assert row['result']['plan']['tree']['candidates'][0]['tag_id'] == 1
     assert row['result']['plan']['tree']['clause_id'] == 'pending'
     assert row['result']['outcome']['outcome'] == 'PARTIAL'
     store.db.close()

@@ -1,4 +1,4 @@
-import { clauses, clauseChanged, clauseSentence, planDiff, toolText, type Plan, type RunEvent, type Thread } from "./agentTypes";
+import { clauses, clauseChanged, clauseSentence, degradedMessage, parseDegraded, planDiff, toolText, type Degraded, type Plan, type RunEvent, type Thread } from "./agentTypes";
 
 export type TodoStatus = "pending" | "active" | "done" | "blocked";
 export type TodoItem = { id: string; label: string; status: TodoStatus; result?: string; children?: TodoItem[] };
@@ -7,7 +7,7 @@ export type TimelineItem = Action | { kind: "group"; id: string; tool: string; a
   | { kind: "narration"; id: string; text: string }
   | { kind: "change"; id: string; diff: string[]; clauseIds: string[] }
   | { kind: "status"; id: string; text: string };
-export type RunView = { phase: string; todos: TodoItem[]; items: TimelineItem[]; elapsedMs: number; stats: { steps: number; conditions: number }; notice?: string };
+export type RunView = { phase: string; todos: TodoItem[]; items: TimelineItem[]; elapsedMs: number; stats: { steps: number; conditions: number }; notice?: string; degraded?: Degraded };
 
 export function actionLabel(action: Action): string {
   const target = action.targets.length ? `「${action.targets.join("、")}」` : "";
@@ -29,9 +29,15 @@ export function buildRunView(events: RunEvent[], plan?: Plan, running = false, o
   let latestPlan: Plan | undefined;
   let lastNarration = -1;
   let notice: string | undefined;
+  let degraded: Degraded | undefined;
   for (const [index, event] of events.entries()) {
     const id = `${runId}:${index}`;
     if (event.plan) latestPlan = event.plan;
+    const partial = parseDegraded(event.stats?.degraded);
+    if (partial) {
+      degraded = partial;
+      items.push({ kind: "status", id: `${id}:degraded`, text: `部分完成 · 已保留 ${partial.kept_clauses.length} 项条件，${partial.unresolved_clause_ids.length} 项待处理。${degradedMessage(partial)}` });
+    }
     if (["run.queued", "run.lean"].includes(event.type)) { notice = event.message; continue; }
     if (event.type === "tool.started" || event.type === "tool.completed") {
       const tool = event.tool || "";
@@ -120,6 +126,6 @@ export function buildRunView(events: RunEvent[], plan?: Plan, running = false, o
   const times = events.map((e) => e.occurred_at).filter((t): t is number => typeof t === "number" && t > 0);
   const elapsedMs = times.length ? Math.max(0, ((running ? options.now || Date.now() / 1000 : Math.max(...times)) - Math.min(...times)) * 1000) : 0;
   if (actions.length) notice = undefined;
-  return { phase: running ? labels[first < 0 ? 3 : first] : options.status === "WAITING" ? "等待业务选择" : "已处理", todos, items: grouped, elapsedMs,
-    stats: { steps: actions.length, conditions: requirements.length || nodes.length }, notice };
+  return { phase: running ? labels[first < 0 ? 3 : first] : options.status === "WAITING" ? "等待业务选择" : degraded ? "部分完成" : "已处理", todos, items: grouped, elapsedMs,
+    stats: { steps: actions.length, conditions: requirements.length || nodes.length || (degraded ? degraded.kept_clauses.length + degraded.unresolved_clause_ids.length : 0) }, notice, degraded };
 }

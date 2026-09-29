@@ -9,6 +9,7 @@ from fastapi import HTTPException
 from tagpilot_agent.runtime.run_context import RunContext
 from tagpilot_agent.agent.context_builder import build_context
 from tagpilot_agent.agent.outcome import result_for
+from tagpilot_agent.agent.clarification import clarification_state
 from tagpilot_agent.guards.guard import check
 from tagpilot_agent.guards.plan_validator import leaves
 from tagpilot_agent.domain.expressions import plan_tag_ids
@@ -77,8 +78,14 @@ class RunManager:
                     plan=await check(request['edited_plan'],ctx,True,True)
                     ctx.accepted={'outcome':'READY' if plan['valid'] else 'PARTIAL','plan':plan,'questions':[],'gaps':[]}
                 else:
-                    prompt=await build_context(ctx)
-                    for attempt in range(2):
+                    pending=clarification_state(request).get('pending_questions',[]) if request.get('continuation_of') else []
+                    if pending:
+                        plan=deepcopy(request.get('previous_plan') or {})
+                        if not plan.get('tree'):self.placeholder(ctx,plan,'BUDGET_EXHAUSTED')
+                        plan.update(valid=False,plan_status='NEEDS_DECISION')
+                        ctx.accepted={'outcome':'NEEDS_USER_INPUT','plan':plan,'questions':pending,'gaps':[]}
+                    prompt=await build_context(ctx) if not ctx.accepted else ''
+                    for attempt in range(0 if ctx.accepted else 2):
                         try:
                             await self.runner.run(ctx,prompt)
                             break
@@ -128,7 +135,6 @@ class RunManager:
             candidates=[tid for tid in ctx.tags if tid in ctx.eligible][:5]
             plan['tree']['candidates']=[{'tag_id':tid,'name':ctx.tags[tid].get('name',str(tid))} for tid in candidates]
             unresolved=['pending']
-            gaps=[{'requirement_id':'pending','reason':'NO_PUBLISHED_TAG','nearest_tag_ids':candidates}]
         else:
             diagnostics=plan.get('diagnostics',[])
             blocked={d['clause_id'] for d in diagnostics if d.get('clause_id')}
@@ -141,12 +147,22 @@ class RunManager:
                 if not ok:
                     node.update(status='GAP',gap_reason='BUDGET_EXHAUSTED')
             # 历史预算诊断只能用最新一条；保留原校验诊断作为解释依据。
+            if not kept:
+                level='L3'
+                nodes=leaves(plan['tree'])
+                for node in nodes:
+                    refs=set(node.get('requirement_ids',[])) | {node['clause_id']}
+                    candidates=[tid for tid in ctx.tags if tid in ctx.eligible and
+                                (len(nodes)==1 or refs & set(ctx.tag_requirements.get(tid,[])))][:5]
+                    node['candidates']=[{'tag_id':tid,'name':ctx.tags[tid].get('name',str(tid))} for tid in candidates]
         plan['diagnostics']=[d for d in plan.get('diagnostics',[]) if d.get('code')!='BUDGET_EXHAUSTED']
         plan['diagnostics'].append({'code':'BUDGET_EXHAUSTED','reason':reason,'attempt':attempt,
                                     'message':MESSAGES[reason],'retryable':reason!=Reason.MEMORY})
-        plan.update(valid=False,plan_status='CAPABILITY_GAP' if level=='L3' else 'DRAFT')
+        # 预算耗尽不等于已证实无业务能力，候选仍需澄清和权威核验。
+        plan.update(valid=False,plan_status='DRAFT')
         ctx.stats['degraded']=degraded_info(ctx,reason,level,kept,unresolved,attempt)
-        return {'plan':plan,'questions':[],'interrupt_id':None,
+        state=clarification_state(ctx.request)
+        return {'plan':plan,'questions':[], 'clarification_state':state,'interrupt_id':None,
                 'outcome':{'outcome':'PARTIAL','gaps':gaps,'stats':ctx.stats}}
 
     def fallback(self,ctx,message,reason=None):

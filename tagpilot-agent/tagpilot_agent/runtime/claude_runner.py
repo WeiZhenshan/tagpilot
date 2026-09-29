@@ -12,6 +12,9 @@ from tagpilot_agent.agent.system_prompt import SYSTEM_PROMPT
 from tagpilot_agent.tools.registry import create_server, MODELS
 from .degrade import Reason
 from .narration import NarrationEmitter
+from .model_transport import model_transport
+
+CONVERGE_PROMPT='运行已进入收敛阶段。仅消费已经取得的标签和码值证据，马上调用 check_plan 和 submit_result 保存结果。业务口径或用户回答有冲突时提交 NEEDS_USER_INPUT；无法完成时提交 PARTIAL，保留所有原始需求和未解决条件。禁止新增探索、猜测阈值、放宽条件或修改已保留条件。'
 
 DENIED=['Bash','Read','Write','Edit','Glob','Grep','WebFetch','WebSearch','Task','Agent','Skill','TodoWrite','AskUserQuestion','NotebookEdit']
 
@@ -21,6 +24,13 @@ async def allow_tool(name,args,context):
 
 class ClaudeRunner:
     async def run(self,ctx,prompt):
+        base=os.getenv('ANTHROPIC_BASE_URL','')
+        key=os.getenv('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_AUTH_TOKEN') or os.getenv('TAG_LLM_API_KEY','')
+        if not base or not key:raise RuntimeError('请配置 Anthropic 兼容端点及密钥')
+        async with model_transport(ctx,base,key) as observed_base:
+            await self.session(ctx,prompt,observed_base,key)
+
+    async def session(self,ctx,prompt,base,key):
         turns_before=ctx.stats['llm_turns']
         remaining_turns=ctx.budget.max_turns-turns_before
         if remaining_turns<=0:
@@ -29,9 +39,6 @@ class ClaudeRunner:
         model=os.getenv('ANTHROPIC_MODEL') or os.getenv('TAG_LLM_MODEL','deepseek-chat')
         ctx.stats.update(model=model,prompt_sha256=hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest(),
                          max_turns=ctx.budget.max_turns)
-        base=os.getenv('ANTHROPIC_BASE_URL','')
-        key=os.getenv('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_AUTH_TOKEN') or os.getenv('TAG_LLM_API_KEY','')
-        if not base or not key:raise RuntimeError('请配置 Anthropic 兼容端点及密钥')
         with tempfile.TemporaryDirectory(prefix='tagpilot-sdk-') as directory:
             env={'CLAUDE_CONFIG_DIR':directory,'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC':'1','DISABLE_TELEMETRY':'1',
                  'ANTHROPIC_BASE_URL':base,'ANTHROPIC_API_KEY':key,'ANTHROPIC_AUTH_TOKEN':key,
@@ -53,24 +60,30 @@ class ClaudeRunner:
                 try:
                     await client.query(prompt)
                     narration = NarrationEmitter()
-                    async for message in client.receive_response():
-                        narration.consume(ctx,message)
-                        if isinstance(message,SystemMessage) and message.subtype=='api_retry':
-                            ctx.stats['sdk_error']='gateway_retry'
-                            ctx.stats['gateway_retries']=ctx.stats.get('gateway_retries',0)+1
-                        if isinstance(message,AssistantMessage):
-                            ctx.stats['llm_turns']+=1
-                            if getattr(message,'error',None):ctx.stats['sdk_error']=message.error
-                        if isinstance(message,ResultMessage):
-                            ctx.stats['sdk_result']=message.subtype
-                            ctx.stats['sdk_cost_estimate_usd']=message.total_cost_usd
-                            ctx.stats['llm_turns']=turns_before+message.num_turns
-                            if message.usage:ctx.stats['usage']=message.usage
-                            reason={'error_max_turns':Reason.MAX_TURNS,'error_max_budget_usd':Reason.MAX_BUDGET}.get(message.subtype)
-                            if reason:ctx.stats.setdefault('stop_reason',reason)
-                            if message.is_error and not ctx.accepted and message.subtype not in {'error_max_turns','error_max_budget_usd'}:
-                                ctx.stats['sdk_error']=message.subtype
-                                raise RuntimeError('模型网关或 SDK 返回错误')
+                    while True:
+                        query_turns=ctx.stats['llm_turns']
+                        async for message in client.receive_response():
+                            narration.consume(ctx,message)
+                            if isinstance(message,SystemMessage) and message.subtype=='api_retry':
+                                ctx.stats['sdk_error']='gateway_retry'
+                                ctx.stats['gateway_retries']=ctx.stats.get('gateway_retries',0)+1
+                            if isinstance(message,AssistantMessage):
+                                ctx.stats['llm_turns']+=1
+                                if getattr(message,'error',None) and not ctx.convergence_pending:ctx.stats['sdk_error']=message.error
+                            if isinstance(message,ResultMessage):
+                                ctx.stats['sdk_result']=message.subtype
+                                ctx.stats['sdk_cost_estimate_usd']=message.total_cost_usd
+                                ctx.stats['llm_turns']=query_turns+message.num_turns
+                                if message.usage:ctx.stats['usage']=message.usage
+                                reason={'error_max_turns':Reason.MAX_TURNS,'error_max_budget_usd':Reason.MAX_BUDGET}.get(message.subtype)
+                                if reason:ctx.stats.setdefault('stop_reason',reason)
+                                if message.is_error and not ctx.accepted and not ctx.convergence_pending and message.subtype not in {'error_max_turns','error_max_budget_usd'}:
+                                    ctx.stats['sdk_error']=message.subtype
+                                    raise RuntimeError('模型网关或 SDK 返回错误')
+                        if not ctx.convergence_pending or ctx.accepted or ctx.cancelled() or ctx.stats.get('stop_reason'):break
+                        ctx.convergence_pending=False
+                        ctx.stats['convergence_queries']=1;ctx.stats['model_phase']='converge'
+                        await client.query(CONVERGE_PROMPT)
 
                 finally:
                     monitor.cancel()
@@ -85,6 +98,7 @@ class ClaudeRunner:
             if ctx.submitted.is_set():reason='submitted'
             elif ctx.cancelled():reason='cancelled'
             elif ctx.budget.elapsed(ctx)>=ctx.budget.salvage_at():reason=Reason.TIMEOUT
+            elif ctx.stats['llm_turns']>=ctx.budget.max_turns:reason=Reason.MAX_TURNS
             ctx.budget.announce(ctx)
             try:
                 # SDK 0.1.50 锁定版本的唯一内部适配点；仅统计该运行的 CLI 子树。
@@ -103,3 +117,7 @@ class ClaudeRunner:
                 if reason=='submitted':await asyncio.sleep(.05)
                 with contextlib.suppress(Exception):await asyncio.wait_for(client.interrupt(),5)
                 return
+            if ctx.budget.converging(ctx) and not ctx.accepted and 'convergence_interrupt_at' not in ctx.stats:
+                ctx.stats['convergence_interrupt_at']=round(ctx.budget.elapsed(ctx),3)
+                ctx.convergence_pending=True
+                with contextlib.suppress(Exception):await asyncio.wait_for(client.interrupt(),5)

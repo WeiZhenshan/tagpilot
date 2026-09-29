@@ -99,6 +99,24 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         assertFalse(actual.isAfter(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai"))));
         assertEquals("Asia/Shanghai",request.getValue().get("timezone"));
     }
+    @Test void clarifiedAnswerSurvivesCancelAndNextRun() throws Exception {
+        Map<String,Object> question=map("requirement_id","R1","prompt","采用哪个指标", "options",Arrays.asList("客户等级","潜力等级"),"reason","MULTIPLE_PUBLISHED_DEFINITIONS");
+        state(map("revision",2,"status","WAITING","interrupt_id","ask","run_id","previous-run",
+            "run_request",map("build_id","build"),"messages",new ArrayList<>(),"events",new ArrayList<>(),"questions",Arrays.asList(question)));
+        when(catalog.activeBundle(107L)).thenReturn(map("build_id","build","snapshot_id","snapshot","artifact_hash","hash"));
+        when(catalog.eligibleTagIds(107L,"snapshot")).thenReturn(Arrays.asList(1L));
+        service.resume("owned",map("base_revision",2,"interrupt_id","ask","answer","客户等级"));
+        service.cancel("owned");
+        service.start("owned",map("base_revision",2,"client_request_id","continue-request-001","message","请继续补全尚未确定的条件"));
+        ArgumentCaptor<Map> request=ArgumentCaptor.forClass(Map.class);
+        verify(agent).post(eq("/agent/v2/runs"),request.capture());
+        assertEquals("previous-run",request.getValue().get("continuation_of"));
+        Map clarification=(Map)request.getValue().get("clarification_state");
+        Map record=(Map)((List)clarification.get("records")).get(0);
+        assertEquals("客户等级",record.get("answer"));
+        assertEquals("采用哪个指标",((Map)((List)record.get("questions")).get(0)).get("prompt"));
+        verifyNoInteractions(groups,compiler);
+    }
     @Test void staleAskCannotResumeNewInterrupt() throws Exception {
         state(map("revision",2,"status","WAITING","interrupt_id","new"));
         assertThrows(ServiceException.class,()->service.resume("owned",map("base_revision",2,"interrupt_id","old","answer","回答")));

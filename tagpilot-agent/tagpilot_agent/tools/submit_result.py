@@ -1,8 +1,10 @@
 from tagpilot_agent.guards.guard import check
 from tagpilot_agent.guards.plan_validator import leaves
 from tagpilot_agent.runtime.degrade import Reason, progress
+from tagpilot_agent.agent.clarification import staged_questions
 
 async def submit_result(ctx,args):
+    if args['outcome']=='NEEDS_USER_INPUT':args['questions']=staged_questions(args['questions'])
     plan=await check(args['plan'],ctx,strict=True)
     errors=[];outcome=args['outcome'];nodes=leaves(plan['tree']) if plan.get('tree') else []
     requirements={r['requirement_id'] for r in plan.get('intent_plan',{}).get('requirements',[])}

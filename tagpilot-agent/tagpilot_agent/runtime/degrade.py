@@ -44,7 +44,10 @@ def classify(ctx,exc=None,admitted=True):
 def degraded_info(ctx,reason,level,kept,unresolved,attempt=0):
     resumable=reason!=Reason.MEMORY and attempt<=max(0,int(os.getenv('TAG_AGENT_MAX_DEGRADE_RESUMES','2')))
     message=MESSAGES[reason]
+    if level=='L3' and not kept:
+        message='尚未形成可用条件，已保存需求和待确认的口径，请确认业务选择或手工编辑'
     if not resumable and reason!=Reason.MEMORY:message+='；建议拆分需求或手工编辑方案'
     return {'level':level,'reason':reason,'kept_clauses':kept,'unresolved_clause_ids':unresolved,
             'resumable':resumable,'resume_mode':'lean' if reason in LEAN_REASONS else 'manual' if reason==Reason.MEMORY else 'retry',
-            'attempt':attempt,'user_message':message,'ops_alert':reason==Reason.MEMORY}
+            'attempt':attempt,'user_message':message,'ops_alert':reason==Reason.MEMORY,
+            'usable_condition_count':len(kept)}

@@ -1,3 +1,5 @@
+import { stagedQuestions } from "./clarification";
+
 export type Expression = {
   kind: string;
   tag_id?: number;
@@ -87,6 +89,7 @@ export type RunEvent = {
   clause_id?: string;
   occurred_at?: number;
   steps?: { id: string; label: string; status: string }[];
+  stats?: Record<string, unknown>;
   plan?: Plan;
   candidates?: { tag_id: number; name: string }[];
 };
@@ -113,7 +116,7 @@ export type Thread = {
   events: RunEvent[];
   run_history?: { run_id: string; events: RunEvent[] }[];
   run_id?: string;
-  questions?: { clause_id?: string; requirement_id?: string; prompt: string; options?: string[] }[];
+  questions?: { clause_id?: string; requirement_id?: string; prompt: string; options?: string[]; reason?: string }[];
   interrupt_id?: string;
   error?: string;
   outcome?: { outcome: string; gaps: { requirement_id: string; reason: string; nearest_tag_ids: number[] }[]; stats?: Record<string, unknown> };
@@ -177,7 +180,9 @@ export type Degraded = {
   ops_alert: boolean;
 };
 export function degradedOf(thread?: Thread | null): Degraded | undefined {
-  const value = thread?.outcome?.stats?.degraded;
+  return parseDegraded(thread?.outcome?.stats?.degraded);
+}
+export function parseDegraded(value: unknown): Degraded | undefined {
   if (!value || typeof value !== "object") return undefined;
   const d = value as Degraded;
   if (!["L2", "L3", "L4"].includes(d.level) || !Object.hasOwn(degradedText, d.reason) ||
@@ -185,6 +190,10 @@ export function degradedOf(thread?: Thread | null): Degraded | undefined {
       !d.kept_clauses.every((id) => typeof id === "string") ||
       !d.unresolved_clause_ids.every((id) => typeof id === "string")) return undefined;
   return { ...d, resumable: d.resumable === true, user_message: typeof d.user_message === "string" ? d.user_message : undefined };
+}
+export function degradedMessage(d: Degraded): string {
+  if (!d.kept_clauses.length && d.level !== "L4") return "尚未形成可用条件，已保存需求和待确认的口径。";
+  return d.user_message || degradedText[d.reason];
 }
 export function runNotice(thread?: Thread | null): "partial" | "failure" | undefined {
   if (!thread) return undefined;
@@ -289,7 +298,7 @@ export function pendingItems(thread: Thread | null, plan?: Plan): PendingItem[] 
   const result: PendingItem[] = [];
   const items = clauses(plan?.tree);
   const covered = new Set<string>();
-  if (thread?.status === "WAITING") for (const [i, q] of (thread.questions || []).entries()) {
+  if (thread?.status === "WAITING") for (const [i, q] of stagedQuestions(thread.questions || []).entries()) {
     result.push({ id: `question:${i}`, kind: "question", title: q.prompt, message: "在对话中确认业务选择后继续。", clause_id: q.clause_id });
     if (q.clause_id) covered.add(q.clause_id);
   }

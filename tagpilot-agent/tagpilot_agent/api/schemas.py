@@ -1,4 +1,15 @@
 from pydantic import BaseModel, ConfigDict, Field
+from tagpilot_agent.agent.outcome import Question
+
+class ClarificationRecord(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    questions: list[Question] = Field(max_length=3)
+    answer: str | dict
+
+class ClarificationState(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    records: list[ClarificationRecord] = Field(default_factory=list,max_length=20)
+    pending_questions: list[Question] = Field(default_factory=list,max_length=3)
 
 class RunRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
@@ -17,6 +28,8 @@ class RunRequest(BaseModel):
     edited_plan: dict | None = None
     history: list[dict] = Field(default_factory=list,max_length=20)
     confirmed_clause_ids: list[str] = Field(default_factory=list,max_length=30)
+    clarification_state: ClarificationState = Field(default_factory=ClarificationState)
+    continuation_of: str | None = Field(default=None,pattern=r'^[a-zA-Z0-9-]{1,64}$')
 
 class ResumeRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')

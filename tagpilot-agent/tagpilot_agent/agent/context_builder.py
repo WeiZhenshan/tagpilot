@@ -7,12 +7,14 @@ from tagpilot_agent.retrieval.working_set import merge, ensure_details
 from tagpilot_agent.retrieval.semantic_client import SemanticRetrieveError
 from tagpilot_agent.tools.cards import card
 from tagpilot_agent.runtime.degrade import progress
+from .clarification import clarification_state
 
 async def build_context(ctx):
     req=ctx.request
     context={'requirement':req['requirement'],'current_utterance':req.get('_utterance',req['requirement']),
              'history':req.get('history',[])[-12:],'questions':req.get('_questions',[]),'answer':req.get('_answer'),
              'authority_diagnostics':req.get('_repair',[]),'budget':ctx.budget.snapshot(ctx)}
+    context['clarification_state']=clarification_state(req)
     # 评测/生产注入的固定基准日：相对时间表达只能以它为准，不能用运行当天。
     if req.get('reference_date'):
         context['reference_date']=req['reference_date']

@@ -54,14 +54,14 @@ class RunStore:
     def unpack(self, data):
         return json.loads(self.cipher.decrypt(data)) if data else None
 
-    def create(self, rid, request):
+    def create(self, rid, request, original_request=None):
         with self.lock, self.db:
             row = self.db.execute('SELECT * FROM wb_runs WHERE id=?', (rid,)).fetchone()
             if row:
                 if row['owner'] != request['owner_id'] or row['thread'] != request['thread_id']:
                     raise ValueError('运行标识已被使用')
                 stored=self.unpack(row['payload'])
-                if stored.get('_original_request',stored) != request:
+                if stored.get('_original_request',stored) != (original_request or request):
                     raise ValueError('重复请求内容不一致')
                 return False
             active = self.db.execute("SELECT 1 FROM wb_runs WHERE owner=? AND thread=? AND status IN ('RUNNING','WAITING')",
@@ -69,7 +69,8 @@ class RunStore:
             if active:
                 raise ValueError('当前会话已有未完成运行')
             self.db.execute('INSERT INTO wb_runs VALUES(?,?,?,?,?,?,?,?)',
-                            (rid, request['owner_id'], request['thread_id'], 'RUNNING', self.pack(request), None, None, time.time()))
+                            (rid, request['owner_id'], request['thread_id'], 'RUNNING', self.pack(
+                                {**request,'_original_request':original_request} if original_request else request), None, None, time.time()))
             return True
 
     def get(self, rid, owner):
@@ -115,6 +116,18 @@ class RunStore:
             if any(row['status'] in ('RUNNING', 'WAITING') for row in rows):
                 raise ValueError('请先完成或停止当前运行')
             return [row['id'] for row in rows]
+
+    def latest_clarification(self, thread, owner):
+        """兼容旧运行：只在同一所有者、同一会话内恢复最近的结构化问题和回答。"""
+        from tagpilot_agent.agent.clarification import clarification_state
+        with self.lock:
+            rows=self.db.execute('SELECT payload,result FROM wb_runs WHERE thread=? AND owner=? ORDER BY updated DESC LIMIT 20',
+                                 (thread,owner)).fetchall()
+            for row in rows:
+                payload=self.unpack(row['payload']);result=self.unpack(row['result']) or {}
+                state=clarification_state({**payload,'clarification_state':result.get('clarification_state') or payload.get('clarification_state')})
+                if state.get('records'):return state
+        return {'records':[],'pending_questions':[]}
 
     def delete_thread(self, thread, owner):
         with self.lock, self.db:

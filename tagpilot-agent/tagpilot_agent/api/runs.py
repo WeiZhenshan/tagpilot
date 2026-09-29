@@ -7,6 +7,7 @@ from fastapi import Depends, HTTPException
 from .schemas import RunRequest, ResumeRequest, RepairRequest
 from tagpilot_agent.runtime.run_store import RunStore
 from tagpilot_agent.runtime.run_manager import RunManager
+from tagpilot_agent.agent.clarification import staged_questions, validate_staged_answer, record_answer
 
 
 def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,runner=None):
@@ -47,8 +48,13 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
             try:
                 row=res['store'].get(request.run_id,request.owner_id)
             except KeyError:row=None
+            if row is None and request.continuation_of:
+                previous=lookup(request.continuation_of,request.owner_id)
+                if previous['thread']!=request.thread_id:raise HTTPException(409,'续跑来源不属于当前会话')
+                if not payload['clarification_state']['records']:
+                    payload['clarification_state']=res['store'].latest_clarification(request.thread_id,request.owner_id)
             if row is None:res['manager'].capacity()
-            if res['store'].create(request.run_id,payload):res['manager'].start(request.run_id,payload)
+            if res['store'].create(request.run_id,payload,original_request=request.model_dump()):res['manager'].start(request.run_id,payload)
         except ValueError as exc:raise HTTPException(409,str(exc))
         return {'run_id':request.run_id}
 
@@ -71,6 +77,7 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
         req['eligible_tag_ids']=sorted(set(req['eligible_tag_ids'])&set(request.eligible_tag_ids))
         req['confirmed_clause_ids']=request.confirmed_clause_ids
         req['previous_plan']=result.get('plan') or req.get('previous_plan',{})
+        req['clarification_state']=result.get('clarification_state') or req.get('clarification_state',{})
         req['_generation']=req.get('_generation',0)+1
         req['edited_plan']=None
         return res,req,result
@@ -79,8 +86,12 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
     async def resume(rid:str,request:ResumeRequest):
         row=lookup(rid,request.owner_id)
         if row['status']=='WAITING' and request.answer in (None,'',{}):raise HTTPException(422,'请填写回答')
+        questions=(row['result'] or {}).get('questions',[])
+        try:validate_staged_answer(questions,request.answer)
+        except ValueError as exc:raise HTTPException(422,str(exc))
         res,req,result=claim(rid,row,request)
-        req['_questions']=result.get('questions',[]);req['_answer']=request.answer
+        req['clarification_state']=record_answer(req,questions,request.answer)
+        req['_questions']=staged_questions(questions);req['_answer']=request.answer
         if isinstance(request.answer,dict) and request.answer.get('plan'):req['edited_plan']=request.answer['plan']
         elif request.answer:
             req['_utterance']=str(request.answer)

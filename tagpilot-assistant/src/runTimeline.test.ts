@@ -9,6 +9,15 @@ const start = (call_id: string, refs = ["R1"]): RunEvent => ({ seq: 1, type: "to
 const end = (call_id: string, ok = true): RunEvent => ({ seq: 2, type: "tool.completed", tool: "find_tags", call_id, ok, summary: "找到 5 个相关标签", duration_ms: 400, occurred_at: 101 });
 
 describe("处理记录视图", () => {
+  it("旧版零条件降级保留部分完成和待确认提示，后续取消也不会抹掉记录", () => {
+    const d = { level: "L2", reason: "timeout", kept_clauses: [], unresolved_clause_ids: ["C1"], resumable: true };
+    const events = [{ seq: 1, type: "run.degraded", stats: { degraded: d } }, { seq: -1, type: "run.cancelled" }];
+    const view = buildRunView(events, undefined, false, { status: "CANCELLED" });
+    expect(view.stats.conditions).toBe(1);
+    expect(view.degraded?.kept_clauses).toEqual([]);
+    expect(view.items[0]).toMatchObject({ kind: "status", text: expect.stringContaining("尚未形成可用条件") });
+    expect(view.items[1]).toMatchObject({ kind: "status", text: "本轮处理已停止" });
+  });
   it("配对并行调用，按开始顺序合并同类动作", () => {
     const v = buildRunView([start("a"), start("b"), end("b"), end("a")], undefined, true);
     expect(v.stats.steps).toBe(2);

@@ -36,6 +36,7 @@ def check_literals(plan,request,tags):
     errors=[];nodes=leaves(plan['tree'])
     current=request.get('_utterance',request['requirement'])
     sources=[request['requirement'],current]+[str(m.get('text') or m.get('content') or '') for m in request.get('history',[])]
+    sources += [str(r.get('answer') or '') for r in (request.get('clarification_state') or {}).get('records',[])]
     previous=request.get('previous_plan',{})
     if previous.get('intent_plan'):sources.append(previous['intent_plan'].get('original_request',''))
     old_nodes={n['clause_id']:n for n in leaves(previous['tree'])} if previous.get('tree') else {}

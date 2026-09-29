@@ -204,6 +204,52 @@ test.beforeEach(async ({ page }) => {
     return route.fulfill({ json: { code: 200, data } });
   });
 });
+test("legacy clarification asks metric before its threshold", async ({ page }) => {
+  t.status = "WAITING"; t.interrupt_id = "legacy-ask"; t.plan.valid = false;
+  t.questions = [
+    { requirement_id: "R1", clause_id: "C1", prompt: "高价值客户采用哪个指标？", options: ["最高客户等级 A/B/C", "潜力等级 01至05"], reason: "MULTIPLE_PUBLISHED_DEFINITIONS" },
+    { requirement_id: "R1", clause_id: "C1", prompt: "采用哪个档位？", options: ["仅最高档 05极高", "04及05"], reason: "THRESHOLD_MISSING" },
+  ];
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const ask = page.locator(".ask-card");
+  await expect(ask.getByText("高价值客户采用哪个指标？")).toBeVisible();
+  await expect(ask.getByText("采用哪个档位？")).toHaveCount(0);
+  await expect(ask.getByText("先确认采用的指标，再选择该指标对应的档位或阈值。")).toBeVisible();
+  await ask.getByRole("button", { name: "最高客户等级 A/B/C", exact: true }).click();
+  if (process.env.CAPTURE_DIR) await page.screenshot({ path: process.env.CAPTURE_DIR + "/clarification-desktop.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(ask.getByRole("button", { name: "提交并继续" })).toBeVisible();
+  if (process.env.CAPTURE_DIR) await page.screenshot({ path: process.env.CAPTURE_DIR + "/clarification-mobile.png", fullPage: true });
+  const posted = page.waitForRequest((r) => r.url().endsWith("/resume"));
+  await ask.getByRole("button", { name: "提交并继续" }).click();
+  const answer = (await posted).postDataJSON().answer;
+  expect(answer).toContain("最高客户等级 A/B/C");
+  expect(answer).not.toContain("05极高");
+});
+
+test("historical zero-condition degradation remains visible after cancellation", async ({ page }) => {
+  t.status = "CANCELLED"; t.plan.valid = false;
+  t.events = [{ seq: -1, type: "run.cancelled" }];
+  t.run_history = [{ run_id: "old-timeout", events: [{ seq: 1, type: "run.degraded", stats: { degraded: {
+    level: "L2", reason: "timeout", kept_clauses: [], unresolved_clause_ids: ["C1"], resumable: true,
+    user_message: "处理时间较长，已保留已确认的条件",
+  } } }] }];
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const history = page.getByRole("region", { name: "第 1 轮处理记录" });
+  // section 有标签时由浏览器映射为 region。
+  await expect(history.getByRole("button", { name: /部分完成 · 已保留 0 项条件，1 项待处理/ })).toBeVisible();
+  await history.locator(".run-heading").click();
+  await expect(history.getByText(/尚未形成可用条件/)).toBeVisible();
+  if (process.env.CAPTURE_DIR) await page.screenshot({ path: process.env.CAPTURE_DIR + "/history-desktop.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(history.getByText(/尚未形成可用条件/)).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  if (process.env.CAPTURE_DIR) await page.screenshot({ path: process.env.CAPTURE_DIR + "/history-mobile.png", fullPage: true });
+  await page.reload();
+  await expect(page.getByRole("button", { name: /第 1 轮处理记录 · 部分完成/ })).toBeVisible();
+});
 test("condition edits invalidate count, persist through refresh, and creation needs confirmation", async ({
   page,
 }) => {

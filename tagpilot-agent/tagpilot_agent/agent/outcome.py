@@ -24,7 +24,11 @@ class AgentOutcome(StrictModel):
 
 
 def result_for(ctx):
+    from .clarification import clarification_state
     accepted=ctx.accepted or {'outcome':'PARTIAL','plan':ctx.best_plan or ctx.request.get('previous_plan') or {},'questions':[],'gaps':[]}
+    state=clarification_state(ctx.request)
+    state['pending_questions']=accepted.get('questions',[])
     return {'plan':accepted['plan'], 'questions':accepted.get('questions',[]),
+            'clarification_state':state,
             'interrupt_id':ctx.request['run_id']+'-'+str(ctx.request.get('_generation',0)) if accepted['outcome']=='NEEDS_USER_INPUT' else None,
             'outcome':{'outcome':accepted['outcome'],'gaps':accepted.get('gaps',[]),'stats':ctx.stats}}
