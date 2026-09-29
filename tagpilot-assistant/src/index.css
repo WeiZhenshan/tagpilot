@@ -250,9 +250,18 @@ textarea {
 .history-heading {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   color: var(--muted);
   font-size: 12px;
   padding: 8px 5px 0;
+}
+.history-delete-all {
+  flex-shrink: 0;
+  color: var(--danger);
+}
+.history-delete-all:hover:not(:disabled) {
+  color: var(--danger);
 }
 .text-button {
   padding: 2px 4px;

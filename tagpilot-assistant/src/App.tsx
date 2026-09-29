@@ -59,9 +59,12 @@ export function App() {
   const [editingThreadId, setEditingThreadId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [deleteCandidate, setDeleteCandidate] = useState<ThreadRow | null>(null);
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
   const [sample, setSample] = useState<Record<string, unknown> | null>(null);
   const deleteDialog = useRef<HTMLDialogElement>(null);
+  const deleteAllDialog = useRef<HTMLDialogElement>(null);
   const deleteTrigger = useRef<HTMLElement | null>(null);
+  const deleteAllTrigger = useRef<HTMLElement | null>(null);
   const sampleDialog = useRef<HTMLDialogElement>(null);
   const sampleTrigger = useRef<HTMLElement | null>(null);
   const account = useRef<HTMLDivElement>(null);
@@ -73,6 +76,13 @@ export function App() {
       deleteTrigger.current?.focus();
     };
   }, [deleteCandidate]);
+  useEffect(() => {
+    if (!deleteAllConfirm) return;
+    deleteAllDialog.current?.showModal();
+    return () => {
+      deleteAllTrigger.current?.focus();
+    };
+  }, [deleteAllConfirm]);
   useEffect(() => {
     if (!sample) return;
     sampleDialog.current?.showModal();
@@ -100,6 +110,10 @@ export function App() {
     () => history.filter((item) => item.title.includes(search.trim())),
     [history, search]
   );
+  const deleteAllBlocked =
+    !!thread?.archived &&
+    history.some((item) => item.threadId === thread.thread_id) &&
+    (busy(thread) || thread.status === "WAITING");
   useEffect(() => {
     let dead = false;
     void Promise.all([
@@ -316,18 +330,32 @@ export function App() {
       if (current.current?.thread_id === item.threadId) update(changed);
       await reloadHistory();
     });
+  const clearCurrentThread = () => {
+    generation.current++;
+    current.current = null;
+    setThread(null);
+    setSample(null);
+    const url = new URL(location.href);
+    url.searchParams.delete("threadId");
+    historyReplace(url);
+  };
   const deleteHistoryItem = (item: ThreadRow) =>
     void operation(async () => {
       setDeleteCandidate(null);
       await api.deleteThread(item.threadId);
-      if (current.current?.thread_id === item.threadId) {
-        generation.current++;
-        current.current = null;
-        setThread(null);
-        setSample(null);
-        const url = new URL(location.href);
-        url.searchParams.delete("threadId");
-        historyReplace(url);
+      if (current.current?.thread_id === item.threadId) clearCurrentThread();
+      await reloadHistory();
+    });
+  const deleteAllArchivedThreads = () =>
+    void operation(async () => {
+      setDeleteAllConfirm(false);
+      const items = [...history];
+      for (const item of items) await api.deleteThread(item.threadId);
+      if (
+        current.current &&
+        items.some((item) => item.threadId === current.current?.thread_id)
+      ) {
+        clearCurrentThread();
       }
       await reloadHistory();
     });
@@ -436,6 +464,20 @@ export function App() {
           />
           <div className="history-heading">
             <span>{archived ? "已归档" : "最近圈选"}</span>
+            {archived && history.length ? (
+              <button
+                type="button"
+                className="text-button history-delete-all"
+                disabled={pending || deleteAllBlocked}
+                aria-label="删除全部已归档会话"
+                onClick={(event) => {
+                  deleteAllTrigger.current = event.currentTarget;
+                  setDeleteAllConfirm(true);
+                }}
+              >
+                全部删除
+              </button>
+            ) : null}
           </div>
           <nav aria-label="圈选会话">
             {visibleHistory.map((item) => (
@@ -673,6 +715,51 @@ export function App() {
           onOpenGroup={openGroup}
         />
       </div>
+      {deleteAllConfirm ? (
+        <dialog
+          ref={deleteAllDialog}
+          onCancel={() => setDeleteAllConfirm(false)}
+          onKeyDown={(event) => {
+            if (event.key !== "Tab") return;
+            const items = Array.from(
+              event.currentTarget.querySelectorAll<HTMLElement>(
+                'button:not(:disabled), [tabindex="0"]'
+              )
+            );
+            const first = items[0],
+              last = items[items.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first?.focus();
+            }
+          }}
+          className="confirm-overlay"
+          aria-modal="true"
+          aria-labelledby="delete-all-threads-title"
+        >
+          <div className="confirm-dialog">
+            <h2 id="delete-all-threads-title">永久删除全部已归档会话？</h2>
+            <p>
+              将删除 {history.length} 个已归档会话，对话、圈选方案和处理记录都无法恢复。
+            </p>
+            <div className="confirm-actions">
+              <button autoFocus onClick={() => setDeleteAllConfirm(false)}>
+                取消
+              </button>
+              <button
+                className="danger-button"
+                disabled={pending}
+                onClick={() => deleteAllArchivedThreads()}
+              >
+                永久删除
+              </button>
+            </div>
+          </div>
+        </dialog>
+      ) : null}
       {deleteCandidate ? (
         <dialog
           ref={deleteDialog}
