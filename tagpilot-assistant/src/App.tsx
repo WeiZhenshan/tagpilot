@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
@@ -15,6 +14,7 @@ import {
 import * as api from "./agentApi";
 import { AgentConversation } from "./AgentConversation";
 import { PlanPanel } from "./PlanPanel";
+import { ChevronIcon, ListboxSelect } from "./ListboxSelect";
 import {
   busy,
   stateText,
@@ -877,128 +877,18 @@ function LibraryPicker({
   disabled: boolean;
   onChange: (libraryId: number) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const listboxId = useId();
-  const selectedIndex = libraries.findIndex((item) => item.libraryId === value);
-  const selected = selectedIndex >= 0 ? libraries[selectedIndex] : undefined;
-
-  const close = (restoreFocus = false) => {
-    setOpen(false);
-    if (restoreFocus) window.requestAnimationFrame(() => trigger.current?.focus());
-  };
-  const openAt = (index = Math.max(selectedIndex, 0)) => {
-    if (disabled || !libraries.length) return;
-    setOpen(true);
-    window.requestAnimationFrame(() => optionRefs.current[index]?.focus());
-  };
-
-  useEffect(() => {
-    if (disabled) setOpen(false);
-  }, [disabled]);
-  useEffect(() => {
-    if (!open) return;
-    const dismiss = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
-    };
-    document.addEventListener("pointerdown", dismiss);
-    return () => document.removeEventListener("pointerdown", dismiss);
-  }, [open]);
-
-  const moveFocus = (offset: number) => {
-    const currentIndex = optionRefs.current.findIndex(
-      (option) => option === document.activeElement
-    );
-    const origin = currentIndex >= 0 ? currentIndex : Math.max(selectedIndex, 0);
-    const next = (origin + offset + libraries.length) % libraries.length;
-    optionRefs.current[next]?.focus();
-  };
-
   return (
-    <div
-      className="library-select"
-      ref={root}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-          setOpen(false);
-        }
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape" && open) {
-          event.preventDefault();
-          close(true);
-          return;
-        }
-        if (event.key === "ArrowDown") {
-          event.preventDefault();
-          open ? moveFocus(1) : openAt();
-        }
-        if (event.key === "ArrowUp") {
-          event.preventDefault();
-          open
-            ? moveFocus(-1)
-            : openAt(selectedIndex >= 0 ? selectedIndex : libraries.length - 1);
-        }
-        if (event.key === "Home" && open) {
-          event.preventDefault();
-          optionRefs.current[0]?.focus();
-        }
-        if (event.key === "End" && open) {
-          event.preventDefault();
-          optionRefs.current[libraries.length - 1]?.focus();
-        }
-      }}
-    >
-      <button
-        ref={trigger}
-        type="button"
-        className="library-select-trigger"
-        aria-label="当前标签库"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? listboxId : undefined}
-        disabled={disabled}
-        onClick={() => (open ? close() : openAt())}
-      >
-        <span>{selected?.libraryName || "请选择标签库"}</span>
-        <ChevronIcon open={open} />
-      </button>
-      {open ? (
-        <div
-          id={listboxId}
-          className="library-options"
-          role="listbox"
-          aria-label="选择标签库"
-        >
-          {libraries.map((item, index) => {
-            const isSelected = item.libraryId === value;
-            return (
-              <button
-                key={item.libraryId}
-                ref={(element) => {
-                  optionRefs.current[index] = element;
-                }}
-                type="button"
-                className="library-option"
-                role="option"
-                aria-selected={isSelected}
-                onClick={() => {
-                  close(true);
-                  if (!isSelected) onChange(item.libraryId);
-                }}
-              >
-                <span className="library-option-check" aria-hidden="true">
-                  {isSelected ? <CheckIcon /> : null}
-                </span>
-                <span>{item.libraryName}</span>
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
-    </div>
+    <ListboxSelect
+      ariaLabel="当前标签库"
+      placeholder="请选择标签库"
+      disabled={disabled}
+      value={value === "" ? "" : String(value)}
+      onChange={(libraryId) => onChange(Number(libraryId))}
+      options={libraries.map((item) => ({
+        value: String(item.libraryId),
+        label: item.libraryName,
+      }))}
+    />
   );
 }
 
@@ -1081,38 +971,6 @@ function LogoutIcon() {
       aria-hidden="true"
     >
       <path d="M10 5H5v14h5M14 8l4 4-4 4M8 12h10" />
-    </svg>
-  );
-}
-
-function ChevronIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={open ? "m7 14 5-5 5 5" : "m7 10 5 5 5-5"} />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m5 12 4 4L19 6" />
     </svg>
   );
 }

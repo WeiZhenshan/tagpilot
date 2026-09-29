@@ -470,6 +470,38 @@ test("history rail supports collapse, inline rename, row actions and account men
   await expect(page.getByRole("navigation", { name: "圈选会话" })).toBeVisible();
 });
 
+test("plan panel listboxes fit their triggers", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const panel = page.getByRole("complementary", { name: "圈选方案" });
+  await expect(panel).toBeVisible();
+  const panelBox = await panel.boundingBox();
+  const labels = [
+    "条件组合",
+    "方案版本",
+    "近30天异名跨行转入金额比较方式",
+    "客户状态条件值",
+  ];
+  for (const name of labels) {
+    const trigger = page.getByRole("button", { name, exact: true });
+    await trigger.click();
+    const listbox = page.getByRole("listbox", { name, exact: true });
+    await expect(listbox).toBeVisible();
+    const triggerBox = await trigger.boundingBox();
+    const optionsBox = await listbox.boundingBox();
+    expect(triggerBox, name).toBeTruthy();
+    expect(optionsBox, name).toBeTruthy();
+    expect(optionsBox!.width, name).toBeGreaterThanOrEqual(triggerBox!.width - 1);
+    expect(optionsBox!.width, name).toBeLessThan(panelBox!.width);
+    expect(triggerBox!.width, name).toBeLessThan(panelBox!.width * 0.92);
+    await page.keyboard.press("Escape");
+  }
+  const logic = await page.getByRole("button", { name: "条件组合" }).boundingBox();
+  const version = await page.getByRole("button", { name: "方案版本" }).boundingBox();
+  expect(logic!.width).toBeLessThan(panelBox!.width * 0.45);
+  expect(version!.width).toBeLessThan(panelBox!.width * 0.45);
+});
+
 test('计算草案展示缺口且禁止执行',async({page})=>{
   t.outcome={outcome:'CAPABILITY_GAP',gaps:[{requirement_id:'ratio',reason:'NO_CAPABILITY',nearest_tag_ids:[]}]};
   t.plan={...structuredClone(plan),valid:false,plan_status:'CAPABILITY_GAP',tree:{kind:'DERIVED_PREDICATE',clause_id:'ratio',name:'存款占 AUM 至少八成',operator:'>=',values:['0.8'],expression:{kind:'DIV',args:[{kind:'TAG',tag_id:1,name:'当前存款余额'},{kind:'TAG',tag_id:2,name:'当前 AUM'}]}},diagnostics:[{code:'CAPABILITY_UNAVAILABLE',message:'当前发布版本缺少可核验的基金持仓明细能力',user_decision_required:false}]};

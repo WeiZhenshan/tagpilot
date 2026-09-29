@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Clause, Plan, Thread, Tree } from "./agentTypes";
 import { busy, clauses, planDiff, planStateText, expressionText, gapText } from "./agentTypes";
+import { ListboxSelect } from "./ListboxSelect";
 const unitLabels: Record<string, string> = {
   CNY: "元",
   COUNT: "次",
@@ -75,17 +76,19 @@ function TreeEditor({
     return (
       <div className="condition-group">
         <div className="group-heading">
-          <select
-            aria-label="条件组合"
+          <ListboxSelect
+            ariaLabel="条件组合"
             disabled={disabled}
             value={tree.logic}
-            onChange={(e) =>
-              onChange({ ...tree, logic: e.target.value as "AND" | "OR" })
+            triggerClassName="library-select-trigger--compact"
+            onChange={(logic) =>
+              onChange({ ...tree, logic: logic as "AND" | "OR" })
             }
-          >
-            <option value="AND">全部满足</option>
-            <option value="OR">任一满足</option>
-          </select>
+            options={[
+              { value: "AND", label: "全部满足" },
+              { value: "OR", label: "任一满足" },
+            ]}
+          />
           <span>{tree.children.length} 项条件</span>
         </div>
         <div className="condition-children">
@@ -146,47 +149,45 @@ function TreeEditor({
         <p className="source-text">{c.source_span}</p>
       ) : null}
       {c.candidates?.length ? (
-        <label className="field-label">
+        <label className="field-label field-label--tag">
           关联标签
-          <select
+          <ListboxSelect
+            ariaLabel="关联标签"
             disabled={disabled}
-            value={c.tag_id || ""}
-            onChange={(e) =>
+            placeholder="请选择标签"
+            triggerClassName="library-select-trigger--field"
+            value={c.tag_id ? String(c.tag_id) : ""}
+            onChange={(tagId) => {
+              const id = Number(tagId);
               patch({
-                tag_id: Number(e.target.value),
-                name: c.candidates?.find(
-                  (x) => x.tag_id === Number(e.target.value)
-                )?.name,
+                tag_id: id,
+                name: c.candidates?.find((x) => x.tag_id === id)?.name,
                 values: [],
                 code_options: [],
                 allowed_operators: undefined,
                 value_unit: undefined,
                 value_scale: undefined,
                 status: "UNRESOLVED",
-              })
-            }
-          >
-            <option value="">请选择标签</option>
-            {[...new Map(c.candidates.map((x) => [x.tag_id, x])).values()].map(
-              (x) => (
-                <option key={x.tag_id} value={x.tag_id}>
-                  {x.name}
-                </option>
-              )
-            )}
-          </select>
+              });
+            }}
+            options={[
+              ...[...new Map(c.candidates.map((x) => [x.tag_id, x])).values()].map(
+                (x) => ({ value: String(x.tag_id), label: x.name })
+              ),
+            ]}
+          />
         </label>
       ) : null}
       <div className="condition-inputs">
-        <label className="field-label">
+        <label className="field-label field-label--operator">
           比较方式
-          <select
-            aria-label={`${c.name || c.clause_id}比较方式`}
+          <ListboxSelect
+            ariaLabel={`${c.name || c.clause_id}比较方式`}
             disabled={disabled}
             value={c.operator || "="}
-            onChange={(e) => patch({ operator: e.target.value })}
-          >
-            {[
+            triggerClassName="library-select-trigger--field"
+            onChange={(operator) => patch({ operator })}
+            options={[
               ...new Set([
                 ...(c.allowed_operators || [
                   "=",
@@ -200,15 +201,14 @@ function TreeEditor({
                 ]),
                 c.operator || "=",
               ]),
-            ].map((op) => (
-              <option key={op} value={op}>
-                {operatorNames[op] || op}
-              </option>
-            ))}
-          </select>
+            ].map((op) => ({
+              value: op,
+              label: operatorNames[op] || op,
+            }))}
+          />
         </label>
         {!["is_null", "is_not_null"].includes(c.operator || "") ? (
-          <label className="field-label">
+          <label className="field-label field-label--value">
             条件值
             {c.unit && c.unit !== "NONE"
               ? `（${
@@ -220,31 +220,34 @@ function TreeEditor({
                 }${unitLabels[c.unit] || c.unit}）`
               : ""}
             {c.code_options?.length ? (
-              <select
-                disabled={disabled}
-                multiple={["in", "not_in"].includes(c.operator || "")}
-                value={
-                  ["in", "not_in"].includes(c.operator || "")
-                    ? c.values || []
-                    : c.values?.[0] || ""
-                }
-                onChange={(e) =>
-                  patch({
-                    values: Array.from(e.target.selectedOptions).map(
-                      (o) => o.value
-                    ),
-                  })
-                }
-              >
-                <option value="" disabled>
-                  请选择
-                </option>
-                {c.code_options.map((o) => (
-                  <option key={o.code} value={o.code}>
-                    {o.label || o.code}
-                  </option>
-                ))}
-              </select>
+              ["in", "not_in"].includes(c.operator || "") ? (
+                <ListboxSelect
+                  multiple
+                  ariaLabel={`${c.name || c.clause_id}条件值`}
+                  disabled={disabled}
+                  placeholder="请选择"
+                  triggerClassName="library-select-trigger--field"
+                  value={c.values || []}
+                  onChange={(values) => patch({ values })}
+                  options={c.code_options.map((o) => ({
+                    value: o.code,
+                    label: o.label || o.code,
+                  }))}
+                />
+              ) : (
+                <ListboxSelect
+                  ariaLabel={`${c.name || c.clause_id}条件值`}
+                  disabled={disabled}
+                  placeholder="请选择"
+                  triggerClassName="library-select-trigger--field"
+                  value={c.values?.[0] || ""}
+                  onChange={(value) => patch({ values: value ? [value] : [] })}
+                  options={c.code_options.map((o) => ({
+                    value: o.code,
+                    label: o.label || o.code,
+                  }))}
+                />
+              )
             ) : (
               <input
                 disabled={disabled}
@@ -359,21 +362,23 @@ export function PlanPanel({
           </p>
         </div>
         {thread?.versions.length ? (
-          <select
-            aria-label="方案版本"
+          <ListboxSelect
+            ariaLabel="方案版本"
+            className="plan-version-select"
             value={version}
-            onChange={(e) => {
-              setVersion(e.target.value);
+            triggerClassName="library-select-trigger--heading"
+            onChange={(v) => {
+              setVersion(v);
               setConfirm(false);
             }}
-          >
-            <option value="current">当前方案</option>
-            {thread.versions.map((p) => (
-              <option key={p.revision} value={p.revision}>
-                v{p.revision}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: "current", label: "当前方案" },
+              ...thread.versions.map((p) => ({
+                value: String(p.revision),
+                label: `v${p.revision}`,
+              })),
+            ]}
+          />
         ) : null}
       </div>
       <div className="plan-scroll">

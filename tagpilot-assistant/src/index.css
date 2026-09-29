@@ -213,6 +213,78 @@ textarea {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.library-select-trigger--field {
+  width: 100%;
+  max-width: none;
+  min-height: 34px;
+  border: 1px solid #d9dde3;
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px 10px;
+  color: #24272c;
+}
+.library-select-trigger--compact {
+  width: auto;
+  max-width: 100%;
+  min-height: auto;
+  border: 1px solid #dce2e9;
+  border-radius: 6px;
+  background: #fff;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #24272c;
+}
+.library-select-trigger--heading {
+  width: 100%;
+  max-width: none;
+  min-height: auto;
+  border: 1px solid #d9dde3;
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #24272c;
+}
+.plan-panel .library-select-trigger {
+  max-width: 100%;
+  justify-content: space-between;
+}
+.plan-panel .library-options {
+  left: 0;
+  right: auto;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(18rem, calc(100cqw - 36px), calc(100vw - 40px));
+}
+.plan-panel .library-option {
+  padding: 7px 8px;
+  white-space: normal;
+}
+.plan-panel .library-option > span:last-child {
+  overflow-wrap: anywhere;
+}
+.plan-version-select {
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 40%;
+  min-width: 0;
+}
+.plan-version-select .library-options {
+  left: auto;
+  right: 0;
+  width: max-content;
+  max-width: min(10rem, 70vw);
+}
+.group-heading .library-select {
+  flex: 0 1 auto;
+  width: max-content;
+  max-width: calc(100% - 4.5em);
+}
+.group-heading .library-select .library-options {
+  width: max-content;
+  max-width: min(12rem, 70vw);
+}
 .topbar-status {
   margin-left: auto;
   color: var(--muted);
@@ -691,6 +763,7 @@ textarea {
   transition-delay: 0s, 0s, 0.2s;
 }
 .plan-panel {
+  container-type: inline-size;
   width: 370px;
   flex-shrink: 0;
   border-left: 1px solid var(--border);
@@ -711,10 +784,6 @@ textarea {
   font-size: 12px;
   color: var(--muted);
   margin-top: 3px;
-}
-.panel-heading select {
-  font-size: 12px;
-  max-width: 110px;
 }
 .plan-scroll {
   flex: 1;
@@ -763,12 +832,6 @@ textarea {
   gap: 8px;
   margin-bottom: 12px;
 }
-.group-heading select {
-  padding: 3px 7px;
-  font-size: 12px;
-  font-weight: 500;
-  border-color: #dce2e9;
-}
 .group-heading span {
   font-size: 11px;
   color: var(--muted);
@@ -781,6 +844,8 @@ textarea {
   margin-bottom: 17px;
 }
 .condition {
+  container-type: inline-size;
+  container-name: condition;
   padding: 0 0 8px;
   min-width: 0;
 }
@@ -815,17 +880,48 @@ textarea {
   flex: 1;
   min-width: 0;
 }
-.field-label input,
-.field-label select {
+.field-label input {
   width: 100%;
   color: #24272c;
+}
+.plan-panel .field-label .library-select {
+  width: fit-content;
+  min-width: min(100%, 6rem);
+  max-width: 100%;
+}
+.plan-panel .field-label--tag .library-select {
+  max-width: min(100%, 18rem);
 }
 .condition-inputs {
   display: flex;
   gap: 8px;
 }
-.condition-inputs .field-label:first-child {
-  max-width: 105px;
+.condition-inputs .field-label--operator {
+  flex: 0 1 5.5rem;
+  max-width: 42%;
+}
+.plan-panel .field-label--operator .library-select {
+  width: 100%;
+  min-width: 0;
+}
+.condition-inputs .field-label--value {
+  max-width: 11rem;
+}
+.field-label--value .library-options {
+  max-width: min(11rem, calc(100cqw - 6rem));
+}
+@container condition (max-width: 200px) {
+  .condition-inputs {
+    flex-direction: column;
+  }
+  .condition-inputs .field-label--operator {
+    flex: none;
+    width: min(100%, 5.5rem);
+    max-width: 100%;
+  }
+  .field-label--value .library-options {
+    max-width: 100cqw;
+  }
 }
 .evidence {
   margin-top: 10px;
