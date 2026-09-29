@@ -430,11 +430,24 @@ test("return to latest stays fixed while browsing older messages", async ({
     text: `第 ${index + 1} 条用于验证滚动定位的对话消息`,
     created_at: "2026-09-21T01:00:00Z",
   }));
-  await page.setViewportSize({ width: 596, height: 773 });
+  await page.setViewportSize({ width: 1440, height: 682 });
   await page.goto("/agent-ui/?threadId=test-thread");
 
   const viewport = page.locator(".thread-viewport");
   const returnButton = page.getByRole("button", { name: "回到最新消息" });
+  await expect(page.locator(".run-timeline .sr-only")).toHaveCount(1);
+  // 长对话和处理记录只应撑开内部滚动区，不能在整页下方留下空白。
+  const expectDocumentToFit = async () => {
+    await expect.poll(() => page.evaluate(() =>
+      document.documentElement.scrollHeight - innerHeight
+    )).toBeLessThanOrEqual(0);
+    expect(await viewport.evaluate((element) =>
+      element.scrollHeight > element.clientHeight
+    )).toBeTruthy();
+  };
+  await expectDocumentToFit();
+  await page.setViewportSize({ width: 596, height: 773 });
+  await expectDocumentToFit();
   await expect(returnButton).toBeHidden();
   await viewport.evaluate((element) => {
     element.scrollTop = 0;
@@ -442,6 +455,7 @@ test("return to latest stays fixed while browsing older messages", async ({
   });
   await expect(returnButton).toBeVisible();
   await expect(returnButton).toBeEnabled();
+  await expectDocumentToFit();
 
   const settledBox = async () => {
     let previous = await returnButton.boundingBox();
@@ -479,6 +493,7 @@ test("return to latest stays fixed while browsing older messages", async ({
     )
     .toBeLessThan(2);
   await expect(returnButton).toBeHidden();
+  await expectDocumentToFit();
 });
 
 test("history rail supports collapse, inline rename, row actions and account menu", async ({

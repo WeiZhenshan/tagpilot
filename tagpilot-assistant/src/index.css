@@ -657,6 +657,8 @@ textarea {
   min-height: 0;
 }
 .thread-viewport {
+  /* 将处理记录的绝对定位播报元素限制在内部滚动区，避免撑高整页。 */
+  position: relative;
   overflow-y: auto;
   flex: 1;
   min-width: 0;
