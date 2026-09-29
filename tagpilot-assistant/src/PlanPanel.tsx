@@ -81,7 +81,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
     <div className="plan-scroll">
       {thread?.archived ? <p className="plan-history-notice">会话已归档，恢复后可继续圈选。</p> : null}
       {historical ? <p className="plan-history-notice">你正在查看 v{version}<button className="text-button" onClick={() => setVersion(undefined)}>返回当前</button></p> : null}
-      {running ? <div className="plan-progress" role="status"><p>正在整理条件…</p><button className="text-button" disabled={pending} onClick={onCancel}>停止</button></div> : null}
+      {running || thread?.status === "WAITING" ? <div className="plan-progress" role="status"><p>{running ? "正在整理条件…" : "等待业务选择"}</p><button className="text-button" disabled={pending} onClick={onCancel}>停止</button></div> : null}
       {!historical && !running && !dirty ? <PendingCard items={queue} disabled={disabled} canRemove={items.length > 1 || (shown?.intent_plan?.requirements.length || 0) > 1}
         onConfirm={confirmAssumption} onEdit={setEditing} onDiscuss={onDiscuss}
         onRemove={(item) => onRefine(`请移除这项要求：${item.title}，保留其余条件，并重新核验。`)} /> : null}

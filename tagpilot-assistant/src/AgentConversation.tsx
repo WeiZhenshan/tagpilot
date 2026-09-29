@@ -20,10 +20,12 @@ function Ask({
   thread,
   pending,
   onAnswer,
+  onCancel,
 }: {
   thread: Thread;
   pending: boolean;
   onAnswer: (answer: string) => void;
+  onCancel: () => void;
 }) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const qs = thread.questions || [];
@@ -67,12 +69,17 @@ function Ask({
           />
         </fieldset>
       ))}
-      <button
-        className="primary"
-        disabled={pending || qs.some((_, i) => !answers[i]?.trim())}
-      >
-        提交并继续
-      </button>
+      <div className="ask-actions">
+        <button
+          className="primary"
+          disabled={pending || qs.some((_, i) => !answers[i]?.trim())}
+        >
+          提交并继续
+        </button>
+        <button type="button" className="text-button" disabled={pending} onClick={onCancel}>
+          停止处理
+        </button>
+      </div>
       <p>也可以直接修改右侧条件，再保存核验。</p>
     </form>
   );
@@ -179,7 +186,7 @@ export function AgentConversation({
               <RunTimeline key={`${thread.thread_id}:${thread.run_id || "current"}`} runId={thread.run_id || thread.thread_id}
                 events={thread.events} running={busy(thread)} plan={thread.live_plan || thread.plan}
                 status={thread.status} questions={thread.questions} onReveal={onReveal}>
-                {thread.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} /> : null}
+                {thread.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} onCancel={onCancel} /> : null}
               </RunTimeline>
             ) : null}
             {thread && runNotice(thread) === "partial" && degraded ? (
@@ -238,6 +245,10 @@ export function AgentConversation({
                 <ComposerPrimitive.Cancel className="send-button">
                   停止处理
                 </ComposerPrimitive.Cancel>
+              ) : thread?.status === "WAITING" ? (
+                <button type="button" className="send-button" disabled={pending} onClick={onCancel}>
+                  停止处理
+                </button>
               ) : (
                 <ComposerPrimitive.Send
                   className="send-button"

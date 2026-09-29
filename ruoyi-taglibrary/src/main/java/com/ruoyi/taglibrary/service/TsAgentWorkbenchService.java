@@ -141,7 +141,10 @@ public class TsAgentWorkbenchService {
             String title=String.valueOf(request.get("title")).trim();if(title.isEmpty()||title.length()>120)throw new ServiceException("标题须为1至120字");row.setTitle(title);
         }
         if(request.containsKey("archived")) {
-            idle(state);boolean archived=Boolean.TRUE.equals(request.get("archived"));row.setArchived(archived?"1":"0");
+            String status=String.valueOf(state.get("status"));
+            if(Arrays.asList("RUNNING","SUBMITTING").contains(status)) idle(state);
+            else if(Boolean.TRUE.equals(request.get("archived")) && Arrays.asList("WAITING","INTERRUPTED","FAILED").contains(status)) stopRun(row,state);
+            boolean archived=Boolean.TRUE.equals(request.get("archived"));row.setArchived(archived?"1":"0");
             if(archived)row.setPinned("0");
         }
         if(request.containsKey("pinned")) {
@@ -205,7 +208,11 @@ public class TsAgentWorkbenchService {
         if(!Arrays.asList("WAITING","FAILED","INTERRUPTED").contains(state.get("status")))throw new ServiceException("当前运行不能恢复",409);
         if("WAITING".equals(state.get("status")) && !Objects.equals(state.get("interrupt_id"),request.get("interrupt_id")))throw new ServiceException("问题已失效",409);
         Map<String,Object> old=obj(state.get("run_request")), active=catalog.activeBundle(row.getLibraryId());
-        if(!Objects.equals(old.get("build_id"),active.get("build_id")))throw new ServiceException("发布版本已更新，请停止后重新核验",409);
+        if(!Objects.equals(old.get("build_id"),active.get("build_id"))) {
+            stopRun(row,state);
+            state.put("error","发布版本已更新，当前运行已停止，请重新发送需求核验");
+            save(row,state);return view(row,state);
+        }
         Object answer=request.get("answer");
         if(answer!=null && encode(answer).length()>100000)throw new ServiceException("补充信息过长");
         if("WAITING".equals(state.get("status")) && (answer==null || String.valueOf(answer).trim().isEmpty()))throw new ServiceException("请填写回答");
@@ -218,12 +225,15 @@ public class TsAgentWorkbenchService {
     public Map<String,Object> cancel(String thread) {
         TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
         if(!Arrays.asList("RUNNING","WAITING","INTERRUPTED","FAILED").contains(state.get("status")))return view(row,state);
+        stopRun(row,state);save(row,state);return view(row,state);
+    }
+    private void stopRun(TsAgentThread row,Map<String,Object> state) {
         if(state.get("run_id")!=null) agent.post("/agent/v2/runs/"+state.get("run_id")+"/cancel",map("owner_id",String.valueOf(uid())));
         if(state.get("live_plan") instanceof Map){
             Map<String,Object> partial=obj(state.get("live_plan"));partial.put("valid",false);applyPlan(state,partial);
         }
         List<Map<String,Object>> events=list(state.get("events"));events.add(map("seq",-1,"type","run.cancelled","message","已停止；已完成条件保留"));state.put("events",events);
-        state.put("status","CANCELLED");state.put("questions",new ArrayList<>());save(row,state);return view(row,state);
+        state.put("status","CANCELLED");state.put("questions",new ArrayList<>());
     }
     private void collectAssumed(Map<String,Object> node,Set<String> result) {
         if(node.containsKey("children")){for(Map<String,Object> child:list(node.get("children")))collectAssumed(child,result);}

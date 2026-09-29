@@ -548,7 +548,7 @@ export function App() {
                         pending ||
                         (item.threadId === thread?.thread_id &&
                           !!thread &&
-                          (busy(thread) || thread.status === "WAITING"))
+                          busy(thread))
                       }
                       onClick={() =>
                         changeHistoryItem(item, { archived: !archived })
@@ -670,9 +670,9 @@ export function App() {
               圈选方案
             </button>
           </div>
-          {error ? (
+          {error || (thread && ["CANCELLED", "FAILED", "INTERRUPTED"].includes(thread.status) && thread.error) ? (
             <div className="banner error" role="alert">
-              <span>{error}</span>
+              <span>{error || thread?.error}</span>
               <button
                 onClick={() => {
                   setError("");

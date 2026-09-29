@@ -104,6 +104,25 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         assertThrows(ServiceException.class,()->service.resume("owned",map("base_revision",2,"interrupt_id","old","answer","回答")));
         verifyNoInteractions(agent);
     }
+    @Test void resumeVersionMismatchStopsWaitingInsteadOfLeavingStuck() throws Exception {
+        state(map("revision",2,"status","WAITING","interrupt_id","ask","run_id","run-1",
+            "run_request",map("build_id","old","snapshot_id","s"),"messages",new ArrayList<>(),
+            "events",new ArrayList<>(),"questions",Arrays.asList(map("prompt","?"))));
+        when(catalog.activeBundle(107L)).thenReturn(map("build_id","new","snapshot_id","s","artifact_hash","h"));
+        Map<String,Object> result=service.resume("owned",map("base_revision",2,"interrupt_id","ask","answer","采用已发布口径"));
+        assertEquals("CANCELLED",result.get("status"));
+        assertTrue(String.valueOf(result.get("error")).contains("发布版本已更新"));
+        assertEquals(0,((List<?>)result.get("questions")).size());
+        verify(agent).post(eq("/agent/v2/runs/run-1/cancel"),any());
+        verify(agent,never()).post(eq("/agent/v2/runs/run-1/resume"),any());
+    }
+    @Test void archivingWaitingConversationStopsThenArchives() throws Exception {
+        state(map("revision",2,"status","WAITING","run_id","run-1","messages",new ArrayList<>(),"events",new ArrayList<>()));
+        Map<String,Object> result=service.rename("owned",map("archived",true));
+        assertEquals(true,result.get("archived"));
+        assertEquals("CANCELLED",result.get("status"));
+        verify(agent).post(eq("/agent/v2/runs/run-1/cancel"),any());
+    }
     @Test void pinIsPersistedAndArchivingClearsIt() {
         Map<String,Object> pinned=service.rename("owned",map("pinned",true));
         assertEquals(true,pinned.get("pinned"));

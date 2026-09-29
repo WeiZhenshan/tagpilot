@@ -253,6 +253,8 @@ test("clarification and responsive layout remain usable", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.goto("/agent-ui/?threadId=test-thread");
   await expect(page.getByRole("button", { name: "提交并继续" })).toBeDisabled();
+  await expect(page.locator(".ask-card").getByRole("button", { name: "停止处理" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "归档会话：跨行资金转入客户" })).toBeEnabled();
   if (process.env.CAPTURE_DIR) {
     fs.mkdirSync(process.env.CAPTURE_DIR, { recursive: true });
     await page.screenshot({
