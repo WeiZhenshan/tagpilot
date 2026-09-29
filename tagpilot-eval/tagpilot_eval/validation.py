@@ -9,7 +9,19 @@ from pathlib import Path
 from .contracts import EvalCase
 from .io import file_hash, digest, read_jsonl
 from .oracle import references
-from .seeds import QUOTAS
+
+
+def expected_shape(manifest):
+    """从包 manifest 读入该版本的形状。包形状属于包本身，不做成全局默认，避免用错版本的门槛。
+
+    `quota_shortfall_declared` 为真时允许实际配额**少于**目标（隔离过的变体不补造），
+    但仍然不得超过目标，也不得出现未声明的类别。
+    """
+    mother_count=int(manifest['mother_cases'])
+    return {'phase':manifest['phase'],'case_count':int(manifest.get('case_count',mother_count)),
+            'mother_count':mother_count,'formal_cases':int(manifest.get('formal_cases',0)),
+            'quotas':manifest['quotas'],
+            'allow_quota_shortfall':bool(manifest.get('quota_shortfall_declared',False))}
 
 
 def verify_package(path):
@@ -29,16 +41,21 @@ def verify_package(path):
     return manifest
 
 
-def validate_cases(cases,facts,p0_hash):
+def validate_cases(cases,facts,p0_hash,expect):
     cases=[EvalCase.model_validate(case).model_dump(exclude_none=True) for case in cases]
     errors=[]
     def error(case,code,detail):errors.append({'case_id':case['case_id'],'code':code,'detail':detail})
     ids=[c['case_id'] for c in cases];mothers=[c['mother_id'] for c in cases]
-    if len(cases)!=200 or len(set(ids))!=200 or len(set(mothers))!=200:
-        raise ValueError('必须恰好200个不同母案例')
-    if dict(Counter(c['category'] for c in cases))!=QUOTAS:raise ValueError('配额错误')
+    if len(cases)!=expect['case_count'] or len(set(ids))!=expect['case_count'] or len(set(mothers))!=expect['mother_count']:
+        raise ValueError(f"必须恰好{expect['case_count']}个案例、{expect['mother_count']}个不同母案例")
+    achieved=dict(Counter(c['category'] for c in cases))
+    if expect.get('allow_quota_shortfall'):
+        overrun={name:count for name,count in achieved.items() if count>expect['quotas'].get(name,0)}
+        if overrun:raise ValueError('类别超出目标配额: '+repr(overrun))
+    elif achieved!=expect['quotas']:raise ValueError('配额错误')
+    if any(c['phase']!=expect['phase'] for c in cases):raise ValueError('案例阶段与包清单不一致')
     trajectories={digest([c['requirement'],*[t['user_message'] for t in c['turns']]]) for c in cases}
-    if len(trajectories)!=200:raise ValueError('完整输入轨迹重复')
+    if len(trajectories)!=expect['case_count']:raise ValueError('完整输入轨迹重复')
     for case in cases:
         if case['source_manifest_sha256']!=p0_hash:error(case,'SOURCE_HASH','P0版本不匹配')
         tids=set(case['target_tag_ids'])
@@ -80,18 +97,23 @@ def validate_cases(cases,facts,p0_hash):
                         if ready and node['caliber']!={k:v for k,v in f['published_semantics']['caliber_struct'].items() if v is not None}:
                             error(case,'CALIBER','时间/统计/范围不匹配')
             visit(tree)
-    return {'schema_version':'calibration-validation.v1','case_count':len(cases),'mother_count':len(set(mothers)),
+    return {'schema_version':'calibration-validation.v1','phase':expect['phase'],
+            'case_count':len(cases),'mother_count':len(set(mothers)),
             'lineage_groups':len({c['lineage_group'] for c in cases}),'categories':dict(Counter(c['category'] for c in cases)),
+            'splits':dict(Counter(c['split'] for c in cases)),
             'target_tags':len({t for c in cases for t in c['target_tag_ids']}),
             'domain_coverage':dict(Counter(d for c in cases for d in c['domains'])),
             'outcomes':dict(Counter(c['expected']['outcomes'][0] for c in cases)),
-            'errors':errors,'passed':not errors,
-            'independent_language_review':'NOT_RUN','human_review':'PENDING','formal_cases':0}
+            'errors':errors,'passed':not errors,'formal_cases':expect['formal_cases']}
 
 
 def validate_package(p0,calibration):
     verify_package(p0);manifest=verify_package(calibration)
     if manifest['p0_manifest_sha256']!=file_hash(Path(p0)/'manifest.json'):
-        raise ValueError('P1绑定的P0版本不一致')
+        raise ValueError('数据集绑定的P0版本不一致')
     facts={r['tag_id']:r for r in read_jsonl(Path(p0)/'facts.jsonl')}
-    return validate_cases(read_jsonl(Path(calibration)/'cases.jsonl'),facts,file_hash(Path(p0)/'manifest.json'))
+    summary=validate_cases(read_jsonl(Path(calibration)/'cases.jsonl'),facts,
+                           file_hash(Path(p0)/'manifest.json'),expected_shape(manifest))
+    summary['independent_language_review']=manifest.get('independent_model_review','NOT_RUN')
+    summary['human_review']=manifest.get('human_review','PENDING')
+    return summary

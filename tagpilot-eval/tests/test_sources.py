@@ -21,7 +21,10 @@ def test_source_denominators_and_leading_zeros():
     path=ROOT/'sql/indiv_cust'
     assert len(load_ddl(path/'01_create_L_INDVCST_LABEL.sql'))==970
     codes=load_code_maps([path/n for n in ['03_insert_L_INDVCST_LABEL_CODE_MAP_BOOL.sql','04_insert_L_INDVCST_LABEL_CODE_MAP_OPTION.sql','05_insert_L_INDVCST_LABEL_CODE_MAP_BRANCH.sql']])
-    assert len(codes)==177 and sum(map(len,codes.values()))==1723
+    # 工作树已包含来源冲突处置：权益类资产缺配标志补两条码值，布尔字段 129→130，
+    # 故码值字段 177→178、码值 1723→1725。冻结事实包仍记录观测时的已发布状态（见 p0-v2 断言）。
+    assert len(codes)==178 and sum(map(len,codes.values()))==1725
+    assert 'CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG' in codes
     assert '03' in {c['code'] for c in codes['OUTSIDE_ASSET_WAN_KYC']}
     assert any(c['status']=='DEMO_CONVENTION' for c in codes['OUTSIDE_ASSET_WAN_KYC'])
 

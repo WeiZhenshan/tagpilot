@@ -7,6 +7,7 @@ from tag_semantic.bootstrap.concept_cluster import (
     apply_cluster,
     cluster_tags,
     family_key,
+    resolve_concept,
 )
 from tag_semantic.bootstrap.rule_init import load_freeze, run_rule_init
 from tag_semantic.tests.test_rule_init import freeze_jsonl, _by_field
@@ -145,3 +146,39 @@ def test_ratio_confirmation_sets_unit_scale():
     assert clustered["unit"] == "RATIO"
     assert clustered["unit_scale"] == 1
     assert clustered["concept_code"] == "AUM_FI_RATIO"
+
+
+def test_payroll_loan_rate_concept_is_neutral_and_families_remain_distinct():
+    rows = []
+    for field, name, statistic in (
+        ("HIST_PAY_LOAN_MAX_RATE", "历史工薪贷最高提款利率", "MAX"),
+        ("HIST_PAY_LOAN_MIN_RATE", "历史工薪贷最低提款利率", "MIN"),
+    ):
+        row = {
+            "kind": "tag_semantic", "field_name": field, "name": name,
+            "semantic_type": "NUM_RATIO", "concept_candidate": name,
+            "caliber_struct": {"statistic": statistic, "scope": "ALL"},
+            "unit": "RATIO", "caliber_variant": "BASE",
+        }
+        assert resolve_concept(row)["name"] == "工薪贷提款利率"
+        rows.append(row)
+    clustered = cluster_tags(rows)
+    assert {row["concept_code"] for row in clustered} == {"工薪贷提款利率"}
+    assert {row["concept_name"] for row in clustered} == {"工薪贷提款利率"}
+    assert {row["family_key"].split("|")[1] for row in clustered} == {"MAX", "MIN"}
+
+
+def test_transfer_in_sum_and_max_share_neutral_concept_but_not_family():
+    rows = []
+    for field, name, statistic in (
+        ("LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT", "近30天异名跨行转入金额", "SUM"),
+        ("LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_MAX_AMT", "近30天异名跨行转入最高金额", "MAX"),
+    ):
+        rows.append({"kind": "tag_semantic", "field_name": field, "name": name,
+                     "semantic_type": "NUM_AMOUNT", "concept_candidate": name,
+                     "caliber_struct": {"statistic": statistic, "scope": "ALL"},
+                     "unit": "CNY", "caliber_variant": "BASE"})
+    clustered = cluster_tags(rows)
+    assert {row["concept_code"] for row in clustered} == {"异名跨行转入金额"}
+    assert {row["concept_name"] for row in clustered} == {"异名跨行转入金额"}
+    assert {row["family_key"].split("|")[1] for row in clustered} == {"SUM", "MAX"}

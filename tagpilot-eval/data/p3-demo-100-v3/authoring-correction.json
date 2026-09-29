@@ -1,0 +1,12 @@
+{
+  "reason": "账上还有不能唯一确定AUM；增加预先确定的资产范围澄清，禁止自动放宽或改目标客群",
+  "case_ids": [
+    "CAL-8046",
+    "CAL-8051",
+    "CAL-8056"
+  ],
+  "initial_inputs_identical": true,
+  "all_100_final_trees_and_full_id_oracles_identical": true,
+  "old_expected_ready_was_under_specified": true,
+  "multiturn_cases": 40
+}

@@ -11,6 +11,7 @@ from .plan_validator import validate_plan, leaves
 from .ledger import capture_intent, frozen_errors
 from .diagnostics import diagnostic
 from .literals import check_literals, literal_warnings
+from .binding import check_named_binding, remove_explicit_enum_assumptions
 from tagpilot_agent.telemetry import span
 
 async def check(plan,ctx,strict=False,trusted=False):
@@ -38,6 +39,8 @@ async def check(plan,ctx,strict=False,trusted=False):
             declared_gaps={n['clause_id']:n.get('gap_reason') for n in nodes if n.get('gap_reason')}
             plan=validate_plan(plan,ctx.tags,ctx.codes,ctx.eligible,ctx.capabilities)
             errors=plan['diagnostics']
+            if not ctx.request.get('_manual_edit') and not ctx.request.get('previous_plan'):
+                remove_explicit_enum_assumptions(plan,ctx.tags,ctx.codes)
             for n in nodes:
                 n['status']='BOUND' if n.get('status')=='BOUND' else 'GAP'
                 if n['clause_id'] in declared_gaps:
@@ -57,6 +60,7 @@ async def check(plan,ctx,strict=False,trusted=False):
                     elif a['status']=='CONFIRMED' and n['clause_id'] not in confirmed:
                         errors.append(diagnostic('BUSINESS_AMBIGUITY','业务解释尚未由用户确认',n['clause_id'],decision=True))
             if not ctx.request.get('_manual_edit'):
+                errors.extend(check_named_binding(plan,ctx.tags))
                 errors.extend(check_literals(plan,ctx.request,ctx.tags))
                 warnings=literal_warnings(plan,ctx.request)
                 if warnings:

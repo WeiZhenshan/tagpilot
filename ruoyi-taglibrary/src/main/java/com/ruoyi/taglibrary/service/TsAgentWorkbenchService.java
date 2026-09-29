@@ -2,6 +2,8 @@ package com.ruoyi.taglibrary.service;
 
 import java.util.*;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -184,6 +186,9 @@ public class TsAgentWorkbenchService {
             "build_id",bundle.get("build_id"),"snapshot_id",bundle.get("snapshot_id"),"artifact_hash",bundle.get("artifact_hash"),
             "eligible_tag_ids",catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(bundle.get("snapshot_id"))),"requirement",text,
             "previous_plan",obj(state.get("plan")),"edited_plan",request.get("plan"),"confirmed_clause_ids",state.getOrDefault("confirmed_clause_ids",new ArrayList<>()));
+        // 基准日由服务端注入并随运行持久化，恢复时沿用；明确写出的年份优先。
+        req.put("reference_date",LocalDate.now(ZoneId.of("Asia/Shanghai")).toString());
+        req.put("timezone","Asia/Shanghai");
         List<Map<String,Object>> priorRuns=list(state.get("run_history"));
         if(state.get("run_id")!=null)priorRuns.add(map("run_id",state.get("run_id"),"events",state.get("events")));
         state.put("run_history",priorRuns);

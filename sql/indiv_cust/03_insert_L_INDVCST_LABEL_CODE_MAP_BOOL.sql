@@ -1,11 +1,11 @@
 -- ============================================================================
 -- L_INDVCST_LABEL_CODE_MAP  码值初始化 —— 布尔型字段
 -- 目标库    : indiv_cust  （先执行 02_create_L_INDVCST_LABEL_CODE_MAP.sql）
--- 覆盖范围  : L_INDVCST_LABEL 中全部 129 个布尔型字段，每字段 2 条码值
+-- 覆盖范围  : L_INDVCST_LABEL 中全部 130 个布尔型字段，每字段 2 条码值
 -- 编码规范  : 沿用既有系统实际规范（dim_customer_tag_code 中 is_vip 的样例）
 --             tag_code '1' = 是（code_sort 1）；tag_code '0' = 否（code_sort 2）
 --             两个状态按 tag_name_en 逐字段独立维护（复合主键要求），未使用公共码值组
--- 记录数    : 258 条（129 字段 x 2）
+-- 记录数    : 260 条（130 字段 x 2）
 -- 幂等性    : ON DUPLICATE KEY UPDATE，可重复执行（需 MySQL 8.0.19+，当前实例 8.0.46）
 -- 本文件仅生成，未在数据库中执行。
 -- ============================================================================
@@ -151,6 +151,8 @@ VALUES
   ('CUR_HOLDING_SUPREME_CARD_FLAG', '0', '当前持有至尊卡标志', '否', 2, '2026-09-15 00:00:00'),
   ('CUR_HOLDING_PRIVATE_BANK_CARD_FLAG', '1', '当前持有私人银行卡标志', '是', 1, '2026-09-15 00:00:00'),
   ('CUR_HOLDING_PRIVATE_BANK_CARD_FLAG', '0', '当前持有私人银行卡标志', '否', 2, '2026-09-15 00:00:00'),
+  ('CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG', '1', '当前权益类资产缺配标志', '是', 1, '2026-09-15 00:00:00'),
+  ('CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG', '0', '当前权益类资产缺配标志', '否', 2, '2026-09-15 00:00:00'),
   ('CUR_HOLDING_TIME_DEPOSIT_FLAG', '1', '当前持有定期存款标志', '是', 1, '2026-09-15 00:00:00'),
   ('CUR_HOLDING_TIME_DEPOSIT_FLAG', '0', '当前持有定期存款标志', '否', 2, '2026-09-15 00:00:00'),
   ('HIST_HOLDING_FX_WMP_FLAG', '1', '历史持有外币理财标志', '是', 1, '2026-09-15 00:00:00'),

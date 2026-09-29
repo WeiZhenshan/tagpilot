@@ -1,0 +1,79 @@
+{
+  "phase": "P3",
+  "applied_versions": [
+    1,
+    2,
+    4
+  ],
+  "unapplied_draft_versions": [
+    3
+  ],
+  "changes": 186,
+  "table_operations": {
+    "ts_concept": 10,
+    "ts_tag_semantic": 9,
+    "ts_alias": 56,
+    "ts_tag_example": 75,
+    "ts_concept_tag_relation": 19,
+    "ts_business_term": 17
+  },
+  "packages": [
+    {
+      "version": 1,
+      "changes": 129,
+      "sha256": "1aa1ebe3aeb03decacda5f713687a3a2026b71c73696f65a4276bd318a252c63",
+      "tables": {
+        "ts_concept": 10,
+        "ts_tag_semantic": 8,
+        "ts_alias": 29,
+        "ts_tag_example": 63,
+        "ts_concept_tag_relation": 19
+      },
+      "review_records": [
+        {
+          "reviewer_type": "AI",
+          "reviewer": "Codex",
+          "status": "REVIEWED",
+          "scope": "逐条核对字段来源；SUM为demo约定，非银行签署；仅开发集与通用例子，未读取留出原话"
+        }
+      ]
+    },
+    {
+      "version": 2,
+      "changes": 44,
+      "sha256": "2cf19b8ce23c1bf9d56621253e891bb91fe542f7661942cb1b27435a022b8053",
+      "tables": {
+        "ts_tag_semantic": 1,
+        "ts_alias": 24,
+        "ts_tag_example": 12,
+        "ts_business_term": 7
+      },
+      "review_records": [
+        {
+          "reviewer": "Codex",
+          "reviewer_type": "AI",
+          "status": "REVIEWED",
+          "scope": "DEV失败归因；词面消歧不设阈值，不导入完整评测问题；非银行签署"
+        }
+      ]
+    },
+    {
+      "version": 4,
+      "changes": 13,
+      "sha256": "fde43e2497f45c7e73c8d5dfd465430083aee77cb3ea5de38188f39c84d63c68",
+      "tables": {
+        "ts_alias": 3,
+        "ts_business_term": 10
+      },
+      "review_records": [
+        {
+          "reviewer_type": "AI",
+          "reviewer": "Codex",
+          "status": "REVIEWED",
+          "scope": "按独立字段定义审计资产与存款范围；禁止把模糊入口作为标签等价别名"
+        }
+      ]
+    }
+  ],
+  "review_basis": "AI逐项核对，数据库source=HUMAN为现有策划通道枚举；不代表实际人工或银行签署。"
+}

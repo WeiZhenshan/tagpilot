@@ -1,0 +1,3044 @@
+{
+  "states": [
+    {
+      "run_id": "p3-cdae0065e20a-cal-8036",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "C1",
+                "source_span": "上月代发至少15000元",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": ">=",
+                "values": [
+                  "15000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1043,
+                "name": "上月代发金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "上月代发金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "CALENDAR",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "WHOLE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "上月",
+                  "time_anchor_type": "MONTH_OFFSET",
+                  "time_offset_months": 1,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C2",
+                "source_span": "本月代发不超过0元",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": "<=",
+                "values": [
+                  "0"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1033,
+                "name": "本月代发金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "本月代发金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "CALENDAR",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "TO_DATE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "本月",
+                  "time_anchor_type": "MTD",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C3",
+                "source_span": "当前手机号必须正常",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "=",
+                "values": [
+                  "1"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 568,
+                "name": "当前手机号码正常标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 568,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 568,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+          "intent_plan": {
+            "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "上月代发至少15000元"
+                ],
+                "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "本月代发不超过0元"
+                ],
+                "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "当前手机号必须正常"
+                ],
+                "business_meaning": "当前手机号码正常标志为“是”",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                }
+              ],
+              "logic": "AND"
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 5,
+            "deep": 1,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 6,
+            "model": "deepseek-flash",
+            "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+            "max_turns": 16,
+            "cli_start_ms": 152,
+            "cli_peak_rss_mb": 287.89,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.12111239999999998,
+            "usage": {
+              "input_tokens": 21982,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 60288,
+              "output_tokens": 2472,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 15137,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790601656.5014021
+        },
+        {
+          "seq": 15138,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790601659.547563
+        },
+        {
+          "seq": 15139,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 36,
+          "occurred_at": 1790601659.586422
+        },
+        {
+          "seq": 15140,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 37,
+          "occurred_at": 1790601659.586763
+        },
+        {
+          "seq": 15141,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790601659.5903292
+        },
+        {
+          "seq": 15148,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 3061,
+          "occurred_at": 1790601662.651367
+        },
+        {
+          "seq": 15149,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 3061,
+          "occurred_at": 1790601662.651553
+        },
+        {
+          "seq": 15159,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790601663.57951
+        },
+        {
+          "seq": 15160,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 4,
+          "occurred_at": 1790601663.584245
+        },
+        {
+          "seq": 15161,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 5,
+          "occurred_at": 1790601663.585068
+        },
+        {
+          "seq": 15163,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790601667.929228
+        },
+        {
+          "seq": 15164,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 3,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790601667.929881
+        },
+        {
+          "seq": 15165,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少15000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "15000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常的客户",
+            "intent_plan": {
+              "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少15000元"
+                  ],
+                  "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为是",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601667.9307158
+        },
+        {
+          "seq": 15166,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少15000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "15000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常的客户",
+            "intent_plan": {
+              "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少15000元"
+                  ],
+                  "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为是",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601667.931498
+        },
+        {
+          "seq": 15167,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 2,
+          "occurred_at": 1790601667.932012
+        },
+        {
+          "seq": 15168,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 3,
+          "occurred_at": 1790601667.93219
+        },
+        {
+          "seq": 15172,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790601670.696618
+        },
+        {
+          "seq": 15173,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 3,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790601670.699144
+        },
+        {
+          "seq": 15174,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少15000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "15000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+            "intent_plan": {
+              "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少15000元"
+                  ],
+                  "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为“是”",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601670.6996999
+        },
+        {
+          "seq": 15175,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少15000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "15000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+            "intent_plan": {
+              "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少15000元"
+                  ],
+                  "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为“是”",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601670.7006981
+        },
+        {
+          "seq": 15176,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "上月代发金额",
+          "occurred_at": 1790601670.7011101
+        },
+        {
+          "seq": 15177,
+          "type": "clause.updated",
+          "clause_id": "C2",
+          "message": "本月代发金额",
+          "occurred_at": 1790601670.701272
+        },
+        {
+          "seq": 15178,
+          "type": "clause.updated",
+          "clause_id": "C3",
+          "message": "当前手机号码正常标志",
+          "occurred_at": 1790601670.701338
+        },
+        {
+          "seq": 15179,
+          "type": "draft.ready",
+          "message": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少15000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "15000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+            "intent_plan": {
+              "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少15000元"
+                  ],
+                  "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为“是”",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601670.701493
+        },
+        {
+          "seq": 15180,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 3,
+          "occurred_at": 1790601670.701927
+        },
+        {
+          "seq": 15181,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 3,
+          "occurred_at": 1790601670.70211
+        },
+        {
+          "seq": 15185,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 5,
+            "deep": 1,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 6,
+            "model": "deepseek-flash",
+            "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+            "max_turns": 16,
+            "cli_start_ms": 152,
+            "cli_peak_rss_mb": 287.89,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.12111239999999998,
+            "usage": {
+              "input_tokens": 21982,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 60288,
+              "output_tokens": 2472,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790601670.720385
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 15137,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790601656.5014021
+    },
+    {
+      "seq": 15138,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790601659.547563
+    },
+    {
+      "seq": 15139,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 36,
+      "occurred_at": 1790601659.586422
+    },
+    {
+      "seq": 15140,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 37,
+      "occurred_at": 1790601659.586763
+    },
+    {
+      "seq": 15141,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790601659.5903292
+    },
+    {
+      "seq": 15148,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 3061,
+      "occurred_at": 1790601662.651367
+    },
+    {
+      "seq": 15149,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 3061,
+      "occurred_at": 1790601662.651553
+    },
+    {
+      "seq": 15159,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790601663.57951
+    },
+    {
+      "seq": 15160,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 4,
+      "occurred_at": 1790601663.584245
+    },
+    {
+      "seq": 15161,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 5,
+      "occurred_at": 1790601663.585068
+    },
+    {
+      "seq": 15163,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790601667.929228
+    },
+    {
+      "seq": 15164,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 3,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790601667.929881
+    },
+    {
+      "seq": 15165,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少15000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "15000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常的客户",
+        "intent_plan": {
+          "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少15000元"
+              ],
+              "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为是",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601667.9307158
+    },
+    {
+      "seq": 15166,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少15000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "15000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常的客户",
+        "intent_plan": {
+          "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少15000元"
+              ],
+              "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为是",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601667.931498
+    },
+    {
+      "seq": 15167,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 2,
+      "occurred_at": 1790601667.932012
+    },
+    {
+      "seq": 15168,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 3,
+      "occurred_at": 1790601667.93219
+    },
+    {
+      "seq": 15172,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790601670.696618
+    },
+    {
+      "seq": 15173,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 3,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790601670.699144
+    },
+    {
+      "seq": 15174,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少15000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "15000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+        "intent_plan": {
+          "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少15000元"
+              ],
+              "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为“是”",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601670.6996999
+    },
+    {
+      "seq": 15175,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少15000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "15000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+        "intent_plan": {
+          "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少15000元"
+              ],
+              "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为“是”",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601670.7006981
+    },
+    {
+      "seq": 15176,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "上月代发金额",
+      "occurred_at": 1790601670.7011101
+    },
+    {
+      "seq": 15177,
+      "type": "clause.updated",
+      "clause_id": "C2",
+      "message": "本月代发金额",
+      "occurred_at": 1790601670.701272
+    },
+    {
+      "seq": 15178,
+      "type": "clause.updated",
+      "clause_id": "C3",
+      "message": "当前手机号码正常标志",
+      "occurred_at": 1790601670.701338
+    },
+    {
+      "seq": 15179,
+      "type": "draft.ready",
+      "message": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少15000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "15000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "代发流失预警观察名单：上月代发≥15000元、本月代发≤0元且当前手机号正常",
+        "intent_plan": {
+          "original_request": "上月代发至少15000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少15000元"
+              ],
+              "business_meaning": "上月（基准日2026-09-18对应的上一个自然月）代发金额不低于15000元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（截至基准日的当月）代发金额不超过0元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为“是”",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601670.701493
+    },
+    {
+      "seq": 15180,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 3,
+      "occurred_at": 1790601670.701927
+    },
+    {
+      "seq": 15181,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 3,
+      "occurred_at": 1790601670.70211
+    },
+    {
+      "seq": 15185,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 5,
+        "deep": 1,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 6,
+        "model": "deepseek-flash",
+        "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+        "max_turns": 16,
+        "cli_start_ms": 152,
+        "cli_peak_rss_mb": 287.89,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.12111239999999998,
+        "usage": {
+          "input_tokens": 21982,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 60288,
+          "output_tokens": 2472,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790601670.720385
+    }
+  ]
+}

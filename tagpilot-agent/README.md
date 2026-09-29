@@ -22,12 +22,14 @@ export ANTHROPIC_API_KEY='<模型密钥>'
 | `TAG_AGENT_STORAGE_KEY` | 默认服务令牌；更换令牌时应显式保留原加密密钥，否则历史记录不可读 |
 | `TAG_AGENT_MAX_CONCURRENCY / TAG_AGENT_PER_USER_MAX` | `2 / 2`；开发默认值，未经过生产容量评测 |
 | `TAG_AGENT_QUEUE_MAX / TAG_AGENT_QUEUE_TIMEOUT` | `24 / 20` 秒；满队列返回 429 |
-| `TAG_AGENT_MAX_TURNS / TAG_AGENT_MAX_TOOLS` | `10 / 16` |
+| `TAG_AGENT_MAX_TURNS / TAG_AGENT_MAX_TOOLS` | `16 / 16` |
 | `TAG_AGENT_MAX_DEEP / TAG_AGENT_MAX_DETAILS` | `4 / 6`；详情限额也覆盖 Guard 自动读取 |
 | `TAG_AGENT_SOFT_TIMEOUT / TAG_AGENT_HARD_TIMEOUT` | `40 / 90` 秒 |
 | `TAG_AGENT_MAX_RSS_MB / TAG_AGENT_MAX_BUDGET_USD` | `600 / 1`；SDK 成本估值不等于 DeepSeek 实际账单 |
 
 `runtime/` 管理准入、取消、子进程、加密事件库；`agent/` 提供稳定提示、上下文和 outcome；`tools/` 是唯一 MCP 工具集合；`retrieval/` 管理版本与资格隔离的 WorkingSet/LRU；`domain/` 定义严格输入；`guards/` 是不依赖 SDK 的确定性校验。根目录旧纯函数模块保留薄导入入口。
+
+Java 工作台为新运行注入上海时区的服务端基准日，随运行保存，恢复时沿用。日期区间中的省略年份优先由另一端明确写出的年份补全，跨年按端点顺序推导；例如 `9月19号到2026-09-30` 对应 `2026-09-19` 至 `2026-09-30`。未写年份且没有基准日时返回明确的日期诊断，不从模型答案猜年份；错误、缺失端点及金额阈值仍须通过校验。
 
 每次发送、resume、repair 都冷建 SDK 会话。禁用内置工具、外部 MCP、用户设置、文件检查点与会话持久化；临时配置目录退出即清理。`submit_result` 接受后通过 PostToolUse 与 interrupt 结束，不再等待模型生成结尾。手工编辑直接进入 Guard。
 

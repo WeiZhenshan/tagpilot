@@ -149,6 +149,7 @@ public final class TsSnapshotCanonicalizer {
             return new String[] {"5", first(row, "term_id", "term_norm"), ""};
         }
         if ("capability".equals(kind)) return new String[]{"6",stringVal(row.get("capability_id")),""};
+        if ("concept_tag_relation".equals(kind)) return new String[]{"7",stringVal(row.get("concept_id")),stringVal(row.get("tag_id"))};
         return new String[] {"9", kind, dumps(row)};
     }
 

@@ -1,0 +1,7 @@
+{
+  "rows": 2000,
+  "fixture_rows": 2000,
+  "target_fields": 15,
+  "all_target_values_equal": true,
+  "mismatches": []
+}

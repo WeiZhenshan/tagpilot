@@ -61,6 +61,8 @@ def row_sort_key(row: dict[str, Any]) -> tuple:
         return (5, str(row.get("term_id") or row.get("term_norm") or ""), "")
     if kind == 'capability':
         return (6, str(row.get('capability_id') or ''), '')
+    if kind == 'concept_tag_relation':
+        return (7, str(row.get('concept_id') or ''), str(row.get('tag_id') or ''))
     return (9, kind, json.dumps(row, ensure_ascii=False, sort_keys=True))
 
 

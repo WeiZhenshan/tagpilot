@@ -1,0 +1,23 @@
+{
+  "phase": "P3",
+  "applied_changesets": [
+    {
+      "change_id": "p3-semantic-20260928-v1",
+      "package_hash": "38d37a825d83d8427986df008c61e9239cac01784f7533125e6ea64a41ce5d75",
+      "baseline_snapshot": "L107-20260919-002",
+      "change_operations": 129
+    },
+    {
+      "change_id": "p3-semantic-20260928-v2",
+      "package_hash": "e121641803d8278159b7a05cf53526d74e6f528121ce422d5e387e2dfbae3785",
+      "baseline_snapshot": "L107-20260919-002",
+      "change_operations": 44
+    },
+    {
+      "change_id": "p3-semantic-20260928-v4",
+      "package_hash": "164fc7052dd4ccbc470d404c184230571f707eec5f4ee879013aa808fc01022c",
+      "baseline_snapshot": "L107-20260919-002",
+      "change_operations": 13
+    }
+  ]
+}

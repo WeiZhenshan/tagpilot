@@ -1,0 +1,64 @@
+{
+  "schema_version": "p2-coverage.v1",
+  "tags": {
+    "total": 969,
+    "source_confirmable": 960,
+    "unresolved": 9,
+    "expressible_in_a_standard_tree": 273,
+    "with_execution_sample": 273,
+    "appearing_as_target": 359
+  },
+  "code_fields": {
+    "total": 177,
+    "covered_as_target": 162,
+    "target": 177,
+    "status": "NOT_MET",
+    "shortfall": 15
+  },
+  "code_values": {
+    "total": 1723,
+    "target": 1723,
+    "validated": 1723,
+    "problems": [],
+    "problem_count": 0,
+    "status": "MET"
+  },
+  "tags_in_at_least_two_mothers": {
+    "achieved": 359,
+    "required_for_all_tags": 1938,
+    "target": "每个标签至少出现在 2 个母案例中",
+    "status": "NOT_MET",
+    "note": "该义务按 10,000 条档（约 2,500 母案例）写成；2,000 条档的母案例数供不出 全部 969 个标签各两次。差额如实列出，不用重复题充数。"
+  },
+  "by_split": {
+    "REGRESSION": 407,
+    "DEV": 1389,
+    "HOLDOUT": 198
+  },
+  "by_category": {
+    "SINGLE": 600,
+    "COMPOSITION": 500,
+    "CLARIFICATION": 300,
+    "BOUNDARY": 200,
+    "MULTITURN": 200,
+    "GAP": 194
+  },
+  "target_tag_domains": {
+    "业务往来": 30,
+    "产品持有": 76,
+    "客户价值": 58,
+    "客户概况": 17,
+    "客群特征": 131,
+    "渠道管理": 12,
+    "营销管理": 22,
+    "风险管理": 13
+  },
+  "p0_manifest_sha256": "25f005e766a51837f3ecccdb39cf38d604111900ae509c1288f422b37678cb9a",
+  "cases_manifest_sha256": "de88015400273b7feb5aaf8fa3991a4d269d3a255de49aa8af1d58f7bc65cad8",
+  "supersedes": "p2-cases.v1",
+  "authorization": {
+    "authorized_by": "USER",
+    "authorized_at": "2026-09-28",
+    "basis": "P2 覆盖报告（最终集）"
+  }
+}

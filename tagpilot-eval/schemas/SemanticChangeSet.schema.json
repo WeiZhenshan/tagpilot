@@ -20,10 +20,18 @@
       "type": "string"
     },
     "status": {
-      "const": "DRAFT",
       "default": "DRAFT",
+      "enum": [
+        "DRAFT",
+        "REVIEWED"
+      ],
       "title": "Status",
       "type": "string"
+    },
+    "library_id": {
+      "default": 107,
+      "title": "Library Id",
+      "type": "integer"
     },
     "source_case_ids": {
       "items": {

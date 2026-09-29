@@ -10,7 +10,7 @@ from threading import RLock
 from tag_semantic.index.alias_index import AliasIndex
 from tag_semantic.index.embedder import HashEmbedder, cosine
 from tag_semantic.index.local_store import LocalStore
-from tag_semantic.retrieve.facets import parse_facets
+from tag_semantic.retrieve.facets import parse_facets,matched_terms
 from tag_semantic.retrieve.family import resolve_family, interval_covers
 from tag_semantic.retrieve.fusion import rrf
 from tag_semantic.snapshot.loader import Catalog
@@ -33,7 +33,7 @@ class RetrieveService:
         scores = {}
         def add(tid, score, by):
             if tid in eligible and (tid not in scores or score>scores[tid][0]):scores[tid]=(score,by)
-        for alias in self.alias_index.lookup(requirement):
+        for alias in self.alias_index.lookup(requirement,self.config.get('alias_normalization','legacy')):
             doc = self._alias_to_doc(alias)
             if not doc:continue
             score=100+len(alias.get('alias_norm') or '')
@@ -51,15 +51,26 @@ class RetrieveService:
         return [{'tag_id':tid,'name':self.catalog.tags[tid].get('name'),'matched_by':by}
                 for tid,(score,by) in sorted(scores.items(),key=lambda v:(-v[1][0],v[0]))[:k]]
 
+    def terms(self,requirement):
+        return matched_terms(requirement,self.catalog.terms,self.config.get('term_resolution','legacy'))
+
+    def rerank_budget(self):
+        if self.config.get('rerank_budget_version')=='manifest-v1':return min(50,max(1,int(self.config.get('rerank_k',10))))
+        return min(50,max(1,int(os.getenv('TAG_RERANK_K','30'))))
+
+    def rerank_options(self):
+        if self.config.get('rerank_budget_version')!='manifest-v1':return {}
+        return {key:self.config[key] for key in ('max_length','batch_size') if key in self.config}
+
     def retrieve(self, requirement: str, eligible_tag_ids: set[int] | None, k: int = 20, mode: str = "deep", *, dense_vector=None, defer=False) -> dict[str, Any]:
-        facets = parse_facets(requirement, self.catalog.terms)
+        facets = parse_facets(requirement, self.catalog.terms,self.config.get('term_resolution','legacy'))
         filters = {"eligible_tag_ids": eligible_tag_ids}
         if eligible_tag_ids is not None:
             key = frozenset(eligible_tag_ids)
             with self._cache_lock:
                 concept_ids = self._eligible_cache.get(key)
                 if concept_ids is None:
-                    concept_ids = {tag.get('concept_id') or tag.get('concept_code') for tid,tag in self.catalog.tags.items() if tid in eligible_tag_ids}
+                    concept_ids = self.catalog.visible_concepts(eligible_tag_ids)
                     self._eligible_cache[key] = concept_ids
                 self._eligible_cache.move_to_end(key)
                 while len(self._eligible_cache)>128:self._eligible_cache.popitem(last=False)
@@ -68,7 +79,7 @@ class RetrieveService:
                 return {"candidates": [], "recall_candidates": [], "facets": facets, "family": None,
                         "decision": "CANDIDATES_ONLY", "code_selection": None, "auto_execute": False}
         alias_hits = []
-        for alias in self.alias_index.lookup(requirement):
+        for alias in self.alias_index.lookup(requirement,self.config.get('alias_normalization','legacy')):
             doc = self._alias_to_doc(alias)
             if doc is None:
                 continue
@@ -102,10 +113,10 @@ class RetrieveService:
         margin = fused[0]['rrf_score']-fused[1]['rrf_score'] if len(fused)>1 else 0
         skip_confident = os.getenv('TAG_RERANK_SKIP_CONFIDENT','false')=='true' and margin>=float(os.getenv('TAG_RERANK_MARGIN','0.03'))
         needs_rerank = bool(self.reranker and not exact_hits and mode != 'fast' and not skip_confident)
-        budget = min(50, max(1, int(os.getenv('TAG_RERANK_K', '30'))))
+        budget = self.rerank_budget()
         if defer:
             return {'fused':fused[:budget] if needs_rerank else fused,'recall':recall_candidates,'facets':facets,'aliases':alias_hits,'rerank':needs_rerank}
-        if needs_rerank:fused = self.reranker.rerank(requirement, fused[:budget], k=max(k, 10))
+        if needs_rerank:fused = self.reranker.rerank(requirement, fused[:budget], k=max(k, 10),**self.rerank_options())
         return self._finish(requirement,eligible_tag_ids,k,fused,recall_candidates,facets,alias_hits)
 
     def retrieve_batch(self, queries, eligible, k=8, mode='deep'):
@@ -116,7 +127,7 @@ class RetrieveService:
         indexes=[i for i,p in enumerate(pending) if p.get('rerank')]
         if indexes:
             batches=[(queries[i],pending[i]['fused']) for i in indexes]
-            ranked=self.reranker.rerank_batch(batches,k=max(k,10))
+            ranked=self.reranker.rerank_batch(batches,k=max(k,10),**self.rerank_options())
             for i,items in zip(indexes,ranked):pending[i]['fused']=items
         return [self._finish(q,eligible,k,p['fused'],p['recall'],p['facets'],p['aliases']) for q,p in zip(queries,pending)]
 
@@ -215,9 +226,7 @@ class RetrieveService:
     def _expand_concept(self, doc: dict[str, Any], eligible: set[int] | None) -> list[dict[str, Any]]:
         cid = doc.get("concept_id")
         rows = []
-        for tag in self.catalog.tags.values():
-            if (tag.get("concept_id") or tag.get("concept_code")) != cid:
-                continue
+        for tag in self.catalog.concept_members(cid, eligible):
             if eligible is not None and int(tag["tag_id"]) not in eligible:
                 continue
             rows.append({"doc_id": f"tag:{tag['tag_id']}", "doc_type": "tag", "tag_id": int(tag["tag_id"]), "family_key": tag.get("family_key"), "name_text": tag.get("name")})
@@ -242,8 +251,7 @@ def visible_candidates(candidates, catalog, eligible, k):
     for item in candidates:
         doc = item['doc']
         if doc.get('doc_type') == 'concept':
-            members = [t for tid, t in catalog.tags.items() if tid in eligible and
-                       str(t.get('concept_id') or t.get('concept_code')) == str(doc.get('concept_id'))]
+            members = catalog.concept_members(doc.get('concept_id'), eligible)
         else:
             members = [catalog.tags[doc['tag_id']]] if doc.get('tag_id') in eligible else []
         for tag in members:
@@ -256,9 +264,12 @@ def visible_candidates(candidates, catalog, eligible, k):
 
 def selection_context(candidates, catalog):
     """给 Agent 编排层的目录切片：仅可见候选的名称/别名/操作符/已发布码值/目录与易混淆说明，不含向量。"""
-    tag_ids = {int(item['tag_id']) for item in candidates}
+    # 输入已经按召回/重排排名排列；目录切片必须保留这一顺序。
+    # 按 ID 排序会在 Agent 的小型观察裁剪时丢掉真正的首选标签。
+    ordered_ids = list(dict.fromkeys(int(item['tag_id']) for item in candidates))
+    tag_ids = set(ordered_ids)
     tags = []
-    for tag_id in sorted(tag_ids):
+    for tag_id in ordered_ids:
         tag = catalog.tags[tag_id]
         tags.append({
             'tag_id': int(tag['tag_id']),
@@ -277,7 +288,9 @@ def selection_context(candidates, catalog):
                 for c in tag.get('confusable') or [] if c.get('review_status') == 'REVIEWED'
             ],
             'aliases': [{'alias_text': alias.get('alias_text'), 'review_status': alias.get('review_status')}
-                        for alias in tag.get('aliases') or []],
+                        for alias in tag.get('aliases') or [] if alias.get('review_status')=='REVIEWED' and alias.get('alias_type')!='NEGATIVE'],
+            'concept_candidate_relations': [dict(r) for r in getattr(catalog,'concept_tag_relations',[]) if int(r['tag_id']) == tag_id],
+            'examples': [dict(e) for e in tag.get('examples') or [] if e.get('review_status') == 'REVIEWED'],
         })
     codes = [{'tag_id': int(row['tag_id']), 'code': str(row['code']), 'label': row.get('label'),
               'definition': row.get('definition'),

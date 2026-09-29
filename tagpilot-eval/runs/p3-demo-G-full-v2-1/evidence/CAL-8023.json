@@ -1,0 +1,3982 @@
+{
+  "states": [
+    {
+      "run_id": "p3-59cf7f62a8c0-cal-8023",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "c1",
+                "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "between",
+                "values": [
+                  "2026-09-19",
+                  "2026-10-10"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 858,
+                "name": "未来定期存款最近一次到期日期",
+                "semantic_type": "DATE",
+                "unit": "NONE",
+                "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                "allowed_operators": [
+                  "=",
+                  ">",
+                  "<",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "LATEST",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c2",
+                "source_span": "到期金额≥35万",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": ">=",
+                "values": [
+                  "350000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 859,
+                "name": "未来定期存款最近一次到期金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "未来定期存款最近一次到期金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c3",
+                "source_span": "当前未持理财",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "=",
+                "values": [
+                  "0"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 601,
+                "name": "当前持有理财标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前持有理财标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 601,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 601,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c4",
+                "source_span": "当前手机号必须正常",
+                "requirement_ids": [
+                  "R4"
+                ],
+                "operator": "=",
+                "values": [
+                  "1"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 568,
+                "name": "当前手机号码正常标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 568,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 568,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+          "intent_plan": {
+            "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "最近一笔定期到期日[2026-09-19,2026-10-10]"
+                ],
+                "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "到期金额≥35万"
+                ],
+                "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "当前未持理财"
+                ],
+                "business_meaning": "当前持有理财标志为否",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R4",
+                "source_spans": [
+                  "当前手机号必须正常"
+                ],
+                "business_meaning": "当前手机号码正常标志为是",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                },
+                {
+                  "requirement_id": "R4"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 5,
+            "deep": 0,
+            "details": 2,
+            "submit_rejections": 0,
+            "llm_turns": 6,
+            "model": "deepseek-flash",
+            "prompt_sha256": "e623268faa356b4498ca911c035afe5970f03b79e26996c95c97b34f1b830659",
+            "max_turns": 16,
+            "cli_start_ms": 165,
+            "cli_peak_rss_mb": 326.78,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.1286694,
+            "usage": {
+              "input_tokens": 20321,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 60288,
+              "output_tokens": 3308,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 8993,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790598503.4542809
+        },
+        {
+          "seq": 9000,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790598506.6192589
+        },
+        {
+          "seq": 9001,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 26,
+          "occurred_at": 1790598506.646143
+        },
+        {
+          "seq": 9002,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 27,
+          "occurred_at": 1790598506.646343
+        },
+        {
+          "seq": 9003,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790598506.657023
+        },
+        {
+          "seq": 9004,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 1,
+          "occurred_at": 1790598506.658237
+        },
+        {
+          "seq": 9005,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 1,
+          "occurred_at": 1790598506.658307
+        },
+        {
+          "seq": 9012,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790598509.0728
+        },
+        {
+          "seq": 9013,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 1,
+          "occurred_at": 1790598509.074137
+        },
+        {
+          "seq": 9014,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 1,
+          "occurred_at": 1790598509.074473
+        },
+        {
+          "seq": 9028,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790598513.218669
+        },
+        {
+          "seq": 9029,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 4,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790598513.219425
+        },
+        {
+          "seq": 9030,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "between",
+                  "values": [
+                    "2026-09-19",
+                    "2026-10-10"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 858,
+                  "name": "未来定期存款最近一次到期日期",
+                  "semantic_type": "DATE",
+                  "unit": "NONE",
+                  "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                  "allowed_operators": [
+                    "=",
+                    ">",
+                    "<",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "LATEST",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "到期金额≥35万",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "350000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 859,
+                  "name": "未来定期存款最近一次到期金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "未来定期存款最近一次到期金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前未持理财",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+            "intent_plan": {
+              "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近一笔定期到期日[2026-09-19,2026-10-10]"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "到期金额≥35万"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前未持理财"
+                  ],
+                  "business_meaning": "当前持有理财标志为否",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为是",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598513.219958
+        },
+        {
+          "seq": 9031,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "between",
+                  "values": [
+                    "2026-09-19",
+                    "2026-10-10"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 858,
+                  "name": "未来定期存款最近一次到期日期",
+                  "semantic_type": "DATE",
+                  "unit": "NONE",
+                  "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                  "allowed_operators": [
+                    "=",
+                    ">",
+                    "<",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "LATEST",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "到期金额≥35万",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "350000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 859,
+                  "name": "未来定期存款最近一次到期金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "未来定期存款最近一次到期金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前未持理财",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+            "intent_plan": {
+              "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近一笔定期到期日[2026-09-19,2026-10-10]"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "到期金额≥35万"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前未持理财"
+                  ],
+                  "business_meaning": "当前持有理财标志为否",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为是",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598513.2210612
+        },
+        {
+          "seq": 9032,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 3,
+          "occurred_at": 1790598513.2217238
+        },
+        {
+          "seq": 9033,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 3,
+          "occurred_at": 1790598513.221923
+        },
+        {
+          "seq": 9040,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790598516.1119418
+        },
+        {
+          "seq": 9041,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 4,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790598516.112681
+        },
+        {
+          "seq": 9042,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "between",
+                  "values": [
+                    "2026-09-19",
+                    "2026-10-10"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 858,
+                  "name": "未来定期存款最近一次到期日期",
+                  "semantic_type": "DATE",
+                  "unit": "NONE",
+                  "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                  "allowed_operators": [
+                    "=",
+                    ">",
+                    "<",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "LATEST",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "到期金额≥35万",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "350000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 859,
+                  "name": "未来定期存款最近一次到期金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "未来定期存款最近一次到期金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前未持理财",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+            "intent_plan": {
+              "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近一笔定期到期日[2026-09-19,2026-10-10]"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "到期金额≥35万"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前未持理财"
+                  ],
+                  "business_meaning": "当前持有理财标志为否",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为是",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598516.113357
+        },
+        {
+          "seq": 9043,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "between",
+                  "values": [
+                    "2026-09-19",
+                    "2026-10-10"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 858,
+                  "name": "未来定期存款最近一次到期日期",
+                  "semantic_type": "DATE",
+                  "unit": "NONE",
+                  "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                  "allowed_operators": [
+                    "=",
+                    ">",
+                    "<",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "LATEST",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "到期金额≥35万",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "350000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 859,
+                  "name": "未来定期存款最近一次到期金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "未来定期存款最近一次到期金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前未持理财",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+            "intent_plan": {
+              "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近一笔定期到期日[2026-09-19,2026-10-10]"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "到期金额≥35万"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前未持理财"
+                  ],
+                  "business_meaning": "当前持有理财标志为否",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为是",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598516.113939
+        },
+        {
+          "seq": 9044,
+          "type": "clause.updated",
+          "clause_id": "c1",
+          "message": "未来定期存款最近一次到期日期",
+          "occurred_at": 1790598516.1145039
+        },
+        {
+          "seq": 9045,
+          "type": "clause.updated",
+          "clause_id": "c2",
+          "message": "未来定期存款最近一次到期金额",
+          "occurred_at": 1790598516.114691
+        },
+        {
+          "seq": 9046,
+          "type": "clause.updated",
+          "clause_id": "c3",
+          "message": "当前持有理财标志",
+          "occurred_at": 1790598516.114851
+        },
+        {
+          "seq": 9047,
+          "type": "clause.updated",
+          "clause_id": "c4",
+          "message": "当前手机号码正常标志",
+          "occurred_at": 1790598516.115036
+        },
+        {
+          "seq": 9048,
+          "type": "draft.ready",
+          "message": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "between",
+                  "values": [
+                    "2026-09-19",
+                    "2026-10-10"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 858,
+                  "name": "未来定期存款最近一次到期日期",
+                  "semantic_type": "DATE",
+                  "unit": "NONE",
+                  "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                  "allowed_operators": [
+                    "=",
+                    ">",
+                    "<",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "LATEST",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "到期金额≥35万",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "350000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 859,
+                  "name": "未来定期存款最近一次到期金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "未来定期存款最近一次到期金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": null,
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": null,
+                    "time_anchor_type": "NONE",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前未持理财",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+            "intent_plan": {
+              "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近一笔定期到期日[2026-09-19,2026-10-10]"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "到期金额≥35万"
+                  ],
+                  "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前未持理财"
+                  ],
+                  "business_meaning": "当前持有理财标志为否",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志为是",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598516.115235
+        },
+        {
+          "seq": 9049,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 3,
+          "occurred_at": 1790598516.115592
+        },
+        {
+          "seq": 9050,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 3,
+          "occurred_at": 1790598516.115763
+        },
+        {
+          "seq": 9051,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 5,
+            "deep": 0,
+            "details": 2,
+            "submit_rejections": 0,
+            "llm_turns": 6,
+            "model": "deepseek-flash",
+            "prompt_sha256": "e623268faa356b4498ca911c035afe5970f03b79e26996c95c97b34f1b830659",
+            "max_turns": 16,
+            "cli_start_ms": 165,
+            "cli_peak_rss_mb": 326.78,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.1286694,
+            "usage": {
+              "input_tokens": 20321,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 60288,
+              "output_tokens": 3308,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790598516.133816
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 8993,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790598503.4542809
+    },
+    {
+      "seq": 9000,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790598506.6192589
+    },
+    {
+      "seq": 9001,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 26,
+      "occurred_at": 1790598506.646143
+    },
+    {
+      "seq": 9002,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 27,
+      "occurred_at": 1790598506.646343
+    },
+    {
+      "seq": 9003,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790598506.657023
+    },
+    {
+      "seq": 9004,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 1,
+      "occurred_at": 1790598506.658237
+    },
+    {
+      "seq": 9005,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 1,
+      "occurred_at": 1790598506.658307
+    },
+    {
+      "seq": 9012,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790598509.0728
+    },
+    {
+      "seq": 9013,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 1,
+      "occurred_at": 1790598509.074137
+    },
+    {
+      "seq": 9014,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 1,
+      "occurred_at": 1790598509.074473
+    },
+    {
+      "seq": 9028,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790598513.218669
+    },
+    {
+      "seq": 9029,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 4,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790598513.219425
+    },
+    {
+      "seq": 9030,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "between",
+              "values": [
+                "2026-09-19",
+                "2026-10-10"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 858,
+              "name": "未来定期存款最近一次到期日期",
+              "semantic_type": "DATE",
+              "unit": "NONE",
+              "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+              "allowed_operators": [
+                "=",
+                ">",
+                "<",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "LATEST",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "到期金额≥35万",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "350000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 859,
+              "name": "未来定期存款最近一次到期金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "未来定期存款最近一次到期金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前未持理财",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+        "intent_plan": {
+          "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近一笔定期到期日[2026-09-19,2026-10-10]"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "到期金额≥35万"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前未持理财"
+              ],
+              "business_meaning": "当前持有理财标志为否",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为是",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598513.219958
+    },
+    {
+      "seq": 9031,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "between",
+              "values": [
+                "2026-09-19",
+                "2026-10-10"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 858,
+              "name": "未来定期存款最近一次到期日期",
+              "semantic_type": "DATE",
+              "unit": "NONE",
+              "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+              "allowed_operators": [
+                "=",
+                ">",
+                "<",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "LATEST",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "到期金额≥35万",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "350000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 859,
+              "name": "未来定期存款最近一次到期金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "未来定期存款最近一次到期金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前未持理财",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+        "intent_plan": {
+          "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近一笔定期到期日[2026-09-19,2026-10-10]"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "到期金额≥35万"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前未持理财"
+              ],
+              "business_meaning": "当前持有理财标志为否",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为是",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598513.2210612
+    },
+    {
+      "seq": 9032,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 3,
+      "occurred_at": 1790598513.2217238
+    },
+    {
+      "seq": 9033,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 3,
+      "occurred_at": 1790598513.221923
+    },
+    {
+      "seq": 9040,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790598516.1119418
+    },
+    {
+      "seq": 9041,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 4,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790598516.112681
+    },
+    {
+      "seq": 9042,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "between",
+              "values": [
+                "2026-09-19",
+                "2026-10-10"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 858,
+              "name": "未来定期存款最近一次到期日期",
+              "semantic_type": "DATE",
+              "unit": "NONE",
+              "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+              "allowed_operators": [
+                "=",
+                ">",
+                "<",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "LATEST",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "到期金额≥35万",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "350000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 859,
+              "name": "未来定期存款最近一次到期金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "未来定期存款最近一次到期金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前未持理财",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+        "intent_plan": {
+          "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近一笔定期到期日[2026-09-19,2026-10-10]"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "到期金额≥35万"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前未持理财"
+              ],
+              "business_meaning": "当前持有理财标志为否",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为是",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598516.113357
+    },
+    {
+      "seq": 9043,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "between",
+              "values": [
+                "2026-09-19",
+                "2026-10-10"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 858,
+              "name": "未来定期存款最近一次到期日期",
+              "semantic_type": "DATE",
+              "unit": "NONE",
+              "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+              "allowed_operators": [
+                "=",
+                ">",
+                "<",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "LATEST",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "到期金额≥35万",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "350000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 859,
+              "name": "未来定期存款最近一次到期金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "未来定期存款最近一次到期金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前未持理财",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+        "intent_plan": {
+          "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近一笔定期到期日[2026-09-19,2026-10-10]"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "到期金额≥35万"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前未持理财"
+              ],
+              "business_meaning": "当前持有理财标志为否",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为是",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598516.113939
+    },
+    {
+      "seq": 9044,
+      "type": "clause.updated",
+      "clause_id": "c1",
+      "message": "未来定期存款最近一次到期日期",
+      "occurred_at": 1790598516.1145039
+    },
+    {
+      "seq": 9045,
+      "type": "clause.updated",
+      "clause_id": "c2",
+      "message": "未来定期存款最近一次到期金额",
+      "occurred_at": 1790598516.114691
+    },
+    {
+      "seq": 9046,
+      "type": "clause.updated",
+      "clause_id": "c3",
+      "message": "当前持有理财标志",
+      "occurred_at": 1790598516.114851
+    },
+    {
+      "seq": 9047,
+      "type": "clause.updated",
+      "clause_id": "c4",
+      "message": "当前手机号码正常标志",
+      "occurred_at": 1790598516.115036
+    },
+    {
+      "seq": 9048,
+      "type": "draft.ready",
+      "message": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "最近一笔定期到期日[2026-09-19,2026-10-10]",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "between",
+              "values": [
+                "2026-09-19",
+                "2026-10-10"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 858,
+              "name": "未来定期存款最近一次到期日期",
+              "semantic_type": "DATE",
+              "unit": "NONE",
+              "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+              "allowed_operators": [
+                "=",
+                ">",
+                "<",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "LATEST",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "到期金额≥35万",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "350000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 859,
+              "name": "未来定期存款最近一次到期金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "未来定期存款最近一次到期金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前未持理财",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未来最近一笔定期到期日在2026-09-19至2026-10-10，到期金额≥35万，当前未持理财，当前手机号正常",
+        "intent_plan": {
+          "original_request": "最近一笔定期到期日[2026-09-19,2026-10-10]；到期金额≥35万；当前未持理财。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近一笔定期到期日[2026-09-19,2026-10-10]"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期日期落在2026-09-19至2026-10-10之间",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "到期金额≥35万"
+              ],
+              "business_meaning": "未来最近一笔定期存款到期金额不低于35万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前未持理财"
+              ],
+              "business_meaning": "当前持有理财标志为否",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志为是",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598516.115235
+    },
+    {
+      "seq": 9049,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 3,
+      "occurred_at": 1790598516.115592
+    },
+    {
+      "seq": 9050,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 3,
+      "occurred_at": 1790598516.115763
+    },
+    {
+      "seq": 9051,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 5,
+        "deep": 0,
+        "details": 2,
+        "submit_rejections": 0,
+        "llm_turns": 6,
+        "model": "deepseek-flash",
+        "prompt_sha256": "e623268faa356b4498ca911c035afe5970f03b79e26996c95c97b34f1b830659",
+        "max_turns": 16,
+        "cli_start_ms": 165,
+        "cli_peak_rss_mb": 326.78,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.1286694,
+        "usage": {
+          "input_tokens": 20321,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 60288,
+          "output_tokens": 3308,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790598516.133816
+    }
+  ]
+}

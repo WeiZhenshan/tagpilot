@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.taglibrary.domain.TlTag;
+import com.ruoyi.taglibrary.domain.TsAlias;
 import com.ruoyi.taglibrary.domain.TsConcept;
 import com.ruoyi.taglibrary.domain.TsTagSemantic;
 import com.ruoyi.taglibrary.mapper.TlTagMapper;
@@ -127,6 +128,28 @@ class TsSemanticServiceImplTest extends BaseServiceTest {
         assertEquals("REVIEWED", captor.getValue().getReviewStatus());
         assertEquals("业务确认区间", captor.getValue().getSourceRef());
         assertEquals(USERNAME, captor.getValue().getReviewBy());
+    }
+
+    @Test
+    void saveAliasRecomputesNormAfterTextEdit() {
+        TsAlias existing = new TsAlias();
+        existing.setAliasId(497L);
+        when(aliasMapper.selectAliasById(497L)).thenReturn(existing);
+        when(aliasMapper.updateAlias(any(TsAlias.class))).thenReturn(1);
+
+        TsAlias patch = new TsAlias();
+        patch.setAliasId(497L);
+        patch.setTargetType("CONCEPT");
+        patch.setTargetId("483");
+        patch.setAliasText("工薪贷提款利率");
+        patch.setAliasNorm("工薪贷最高提款利率");
+        patch.setAliasType("FORMAL");
+        assertEquals(1, semanticService.saveAlias(patch));
+
+        ArgumentCaptor<TsAlias> captor = ArgumentCaptor.forClass(TsAlias.class);
+        verify(aliasMapper).updateAlias(captor.capture());
+        assertEquals("工薪贷提款利率", captor.getValue().getAliasNorm());
+        assertEquals("DRAFT", captor.getValue().getReviewStatus());
     }
 
     private static TlTag tag(Long tagId, Long libraryId) {

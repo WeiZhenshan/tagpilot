@@ -1,0 +1,25 @@
+{
+  "activated_at": "2026-09-28T13:33:26.158394+00:00",
+  "prior_bundle": {
+    "snapshot_id": "L107-20260919-002",
+    "build_id": "bge-m3-l107-20260919-002-r3",
+    "milvus_collection": "tag_docs_ee6b158e6bf040e6369d272c46d689af",
+    "artifact_uri": "file:///Users/wzs/dev/RuoYi-Vue/ai-runtime/out/full-20260919/indexes/bge-m3-l107-20260919-002-r3/",
+    "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af",
+    "doc_template_version": "tpl1",
+    "embedding_model": "BAAI/bge-m3",
+    "store_type": "MILVUS"
+  },
+  "active_bundle": {
+    "snapshot_id": "L107-20260928-006",
+    "build_id": "bge-m3-l107-20260928-006-p3g",
+    "milvus_collection": "tag_docs_f8d022ed8ec61045120610269f4f1fce",
+    "artifact_uri": "file:///Users/wzs/dev/RuoYi-Vue/tagpilot-semantic/out/full-20260919/indexes/bge-m3-l107-20260928-006-p3g",
+    "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3",
+    "doc_template_version": "tpl1",
+    "embedding_model": "BAAI/bge-m3",
+    "store_type": "MILVUS"
+  },
+  "gate_path": "l2-ready-gate.json",
+  "l3_gate_order": "L1/L2通过后由Java激活，再由Java执行L3；不预先宣称L3通过。"
+}

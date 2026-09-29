@@ -80,3 +80,6 @@ docs/项目参考文档/
 # Encrypted local Agent V2 state (keep with its key, never commit)
 /data/agent/
 /tagpilot-agent/out/
+
+# 标签评测工程（独立 Python 项目，不参与运行时、CI 与构建）
+/tagpilot-eval/

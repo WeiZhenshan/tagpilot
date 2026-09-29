@@ -1,0 +1,1996 @@
+{
+  "states": [
+    {
+      "run_id": "p3-f43ae5aa82b5-cal-8047",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "C1",
+                "source_span": "当前时点AUM≥30万",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": ">=",
+                "values": [
+                  "300000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 721,
+                "name": "当前时点AUM",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "当前时点AUM",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "当前时点",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C2",
+                "source_span": "近30天APP登录≤2天",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": "<=",
+                "values": [
+                  "2"
+                ],
+                "value_unit": "DAY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1448,
+                "name": "近30天APP登录天数",
+                "semantic_type": "NUM_COUNT",
+                "unit": "DAY",
+                "definition": "近30天APP登录天数",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "ROLLING",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "WHOLE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "COUNT",
+                  "time_anchor_label": "近30天",
+                  "time_anchor_type": "WINDOW",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": "DAY",
+                  "time_window_value": 30,
+                  "unit": "DAY",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+          "intent_plan": {
+            "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "当前时点AUM≥30万"
+                ],
+                "business_meaning": "当前时点AUM不低于30万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "近30天APP登录≤2天"
+                ],
+                "business_meaning": "近30天内APP登录天数不超过2天",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 3,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 4,
+            "model": "deepseek-flash",
+            "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+            "max_turns": 16,
+            "cli_start_ms": 148,
+            "cli_peak_rss_mb": 320.3,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.0949704,
+            "usage": {
+              "input_tokens": 20080,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 39168,
+              "output_tokens": 1532,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 15358,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790601714.472054
+        },
+        {
+          "seq": 15362,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790601716.196439
+        },
+        {
+          "seq": 15363,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 9,
+          "occurred_at": 1790601716.208174
+        },
+        {
+          "seq": 15364,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 10,
+          "occurred_at": 1790601716.209088
+        },
+        {
+          "seq": 15366,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790601719.150424
+        },
+        {
+          "seq": 15367,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790601719.1510458
+        },
+        {
+          "seq": 15368,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录≤2天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "DAY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "低活跃激活：当前时点AUM≥30万且近30天APP登录≤2天",
+            "intent_plan": {
+              "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于30万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录≤2天"
+                  ],
+                  "business_meaning": "近30天内APP登录天数不超过2天",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601719.151389
+        },
+        {
+          "seq": 15369,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录≤2天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "DAY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "低活跃激活：当前时点AUM≥30万且近30天APP登录≤2天",
+            "intent_plan": {
+              "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于30万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录≤2天"
+                  ],
+                  "business_meaning": "近30天内APP登录天数不超过2天",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601719.151982
+        },
+        {
+          "seq": 15370,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790601719.152242
+        },
+        {
+          "seq": 15371,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 2,
+          "occurred_at": 1790601719.152373
+        },
+        {
+          "seq": 15372,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790601721.226955
+        },
+        {
+          "seq": 15373,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790601721.229503
+        },
+        {
+          "seq": 15374,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录≤2天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "DAY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+            "intent_plan": {
+              "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于30万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录≤2天"
+                  ],
+                  "business_meaning": "近30天内APP登录天数不超过2天",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601721.231201
+        },
+        {
+          "seq": 15375,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录≤2天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "DAY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+            "intent_plan": {
+              "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于30万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录≤2天"
+                  ],
+                  "business_meaning": "近30天内APP登录天数不超过2天",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601721.231627
+        },
+        {
+          "seq": 15376,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "当前时点AUM",
+          "occurred_at": 1790601721.23204
+        },
+        {
+          "seq": 15377,
+          "type": "clause.updated",
+          "clause_id": "C2",
+          "message": "近30天APP登录天数",
+          "occurred_at": 1790601721.232245
+        },
+        {
+          "seq": 15378,
+          "type": "draft.ready",
+          "message": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录≤2天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "DAY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+            "intent_plan": {
+              "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于30万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录≤2天"
+                  ],
+                  "business_meaning": "近30天内APP登录天数不超过2天",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790601721.232445
+        },
+        {
+          "seq": 15379,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 3,
+          "occurred_at": 1790601721.232724
+        },
+        {
+          "seq": 15380,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 4,
+          "occurred_at": 1790601721.2329128
+        },
+        {
+          "seq": 15381,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 3,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 4,
+            "model": "deepseek-flash",
+            "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+            "max_turns": 16,
+            "cli_start_ms": 148,
+            "cli_peak_rss_mb": 320.3,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.0949704,
+            "usage": {
+              "input_tokens": 20080,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 39168,
+              "output_tokens": 1532,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790601721.255717
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 15358,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790601714.472054
+    },
+    {
+      "seq": 15362,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790601716.196439
+    },
+    {
+      "seq": 15363,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 9,
+      "occurred_at": 1790601716.208174
+    },
+    {
+      "seq": 15364,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 10,
+      "occurred_at": 1790601716.209088
+    },
+    {
+      "seq": 15366,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790601719.150424
+    },
+    {
+      "seq": 15367,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790601719.1510458
+    },
+    {
+      "seq": 15368,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录≤2天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "DAY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "低活跃激活：当前时点AUM≥30万且近30天APP登录≤2天",
+        "intent_plan": {
+          "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不低于30万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录≤2天"
+              ],
+              "business_meaning": "近30天内APP登录天数不超过2天",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601719.151389
+    },
+    {
+      "seq": 15369,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录≤2天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "DAY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "低活跃激活：当前时点AUM≥30万且近30天APP登录≤2天",
+        "intent_plan": {
+          "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不低于30万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录≤2天"
+              ],
+              "business_meaning": "近30天内APP登录天数不超过2天",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601719.151982
+    },
+    {
+      "seq": 15370,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790601719.152242
+    },
+    {
+      "seq": 15371,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 2,
+      "occurred_at": 1790601719.152373
+    },
+    {
+      "seq": 15372,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790601721.226955
+    },
+    {
+      "seq": 15373,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790601721.229503
+    },
+    {
+      "seq": 15374,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录≤2天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "DAY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+        "intent_plan": {
+          "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不低于30万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录≤2天"
+              ],
+              "business_meaning": "近30天内APP登录天数不超过2天",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601721.231201
+    },
+    {
+      "seq": 15375,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录≤2天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "DAY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+        "intent_plan": {
+          "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不低于30万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录≤2天"
+              ],
+              "business_meaning": "近30天内APP登录天数不超过2天",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601721.231627
+    },
+    {
+      "seq": 15376,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "当前时点AUM",
+      "occurred_at": 1790601721.23204
+    },
+    {
+      "seq": 15377,
+      "type": "clause.updated",
+      "clause_id": "C2",
+      "message": "近30天APP登录天数",
+      "occurred_at": 1790601721.232245
+    },
+    {
+      "seq": 15378,
+      "type": "draft.ready",
+      "message": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录≤2天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "DAY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "低活跃激活：当前时点AUM≥30万 且 近30天APP登录≤2天",
+        "intent_plan": {
+          "original_request": "本次低活跃激活：当前时点AUM≥30万，近30天APP登录≤2天。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不低于30万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录≤2天"
+              ],
+              "business_meaning": "近30天内APP登录天数不超过2天",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790601721.232445
+    },
+    {
+      "seq": 15379,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 3,
+      "occurred_at": 1790601721.232724
+    },
+    {
+      "seq": 15380,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 4,
+      "occurred_at": 1790601721.2329128
+    },
+    {
+      "seq": 15381,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 3,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 4,
+        "model": "deepseek-flash",
+        "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+        "max_turns": 16,
+        "cli_start_ms": 148,
+        "cli_peak_rss_mb": 320.3,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.0949704,
+        "usage": {
+          "input_tokens": 20080,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 39168,
+          "output_tokens": 1532,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790601721.255717
+    }
+  ]
+}

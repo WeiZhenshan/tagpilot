@@ -5,6 +5,20 @@ from __future__ import annotations
 import hashlib
 import math
 from typing import Iterable
+from functools import lru_cache
+from threading import RLock
+
+_model_load_lock=RLock()
+
+@lru_cache(maxsize=2)
+def _shared_embedding(path, fingerprint):
+    from FlagEmbedding import BGEM3FlagModel
+    return BGEM3FlagModel(path,use_fp16=False,devices=['cpu']),RLock()
+
+@lru_cache(maxsize=2)
+def _shared_reranker(path, fingerprint):
+    from FlagEmbedding import FlagReranker
+    return FlagReranker(path,use_fp16=False,devices=['cpu']),RLock()
 
 
 class HashEmbedder:
@@ -56,11 +70,12 @@ class BGEEmbedder:
     def __init__(self, path: str):
         self.model_hash = model_directory_hash(path)
         self.path = path
-        from FlagEmbedding import BGEM3FlagModel
-        self._model = BGEM3FlagModel(path, use_fp16=False, devices=['cpu'])
+        from pathlib import Path
+        with _model_load_lock:self._model,self._inference_lock=_shared_embedding(str(Path(path).resolve()),self.model_hash)
 
     def encode(self, texts):
-        return self._model.encode(list(texts), batch_size=8, max_length=2048)['dense_vecs'].tolist()
+        with self._inference_lock:
+            return self._model.encode(list(texts), batch_size=8, max_length=2048)['dense_vecs'].tolist()
 
 
 class BGEReranker:
@@ -69,17 +84,18 @@ class BGEReranker:
     def __init__(self, path: str):
         self.model_hash = model_directory_hash(path)
         self.path = path
-        from FlagEmbedding import FlagReranker
-        self._model = FlagReranker(path, use_fp16=False, devices=['cpu'])
+        from pathlib import Path
+        with _model_load_lock:self._model,self._inference_lock=_shared_reranker(str(Path(path).resolve()),self.model_hash)
 
-    def rerank(self, query, candidates, k=10):
-        return self.rerank_batch([(query,candidates)],k)[0]
+    def rerank(self, query, candidates, k=10, **options):
+        return self.rerank_batch([(query,candidates)],k,**options)[0]
 
-    def rerank_batch(self, batches, k=10):
+    def rerank_batch(self, batches, k=10, max_length=None, batch_size=None):
         pairs=[[query,c['doc'].get('body_text','')[:2000]+'\n[族] '+str(c['doc'].get('family_key') or '')]
                for query,candidates in batches for c in candidates[:50]]
         if not pairs:return [[] for _ in batches]
-        scores=self._model.compute_score(pairs,normalize=True)
+        options={key:value for key,value in [('max_length',max_length),('batch_size',batch_size)] if value is not None}
+        with self._inference_lock:scores=self._model.compute_score(pairs,normalize=True,**options)
         if isinstance(scores,(int,float)):scores=[scores]
         offset=0;results=[]
         for query,candidates in batches:

@@ -218,9 +218,8 @@ public class TsSemanticServiceImpl implements ITsSemanticService {
         if (StringUtils.isEmpty(alias.getAliasText()) || StringUtils.isEmpty(alias.getAliasType())) {
             throw new ServiceException("别名文本与类型不能为空");
         }
-        if (StringUtils.isEmpty(alias.getAliasNorm())) {
-            alias.setAliasNorm(normalizeAlias(alias.getAliasText()));
-        }
+        // 规范化别名由展示文本派生；编辑文本时不能沿用旧索引词。
+        alias.setAliasNorm(normalizeAlias(alias.getAliasText()));
         String username = SecurityUtils.getUsername();
         alias.setReviewStatus(STATUS_DRAFT);
         if (alias.getAliasId() == null) {

@@ -23,6 +23,7 @@ class BuildRequest(BaseModel):
     snapshot_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,40}$')
     library_id: int = Field(gt=0)
     store_type: Literal['LOCAL', 'MILVUS']
+    retrieval_config: dict | None = None
 
 
 class RetrieveRequest(BaseModel):
@@ -114,7 +115,8 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                     raise ValueError('真实 Embedding 未配置；基线须显式开启 TAG_ALLOW_HASH_BASELINE')
                 built = build_index(catalog, root / request.build_id, request.build_id, request.store_type,
                                     BGEEmbedder(embedding_path) if embedding_path else None,
-                                    BGEReranker(reranker_path) if reranker_path else None)
+                                    BGEReranker(reranker_path) if reranker_path else None,
+                                    config=request.retrieval_config)
                 return {**built['manifest'], 'artifact_uri': (root / request.build_id).as_uri(), 'artifact_hash': sha(root / request.build_id / 'manifest.json')}
         except Exception as exc:
             raise HTTPException(409, str(exc)) from exc
@@ -166,7 +168,7 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
             eligible = set(request.eligible_tag_ids) & set(built['catalog'].tags)
             candidates = built['service'].lookup(request.requirement, eligible, request.k)
             terms = [{k:t.get(k) for k in ('term','type','options','policy','applicable_semantic_types')}
-                     for t in built['catalog'].terms if t.get('term') and t['term'] in request.requirement]
+                     for t in built['service'].terms(request.requirement)]
             return {'build_id':request.build_id,'snapshot_id':built['manifest']['snapshot_id'],
                     'artifact_hash':built['artifact_hash'],'eligible_hash':id_hash(str(t) for t in eligible),
                     'trace_id':uuid.uuid4().hex,'candidates':candidates,'selection_context':selection_context(candidates,built['catalog']),
@@ -209,7 +211,7 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                 context['values_truncated'] = len(values)>len(context['code_values'])
             # 术语仅返回类型与候选选项，不透出可能指向资格外标签的映射。
             terms = [{k: term.get(k) for k in ('term', 'type', 'options', 'policy', 'applicable_semantic_types')}
-                     for term in built['catalog'].terms if term.get('term') and term['term'] in request.requirement]
+                     for term in built['service'].terms(request.requirement)]
             return {**context, 'terms': terms, 'snapshot_id': built['manifest']['snapshot_id'],
                     'build_id': request.build_id, 'artifact_hash': built['artifact_hash']}
 
@@ -243,7 +245,7 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
             raise HTTPException(409, '构建不属于请求标签库')
         eligible = set(request.eligible_tag_ids)
         tags = [t for tid, t in built['catalog'].tags.items() if tid in eligible]
-        concepts = {str(t.get('concept_id') or t.get('concept_code')) for t in tags}
+        concepts = built['catalog'].visible_concepts(eligible)
         domains = {t['dir_path'][0] for t in tags if t.get('dir_path')}
         return {'build_id': request.build_id, 'tag_count': len(tags), 'concept_count': len(concepts), 'domain_count': len(domains)}
 

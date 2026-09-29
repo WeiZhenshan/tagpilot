@@ -1,0 +1,2543 @@
+{
+  "requirement": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+  "elapsed_ms": 14968,
+  "state": {
+    "revision": 1,
+    "messages": [
+      {
+        "id": "04d1d136-f2f1-4f48-95b9-0a1c643c74b3",
+        "role": "user",
+        "text": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+        "run_id": "82780d98-c876-48b5-8a4f-1d76f496f861",
+        "created_at": "2026-09-28T14:03:12.148Z"
+      },
+      {
+        "id": "7b57b348-5592-4535-9105-7bf0d00c1edb",
+        "role": "assistant",
+        "text": "圈选方案已生成，可以核对条件并统计人数。",
+        "revision": 1,
+        "run_id": "82780d98-c876-48b5-8a4f-1d76f496f861",
+        "created_at": "2026-09-28T14:03:26.319Z"
+      }
+    ],
+    "versions": [
+      {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "9月19号到2026-09-30到期的，两头都含",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "between",
+              "values": [
+                "2026-09-19",
+                "2026-09-30"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 858,
+              "name": "未来定期存款最近一次到期日期",
+              "semantic_type": "DATE",
+              "unit": "NONE",
+              "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+              "allowed_operators": [
+                "=",
+                ">",
+                "<",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "LATEST",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "金额不低于20万",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "200000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 859,
+              "name": "未来定期存款最近一次到期金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "未来定期存款最近一次到期金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "现在没有理财",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+        "intent_plan": {
+          "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "9月19号到2026-09-30到期的，两头都含"
+              ],
+              "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "金额不低于20万"
+              ],
+              "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "现在没有理财"
+              ],
+              "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3",
+        "revision": 1,
+        "hash": "a85014e3baa5d29915d6e0f0408646c595e184983dc6f85746db3a94fb42ce3f"
+      }
+    ],
+    "events": [
+      {
+        "seq": 17464,
+        "type": "run.started",
+        "message": "正在理解圈选需求",
+        "occurred_at": 1790604192.146101
+      },
+      {
+        "seq": 17465,
+        "type": "tool.started",
+        "tool": "find_tags",
+        "message": "正在查找相关标签",
+        "occurred_at": 1790604195.4036212
+      },
+      {
+        "seq": 17466,
+        "type": "telemetry.span",
+        "name": "tool.find_tags",
+        "duration_ms": 52,
+        "occurred_at": 1790604195.456238
+      },
+      {
+        "seq": 17467,
+        "type": "tool.completed",
+        "tool": "find_tags",
+        "message": "已完成查找相关标签",
+        "duration_ms": 52,
+        "occurred_at": 1790604195.4564302
+      },
+      {
+        "seq": 17468,
+        "type": "tool.started",
+        "tool": "get_tag_details",
+        "message": "正在核对标签口径与码值",
+        "occurred_at": 1790604195.46151
+      },
+      {
+        "seq": 17469,
+        "type": "telemetry.span",
+        "name": "tool.get_tag_details",
+        "duration_ms": 0,
+        "occurred_at": 1790604195.4621491
+      },
+      {
+        "seq": 17470,
+        "type": "tool.completed",
+        "tool": "get_tag_details",
+        "message": "已完成核对标签口径与码值",
+        "duration_ms": 1,
+        "occurred_at": 1790604195.46226
+      },
+      {
+        "seq": 17471,
+        "type": "tool.started",
+        "tool": "get_tag_details",
+        "message": "正在核对标签口径与码值",
+        "occurred_at": 1790604197.267165
+      },
+      {
+        "seq": 17472,
+        "type": "telemetry.span",
+        "name": "tool.get_tag_details",
+        "duration_ms": 0,
+        "occurred_at": 1790604197.2680268
+      },
+      {
+        "seq": 17473,
+        "type": "tool.completed",
+        "tool": "get_tag_details",
+        "message": "已完成核对标签口径与码值",
+        "duration_ms": 1,
+        "occurred_at": 1790604197.2681541
+      },
+      {
+        "seq": 17474,
+        "type": "tool.started",
+        "tool": "check_plan",
+        "message": "正在核验圈选条件",
+        "occurred_at": 1790604202.58707
+      },
+      {
+        "seq": 17475,
+        "type": "telemetry.span",
+        "name": "guard.evidence",
+        "count": 3,
+        "duration_ms": 0,
+        "status": "ok",
+        "occurred_at": 1790604202.5882921
+      },
+      {
+        "seq": 17476,
+        "type": "intent.ready",
+        "message": "已整理圈选条件",
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "c1",
+                "source_span": "9月19号到2026-09-30到期的，两头都含",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "between",
+                "values": [
+                  "2026-09-19",
+                  "2026-09-30"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 858,
+                "name": "未来定期存款最近一次到期日期",
+                "semantic_type": "DATE",
+                "unit": "NONE",
+                "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                "allowed_operators": [
+                  "=",
+                  ">",
+                  "<",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "LATEST",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c2",
+                "source_span": "金额不低于20万",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": ">=",
+                "values": [
+                  "200000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 859,
+                "name": "未来定期存款最近一次到期金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "未来定期存款最近一次到期金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c3",
+                "source_span": "现在没有理财",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "=",
+                "values": [
+                  "0"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 601,
+                "name": "当前持有理财标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前持有理财标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 601,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 601,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+          "intent_plan": {
+            "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "9月19号到2026-09-30到期的，两头都含"
+                ],
+                "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "金额不低于20万"
+                ],
+                "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "现在没有理财"
+                ],
+                "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "occurred_at": 1790604202.588934
+      },
+      {
+        "seq": 17477,
+        "type": "plan.observed",
+        "message": "条件核验通过",
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "c1",
+                "source_span": "9月19号到2026-09-30到期的，两头都含",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "between",
+                "values": [
+                  "2026-09-19",
+                  "2026-09-30"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 858,
+                "name": "未来定期存款最近一次到期日期",
+                "semantic_type": "DATE",
+                "unit": "NONE",
+                "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                "allowed_operators": [
+                  "=",
+                  ">",
+                  "<",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "LATEST",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c2",
+                "source_span": "金额不低于20万",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": ">=",
+                "values": [
+                  "200000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 859,
+                "name": "未来定期存款最近一次到期金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "未来定期存款最近一次到期金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c3",
+                "source_span": "现在没有理财",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "=",
+                "values": [
+                  "0"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 601,
+                "name": "当前持有理财标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前持有理财标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 601,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 601,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+          "intent_plan": {
+            "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "9月19号到2026-09-30到期的，两头都含"
+                ],
+                "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "金额不低于20万"
+                ],
+                "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "现在没有理财"
+                ],
+                "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "occurred_at": 1790604202.5893471
+      },
+      {
+        "seq": 17478,
+        "type": "telemetry.span",
+        "name": "tool.check_plan",
+        "duration_ms": 2,
+        "occurred_at": 1790604202.589799
+      },
+      {
+        "seq": 17479,
+        "type": "tool.completed",
+        "tool": "check_plan",
+        "message": "已完成核验圈选条件",
+        "duration_ms": 2,
+        "occurred_at": 1790604202.5898921
+      },
+      {
+        "seq": 17480,
+        "type": "tool.started",
+        "tool": "submit_result",
+        "message": "正在整理圈选方案",
+        "occurred_at": 1790604205.2313118
+      },
+      {
+        "seq": 17481,
+        "type": "telemetry.span",
+        "name": "guard.evidence",
+        "count": 3,
+        "duration_ms": 0,
+        "status": "ok",
+        "occurred_at": 1790604205.232161
+      },
+      {
+        "seq": 17482,
+        "type": "plan.observed",
+        "message": "条件核验通过",
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "c1",
+                "source_span": "9月19号到2026-09-30到期的，两头都含",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "between",
+                "values": [
+                  "2026-09-19",
+                  "2026-09-30"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 858,
+                "name": "未来定期存款最近一次到期日期",
+                "semantic_type": "DATE",
+                "unit": "NONE",
+                "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                "allowed_operators": [
+                  "=",
+                  ">",
+                  "<",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "LATEST",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c2",
+                "source_span": "金额不低于20万",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": ">=",
+                "values": [
+                  "200000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 859,
+                "name": "未来定期存款最近一次到期金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "未来定期存款最近一次到期金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c3",
+                "source_span": "现在没有理财",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "=",
+                "values": [
+                  "0"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 601,
+                "name": "当前持有理财标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前持有理财标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 601,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 601,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+          "intent_plan": {
+            "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "9月19号到2026-09-30到期的，两头都含"
+                ],
+                "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "金额不低于20万"
+                ],
+                "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "现在没有理财"
+                ],
+                "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "occurred_at": 1790604205.232716
+      },
+      {
+        "seq": 17483,
+        "type": "plan.validated",
+        "message": "条件已核验",
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "c1",
+                "source_span": "9月19号到2026-09-30到期的，两头都含",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "between",
+                "values": [
+                  "2026-09-19",
+                  "2026-09-30"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 858,
+                "name": "未来定期存款最近一次到期日期",
+                "semantic_type": "DATE",
+                "unit": "NONE",
+                "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                "allowed_operators": [
+                  "=",
+                  ">",
+                  "<",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "LATEST",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c2",
+                "source_span": "金额不低于20万",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": ">=",
+                "values": [
+                  "200000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 859,
+                "name": "未来定期存款最近一次到期金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "未来定期存款最近一次到期金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c3",
+                "source_span": "现在没有理财",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "=",
+                "values": [
+                  "0"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 601,
+                "name": "当前持有理财标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前持有理财标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 601,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 601,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+          "intent_plan": {
+            "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "9月19号到2026-09-30到期的，两头都含"
+                ],
+                "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "金额不低于20万"
+                ],
+                "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "现在没有理财"
+                ],
+                "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "occurred_at": 1790604205.2330382
+      },
+      {
+        "seq": 17484,
+        "type": "clause.updated",
+        "clause_id": "c1",
+        "message": "未来定期存款最近一次到期日期",
+        "occurred_at": 1790604205.233299
+      },
+      {
+        "seq": 17485,
+        "type": "clause.updated",
+        "clause_id": "c2",
+        "message": "未来定期存款最近一次到期金额",
+        "occurred_at": 1790604205.233403
+      },
+      {
+        "seq": 17486,
+        "type": "clause.updated",
+        "clause_id": "c3",
+        "message": "当前持有理财标志",
+        "occurred_at": 1790604205.233495
+      },
+      {
+        "seq": 17487,
+        "type": "draft.ready",
+        "message": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "c1",
+                "source_span": "9月19号到2026-09-30到期的，两头都含",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "between",
+                "values": [
+                  "2026-09-19",
+                  "2026-09-30"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 858,
+                "name": "未来定期存款最近一次到期日期",
+                "semantic_type": "DATE",
+                "unit": "NONE",
+                "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+                "allowed_operators": [
+                  "=",
+                  ">",
+                  "<",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "LATEST",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c2",
+                "source_span": "金额不低于20万",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": ">=",
+                "values": [
+                  "200000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 859,
+                "name": "未来定期存款最近一次到期金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "未来定期存款最近一次到期金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": null,
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": null,
+                  "time_anchor_type": "NONE",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c3",
+                "source_span": "现在没有理财",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "=",
+                "values": [
+                  "0"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 601,
+                "name": "当前持有理财标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前持有理财标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 601,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 601,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+          "intent_plan": {
+            "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "9月19号到2026-09-30到期的，两头都含"
+                ],
+                "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "金额不低于20万"
+                ],
+                "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "现在没有理财"
+                ],
+                "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "occurred_at": 1790604205.234261
+      },
+      {
+        "seq": 17488,
+        "type": "telemetry.span",
+        "name": "tool.submit_result",
+        "duration_ms": 3,
+        "occurred_at": 1790604205.2347882
+      },
+      {
+        "seq": 17489,
+        "type": "tool.completed",
+        "tool": "submit_result",
+        "message": "已完成整理圈选方案",
+        "duration_ms": 3,
+        "occurred_at": 1790604205.234866
+      },
+      {
+        "seq": 17490,
+        "type": "run.completed",
+        "message": "圈选方案与处理进度已保存",
+        "stats": {
+          "tools": 5,
+          "deep": 0,
+          "details": 2,
+          "submit_rejections": 0,
+          "llm_turns": 6,
+          "model": "deepseek-flash",
+          "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+          "max_turns": 16,
+          "cli_start_ms": 475,
+          "cli_peak_rss_mb": 332.05,
+          "stop_reason": "submitted",
+          "sdk_result": "success",
+          "sdk_cost_estimate_usd": 0.12427919999999999,
+          "usage": {
+            "input_tokens": 20787,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 60544,
+            "output_tokens": 2917,
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "",
+            "iterations": [],
+            "speed": "standard"
+          }
+        },
+        "occurred_at": 1790604205.251201
+      }
+    ],
+    "status": "COMPLETED",
+    "run_history": [],
+    "run_id": "82780d98-c876-48b5-8a4f-1d76f496f861",
+    "cursor": 17490,
+    "questions": [],
+    "error": null,
+    "plan": {
+      "schema_version": 3,
+      "tree": {
+        "logic": "AND",
+        "children": [
+          {
+            "clause_id": "c1",
+            "source_span": "9月19号到2026-09-30到期的，两头都含",
+            "requirement_ids": [
+              "R1"
+            ],
+            "operator": "between",
+            "values": [
+              "2026-09-19",
+              "2026-09-30"
+            ],
+            "expected_caliber": {},
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "tag_id": 858,
+            "name": "未来定期存款最近一次到期日期",
+            "semantic_type": "DATE",
+            "unit": "NONE",
+            "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+            "allowed_operators": [
+              "=",
+              ">",
+              "<",
+              "between"
+            ],
+            "code_options": [],
+            "status": "BOUND",
+            "caliber_struct": {
+              "boundary_semantics": null,
+              "calendar_mode": null,
+              "denominator": null,
+              "numerator": null,
+              "period_edge": null,
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "LATEST",
+              "time_anchor_label": null,
+              "time_anchor_type": "NONE",
+              "time_offset_months": null,
+              "time_offset_years": null,
+              "time_window_unit": null,
+              "time_window_value": null,
+              "unit": "NONE",
+              "unit_scale": 1
+            }
+          },
+          {
+            "clause_id": "c2",
+            "source_span": "金额不低于20万",
+            "requirement_ids": [
+              "R2"
+            ],
+            "operator": ">=",
+            "values": [
+              "200000"
+            ],
+            "value_unit": "CNY",
+            "value_scale": "1.0000",
+            "expected_caliber": {},
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "tag_id": 859,
+            "name": "未来定期存款最近一次到期金额",
+            "semantic_type": "NUM_AMOUNT",
+            "unit": "CNY",
+            "definition": "未来定期存款最近一次到期金额",
+            "allowed_operators": [
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between"
+            ],
+            "code_options": [],
+            "status": "BOUND",
+            "caliber_struct": {
+              "boundary_semantics": null,
+              "calendar_mode": null,
+              "denominator": null,
+              "numerator": null,
+              "period_edge": null,
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "EOP",
+              "time_anchor_label": null,
+              "time_anchor_type": "NONE",
+              "time_offset_months": null,
+              "time_offset_years": null,
+              "time_window_unit": null,
+              "time_window_value": null,
+              "unit": "CNY",
+              "unit_scale": 1
+            }
+          },
+          {
+            "clause_id": "c3",
+            "source_span": "现在没有理财",
+            "requirement_ids": [
+              "R3"
+            ],
+            "operator": "=",
+            "values": [
+              "0"
+            ],
+            "expected_caliber": {},
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "tag_id": 601,
+            "name": "当前持有理财标志",
+            "semantic_type": "BOOL",
+            "unit": "NONE",
+            "definition": "当前持有理财标志，码值 1=是、0=否",
+            "allowed_operators": [
+              "="
+            ],
+            "code_options": [
+              {
+                "tag_id": 601,
+                "code": "0",
+                "label": "否",
+                "definition": "否",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              },
+              {
+                "tag_id": 601,
+                "code": "1",
+                "label": "是",
+                "definition": "是",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              }
+            ],
+            "status": "BOUND",
+            "caliber_struct": {
+              "boundary_semantics": null,
+              "calendar_mode": null,
+              "denominator": null,
+              "numerator": null,
+              "period_edge": "END",
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "FLAG",
+              "time_anchor_label": "当前",
+              "time_anchor_type": "POINT",
+              "time_offset_months": null,
+              "time_offset_years": null,
+              "time_window_unit": null,
+              "time_window_value": null,
+              "unit": "NONE",
+              "unit_scale": 1
+            }
+          }
+        ]
+      },
+      "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+      "intent_plan": {
+        "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+        "requirements": [
+          {
+            "requirement_id": "R1",
+            "source_spans": [
+              "9月19号到2026-09-30到期的，两头都含"
+            ],
+            "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+            "origin": "USER"
+          },
+          {
+            "requirement_id": "R2",
+            "source_spans": [
+              "金额不低于20万"
+            ],
+            "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+            "origin": "USER"
+          },
+          {
+            "requirement_id": "R3",
+            "source_spans": [
+              "现在没有理财"
+            ],
+            "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+            "origin": "USER"
+          }
+        ],
+        "logic_tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "requirement_id": "R1"
+            },
+            {
+              "requirement_id": "R2"
+            },
+            {
+              "requirement_id": "R3"
+            }
+          ]
+        },
+        "assumptions": []
+      },
+      "intent_changes": [],
+      "diagnostics": [],
+      "plan_status": "READY",
+      "valid": true,
+      "build_id": "bge-m3-l107-20260928-006-p3g",
+      "snapshot_id": "L107-20260928-006",
+      "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3",
+      "revision": 1,
+      "hash": "a85014e3baa5d29915d6e0f0408646c595e184983dc6f85746db3a94fb42ce3f"
+    },
+    "outcome": {
+      "outcome": "READY",
+      "gaps": [],
+      "questions": [],
+      "stats": {
+        "tools": 5,
+        "deep": 0,
+        "details": 2,
+        "submit_rejections": 0,
+        "llm_turns": 6,
+        "model": "deepseek-flash",
+        "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+        "max_turns": 16,
+        "cli_start_ms": 475,
+        "cli_peak_rss_mb": 332.05,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.12427919999999999,
+        "usage": {
+          "input_tokens": 20787,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 60544,
+          "output_tokens": 2917,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      }
+    },
+    "interrupt_id": null,
+    "applied_result": "82780d98-c876-48b5-8a4f-1d76f496f861:COMPLETED:5cc75f78320563465a4d6f18dbce25fccda433386f50d2f26d34f1ce76489727",
+    "count": {
+      "value": 22,
+      "revision": 1,
+      "plan_hash": "a85014e3baa5d29915d6e0f0408646c595e184983dc6f85746db3a94fb42ce3f",
+      "executed_at": "2026-09-28T14:03:28.186Z",
+      "data_as_of": null,
+      "warning": null
+    },
+    "thread_id": "ea308344-442c-4199-afca-a95f13a0309e",
+    "library_id": 107,
+    "title": "日期校验修复完整验证 CAL-8017",
+    "archived": false,
+    "pinned": false,
+    "capabilities": {
+      "count": true,
+      "create": true,
+      "preview": true
+    }
+  },
+  "compiled": {
+    "rule": {
+      "schemaVersion": 4,
+      "audiencePlan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "9月19号到2026-09-30到期的，两头都含",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "between",
+              "values": [
+                "2026-09-19",
+                "2026-09-30"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 858,
+              "name": "未来定期存款最近一次到期日期",
+              "semantic_type": "DATE",
+              "unit": "NONE",
+              "definition": "未来定期存款最近一次到期日期，格式 yyyy-MM-dd",
+              "allowed_operators": [
+                "=",
+                ">",
+                "<",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "LATEST",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "金额不低于20万",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "200000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 859,
+              "name": "未来定期存款最近一次到期金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "未来定期存款最近一次到期金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": null,
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": null,
+                "time_anchor_type": "NONE",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "现在没有理财",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "下一笔定期到期日2026-09-19至2026-09-30、到期金额≥20万、当前未持有理财",
+        "intent_plan": {
+          "original_request": "盯一下下一笔定期，9月19号到2026-09-30到期的，两头都含，金额不低于20万，而且现在没有理财。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "9月19号到2026-09-30到期的，两头都含"
+              ],
+              "business_meaning": "下一笔（未来最近一次）定期存款到期日期在2026-09-19至2026-09-30之间，含首尾两天",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "金额不低于20万"
+              ],
+              "business_meaning": "该笔未来定期存款最近一次到期金额不低于20万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "现在没有理财"
+              ],
+              "business_meaning": "当前未持有理财（当前持有理财标志为0）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3",
+        "revision": 1,
+        "hash": "a85014e3baa5d29915d6e0f0408646c595e184983dc6f85746db3a94fb42ce3f"
+      },
+      "objectKeyField": null,
+      "datasetVersionId": null,
+      "conditions": [
+        {
+          "expression": null,
+          "compareExpression": null,
+          "scopeAll": false,
+          "conditionId": "c1",
+          "connector": "AND",
+          "openParen": 1,
+          "closeParen": 0,
+          "tagId": 858,
+          "fieldName": "NEXT_TIME_DEPOSIT_LATEST_MAT_DATE",
+          "tagName": "未来定期存款最近一次到期日期",
+          "tagType": "日期型",
+          "dataType": "date",
+          "operator": "between",
+          "values": [
+            "2026-09-19",
+            "2026-09-30"
+          ],
+          "matchType": null,
+          "importBatchNo": null,
+          "importedCount": null,
+          "selectedCodeOptions": []
+        },
+        {
+          "expression": null,
+          "compareExpression": null,
+          "scopeAll": false,
+          "conditionId": "c2",
+          "connector": "AND",
+          "openParen": 0,
+          "closeParen": 0,
+          "tagId": 859,
+          "fieldName": "NEXT_TIME_DEPOSIT_LATEST_MATURITY_AMT",
+          "tagName": "未来定期存款最近一次到期金额",
+          "tagType": "数值型",
+          "dataType": "decimal(13,2)",
+          "operator": ">=",
+          "values": [
+            "200000"
+          ],
+          "matchType": null,
+          "importBatchNo": null,
+          "importedCount": null,
+          "selectedCodeOptions": []
+        },
+        {
+          "expression": null,
+          "compareExpression": null,
+          "scopeAll": false,
+          "conditionId": "c3",
+          "connector": "AND",
+          "openParen": 0,
+          "closeParen": 1,
+          "tagId": 601,
+          "fieldName": "CUR_HOLDING_WMP_FLAG",
+          "tagName": "当前持有理财标志",
+          "tagType": "布尔型",
+          "dataType": "tinyint",
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "matchType": null,
+          "importBatchNo": null,
+          "importedCount": null,
+          "selectedCodeOptions": [
+            {
+              "code": "0",
+              "label": "否"
+            }
+          ]
+        }
+      ],
+      "previewColumns": [
+        {
+          "tagId": 858,
+          "fieldName": "NEXT_TIME_DEPOSIT_LATEST_MAT_DATE",
+          "tagName": "未来定期存款最近一次到期日期",
+          "tagType": "日期型",
+          "dataType": "date"
+        },
+        {
+          "tagId": 859,
+          "fieldName": "NEXT_TIME_DEPOSIT_LATEST_MATURITY_AMT",
+          "tagName": "未来定期存款最近一次到期金额",
+          "tagType": "数值型",
+          "dataType": "decimal(13,2)"
+        },
+        {
+          "tagId": 601,
+          "fieldName": "CUR_HOLDING_WMP_FLAG",
+          "tagName": "当前持有理财标志",
+          "tagType": "布尔型",
+          "dataType": "tinyint"
+        }
+      ]
+    },
+    "count_sql": "select count(*) from `L_INDVCST_LABEL` where ((`NEXT_TIME_DEPOSIT_LATEST_MAT_DATE` >= '2026-09-19' and `NEXT_TIME_DEPOSIT_LATEST_MAT_DATE` <= '2026-09-30') and (`NEXT_TIME_DEPOSIT_LATEST_MATURITY_AMT` >= 200000) and (`CUR_HOLDING_WMP_FLAG` = '0'))"
+  },
+  "preview": {
+    "columns": [
+      "CUST_ID",
+      "未来定期存款最近一次到期日期",
+      "未来定期存款最近一次到期金额",
+      "当前持有理财标志"
+    ],
+    "rows": [
+      {
+        "CUST_ID": "SIM20260918000024",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 6412926.07,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000251",
+        "未来定期存款最近一次到期日期": "2026-09-27",
+        "未来定期存款最近一次到期金额": 263475.77,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000294",
+        "未来定期存款最近一次到期日期": "2026-09-24",
+        "未来定期存款最近一次到期金额": 204759.08,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000484",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 539890.29,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000606",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 263155.56,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000744",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 312743.34,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000802",
+        "未来定期存款最近一次到期日期": "2026-09-22",
+        "未来定期存款最近一次到期金额": 804885.18,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000850",
+        "未来定期存款最近一次到期日期": "2026-09-25",
+        "未来定期存款最近一次到期金额": 390619.68,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000891",
+        "未来定期存款最近一次到期日期": "2026-09-22",
+        "未来定期存款最近一次到期金额": 1733078.13,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000904",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 999051.42,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918000943",
+        "未来定期存款最近一次到期日期": "2026-09-27",
+        "未来定期存款最近一次到期金额": 573757.43,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001052",
+        "未来定期存款最近一次到期日期": "2026-09-28",
+        "未来定期存款最近一次到期金额": 819757.81,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001100",
+        "未来定期存款最近一次到期日期": "2026-09-24",
+        "未来定期存款最近一次到期金额": 214632.57,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001350",
+        "未来定期存款最近一次到期日期": "2026-09-29",
+        "未来定期存款最近一次到期金额": 297006.0,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001450",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 286666.65,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001489",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 496867.72,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001597",
+        "未来定期存款最近一次到期日期": "2026-09-29",
+        "未来定期存款最近一次到期金额": 437765.52,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001682",
+        "未来定期存款最近一次到期日期": "2026-09-22",
+        "未来定期存款最近一次到期金额": 1116811.73,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001703",
+        "未来定期存款最近一次到期日期": "2026-09-27",
+        "未来定期存款最近一次到期金额": 1813628.33,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001717",
+        "未来定期存款最近一次到期日期": "2026-09-30",
+        "未来定期存款最近一次到期金额": 1347909.1,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001861",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 676558.21,
+        "当前持有理财标志": 0
+      },
+      {
+        "CUST_ID": "SIM20260918001926",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 293274.6,
+        "当前持有理财标志": 0
+      }
+    ],
+    "displayRows": [
+      {
+        "CUST_ID": "SIM20260918000024",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 6412926.07,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000251",
+        "未来定期存款最近一次到期日期": "2026-09-27",
+        "未来定期存款最近一次到期金额": 263475.77,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000294",
+        "未来定期存款最近一次到期日期": "2026-09-24",
+        "未来定期存款最近一次到期金额": 204759.08,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000484",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 539890.29,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000606",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 263155.56,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000744",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 312743.34,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000802",
+        "未来定期存款最近一次到期日期": "2026-09-22",
+        "未来定期存款最近一次到期金额": 804885.18,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000850",
+        "未来定期存款最近一次到期日期": "2026-09-25",
+        "未来定期存款最近一次到期金额": 390619.68,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000891",
+        "未来定期存款最近一次到期日期": "2026-09-22",
+        "未来定期存款最近一次到期金额": 1733078.13,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000904",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 999051.42,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918000943",
+        "未来定期存款最近一次到期日期": "2026-09-27",
+        "未来定期存款最近一次到期金额": 573757.43,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001052",
+        "未来定期存款最近一次到期日期": "2026-09-28",
+        "未来定期存款最近一次到期金额": 819757.81,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001100",
+        "未来定期存款最近一次到期日期": "2026-09-24",
+        "未来定期存款最近一次到期金额": 214632.57,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001350",
+        "未来定期存款最近一次到期日期": "2026-09-29",
+        "未来定期存款最近一次到期金额": 297006.0,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001450",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 286666.65,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001489",
+        "未来定期存款最近一次到期日期": "2026-09-23",
+        "未来定期存款最近一次到期金额": 496867.72,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001597",
+        "未来定期存款最近一次到期日期": "2026-09-29",
+        "未来定期存款最近一次到期金额": 437765.52,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001682",
+        "未来定期存款最近一次到期日期": "2026-09-22",
+        "未来定期存款最近一次到期金额": 1116811.73,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001703",
+        "未来定期存款最近一次到期日期": "2026-09-27",
+        "未来定期存款最近一次到期金额": 1813628.33,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001717",
+        "未来定期存款最近一次到期日期": "2026-09-30",
+        "未来定期存款最近一次到期金额": 1347909.1,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001861",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 676558.21,
+        "当前持有理财标志": "否"
+      },
+      {
+        "CUST_ID": "SIM20260918001926",
+        "未来定期存款最近一次到期日期": "2026-09-19",
+        "未来定期存款最近一次到期金额": 293274.6,
+        "当前持有理财标志": "否"
+      }
+    ]
+  },
+  "request_context": {
+    "reference_date": "2026-09-28",
+    "timezone": "Asia/Shanghai",
+    "build_id": "bge-m3-l107-20260928-006-p3g"
+  },
+  "expected_count": 22,
+  "count_sql_equal": true,
+  "status": "PASS"
+}

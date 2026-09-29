@@ -122,19 +122,19 @@ class Turn(StrictModel):
 
 
 class Provenance(StrictModel):
-    authoring: Literal['DETERMINISTIC_FROM_AGENT_RECIPE'] = 'DETERMINISTIC_FROM_AGENT_RECIPE'
+    authoring: Literal['DETERMINISTIC_FROM_AGENT_RECIPE', 'MODEL_EXPRESSION_FROM_DETERMINISTIC_TRUTH'] = 'DETERMINISTIC_FROM_AGENT_RECIPE'
     ai_review: Literal['NOT_INDEPENDENTLY_REVIEWED'] = 'NOT_INDEPENDENTLY_REVIEWED'
     human_review: Literal['PENDING'] = 'PENDING'
     official_bank_signoff: Literal[False] = False
 
 
 class EvalCase(StrictModel):
-    schema_version: Literal['eval-case.v1'] = 'eval-case.v1'
-    case_id: str = Field(pattern=r'^CAL-\d{3}$')
-    mother_id: str = Field(pattern=r'^M-\d{3}$')
+    schema_version: Literal['eval-case.v1', 'eval-case.v2'] = 'eval-case.v1'
+    case_id: str = Field(pattern=r'^CAL-\d{3,4}$')
+    mother_id: str = Field(pattern=r'^M-\d{3,4}$')
     lineage_group: str
-    phase: Literal['P1'] = 'P1'
-    split: Literal['CALIBRATION'] = 'CALIBRATION'
+    phase: Literal['P1', 'P2', 'P3'] = 'P1'
+    split: Literal['CALIBRATION', 'UNPARTITIONED', 'DEV', 'REGRESSION', 'HOLDOUT'] = 'CALIBRATION'
     status: Literal['DRAFT'] = 'DRAFT'
     category: Category
     persona: str
@@ -153,6 +153,9 @@ class EvalCase(StrictModel):
     truth_basis: list[str] = Field(min_length=1)
     unresolved_fact_ids: list[str] = Field(default_factory=list)
     l3_status: Literal['FIXTURE_ORACLE_AVAILABLE','NOT_APPLICABLE']
+    variant_index: int | None = Field(default=None, ge=0, le=3)
+    variant_mode: Literal['TEMPLATE', 'MODEL_PARAPHRASE'] | None = None
+    mother_requirement_sha256: str | None = Field(default=None, pattern=r'^[0-9a-f]{64}$')
     provenance: Provenance = Field(default_factory=Provenance)
 
 
@@ -169,7 +172,7 @@ class EvalRun(StrictModel):
     artifact_hash: str
     eligible_sha256: str
     reference_date: str
-    status: Literal['COMPLETED','AGENT_TIMEOUT','RUN_INVALID']
+    status: Literal['COMPLETED','AGENT_TIMEOUT','AGENT_FAILED','RUN_INVALID']
     outcome: Outcome | None
     output: dict
     evidence_paths: list[str]
@@ -177,6 +180,8 @@ class EvalRun(StrictModel):
     input_tokens: int = Field(ge=0)
     output_tokens: int = Field(ge=0)
     actual_cost: str | None
+    stats: dict = Field(default_factory=dict)
+    repeat: int = Field(default=0, ge=0)
 
 
 class EvalVerdict(StrictModel):
@@ -193,7 +198,8 @@ class SemanticChangeSet(StrictModel):
     change_id: str
     baseline_snapshot: str
     baseline_hash: str
-    status: Literal['DRAFT'] = 'DRAFT'
+    status: Literal['DRAFT', 'REVIEWED'] = 'DRAFT'
+    library_id: int = 107
     source_case_ids: list[str]
     source_refs: list[str]
     changes: list[dict]

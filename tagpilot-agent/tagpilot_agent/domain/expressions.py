@@ -4,7 +4,7 @@ from decimal import Decimal, InvalidOperation
 from tagpilot_agent.guards.diagnostics import PlanError
 
 TIME_KEYS = ('calendar_mode', 'time_anchor_type', 'time_window_unit', 'time_window_value',
-             'time_anchor_label', 'time_offset_years', 'time_offset_months', 'period_edge')
+             'time_anchor_label', 'time_offset_years', 'time_offset_months', 'month_of_year', 'period_edge')
 ARITHMETIC = {'ADD', 'SUB', 'MUL', 'DIV', 'COUNT_POSITIVE'}
 
 
@@ -65,6 +65,11 @@ def check_caliber(node, tag):
         raise PlanError('FORMAT_ERROR', '正在补全这项条件的时间解释', actions=['repair_time_parse'])
     if not isinstance(expected, dict):
         raise PlanError('FORMAT_ERROR', '时间解释格式需要修正', actions=['repair_time_parse'])
+    # 月份仅做字段名等价规范化；不推算或替换数值，冲突不能静默覆盖。
+    if 'month' in expected:
+        if 'month_of_year' in expected and str(expected['month_of_year'])!=str(expected['month']):
+            raise PlanError('FORMAT_ERROR','月份解释字段互相冲突',actions=['repair_time_parse'])
+        expected['month_of_year']=expected.pop('month')
     missing = {k: v for k, v in expected.items() if v is not None and actual.get(k) is None}
     if missing:
         raise PlanError('METADATA_INCOMPLETE', '候选指标缺少可核验的口径信息', expected=missing,

@@ -1,0 +1,13 @@
+{
+  "case_id": "CAL-8048",
+  "source_run": "p3-demo-G-full-v2-1",
+  "root_cause": "首轮未向资产要求提问却放入PUBLISHED >0 假设；回答只授权已提问APP叶子，冻结守卫正确阻止未授权修改。",
+  "fix": "NEEDS_USER_INPUT 提交时要求每个未确认假设有问题；已确认且未改条件不重复问；不降低多轮冻结约束。",
+  "test_file": "tagpilot-agent/tests/test_p3_pending_questions.py",
+  "target_trees_and_oracles_unchanged": true,
+  "status": "FIX_TESTED_RUNTIME_RELOAD_PENDING",
+  "files": {
+    "tagpilot-agent/tagpilot_agent/tools/submit_result.py": "89e57a1caedd83b17e425a1ee88fc53fda94da8fdf216f0461837c312fe22693",
+    "tagpilot-agent/tagpilot_agent/agent/system_prompt.py": "230770d9d5577fca1638fb89cd6a04ba3d79cfd488c41c195ae966df5d32605f"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "phase": "P3",
+  "status": "L1_L2_PASSED",
+  "demo_l2_cases": 100,
+  "regression_l2_cases": 15,
+  "l3": "TO_RUN_AFTER_ACTIVATION",
+  "reports": [
+    "tagpilot-eval/reports/p3-acceptance-v1/REPORT.md",
+    "tagpilot-eval/reports/p3-acceptance-v1/final/summary.json"
+  ],
+  "input_sha256": "00961b454e36ee418f7f039ae573120537ddcf4dd18005d79d66825b84c061ff",
+  "l2_evidence": {
+    "tagpilot-eval/runs/p3-demo-G-clean-v6-1/runs.jsonl": "7b515e78ec4c221ddca4c774f36a1765c8ae78bfa73af791ba42a46bcb2c91d9",
+    "tagpilot-eval/runs/p3-demo-G-clean-v6-1/verdicts.jsonl": "c4e99991df090e37a41327437fec7b916d33fbd48d5e2be4504117ceb889da73",
+    "tagpilot-eval/runs/p3-demo-G-clean-v6-2/runs.jsonl": "acb9d54be89944f3ed7692e7d7a3ff18116e5e3e10e95b3dc85c039620d21df2",
+    "tagpilot-eval/runs/p3-demo-G-clean-v6-2/verdicts.jsonl": "4a21085f11bcee17bb4d6824cd24d93ea3d8ca5543360de008b93039811da205"
+  },
+  "manifest_unchanged": true
+}

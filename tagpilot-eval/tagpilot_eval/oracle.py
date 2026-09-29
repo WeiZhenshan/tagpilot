@@ -68,7 +68,15 @@ def evaluate(tree,row):
 
 
 def normalized(tree):
+    """标准化到可证明等价的规范形；只做有数学依据的变换，不猜测等价。
+
+    已证明等价：同级 AND/OR 扁平化与子节点排序、码值集合排序、数值格式统一、
+    **单子节点分组等价于其子节点**、**between[a,b] ≡ (>=a 且 <=b)**、
+    **= x ≡ in[x]**、**!= x ≡ not_in[x]**；AND 内相同表达式、单位、
+    数据类型、口径与 NULL 策略的同向数值边界，仅保留更严格的边界。
+    """
     result=Tree.model_validate(tree).model_dump(exclude_none=True)
+
     def visit(node):
         if node['kind']=='GROUP':
             children=[]
@@ -77,13 +85,42 @@ def normalized(tree):
                 if child['kind']=='GROUP' and child['logic']==node['logic']:
                     children.extend(child['children'])
                 else: children.append(child)
+            if node['logic']=='AND':
+                bounds={};others=[]
+                for child in children:
+                    op=child.get('operator')
+                    if child['kind']!='PREDICATE' or child.get('data_kind')!='NUMBER' or op not in {'>','>=','<','<='}:
+                        others.append(child);continue
+                    identity=digest({k:v for k,v in child.items() if k not in {'operator','values'}})
+                    direction='lower' if op in {'>','>='} else 'upper';key=(identity,direction)
+                    rank=(number(child['values'][0]),op=='>' if direction=='lower' else op=='<=')
+                    prior=bounds.get(key)
+                    if prior is None or (rank>prior[0] if direction=='lower' else rank<prior[0]):bounds[key]=(rank,child)
+                children=others+[child for rank,child in bounds.values()]
+            if len(children)==1:
+                return children[0]
             node['children']=sorted(children,key=digest)
-        elif node['kind']=='PREDICATE':
+            return node
+        if node['kind']=='PREDICATE':
             if node['data_kind']=='NUMBER':
                 node['values']=[format(number(v).normalize(),'f') for v in node['values']]
             if node['operator'] in {'in','not_in'}:
                 node['values']=sorted(node['values'])
+            if node['operator']=='between':
+                base={key:value for key,value in node.items() if key not in ('operator','values')}
+                low,high=node['values']
+                rewritten={'kind':'GROUP','logic':'AND','children':[
+                    {**base,'operator':'>=','values':[low]},
+                    {**base,'operator':'<=','values':[high]}]}
+                # 经模型回环取得规范形状（补齐默认字段），保证与校验后的树逐键可比。
+                return visit(Tree.model_validate(rewritten).model_dump(exclude_none=True))
+            if node['operator']=='=':
+                node['operator'],node['values']='in',[node['values'][0]]
+            elif node['operator']=='!=':
+                node['operator'],node['values']='not_in',[node['values'][0]]
+            return node
         return node
+
     return visit(result)
 
 

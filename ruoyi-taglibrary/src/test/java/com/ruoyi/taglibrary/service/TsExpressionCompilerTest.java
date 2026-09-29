@@ -32,4 +32,20 @@ class TsExpressionCompilerTest {
         Map b=json.readValue("{\"kind\":\"capability\",\"implementation\":{\"kind\":\"DIV\",\"args\":[{\"tag_id\":1},{\"tag_id\":2}]}}",Map.class);
         assertNotEquals(TsSnapshotCanonicalizer.dumps(a),TsSnapshotCanonicalizer.dumps(b));
     }
+
+    @Test void differentPublishedMonthsRequireExplicitAlignment() throws Exception {
+        ObjectMapper json=new ObjectMapper();
+        TlTagMapper mapper=mock(TlTagMapper.class);TsExpressionCompiler compiler=new TsExpressionCompiler();
+        ReflectionTestUtils.setField(compiler,"json",json);ReflectionTestUtils.setField(compiler,"tags",mapper);
+        Map<Long,JsonNode> published=new HashMap<>();
+        for(long id=1;id<=2;id++) {
+            TlTag tag=new TlTag();tag.setTagId(id);tag.setLibraryId(107L);tag.setTagType("数值型");tag.setFieldName("f"+id);
+            when(mapper.selectTagById(id)).thenReturn(tag);
+            published.put(id,json.readTree("{\"unit\":\"CNY\",\"caliber_struct\":{\"month_of_year\":"+(id==1?11:12)+"}}"));
+        }
+        JsonNode expression=json.readTree("{\"kind\":\"ADD\",\"args\":[{\"kind\":\"TAG\",\"tag_id\":1},{\"kind\":\"TAG\",\"tag_id\":2}]}");
+        assertThrows(RuntimeException.class,()->compiler.compile(expression,107L,published.keySet(),published,Collections.emptyMap()));
+        published.put(1L,published.get(2L));
+        assertEquals("CNY",compiler.compile(expression,107L,published.keySet(),published,Collections.emptyMap()).unit);
+    }
 }

@@ -139,8 +139,11 @@
       "additionalProperties": false,
       "properties": {
         "authoring": {
-          "const": "DETERMINISTIC_FROM_AGENT_RECIPE",
           "default": "DETERMINISTIC_FROM_AGENT_RECIPE",
+          "enum": [
+            "DETERMINISTIC_FROM_AGENT_RECIPE",
+            "MODEL_EXPRESSION_FROM_DETERMINISTIC_TRUTH"
+          ],
           "title": "Authoring",
           "type": "string"
         },
@@ -312,18 +315,21 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": "eval-case.v1",
       "default": "eval-case.v1",
+      "enum": [
+        "eval-case.v1",
+        "eval-case.v2"
+      ],
       "title": "Schema Version",
       "type": "string"
     },
     "case_id": {
-      "pattern": "^CAL-\\d{3}$",
+      "pattern": "^CAL-\\d{3,4}$",
       "title": "Case Id",
       "type": "string"
     },
     "mother_id": {
-      "pattern": "^M-\\d{3}$",
+      "pattern": "^M-\\d{3,4}$",
       "title": "Mother Id",
       "type": "string"
     },
@@ -332,14 +338,24 @@
       "type": "string"
     },
     "phase": {
-      "const": "P1",
       "default": "P1",
+      "enum": [
+        "P1",
+        "P2",
+        "P3"
+      ],
       "title": "Phase",
       "type": "string"
     },
     "split": {
-      "const": "CALIBRATION",
       "default": "CALIBRATION",
+      "enum": [
+        "CALIBRATION",
+        "UNPARTITIONED",
+        "DEV",
+        "REGRESSION",
+        "HOLDOUT"
+      ],
       "title": "Split",
       "type": "string"
     },
@@ -461,6 +477,49 @@
       ],
       "title": "L3 Status",
       "type": "string"
+    },
+    "variant_index": {
+      "anyOf": [
+        {
+          "maximum": 3,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Variant Index"
+    },
+    "variant_mode": {
+      "anyOf": [
+        {
+          "enum": [
+            "TEMPLATE",
+            "MODEL_PARAPHRASE"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Variant Mode"
+    },
+    "mother_requirement_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mother Requirement Sha256"
     },
     "provenance": {
       "$ref": "#/$defs/Provenance"

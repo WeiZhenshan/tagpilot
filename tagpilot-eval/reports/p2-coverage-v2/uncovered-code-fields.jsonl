@@ -1,0 +1,15 @@
+{"codes": 6, "domain": "客户概况", "field_name": "HIGHEST_EDUCATION", "name": "最高学历", "tag_id": 567}
+{"codes": 3, "domain": "客群特征", "field_name": "LAST_YEAR_END_WEALTH_NEW_REPEAT_LOYAL_CLASS", "name": "上年末财富生客熟客忠诚客分类", "tag_id": 686}
+{"codes": 3, "domain": "客群特征", "field_name": "LAST_MONTH_END_WEALTH_NEW_REPEAT_LOYAL_CLASS", "name": "上月末财富生客熟客忠诚客分类", "tag_id": 688}
+{"codes": 3, "domain": "客群特征", "field_name": "CUR_PB_MAIN_ACCT_NEW_REPEAT_LOYAL_CLASS", "name": "当前私银主账户生客熟客忠诚客分类", "tag_id": 689}
+{"codes": 3, "domain": "客群特征", "field_name": "CUR_WEALTH_NEW_REPEAT_LOYAL_CLASS_Y2026", "name": "当前财富生客熟客忠诚客分类（2026年）", "tag_id": 690}
+{"codes": 2, "domain": "客群特征", "field_name": "CUR_MONTH_FUND_RECEIPT_PAYMENT_FLAG", "name": "本月资金收付标志", "tag_id": 710}
+{"codes": 2, "domain": "客群特征", "field_name": "LAST_12_MONTHS_LARGE_TRANSFER_FLAG", "name": "近12个月大额转账标志", "tag_id": 711}
+{"codes": 2, "domain": "客群特征", "field_name": "CUR_WEALTH_PROMOTER_VALID_M2_FLAG", "name": "当前财富推介官有效M2标志", "tag_id": 712}
+{"codes": 2, "domain": "客群特征", "field_name": "CUR_WECOM_FRIEND_ADDED_FLAG_PERS_LOAN", "name": "当前企微好友添加标志（个贷）", "tag_id": 713}
+{"codes": 2, "domain": "客群特征", "field_name": "HIST_WECOM_FRIEND_ADDED_FLAG", "name": "历史企微好友添加标志", "tag_id": 714}
+{"codes": 2, "domain": "客群特征", "field_name": "CUR_WECOM_GROUP_JOINED_FLAG", "name": "当前企微群添加标志", "tag_id": 715}
+{"codes": 2, "domain": "客群特征", "field_name": "CUR_WECOM_SESSION_ARCHIVE_AUTH_FLAG", "name": "当前企微会话存档授权标志", "tag_id": 716}
+{"codes": 6, "domain": "风险管理", "field_name": "HOUSEHOLD_TOTAL_ASSET_WMP_RISK_ASSESSMENT", "name": "家庭总资产（理财风评）", "tag_id": 1478}
+{"codes": 5, "domain": "风险管理", "field_name": "CUR_INSURANCE_RISK_ASSESSMENT_LEVEL", "name": "当前保险风评等级", "tag_id": 1480}
+{"codes": 6, "domain": "风险管理", "field_name": "LATEST_CIR_EMPLOYMENT_STATUS", "name": "最新征信工作情况", "tag_id": 1481}

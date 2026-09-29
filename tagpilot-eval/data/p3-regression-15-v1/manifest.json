@@ -1,0 +1,14 @@
+{
+  "phase": "P3",
+  "scope": "fixed 15 P2 controls; not expanded benchmark",
+  "cases": 15,
+  "source": "data/p2-cases-v3/cases.jsonl",
+  "source_sha256": "eef451a80264cfae51eaa246de0e79673b98072c27ad2e968cc0535d41d84dd9",
+  "splits": {
+    "REGRESSION": 12,
+    "DEV": 3
+  },
+  "files": {
+    "cases.jsonl": "7ca997e5c7f3d0a3f67fd59ae905b50254def4d6f98f1dba21bdacc3b1a65d48"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "thread_id": "0aa95fbd-dc47-451d-86c2-db6ecb3d8fc2",
+  "title": "P3 Demo 大额入金转化验收",
+  "path": "Java正式工作台threads/runs -> Agent -> Java权威核验 -> count/preview",
+  "case_id": "CAL-8001",
+  "requirement": "帮我找近30天异名跨行累计转入至少20万，现在没持有理财，理财风评C3到C5的客户。",
+  "status": "COMPLETED",
+  "valid": true,
+  "build_id": "bge-m3-l107-20260928-006-p3g",
+  "count": {
+    "value": 39,
+    "revision": 1,
+    "plan_hash": "7ba4e6b2a35b4d49ddc50fe55fb624cb1753fe306e113ab24f022f7567696253",
+    "executed_at": "2026-09-28T13:37:05.215Z",
+    "data_as_of": null,
+    "warning": null
+  },
+  "oracle_count": 39,
+  "preview_response_type": "dict",
+  "customer_group_created": false
+}

@@ -13,6 +13,17 @@ import com.ruoyi.taglibrary.service.TsAgentWorkbenchService;
 public class TsAgentWorkbenchController extends BaseController {
     @Autowired private TsAgentWorkbenchService service;
     @Autowired private com.fasterxml.jackson.databind.ObjectMapper json;
+    @Autowired private com.ruoyi.taglibrary.service.TsAudiencePlanCompiler compiler;
+    @Autowired private com.ruoyi.objectgroup.service.ITlObjectGroupService groups;
+    /** 只读编译：复用发布身份、当前资格及标签证据校验，供评测独立执行对齐。 */
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:list') and @ss.hasPermi('objectgroup:group:run')")
+    @PostMapping("/plan/compile")
+    @SuppressWarnings("unchecked")
+    public AjaxResult compile(@RequestBody Map<String,Object> body) {
+        Long library=Long.valueOf(String.valueOf(body.get("library_id")));
+        com.ruoyi.objectgroup.domain.RulePayload rule=compiler.compile(library,(Map<String,Object>)body.get("plan"));
+        return success(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("rule",rule,"count_sql",groups.buildRuleSql(library,rule)));
+    }
     /** 有界 SSE 帧；浏览器重连只读取已持久化运行，绝不重发用户命令。 */
     @GetMapping(value="/threads/{id}/events",produces="text/event-stream")
     public org.springframework.http.ResponseEntity<String> events(@PathVariable String id) throws Exception {

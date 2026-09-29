@@ -79,6 +79,34 @@ def build_index(catalog, out_dir: Path, build_id: str, store_type='LOCAL', embed
     return {'manifest': manifest, 'docs': docs, 'store': store, 'alias_index': aliases, 'embedder': embedder, 'reranker': reranker}
 
 
+def fork_retrieval_config(source, destination, build_id, config_delta):
+    """只变检索配置的不可变 C/D 对照；复用已验 hash 的向量，建立独立 Milvus 行集。"""
+    import shutil
+    source,destination=Path(source),Path(destination)
+    manifest=json.loads((source/'manifest.json').read_text())
+    for name,expected in manifest['files'].items():
+        if Path(name).name!=name or sha(source/name)!=expected:raise ValueError('基线构建文件发生变化')
+    if destination.exists():raise FileExistsError('配置对照必须使用新 build_id')
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,48}',build_id):raise ValueError('build_id 格式错误')
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    temp=Path(tempfile.mkdtemp(prefix='.building-',dir=destination.parent))
+    for name in manifest['files']:shutil.copy2(source/name,temp/name)
+    docs=[json.loads(line) for line in (temp/'docs.jsonl').read_text().splitlines()]
+    vectors=np.load(temp/'emb.npy',allow_pickle=False)
+    if len(vectors)!=len(docs):raise ValueError('向量与文档行数不一致')
+    for doc,vec in zip(docs,vectors):doc['dense']=vec.tolist()
+    if manifest['store_type']!='MILVUS':raise ValueError('首期配置对照只支持既有 Milvus 基线')
+    collection='tag_docs_'+hashlib.sha256((str(manifest['library_id'])+':'+build_id).encode()).hexdigest()[:32]
+    store=MilvusStore(collection=collection,library_id=manifest['library_id']);stats=store.build(docs)
+    config={**manifest['retrieval_config'],**config_delta}
+    updated={**manifest,**stats,'build_id':build_id,'milvus_collection':collection,
+        'retrieval_config':config,'retrieval_config_hash':hashlib.sha256(json.dumps(config,sort_keys=True).encode()).hexdigest(),
+        'eval_summary':{'status':'NOT_EVALUATED'},'files':{name:sha(temp/name) for name in manifest['files']}}
+    (temp/'manifest.json').write_text(json.dumps(updated,ensure_ascii=False,indent=2))
+    os.rename(temp,destination)
+    return updated
+
+
 def load_index(out_dir: Path):
     root = Path(out_dir)
     manifest = json.loads((root / 'manifest.json').read_text())

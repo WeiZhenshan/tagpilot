@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 import time
 import psutil
+import hashlib
 from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient, PermissionResultAllow, PermissionResultDeny, ResultMessage, AssistantMessage, HookMatcher
 from tagpilot_agent.agent.system_prompt import SYSTEM_PROMPT
 from tagpilot_agent.tools.registry import create_server, MODELS
@@ -19,6 +20,8 @@ async def allow_tool(name,args,context):
 class ClaudeRunner:
     async def run(self,ctx,prompt):
         model=os.getenv('ANTHROPIC_MODEL') or os.getenv('TAG_LLM_MODEL','deepseek-chat')
+        ctx.stats.update(model=model,prompt_sha256=hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest(),
+                         max_turns=int(os.getenv('TAG_AGENT_MAX_TURNS','16')))
         base=os.getenv('ANTHROPIC_BASE_URL','')
         key=os.getenv('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_AUTH_TOKEN') or os.getenv('TAG_LLM_API_KEY','')
         if not base or not key:raise RuntimeError('请配置 Anthropic 兼容端点及密钥')
@@ -32,7 +35,7 @@ class ClaudeRunner:
             options=ClaudeAgentOptions(tools=[],allowed_tools=['mcp__tagpilot__'+n for n in MODELS],disallowed_tools=DENIED,
                 mcp_servers={'tagpilot':create_server(ctx)},hooks={'PostToolUse':[HookMatcher(matcher='mcp__tagpilot__submit_result',hooks=[after_tool])]},can_use_tool=allow_tool,setting_sources=[],cwd=directory,env=env,
                 extra_args={'strict-mcp-config':None,'no-session-persistence':None},system_prompt=SYSTEM_PROMPT,
-                model=model,max_turns=int(os.getenv('TAG_AGENT_MAX_TURNS','10')),
+                model=model,max_turns=int(os.getenv('TAG_AGENT_MAX_TURNS','16')),
                 max_budget_usd=float(os.getenv('TAG_AGENT_MAX_BUDGET_USD','1')),thinking={'type':'disabled'},
                 enable_file_checkpointing=False,stderr=lambda _:None)
             started=time.monotonic()

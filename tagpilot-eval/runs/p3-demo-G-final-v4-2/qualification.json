@@ -1,0 +1,7 @@
+{
+  "excluded_tag_ids": [
+    637
+  ],
+  "basis": "p3-observation-20260928.json: tag 637 pre-existing DRAFT",
+  "policy": "same published eligibility in all P3 A/B/C/D runs"
+}

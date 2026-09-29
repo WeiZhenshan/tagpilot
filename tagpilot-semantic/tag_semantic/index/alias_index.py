@@ -3,6 +3,7 @@ from typing import Any, Iterable
 from pathlib import Path
 import json
 import ahocorasick
+import unicodedata
 
 
 class AliasIndex:
@@ -26,7 +27,9 @@ class AliasIndex:
         if self._entries:
             self._automaton.make_automaton()
 
-    def lookup(self, text):
+    def lookup(self, text, normalization='legacy'):
+        if normalization == 'nfkc-v1':
+            text=unicodedata.normalize('NFKC',text or '')
         query = (text or '').strip().lower().replace(' ', '')
         if not self._entries:
             return []

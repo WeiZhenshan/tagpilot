@@ -3,7 +3,7 @@
 -- 用途      : 回退 —— 删除本任务创建的两张表，使 indiv_cust 库恢复到建表前状态
 -- 目标库    : indiv_cust
 -- 删除对象  : L_INDVCST_LABEL            （个人客户经营标签大宽表，970 列）
---             L_INDVCST_LABEL_CODE_MAP   （客户标签码值映射表，1723 条码值）
+--             L_INDVCST_LABEL_CODE_MAP   （客户标签码值映射表，1725 条码值）
 -- 危险等级  : 高 —— DROP TABLE 会永久删除表结构及其全部数据，不可恢复
 -- 幂等性    : 使用 IF EXISTS，可重复执行，不报错
 -- 执行方式  : 手工执行。本脚本位于 sql/indiv_cust/，不属于自动部署流程

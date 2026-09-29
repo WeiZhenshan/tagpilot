@@ -59,6 +59,16 @@ public class TsSemanticController extends BaseController {
 
     @Autowired private com.ruoyi.taglibrary.service.TsSnapshotAssembler snapshotAssembler;
 
+    @Autowired private com.ruoyi.taglibrary.service.TsSemanticChangeSetService changeSets;
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:edit')")
+    @PostMapping("/changeset/validate")
+    public AjaxResult validateChangeSet(@RequestBody Map<String,Object> pack) { return success(changeSets.validate(pack)); }
+
+    @PreAuthorize("@ss.hasPermi('taglibrary:semantic:edit') and @ss.hasPermi('taglibrary:semantic:review')")
+    @PostMapping("/changeset/apply")
+    public AjaxResult applyChangeSet(@RequestBody Map<String,Object> pack) throws Exception { return success(changeSets.apply(pack)); }
+
     @Autowired private com.ruoyi.taglibrary.service.TsIndexMaintenanceService maintenance;
     @Autowired private com.ruoyi.taglibrary.mapper.TlTagMapper tagMapper;
     @Autowired private com.ruoyi.objectgroup.service.IDimensionCodeOptionService codeOptions;

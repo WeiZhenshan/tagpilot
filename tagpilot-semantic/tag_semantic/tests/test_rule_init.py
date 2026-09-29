@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from tag_semantic.bootstrap.rule_init import load_freeze, parse_interval, run_rule_init
+from tag_semantic.bootstrap.rule_init import PERIOD_TRANSFER_IN_AMOUNT_FIELDS, init_tag, load_freeze, parse_interval, run_rule_init
 from tag_semantic.bootstrap.time_lexicon import parse_statistics, parse_time_anchor
 
 
@@ -102,6 +102,15 @@ def _codes(result_rows, field):
     return [r for r in result_rows if r.get("kind") == "code_value_semantic" and r.get("field_name") == field]
 
 
+def test_confirmed_equity_flag_is_boolean_without_invented_code_meanings():
+    source = _tag(tag_id=637, field_name="CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG",
+                  name="当前权益类资产缺配标志", data_type="int", tag_type="布尔型")
+    semantic, codes, _ = init_tag(source, [])
+    assert semantic["semantic_type"] == "BOOL"
+    assert semantic["caliber_struct"]["statistic"] == "FLAG"
+    assert codes == []
+
+
 def test_gender_is_nominal(tmp_path):
     output = run_rule_init(load_freeze(freeze_jsonl(tmp_path)))
     gender = _by_field(output["result"], "GENDER")
@@ -150,6 +159,25 @@ def test_aum_families_split_eop_vs_max(tmp_path):
     assert "MAX" in stats
     time = parse_time_anchor("历史最高时点AUM")
     assert time["time_anchor_type"] == "HIST"
+
+
+def test_five_period_transfer_amounts_are_sum_not_eop():
+    names = {
+        "CUR_YEAR_SAME_NAME_INTERBANK_TRANSFER_IN_AMT": "本年同名跨行转入金额",
+        "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT": "近30天异名跨行转入金额",
+        "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT": "近7天异名跨行转入金额",
+        "CUR_MONTH_SAME_NAME_INTERBANK_TRANSFER_IN_AMT": "本月同名跨行转入金额",
+        "LAST_7_DAYS_SAME_NAME_INTERBANK_TRANSFER_IN_AMT": "近7天同名跨行转入金额",
+    }
+    assert set(names) == PERIOD_TRANSFER_IN_AMOUNT_FIELDS
+    for field, name in names.items():
+        row, _, _ = init_tag(_tag(tag_id=1, field_name=field, name=name,
+                                  data_type="decimal(13,2)", tag_type="数值型"), [])
+        assert row["caliber_struct"]["statistic"] == "SUM"
+        assert "|SUM|" in row["family_candidate"]
+    maximum, _, _ = init_tag(_tag(tag_id=2, field_name="LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_MAX_AMT",
+                                  name="近30天异名跨行转入最高金额", data_type="decimal(13,2)", tag_type="数值型"), [])
+    assert maximum["caliber_struct"]["statistic"] == "MAX"
 
 
 def test_institution_skips_hierarchy(tmp_path):

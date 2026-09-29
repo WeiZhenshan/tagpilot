@@ -22,8 +22,17 @@ class Catalog:
     code_values: list[dict[str, Any]] = field(default_factory=list)
     terms: list[dict[str, Any]] = field(default_factory=list)
     capabilities: dict[str, dict[str, Any]] = field(default_factory=dict)
+    concept_tag_relations: list[dict[str, Any]] = field(default_factory=list)
     aliases: list[dict[str, Any]] = field(default_factory=list)
     rows: list[dict[str, Any]] = field(default_factory=list)
+
+    def concept_members(self, cid, eligible=None):
+        associated = {int(r['tag_id']) for r in self.concept_tag_relations if str(r['concept_id']) == str(cid)}
+        return [t for tid,t in self.tags.items() if (eligible is None or tid in eligible) and
+                (str(t.get('concept_id') or t.get('concept_code')) == str(cid) or tid in associated)]
+
+    def visible_concepts(self, eligible):
+        return {cid for cid in self.concepts if self.concept_members(cid, eligible)}
 
     @property
     def family_members(self) -> dict[str, list[dict[str, Any]]]:
@@ -76,6 +85,8 @@ def load_catalog(path: Path, expected_hash: str | None = None) -> Catalog:
             catalog.terms.append(row)
         elif kind == 'capability':
             catalog.capabilities[row['capability_id']] = row
+        elif kind == 'concept_tag_relation':
+            catalog.concept_tag_relations.append(row)
         if kind == "concept":
             catalog.aliases.extend(row.get("aliases") or [])
     return catalog
@@ -111,6 +122,9 @@ def write_graph_sqlite(catalog: Catalog, path: Path) -> None:
                 "insert or ignore into nodes(id, kind, payload) values (?,?,?)",
                 (node_id, "concept", json.dumps(concept, ensure_ascii=False)),
             )
+        for relation in catalog.concept_tag_relations:
+            conn.execute('insert into edges(src,dst,rel) values(?,?,?)',
+                         (f"concept:{relation['concept_id']}",f"tag:{relation['tag_id']}",'candidate_tag'))
         conn.commit()
     finally:
         conn.close()

@@ -88,7 +88,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `01_create_L_INDVCST_LABEL.sql` | 建 `L_INDVCST_LABEL` 大宽表：970 列 = 客户号主键 `CUST_ID` + 969 个标签字段，每列 COMMENT 为原始中文标签名 | 否 | 是 | 1 | MySQL 8.0+；`indiv_cust` 库已存在 | indiv_cust | 开发/测试 | 否 | 声明行长约 5.7 KB、行内估算约 7.1 KB（InnoDB 16KB 页行内上限 8,126 B）；`ROW_FORMAT=DYNAMIC`；文本/选项列用 `TEXT`、金额类用 `DECIMAL(13,2)`（上限 999 亿）以压进行内限制；仅主键 NOT NULL；**未**添加 ETL 日期等技术字段 |
 | `02_create_L_INDVCST_LABEL_CODE_MAP.sql` | 建码值映射表，结构**完全沿用** `indiv_cust.dim_customer_tag_code` | 否 | 是 | 2 | 无 | indiv_cust | 开发/测试 | 否 | 主键 `(tag_name_en, tag_code)`；关联键是**标签字段名**（非 tag_id / 非 code_group）；按需求决定**未**新增 `status` / `del_flag` / 审计字段 |
-| `03_insert_L_INDVCST_LABEL_CODE_MAP_BOOL.sql` | 布尔型字段码值 **258 条**（129 字段 × 2） | 否 | 是 | 3 | 须先执行 `02` | indiv_cust | 开发/测试 | 否 | 编码沿用既有系统实际规范：`1`=是、`0`=否（证据见 `dim_customer_tag_code` 中 `is_vip` 样例）；幂等 upsert |
+| `03_insert_L_INDVCST_LABEL_CODE_MAP_BOOL.sql` | 布尔型字段码值 **260 条**（130 字段 × 2） | 否 | 是 | 3 | 须先执行 `02` | indiv_cust | 开发/测试 | 否 | 编码沿用既有系统实际规范：`1`=是、`0`=否（证据见 `dim_customer_tag_code` 中 `is_vip` 样例）；幂等 upsert |
 | `04_insert_L_INDVCST_LABEL_CODE_MAP_OPTION.sql` | 选项型字段码值 **195 条**（42 字段） | 否 | 是 | 4 | 须先执行 `02` | indiv_cust | 开发/测试 | 否 | 3 个字段复用既有码值（性别 `M`/`F`、客户等级 `A`/`B`/`C`），其余按零售业务语义设计并逐段标注依据 |
 | `05_insert_L_INDVCST_LABEL_CODE_MAP_BRANCH.sql` | 机构类字段码值 **1270 条**（6 字段），取**真实联行号（CNAPS）** | 否 | 是 | 5 | 须先执行 `02` | indiv_cust | 开发/测试 | 否 | 来源 GitHub 开源数据集 `chaclee/cnaps`；18 一级机构 / 383 二级机构 / 85 三级机构；内部单位（清算·票据中心）已排除；**生产前需与行内机构主数据核对** |
 | `98_rollback_L_INDVCST_LABEL.sql` | 回退：删除上述两张表 | 否 | 是 | 回退时 | 无 | indiv_cust | 开发/测试 | 否 | ⚠️ `DROP TABLE` 不可恢复，执行前请先 `mysqldump` 备份；已确认应用代码对这两张表零引用 |
@@ -176,5 +176,6 @@ mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
 | `migration/V20260921_01__agent_workbench_menu.sql` | 一级菜单「智能体工作台」(`/agent`)；`menu_id` 2200 与对象群冲突，实际插入被跳过，保留不改 |
 | `migration/V20260921_02__agent_workbench_menu.sql` | 改用 `menu_id` 2300 补齐「智能体工作台」；已有 `path=agent` 顶级菜单则只补角色授权 |
 | `migration/V20260922_02__agent_thread_pinned.sql` | 会话新增持久置顶状态与归属/归档/置顶排序索引；幂等前向迁移 |
+| `migration/V20260928_01__semantic_p3_changeset_relation.sql` | P3 候选概念关联与受控语义变更审计表；只前向、幂等，不改客户数据 |
 
 两条迁移已在本地隔离库重复验证并应用本地 ry；详情见 `docs/validation/语义索引层建设验收记录.md`。其它环境仍由 `bin/db-migrate.sh` 读取迁移记录按序执行，不重跑初始化 SQL。

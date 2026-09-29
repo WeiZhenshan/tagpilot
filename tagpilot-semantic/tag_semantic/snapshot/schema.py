@@ -1,7 +1,7 @@
 """不可变目录契约。仅校验快照，不查询实时数据或权限。"""
 from collections import Counter
 
-KINDS = ("meta", "domain", "concept", "tag", "code_value", "term", "capability")
+KINDS = ("meta", "domain", "concept", "tag", "code_value", "term", "capability", "concept_tag_relation")
 SCHEMA_VERSION = "v1"
 
 
@@ -16,8 +16,8 @@ def validate_catalog(rows: list[dict]) -> None:
     for row in rows:
         validate_row(row)
     metas = [r for r in rows if r['kind'] == 'meta']
-    if len(metas) != 1 or metas[0].get('schema_version') != SCHEMA_VERSION:
-        raise ValueError('必须存在唯一 v1 meta')
+    if len(metas) != 1 or metas[0].get('schema_version') not in {'v1', 'v2'}:
+        raise ValueError('必须存在唯一 v1/v2 meta')
     tags, concepts, codes = {}, {}, {}
     keys = set()
     for row in rows:
@@ -26,7 +26,8 @@ def validate_catalog(rows: list[dict]) -> None:
                     'concept': row.get('concept_id') or row.get('concept_code'),
                     'tag': row.get('tag_id'), 'code_value': (row.get('tag_id'), row.get('code')),
                     'term': row.get('term_id') or row.get('term_norm'),
-                    'capability': row.get('capability_id')}.get(kind)
+                    'capability': row.get('capability_id'),
+                    'concept_tag_relation': (row.get('concept_id'), row.get('tag_id'))}.get(kind)
         if identity is None or (kind, identity) in keys:
             raise ValueError(f'缺少标识或重复行: {kind}/{identity}')
         keys.add((kind, identity))
@@ -47,6 +48,11 @@ def validate_catalog(rows: list[dict]) -> None:
         if str(cid) not in concepts:
             raise ValueError(f'标签 {tid} 引用悬空概念 {cid}')
     for row in rows:
+        if row['kind'] == 'concept_tag_relation':
+            if metas[0]['schema_version'] != 'v2' or str(row.get('tag_id')) not in tags or str(row.get('concept_id')) not in concepts:
+                raise ValueError('候选关联必须属于 v2 且两端已发布')
+            if row.get('library_id') != metas[0]['library_id'] or row.get('review_status') != 'REVIEWED' or not row.get('source_ref') or not row.get('relation_note') or not row.get('version'):
+                raise ValueError('候选关联缺少同库、复核、来源或版本')
         if row['kind'] == 'capability':
             if row.get('review_status') != 'REVIEWED' or not row.get('version') or not row.get('source_ref'):
                 raise ValueError('能力必须具有复核、版本及来源')

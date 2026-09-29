@@ -45,6 +45,15 @@ COUNT_HINT_RE = re.compile(r"次数|笔数|天数|数量")
 RATIO_HINT_RE = re.compile(r"占比|比例|完整度")
 SCORE_HINT_RE = re.compile(r"评分|意向分")
 
+# 来源标签均为期间转入金额，且与同窗口的“最高金额”字段并存；限定这五个字段为期间累计口径。
+PERIOD_TRANSFER_IN_AMOUNT_FIELDS = {
+    "CUR_YEAR_SAME_NAME_INTERBANK_TRANSFER_IN_AMT",
+    "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT",
+    "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT",
+    "CUR_MONTH_SAME_NAME_INTERBANK_TRANSFER_IN_AMT",
+    "LAST_7_DAYS_SAME_NAME_INTERBANK_TRANSFER_IN_AMT",
+}
+
 
 def load_freeze(path: Path) -> dict[str, Any]:
     meta = None
@@ -117,6 +126,10 @@ def classify_semantic_type(
     name = str(tag.get("name") or "")
     if field in INSTITUTION_FIELDS:
         return "ENUM_NOMINAL"
+    if (field == "CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG" and tag.get("tag_type") == "布尔型"
+            and data_type == "int"):
+        # 本地模拟数据已确认仅含 0/1；保留码义未知，不据此生成码值。
+        return "BOOL"
     if data_type == "tinyint":
         if not codes or _codes_are_bool(codes):
             return "BOOL"
@@ -226,6 +239,8 @@ def pick_statistic(name: str, semantic_type: str, unresolved: list[dict[str, Any
         return "SCORE"
     if semantic_type == "DATE":
         return "LATEST"
+    if tag.get("field_name") in PERIOD_TRANSFER_IN_AMOUNT_FIELDS and semantic_type == "NUM_AMOUNT":
+        return "SUM"
     if "AVG_DAILY" in unique:
         return "AVG_DAILY"
     if "MAX" in unique:

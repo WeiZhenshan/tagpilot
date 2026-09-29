@@ -10,11 +10,12 @@ from jsonschema import Draft202012Validator
 from tagpilot_eval.cli import main
 from tagpilot_eval.contracts import CONTRACTS, EvalCase, Tree, Expression
 from tagpilot_eval.io import read_jsonl, file_hash
-from tagpilot_eval.validation import validate_package, validate_cases, verify_package
+from tagpilot_eval.validation import expected_shape, validate_package, validate_cases, verify_package
 
 PACKAGE=Path(__file__).resolve().parents[1]
 P0=PACKAGE/'data/p0-v1'
 CAL=PACKAGE/'data/calibration-v1'
+EXPECT=expected_shape(json.loads((CAL/'manifest.json').read_text()))
 
 
 def test_delivered_cases_validate_with_both_contracts():
@@ -28,12 +29,27 @@ def test_delivered_cases_validate_with_both_contracts():
     assert result['formal_cases']==0
 
 
-@pytest.mark.parametrize('command',['generate','split','run','diagnose','propose','compare','apply'])
-def test_future_phases_fail_before_side_effect(command,tmp_path,monkeypatch):
+@pytest.mark.parametrize('command',['propose','compare','apply'])
+def test_p3_commands_require_concrete_inputs_before_side_effect(command,tmp_path,monkeypatch,capsys):
     monkeypatch.chdir(tmp_path)
     with pytest.raises(SystemExit) as error:main([command])
     assert error.value.code==2
+    assert 'required' in capsys.readouterr().err
     assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize('argv',[
+    ['generate','--p0','data/p0-v2','--split','data/p2-split-v1','--root','..'],
+    ['case-review','--p0','data/p0-v2','--cases','data/p2-split-v1','--root','..'],
+    ['run','--p0','data/p0-v2','--cases','data/p2-split-v1'],
+])
+def test_paid_commands_require_an_explicit_budget(argv,tmp_path,monkeypatch,capsys):
+    """未设置预算只做估价、不发起调用（方案 §五.5）。"""
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(SystemExit) as error:main([*argv,'--output',str(tmp_path/'out')])
+    assert error.value.code==2
+    assert 'budget-usd' in capsys.readouterr().err
+    assert not (tmp_path/'out').exists()
 
 
 @pytest.mark.parametrize('count',[0,199,201,2000,10000])
@@ -44,23 +60,34 @@ def test_seeding_cannot_expand_scope(count,tmp_path):
     assert not (tmp_path/'output').exists()
 
 
-@pytest.mark.parametrize('field,value',[('phase','P2'),('split','HOLDOUT'),('status','APPROVED'),('secret','bad')])
-def test_case_cannot_forge_phase_or_approval(field,value):
+@pytest.mark.parametrize('field,value',[('status','APPROVED'),('secret','bad')])
+def test_case_cannot_forge_approval_or_hide_fields(field,value):
     c=deepcopy(read_jsonl(CAL/'cases.jsonl')[0]);c[field]=value
+    with pytest.raises(ValidationError):EvalCase.model_validate(c)
+
+
+@pytest.mark.parametrize('field,value',[('phase','P2'),('split','DEV'),('split','REGRESSION'),('split','HOLDOUT')])
+def test_p2_phase_and_partitions_are_accepted(field,value):
+    c=deepcopy(read_jsonl(CAL/'cases.jsonl')[0]);c[field]=value
+    assert EvalCase.model_validate(c).model_dump()[field]==value
+
+
+def test_unknown_partition_rejected():
+    c=deepcopy(read_jsonl(CAL/'cases.jsonl')[0]);c['split']='TEST'
     with pytest.raises(ValidationError):EvalCase.model_validate(c)
 
 
 def test_unauthorized_gold_rejected():
     cases=read_jsonl(CAL/'cases.jsonl');cases[0]['eligible_tag_ids']=[]
     facts={r['tag_id']:r for r in read_jsonl(P0/'facts.jsonl')}
-    result=validate_cases(cases,facts,file_hash(P0/'manifest.json'))
+    result=validate_cases(cases,facts,file_hash(P0/'manifest.json'),EXPECT)
     assert any(e['code']=='FALSE_READY' for e in result['errors'])
 
 
 def test_field_mismatch_rejected():
     cases=read_jsonl(CAL/'cases.jsonl');cases[0]['expected']['tree']['expression']['field_name']='CUST_ID'
     facts={r['tag_id']:r for r in read_jsonl(P0/'facts.jsonl')}
-    assert any(e['code']=='FIELD_BINDING' for e in validate_cases(cases,facts,file_hash(P0/'manifest.json'))['errors'])
+    assert any(e['code']=='FIELD_BINDING' for e in validate_cases(cases,facts,file_hash(P0/'manifest.json'),EXPECT)['errors'])
 
 
 def test_leading_zero_cannot_be_coerced():

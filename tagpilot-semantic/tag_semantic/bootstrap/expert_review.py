@@ -15,8 +15,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+from tag_semantic.bootstrap.concept_cluster import REVIEWED_CONCEPT_OVERRIDES, TRANSFER_IN_CONCEPT_OVERRIDES
 from tag_semantic.bootstrap.rule_aliases import normalize
-from tag_semantic.bootstrap.rule_init import OPERATORS, load_freeze
+from tag_semantic.bootstrap.rule_init import OPERATORS, PERIOD_TRANSFER_IN_AMOUNT_FIELDS, load_freeze
 
 REVIEW_MODE = "AI_EXPERT_LOCAL_DEMO"
 REVIEWER = "Codex-AI-银行个人客户经营专家-本地演示"
@@ -25,6 +26,12 @@ SCORE_FIELDS = {
     "CUR_CUST_POTENTIAL_VALUE_WEALTH_VALUE_POTENTIAL_MODEL",
     "CUR_CUST_WEALTH_COMPOSITE_SCORE_WEALTH_VALUE_POTENTIAL_MODEL",
     "CUR_WMP_INTENT_SCORE",
+}
+
+# 券种名称含“利率”，但指标本身是使用张数；只修正已确认的两个字段。
+COUPON_COUNT_FIELDS = {
+    "HIST_PERS_LOAN_IFC_USED_COUPON_COUNT_DISC_RATE_COUPON",
+    "HIST_PERS_LOAN_IFC_USED_COUPON_COUNT_FIXED_RATE_COUPON",
 }
 
 RATIO_HINT = re.compile(r"占比|比例|完整度|利率|盈利率|配置率|提款率|还款率|折扣率")
@@ -71,6 +78,8 @@ def _semantic_type(row: dict[str, Any], has_codes: bool) -> str:
         return "BOOL"
     if field in SCORE_FIELDS or ("综合分" in name and "金额" not in name):
         return "NUM_SCORE"
+    if field in COUPON_COUNT_FIELDS:
+        return "NUM_COUNT"
     if RATIO_HINT.search(name):
         return "NUM_RATIO"
     if COUNT_HINT.search(name):
@@ -110,7 +119,8 @@ def _unit(row: dict[str, Any], semantic_type: str) -> tuple[str, int]:
 
 def review_tag(row: dict[str, Any], has_codes: bool) -> tuple[dict[str, Any], bool]:
     reviewed = dict(row)
-    before = (row.get("semantic_type"), row.get("unit"), row.get("unit_scale"))
+    original_caliber = row.get("caliber_struct") or {}
+    before = (row.get("semantic_type"), row.get("unit"), row.get("unit_scale"), original_caliber.get("statistic"))
     semantic_type = _semantic_type(row, has_codes)
     unit, scale = _unit(row, semantic_type)
     reviewed["semantic_type"] = semantic_type
@@ -120,15 +130,82 @@ def review_tag(row: dict[str, Any], has_codes: bool) -> tuple[dict[str, Any], bo
     reviewed["unit_scale"] = scale
     caliber = dict(reviewed.get("caliber_struct") or {})
     caliber.update({"unit": unit, "unit_scale": scale})
+    if row.get("field_name") == "CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG":
+        caliber["statistic"] = "FLAG"
+    if row.get("field_name") in PERIOD_TRANSFER_IN_AMOUNT_FIELDS:
+        caliber["statistic"] = "SUM"
     reviewed["caliber_struct"] = caliber
     family = str(reviewed.get("family_key") or reviewed.get("family_candidate") or "").split("|")
     if len(family) == 6:
+        if row.get("field_name") == "CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG":
+            family[1] = "FLAG"
+        if row.get("field_name") in PERIOD_TRANSFER_IN_AMOUNT_FIELDS:
+            family[1] = "SUM"
         family[4] = unit
         reviewed["family_key"] = "|".join(family)
     reviewed["source"] = "RULE"
     reviewed["review_status"] = "REVIEWED"
-    after = (semantic_type, unit, scale)
+    after = (semantic_type, unit, scale, caliber.get("statistic"))
     return reviewed, before != after
+
+
+def reconcile_payroll_rate_concept(
+    tags: list[dict[str, Any]], concepts: list[dict[str, Any]], aliases: list[dict[str, Any]]
+) -> None:
+    """修正既有 S3 草稿中由首个 MAX 成员带入的共享概念名称。"""
+    override = REVIEWED_CONCEPT_OVERRIDES["HIST_PAY_LOAN_MIN_RATE"]
+    code = override["code"]
+    members = [row for row in tags if row.get("field_name") in REVIEWED_CONCEPT_OVERRIDES]
+    if {row.get("field_name") for row in members} != set(REVIEWED_CONCEPT_OVERRIDES):
+        return
+    for row in members:
+        if row.get("concept_code") != code:
+            raise ValueError("工薪贷最高/最低提款利率不在预期共享概念中")
+        row["concept_name"] = override["name"]
+        row["concept_definition"] = override["definition"]
+    matches = [row for row in concepts if row.get("concept_code") == code]
+    if len(matches) != 1:
+        raise ValueError("工薪贷提款利率概念缺失或重复")
+    matches[0]["concept_name"] = override["name"]
+    matches[0]["definition"] = override["definition"]
+    for alias in aliases:
+        if alias.get("target_type") == "CONCEPT" and str(alias.get("target_id")) == code:
+            if alias.get("alias_text") == "工薪贷最高提款利率":
+                alias["alias_text"] = override["name"]
+                alias["alias_norm"] = normalize(override["name"])
+
+
+def reconcile_transfer_in_concepts(
+    tags: list[dict[str, Any]], concepts: list[dict[str, Any]], aliases: list[dict[str, Any]]
+) -> None:
+    """将既有最高金额概念改为中性名称，保留各标签的 SUM/MAX 区分。"""
+    by_code = {row["concept_code"]: row for row in concepts if row.get("concept_code") in {
+        "同名跨行转入金额", "异名跨行转入金额"
+    }}
+    for field, override in TRANSFER_IN_CONCEPT_OVERRIDES.items():
+        members = [row for row in tags if row.get("field_name") == field]
+        if not members:
+            continue
+        if len(members) != 1 or members[0].get("concept_code") != override["code"]:
+            raise ValueError(f"期间转入金额字段的概念不符合预期: {field}")
+        members[0]["concept_name"] = override["name"]
+        members[0]["concept_definition"] = override["definition"]
+    for code in ("同名跨行转入金额", "异名跨行转入金额"):
+        if code not in by_code:
+            continue
+        override = next(row for row in TRANSFER_IN_CONCEPT_OVERRIDES.values() if row["code"] == code)
+        by_code[code]["concept_name"] = override["name"]
+        by_code[code]["definition"] = override["definition"]
+        current_families = {row["tag_id"]: row["family_key"] for row in tags
+                            if row.get("concept_code") == code and row.get("tag_id") is not None}
+        for member in by_code[code].get("members") or []:
+            if member.get("tag_id") in current_families:
+                member["family_key"] = current_families[member["tag_id"]]
+        for alias in aliases:
+            if (alias.get("target_type") == "CONCEPT" and str(alias.get("target_id")) == code
+                    and alias.get("alias_text") == code.replace("转入金额", "转入最高金额")):
+                alias["alias_text"] = override["name"]
+                alias["alias_norm"] = normalize(override["name"])
 
 
 def _alias_candidates(name: str) -> list[str]:
@@ -174,6 +251,20 @@ def ensure_tag_aliases(tags: list[dict[str, Any]], aliases: list[dict[str, Any]]
                 break
         if len(by_tag[target]) < 3:
             raise ValueError(f"标签 {target} 未生成三个互异别名")
+        if tag.get("field_name") in PERIOD_TRANSFER_IN_AMOUNT_FIELDS:
+            name = str(tag.get("name") or "")
+            if "转入金额" not in name or "最高" in name:
+                raise ValueError(f"期间转入金额别名缺少预期名称: {target}")
+            text = name.replace("转入金额", "累计转入金额", 1)
+            norm = normalize(text)
+            if norm not in by_tag[target]:
+                output.append({
+                    "kind": "alias", "target_type": "TAG", "target_id": target,
+                    "alias_text": text, "alias_norm": norm, "alias_type": "SYNONYM",
+                    "weight": 0.9, "source": "RULE", "review_status": "REVIEWED",
+                })
+                by_tag[target].add(norm)
+                added += 1
     for row in output:
         row["review_status"] = "REVIEWED"
     return output, added
@@ -261,6 +352,8 @@ def review_package(freeze_path: Path, drafts_dir: Path, output_dir: Path, dictio
         reviewed, was_changed = review_tag(row, int(row["tag_id"]) in code_tags)
         tags.append(reviewed)
         changed += int(was_changed)
+    reconcile_payroll_rate_concept(tags, concepts, aliases)
+    reconcile_transfer_in_concepts(tags, concepts, aliases)
     concepts, aliases, split_count = split_cross_domain_concepts(freeze, tags, concepts, aliases)
     for row in codes + concepts + confusable:
         row["review_status"] = "REVIEWED"

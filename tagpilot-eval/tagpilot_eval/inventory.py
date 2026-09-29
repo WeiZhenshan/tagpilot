@@ -57,8 +57,12 @@ def inventory(root, output, observation):
     declared_null_rates = {}
     for line in source_paths['dictionary'].read_text().splitlines():
         cells = [c.strip() for c in line.split('|')]
-        if len(cells)>10 and cells[1].isdigit():
-            declared_null_rates[cells[2]]=float(cells[9].rstrip('%'))
+        if len(cells) > 10 and cells[1].isdigit():
+            # 旧字典的 NULL 率列可能是 '—' 或空；非数值一律不参与比对，绝不猜测。
+            raw = cells[9].rstrip('%').strip()
+            if not re.fullmatch(r'\d+(?:\.\d+)?', raw):
+                continue
+            declared_null_rates[cells[2]] = float(raw)
     frozen = {r['tag_id']: r for r in read_jsonl(source_paths['freeze']) if r['kind'] == 'tag'}
     live_tags = {t['tag_id']: t for t in database['tags']}
     sem = {t['tag_id']: t for t in snapshot if t['kind'] == 'tag'}

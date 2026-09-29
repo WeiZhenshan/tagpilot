@@ -107,7 +107,7 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
         snapshot.setSnapshotId(snapshotId); snapshot.setLibraryId(libraryId); snapshot.setSnapshotNo(nextNo);
         snapshot.setTagCount(assembled.tagIds.size()); snapshot.setConceptCount(assembled.concepts);
         snapshot.setCodeValueCount(assembled.codes); snapshot.setAliasCount(assembled.aliases);
-        snapshot.setContentHash(hash); snapshot.setSchemaVersion("v1"); snapshot.setStatus("PUBLISHED");
+        snapshot.setContentHash(hash); snapshot.setSchemaVersion(String.valueOf(assembled.rows.get(0).get("schema_version"))); snapshot.setStatus("PUBLISHED");
         snapshot.setQualityReport(toJson(assembled.report)); snapshot.setSourceManifest(toJson(assembled.sourceManifest));
         snapshot.setPublishBy(username()); snapshot.setCreateBy(username()); snapshot.setPublishTime(new Date());
         artifacts.write(snapshot, jsonl.toString());
@@ -225,7 +225,9 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
         if ("ACTIVE".equals(status)) {
             throw new ServiceException("不能通过状态接口直接设置为 ACTIVE");
         }
-        if (!"BUILDING".equals(existing.getStatus()) || !("READY".equals(status) || "FAILED".equals(status))) throw new ServiceException("非法构建状态迁移");
+        // READY 后可附上独立评测报告，不改不可变 manifest，也不改变发布状态。
+        boolean attachEvaluation = "READY".equals(existing.getStatus()) && "READY".equals(status) && StringUtils.isNotEmpty(evalSummary);
+        if (!attachEvaluation && (!"BUILDING".equals(existing.getStatus()) || !("READY".equals(status) || "FAILED".equals(status)))) throw new ServiceException("非法构建状态迁移");
         if ("READY".equals(status)) {
             Map<String, Object> stats = runtime.get("/stats?build_id=" + buildId);
             TsCatalogSnapshot snapshot = snapshotMapper.selectById(existing.getSnapshotId());

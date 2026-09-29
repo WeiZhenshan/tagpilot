@@ -1,0 +1,14 @@
+{
+  "p3-facts-v1": {
+    "manifest_sha256_unchanged": "45d92940707c7f9ffb50faf91334bffc0ab8ba98945c0c73f3111d189b1b6544",
+    "source_copies_hash_verified": true
+  },
+  "p3-facts-v2": {
+    "manifest_sha256_unchanged": "4d7b043dd11d7935a81251d84bb92257ac878fce70e0f8b5c65dbc1adb672114",
+    "source_copies_hash_verified": true
+  },
+  "p3-facts-v3": {
+    "manifest_sha256_unchanged": "31a16829a7dca0fc49dd12e299a39d8a8149a2c369610b939ace228327dc5ce8",
+    "source_copies_hash_verified": true
+  }
+}

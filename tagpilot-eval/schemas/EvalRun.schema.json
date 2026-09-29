@@ -69,6 +69,7 @@
       "enum": [
         "COMPLETED",
         "AGENT_TIMEOUT",
+        "AGENT_FAILED",
         "RUN_INVALID"
       ],
       "title": "Status",
@@ -128,6 +129,17 @@
         }
       ],
       "title": "Actual Cost"
+    },
+    "stats": {
+      "additionalProperties": true,
+      "title": "Stats",
+      "type": "object"
+    },
+    "repeat": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Repeat",
+      "type": "integer"
     }
   },
   "required": [

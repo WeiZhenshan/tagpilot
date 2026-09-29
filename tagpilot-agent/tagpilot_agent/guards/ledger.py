@@ -117,11 +117,14 @@ def frozen_errors(previous, proposed, utterance, authorized_requirements=None):
         verbs = {'REMOVE':r'去掉|取消|删除|不再|不要',
                  'REPLACE_ALL':r'重新.*(圈选|筛选|开始)|全部.*(替换|重来)|改为只|只要',
                  'ADD':r'增加|加上|还要|也要'}.get(operation,r'改|调整|换|设为|变为|重新')
-        if not span.strip() or span not in utterance or (operation!='ADD' and not re.search(verbs,span)):
-            errors.append(diagnostic('FROZEN_CLAUSE_CHANGED','变更须引用本轮明确修改或删除的原话'));continue
         ids=set(change.get('clause_ids',[]))
         refs=set(change.get('requirement_ids',[]))
         ids.update(cid for cid,n in old.items() if refs & set(n.get('requirement_ids') or [cid]))
+        # 澄清问题的回答已经授权修改该需求；“30万”无需再含“改为”。
+        # 仅限 MODIFY 且全部目标属于实际提问的旧叶子，不能借此删除或替换其它要求。
+        clarification=operation=='MODIFY' and bool(ids) and ids<=allowed
+        if not span.strip() or span not in utterance or (operation!='ADD' and not clarification and not re.search(verbs,span)):
+            errors.append(diagnostic('FROZEN_CLAUSE_CHANGED','变更须引用本轮明确修改或删除的原话'));continue
         if operation=='REPLACE_ALL':replace=True;ids=set(old)
         if operation in {'MODIFY','REMOVE','REPLACE_ALL'}:allowed.update(ids)
         if operation in {'REMOVE','REPLACE_ALL'}:removed.update(ids)

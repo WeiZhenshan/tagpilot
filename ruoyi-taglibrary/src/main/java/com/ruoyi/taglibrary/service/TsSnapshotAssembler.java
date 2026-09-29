@@ -17,6 +17,7 @@ public class TsSnapshotAssembler {
     @Autowired private ITsSemanticService semantics;
     @Autowired private com.ruoyi.taglibrary.mapper.TsTagProfileMapper profiles;
     @Autowired private TsAgentCapabilityService agentCapabilities;
+    @Autowired private TsSemanticChangeSetService changeSets;
 
     public static class Result {
         public final List<Map<String, Object>> rows = new ArrayList<>();
@@ -106,7 +107,10 @@ public class TsSnapshotAssembler {
             result.report.putAll(map("published_tag_ids", result.tagIds, "excluded", excluded, "tag_count", 0, "denominator", denominator, "coverage", "0/" + denominator, "publishable", false));
             return result;
         }
-        Map<String, Object> meta = map("kind", "meta", "library_id", libraryId, "schema_version", "v1", "scope", selected.size() == denominator ? "FULL" : "PARTIAL",
+        List<Map<String,Object>> relations = changeSets == null ? Collections.emptyList() : changeSets.relations(libraryId);
+        relations.removeIf(r -> !selected.containsKey(id(r.get("tag_id"))));
+        for(Map<String,Object> relation:relations) if(!conceptReady(conceptMap.get(id(relation.get("concept_id"))),conceptMap,new HashSet<>())) throw new ServiceException("候选关联引用未复核概念，拒绝发布");
+        Map<String, Object> meta = map("kind", "meta", "library_id", libraryId, "schema_version", "v2", "scope", selected.size() == denominator ? "FULL" : "PARTIAL",
                 "coverage_note", coverageNote == null ? "覆盖以真实分母为准" : coverageNote);
         meta.put("source_manifest", result.sourceManifest);
         for (Map<String, Object> a : authority.values()) if ("1".equals(a.get("is_object_key"))) meta.put("object_key_binding", a.get("binding"));
@@ -115,6 +119,10 @@ public class TsSnapshotAssembler {
         for (TsTagSemantic tag : selected.values()) {
             TsConcept c = conceptMap.get(tag.getConceptId());
             while (c != null && conceptIds.add(c.getConceptId())) c = conceptMap.get(c.getParentId());
+        }
+        for(Map<String,Object> relation:relations) {
+            TsConcept c=conceptMap.get(id(relation.get("concept_id")));
+            while(c!=null && conceptIds.add(c.getConceptId()))c=conceptMap.get(c.getParentId());
         }
         for (Long cid : conceptIds) {
             TsConcept c = conceptMap.get(cid);
@@ -160,9 +168,10 @@ public class TsSnapshotAssembler {
             Map<String, Object> row = project(term, "term_id", "term", "term_norm", "review_status", "tag_object", "source_ref");
             row.put("kind", "term"); row.put("type", term.getTermType()); row.put("options", parse(term.getOptions(), Collections.emptyList())); row.put("policy", term.getDefaultPolicy()); row.put("applicable_semantic_types", parseTypes(term.getApplicableSemanticTypes())); result.rows.add(row);
         }
+        for(Map<String,Object> relation:relations) {relation.put("kind","concept_tag_relation");result.rows.add(relation);}
         if(agentCapabilities!=null)result.rows.addAll(agentCapabilities.publishedRows(libraryId,result.tagIds));
         meta.put("counts", map("tag", selected.size(), "concept", result.concepts, "code_value", result.codes, "domain", domains.size(), "term", result.rows.stream().filter(r -> "term".equals(r.get("kind"))).count(),
-                "capability",result.rows.stream().filter(r -> "capability".equals(r.get("kind"))).count()));
+                "capability",result.rows.stream().filter(r -> "capability".equals(r.get("kind"))).count(), "concept_tag_relation",relations.size()));
         result.report.putAll(map("published_tag_ids", result.tagIds, "excluded", excluded, "tag_count", selected.size(), "denominator", denominator,
                 "coverage", selected.size() + "/" + denominator, "scope", meta.get("scope"), "mean_completeness", scoreSum / selected.size(), "minimum_completeness", 70));
         result.report.put("publishable", true);

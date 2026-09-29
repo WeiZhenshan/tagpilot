@@ -1,0 +1,88 @@
+{
+  "phase": "P3",
+  "scope": "固定100个Demo开发案例；不扩量到P4",
+  "cases": 100,
+  "user_messages": 140,
+  "multiturn_cases": 40,
+  "dataset_sha256": "00961b454e36ee418f7f039ae573120537ddcf4dd18005d79d66825b84c061ff",
+  "run_directories_in_iteration_order": [
+    "tagpilot-eval/runs/p3-demo-G-full-v2-1",
+    "tagpilot-eval/runs/p3-demo-G-full-v2-2",
+    "tagpilot-eval/runs/p3-demo-G-replay-v3",
+    "tagpilot-eval/runs/p3-demo-G-final-v4-1",
+    "tagpilot-eval/runs/p3-demo-G-final-v4-2",
+    "tagpilot-eval/runs/p3-demo-G-slot-v5",
+    "tagpilot-eval/runs/p3-demo-G-clean-v6-1",
+    "tagpilot-eval/runs/p3-demo-G-clean-v6-2"
+  ],
+  "latest_l2_statuses": {
+    "PASS": 100
+  },
+  "l3_statuses": {
+    "PASS": 100
+  },
+  "latest_builds": {
+    "bge-m3-l107-20260928-006-p3g": 100
+  },
+  "latest_prompts": {
+    "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec": 100
+  },
+  "first_full_round_statuses": {
+    "PASS": 98,
+    "FAIL": 2
+  },
+  "iterations_recorded": 217,
+  "latest_case_latency": {
+    "p50_ms": 15223,
+    "p95_ms": 50886,
+    "max_ms": 79950,
+    "includes_multiturn": true,
+    "concurrency": 2
+  },
+  "latest_user_turn_latency": {
+    "turns": 140,
+    "p50_ms": 10840,
+    "p95_ms": 28236,
+    "max_ms": 46697
+  },
+  "sdk_cost_estimate_usd": 40.6937064,
+  "cost_basis": "所有指定轮次逐轮SDK估算总和；不是DeepSeek账单；既有其它开发回放另列。",
+  "scenarios": {
+    "大额入金转化": {
+      "cases": 15,
+      "l2_pass": 15,
+      "l3_pass": 15
+    },
+    "定期到期承接": {
+      "cases": 15,
+      "l2_pass": 15,
+      "l3_pass": 15
+    },
+    "代发客户流失预警": {
+      "cases": 14,
+      "l2_pass": 14,
+      "l3_pass": 14
+    },
+    "沉睡客户激活": {
+      "cases": 14,
+      "l2_pass": 14,
+      "l3_pass": 14
+    },
+    "基金客户配置优化": {
+      "cases": 14,
+      "l2_pass": 14,
+      "l3_pass": 14
+    },
+    "营销活动复盘": {
+      "cases": 14,
+      "l2_pass": 14,
+      "l3_pass": 14
+    },
+    "渠道迁移": {
+      "cases": 14,
+      "l2_pass": 14,
+      "l3_pass": 14
+    }
+  },
+  "successful": true
+}

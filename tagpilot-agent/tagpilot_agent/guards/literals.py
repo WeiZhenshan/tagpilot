@@ -2,11 +2,34 @@
 import json
 import re
 from decimal import Decimal, InvalidOperation
+from datetime import date
 from .diagnostics import diagnostic
 from .plan_validator import leaves
 
 # C3、A01 等完整业务代码不是数值阈值；只提取独立数字。
 NUMBER=re.compile(r'(?<![0-9A-Za-z_.])([0-9]+(?:\.[0-9]+)?)\s*(亿|万|%|％)?')
+DATE=re.compile(r'(?:(\d{4})[-年])?(\d{1,2})[-月](\d{1,2})(?:日|号)?')
+DATE_RANGE=re.compile(r'\s*(?:到|至|~|～|—|–|-)\s*')
+
+
+def date_year(matches,index,span,reference_date):
+    """省略年份先沿用区间另一端；跨年按端点顺序推导，不从模型答案取年份。"""
+    match=matches[index]
+    if match[1]:return int(match[1])
+    month_day=(int(match[2]),int(match[3]))
+    years=set()
+    if index and matches[index-1][1]:
+        previous=matches[index-1]
+        if DATE_RANGE.fullmatch(span[previous.end():match.start()]):
+            years.add(int(previous[1])+(month_day<(int(previous[2]),int(previous[3]))))
+    if index+1<len(matches) and matches[index+1][1]:
+        following=matches[index+1]
+        if DATE_RANGE.fullmatch(span[match.end():following.start()]):
+            years.add(int(following[1])-(month_day>(int(following[2]),int(following[3]))))
+    if len(years)==1:return years.pop()
+    if years:raise ValueError('日期区间的省略年份存在冲突，请明确年份')
+    if not reference_date:raise ValueError('日期缺少年份且未提供基准日期，请明确年份')
+    return date.fromisoformat(reference_date).year
 
 
 def check_literals(plan,request,tags):
@@ -38,14 +61,29 @@ def check_literals(plan,request,tags):
         time_values=set()
         def times(e):
             if not isinstance(e,dict):return
-            c=e.get('expected_caliber') or {}
-            for key in ('time_window_value','time_offset_months','time_offset_years'):
+            c=e.get('expected_caliber') or e.get('caliber_struct') or {}
+            for key in ('time_window_value','time_offset_months','time_offset_years','month_of_year'):
                 if c.get(key) is not None:
                     try:time_values.add(abs(Decimal(str(c[key]))))
                     except InvalidOperation:pass
             for a in e.get('args',[]):times(a)
         times(n);times(n.get('expression'));times(n.get('compare_expression'))
+        date_spans=[]
+        if tags.get(n.get('tag_id'),{}).get('semantic_type')=='DATE':
+            matches=list(DATE.finditer(span))
+            for index,match in enumerate(matches):
+                # 日期无论是否通过校验，都不能再被当成金额等普通数值。
+                date_spans.append((match.start(),match.end()))
+                try:
+                    year=date_year(matches,index,span,request.get('reference_date'))
+                    value=date(year,int(match[2]),int(match[3])).isoformat()
+                except (ValueError,TypeError) as exc:
+                    errors.append(diagnostic('LITERAL_DRIFT','无法核验原话中的日期：'+str(exc),n['clause_id'],expected=match[0]))
+                    continue
+                if value not in n.get('values',[]):
+                    errors.append(diagnostic('LITERAL_DRIFT','原话中的日期端点未被条件保留',n['clause_id'],expected=value))
         for m in NUMBER.finditer(span):
+            if any(a<=m.start() and m.end()<=b for a,b in date_spans):continue
             value=Decimal(m[1])*{'万':Decimal(10000),'亿':Decimal(100000000),'%':Decimal('.01'),'％':Decimal('.01')}.get(m[2],1)
             suffix=span[m.end():m.end()+2]
             if suffix.startswith(('天','个月','月','年')) and value in time_values:continue

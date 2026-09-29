@@ -87,6 +87,18 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         assertThrows(ServiceException.class,()->service.start("owned",map("client_request_id","same-request-00001","message","篡改需求")));
         verifyNoInteractions(agent);
     }
+    @Test void startSuppliesServerDateContextForOmittedYears() {
+        when(catalog.activeBundle(107L)).thenReturn(map("build_id","build","snapshot_id","snapshot","artifact_hash","hash"));
+        when(catalog.eligibleTagIds(107L,"snapshot")).thenReturn(Arrays.asList(858L,859L,601L));
+        java.time.LocalDate before=java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai"));
+        service.start("owned",map("base_revision",2,"client_request_id","date-request-00001","message","9月19号到2026-09-30到期", "reference_date","1900-01-01"));
+        ArgumentCaptor<Map> request=ArgumentCaptor.forClass(Map.class);
+        verify(agent).post(eq("/agent/v2/runs"),request.capture());
+        java.time.LocalDate actual=java.time.LocalDate.parse(String.valueOf(request.getValue().get("reference_date")));
+        assertFalse(actual.isBefore(before));
+        assertFalse(actual.isAfter(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Shanghai"))));
+        assertEquals("Asia/Shanghai",request.getValue().get("timezone"));
+    }
     @Test void staleAskCannotResumeNewInterrupt() throws Exception {
         state(map("revision",2,"status","WAITING","interrupt_id","new"));
         assertThrows(ServiceException.class,()->service.resume("owned",map("base_revision",2,"interrupt_id","old","answer","回答")));

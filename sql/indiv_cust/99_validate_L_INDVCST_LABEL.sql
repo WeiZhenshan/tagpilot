@@ -4,8 +4,8 @@
 -- 重要      : 本脚本【纯查询】，不含 CREATE / ALTER / DROP / INSERT / UPDATE / DELETE
 --            全部语句可直接执行，不改变任何数据
 -- 目标库    : indiv_cust
--- 期望值    : 宽表 970 列（含主键 CUST_ID）；码表 6 列；码值 1723 条 / 177 个字段
---             布尔 129 字段 × 2 = 258 条；选项 48 字段；机构类 6 字段
+-- 期望值    : 宽表 970 列（含主键 CUST_ID）；码表 6 列；码值 1725 条 / 178 个字段
+--             布尔 130 字段 × 2 = 260 条；选项 48 字段；机构类 6 字段
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ SELECT SUM(CHAR_LENGTH(COLUMN_NAME) > 64)                    AS over_64_char_col
 
 -- ----------------------------------------------------------------------------
 -- 2. 码值总量与字段覆盖
---    期望：code_rows = 1723；tag_fields = 177
+--    期望：code_rows = 1725；tag_fields = 178
 -- ----------------------------------------------------------------------------
 SELECT COUNT(*)                    AS code_rows,
        COUNT(DISTINCT tag_name_en) AS tag_fields,
@@ -75,7 +75,7 @@ SELECT DISTINCT c.tag_name_en
  WHERE col.COLUMN_NAME IS NULL;
 
 -- ----------------------------------------------------------------------------
--- 5. 缺失码值：应配码值的 177 个字段中，码表里没有记录的
+-- 5. 缺失码值：应配码值的 178 个字段中，码表里没有记录的
 --    期望：0 行
 -- ----------------------------------------------------------------------------
 SELECT e.tag_name_en AS missing_code_field
@@ -125,6 +125,8 @@ SELECT e.tag_name_en AS missing_code_field
       SELECT 'CUR_CUST_UPGRADE_TO_GOLD_KEY_FOLLOW_UP_EMPLOYEE_HR_LINE' AS tag_name_en
     UNION ALL
       SELECT 'CUR_EQUITY_ASSET_OVER_ALLOCATED_FLAG' AS tag_name_en
+    UNION ALL
+      SELECT 'CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG' AS tag_name_en
     UNION ALL
       SELECT 'CUR_EXCLUSIVE_MEMBER_LEVEL' AS tag_name_en
     UNION ALL
@@ -438,8 +440,8 @@ SELECT e.tag_name_en AS missing_code_field
  WHERE c.tag_name_en IS NULL;
 
 -- ----------------------------------------------------------------------------
--- 6. 布尔标签覆盖率：129 个布尔字段是否都有码值，且每字段恰好 2 条 (0/1)
---    期望：covered = 129；缺码值 0 行；异常 0 行
+-- 6. 布尔标签覆盖率：130 个布尔字段是否都有码值，且每字段恰好 2 条 (0/1)
+--    期望：covered = 130；缺码值 0 行；异常 0 行
 -- ----------------------------------------------------------------------------
 -- 6a. 覆盖数与缺失清单
 SELECT COUNT(*) AS bool_expected,
@@ -462,6 +464,8 @@ SELECT COUNT(*) AS bool_expected,
       SELECT 'CUR_CUST_LEVEL_SMART_SUSPEND_FLAG' AS tag_name_en
     UNION ALL
       SELECT 'CUR_EQUITY_ASSET_OVER_ALLOCATED_FLAG' AS tag_name_en
+    UNION ALL
+      SELECT 'CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG' AS tag_name_en
     UNION ALL
       SELECT 'CUR_FIXED_INCOME_ASSET_OVER_ALLOCATED_FLAG' AS tag_name_en
     UNION ALL
@@ -729,6 +733,8 @@ SELECT e.tag_name_en,
       SELECT 'CUR_CUST_LEVEL_SMART_SUSPEND_FLAG' AS tag_name_en
     UNION ALL
       SELECT 'CUR_EQUITY_ASSET_OVER_ALLOCATED_FLAG' AS tag_name_en
+    UNION ALL
+      SELECT 'CUR_EQUITY_ASSET_UNDER_ALLOCATED_FLAG' AS tag_name_en
     UNION ALL
       SELECT 'CUR_FIXED_INCOME_ASSET_OVER_ALLOCATED_FLAG' AS tag_name_en
     UNION ALL

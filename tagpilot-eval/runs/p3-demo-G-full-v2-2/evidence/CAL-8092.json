@@ -1,0 +1,4853 @@
+{
+  "states": [
+    {
+      "run_id": "p3-43bc6d139a03-cal-8092",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "C1",
+                "source_span": "当前已开通手机银行",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "=",
+                "values": [
+                  "1"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 656,
+                "name": "当前手机银行开通标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前手机银行开通标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 656,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 656,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C2",
+                "source_span": "近30天APP登录最多0天",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": "<=",
+                "values": [
+                  "0"
+                ],
+                "value_unit": "DAY",
+                "expected_caliber": {
+                  "calendar_mode": "ROLLING",
+                  "period_edge": "WHOLE",
+                  "statistic": "COUNT",
+                  "time_anchor_label": "近30天",
+                  "time_anchor_type": "WINDOW",
+                  "time_window_unit": "DAY",
+                  "time_window_value": 30
+                },
+                "time_constraint": "近30天",
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1448,
+                "name": "近30天APP登录天数",
+                "semantic_type": "NUM_COUNT",
+                "unit": "DAY",
+                "definition": "近30天APP登录天数",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "value_scale": "1.0000",
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "ROLLING",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "WHOLE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "COUNT",
+                  "time_anchor_label": "近30天",
+                  "time_anchor_type": "WINDOW",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": "DAY",
+                  "time_window_value": 30,
+                  "unit": "DAY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C3",
+                "source_span": "当前时点AUM至少15万",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": ">=",
+                "values": [
+                  "150000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 721,
+                "name": "当前时点AUM",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "当前时点AUM",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "当前时点",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C4",
+                "source_span": "当前手机号必须正常",
+                "requirement_ids": [
+                  "R4"
+                ],
+                "operator": "=",
+                "values": [
+                  "1"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 568,
+                "name": "当前手机号码正常标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 568,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 568,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+          "intent_plan": {
+            "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "当前已开通手机银行"
+                ],
+                "business_meaning": "客户当前已开通手机银行",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "近30天APP登录最多0天"
+                ],
+                "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "当前时点AUM至少15万"
+                ],
+                "business_meaning": "当前时点AUM不低于15万元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R4",
+                "source_spans": [
+                  "当前手机号必须正常"
+                ],
+                "business_meaning": "客户当前手机号码状态正常",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                },
+                {
+                  "requirement_id": "R4"
+                }
+              ],
+              "logic": "AND"
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 6,
+            "deep": 0,
+            "details": 2,
+            "submit_rejections": 0,
+            "llm_turns": 7,
+            "model": "deepseek-flash",
+            "prompt_sha256": "e623268faa356b4498ca911c035afe5970f03b79e26996c95c97b34f1b830659",
+            "max_turns": 16,
+            "cli_start_ms": 147,
+            "cli_peak_rss_mb": 336.17,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.13733099999999998,
+            "usage": {
+              "input_tokens": 22095,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 85120,
+              "output_tokens": 3034,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 10334,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790598878.206804
+        },
+        {
+          "seq": 10335,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790598880.457827
+        },
+        {
+          "seq": 10336,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 6,
+          "occurred_at": 1790598880.4659698
+        },
+        {
+          "seq": 10337,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 6,
+          "occurred_at": 1790598880.466389
+        },
+        {
+          "seq": 10338,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790598880.471927
+        },
+        {
+          "seq": 10339,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 8,
+          "occurred_at": 1790598880.4805472
+        },
+        {
+          "seq": 10340,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 9,
+          "occurred_at": 1790598880.480845
+        },
+        {
+          "seq": 10341,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790598881.6788192
+        },
+        {
+          "seq": 10342,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 1,
+          "occurred_at": 1790598881.679641
+        },
+        {
+          "seq": 10343,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 1,
+          "occurred_at": 1790598881.680149
+        },
+        {
+          "seq": 10344,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790598884.712511
+        },
+        {
+          "seq": 10345,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 4,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790598884.715612
+        },
+        {
+          "seq": 10346,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前已开通手机银行",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 656,
+                  "name": "当前手机银行开通标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机银行开通标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 656,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 656,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录最多0天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "DAY",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前时点AUM至少15万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "150000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+            "intent_plan": {
+              "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前已开通手机银行"
+                  ],
+                  "business_meaning": "客户当前已开通手机银行",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录最多0天"
+                  ],
+                  "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM至少15万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于15万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "客户当前手机号码状态正常",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C2",
+                "requirement_id": "C2",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "30",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598884.7163022
+        },
+        {
+          "seq": 10347,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前已开通手机银行",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 656,
+                  "name": "当前手机银行开通标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机银行开通标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 656,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 656,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录最多0天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "DAY",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前时点AUM至少15万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "150000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+            "intent_plan": {
+              "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前已开通手机银行"
+                  ],
+                  "business_meaning": "客户当前已开通手机银行",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录最多0天"
+                  ],
+                  "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM至少15万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于15万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "客户当前手机号码状态正常",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C2",
+                "requirement_id": "C2",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "30",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598884.7171159
+        },
+        {
+          "seq": 10348,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 3,
+          "occurred_at": 1790598884.717888
+        },
+        {
+          "seq": 10349,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 3,
+          "occurred_at": 1790598884.717969
+        },
+        {
+          "seq": 10350,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790598888.4991128
+        },
+        {
+          "seq": 10351,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 4,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790598888.4997172
+        },
+        {
+          "seq": 10352,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前已开通手机银行",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 656,
+                  "name": "当前手机银行开通标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机银行开通标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 656,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 656,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录最多0天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "DAY",
+                  "expected_caliber": {
+                    "calendar_mode": "ROLLING",
+                    "period_edge": "WHOLE",
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30
+                  },
+                  "time_constraint": "近30天",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前时点AUM至少15万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "150000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+            "intent_plan": {
+              "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前已开通手机银行"
+                  ],
+                  "business_meaning": "客户当前已开通手机银行",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录最多0天"
+                  ],
+                  "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM至少15万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于15万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "客户当前手机号码状态正常",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598888.500361
+        },
+        {
+          "seq": 10353,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790598888.500905
+        },
+        {
+          "seq": 10354,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 1,
+          "occurred_at": 1790598888.500965
+        },
+        {
+          "seq": 10365,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790598891.172171
+        },
+        {
+          "seq": 10366,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 4,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790598891.172852
+        },
+        {
+          "seq": 10367,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前已开通手机银行",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 656,
+                  "name": "当前手机银行开通标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机银行开通标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 656,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 656,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录最多0天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "DAY",
+                  "expected_caliber": {
+                    "calendar_mode": "ROLLING",
+                    "period_edge": "WHOLE",
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30
+                  },
+                  "time_constraint": "近30天",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前时点AUM至少15万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "150000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+            "intent_plan": {
+              "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前已开通手机银行"
+                  ],
+                  "business_meaning": "客户当前已开通手机银行",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录最多0天"
+                  ],
+                  "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM至少15万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于15万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "客户当前手机号码状态正常",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598891.1759858
+        },
+        {
+          "seq": 10368,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前已开通手机银行",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 656,
+                  "name": "当前手机银行开通标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机银行开通标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 656,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 656,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录最多0天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "DAY",
+                  "expected_caliber": {
+                    "calendar_mode": "ROLLING",
+                    "period_edge": "WHOLE",
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30
+                  },
+                  "time_constraint": "近30天",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前时点AUM至少15万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "150000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+            "intent_plan": {
+              "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前已开通手机银行"
+                  ],
+                  "business_meaning": "客户当前已开通手机银行",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录最多0天"
+                  ],
+                  "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM至少15万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于15万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "客户当前手机号码状态正常",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598891.176739
+        },
+        {
+          "seq": 10369,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "当前手机银行开通标志",
+          "occurred_at": 1790598891.177181
+        },
+        {
+          "seq": 10370,
+          "type": "clause.updated",
+          "clause_id": "C2",
+          "message": "近30天APP登录天数",
+          "occurred_at": 1790598891.177378
+        },
+        {
+          "seq": 10371,
+          "type": "clause.updated",
+          "clause_id": "C3",
+          "message": "当前时点AUM",
+          "occurred_at": 1790598891.17744
+        },
+        {
+          "seq": 10372,
+          "type": "clause.updated",
+          "clause_id": "C4",
+          "message": "当前手机号码正常标志",
+          "occurred_at": 1790598891.1777349
+        },
+        {
+          "seq": 10373,
+          "type": "draft.ready",
+          "message": "圈选方案已保存",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前已开通手机银行",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 656,
+                  "name": "当前手机银行开通标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机银行开通标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 656,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 656,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "近30天APP登录最多0天",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "DAY",
+                  "expected_caliber": {
+                    "calendar_mode": "ROLLING",
+                    "period_edge": "WHOLE",
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30
+                  },
+                  "time_constraint": "近30天",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1448,
+                  "name": "近30天APP登录天数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "DAY",
+                  "definition": "近30天APP登录天数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "ROLLING",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "近30天",
+                    "time_anchor_type": "WINDOW",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": "DAY",
+                    "time_window_value": 30,
+                    "unit": "DAY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "当前时点AUM至少15万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "150000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+            "intent_plan": {
+              "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前已开通手机银行"
+                  ],
+                  "business_meaning": "客户当前已开通手机银行",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "近30天APP登录最多0天"
+                  ],
+                  "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM至少15万"
+                  ],
+                  "business_meaning": "当前时点AUM不低于15万元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "客户当前手机号码状态正常",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790598891.1778
+        },
+        {
+          "seq": 10374,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 6,
+          "occurred_at": 1790598891.1783628
+        },
+        {
+          "seq": 10375,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 6,
+          "occurred_at": 1790598891.1784341
+        },
+        {
+          "seq": 10376,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 6,
+            "deep": 0,
+            "details": 2,
+            "submit_rejections": 0,
+            "llm_turns": 7,
+            "model": "deepseek-flash",
+            "prompt_sha256": "e623268faa356b4498ca911c035afe5970f03b79e26996c95c97b34f1b830659",
+            "max_turns": 16,
+            "cli_start_ms": 147,
+            "cli_peak_rss_mb": 336.17,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.13733099999999998,
+            "usage": {
+              "input_tokens": 22095,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 85120,
+              "output_tokens": 3034,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790598891.1963441
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 10334,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790598878.206804
+    },
+    {
+      "seq": 10335,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790598880.457827
+    },
+    {
+      "seq": 10336,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 6,
+      "occurred_at": 1790598880.4659698
+    },
+    {
+      "seq": 10337,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 6,
+      "occurred_at": 1790598880.466389
+    },
+    {
+      "seq": 10338,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790598880.471927
+    },
+    {
+      "seq": 10339,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 8,
+      "occurred_at": 1790598880.4805472
+    },
+    {
+      "seq": 10340,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 9,
+      "occurred_at": 1790598880.480845
+    },
+    {
+      "seq": 10341,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790598881.6788192
+    },
+    {
+      "seq": 10342,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 1,
+      "occurred_at": 1790598881.679641
+    },
+    {
+      "seq": 10343,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 1,
+      "occurred_at": 1790598881.680149
+    },
+    {
+      "seq": 10344,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790598884.712511
+    },
+    {
+      "seq": 10345,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 4,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790598884.715612
+    },
+    {
+      "seq": 10346,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前已开通手机银行",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 656,
+              "name": "当前手机银行开通标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机银行开通标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 656,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 656,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录最多0天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "DAY",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前时点AUM至少15万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "150000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+        "intent_plan": {
+          "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前已开通手机银行"
+              ],
+              "business_meaning": "客户当前已开通手机银行",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录最多0天"
+              ],
+              "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM至少15万"
+              ],
+              "business_meaning": "当前时点AUM不低于15万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "客户当前手机号码状态正常",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C2",
+            "requirement_id": "C2",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "30",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598884.7163022
+    },
+    {
+      "seq": 10347,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前已开通手机银行",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 656,
+              "name": "当前手机银行开通标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机银行开通标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 656,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 656,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录最多0天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "DAY",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前时点AUM至少15万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "150000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+        "intent_plan": {
+          "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前已开通手机银行"
+              ],
+              "business_meaning": "客户当前已开通手机银行",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录最多0天"
+              ],
+              "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM至少15万"
+              ],
+              "business_meaning": "当前时点AUM不低于15万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "客户当前手机号码状态正常",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C2",
+            "requirement_id": "C2",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "30",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598884.7171159
+    },
+    {
+      "seq": 10348,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 3,
+      "occurred_at": 1790598884.717888
+    },
+    {
+      "seq": 10349,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 3,
+      "occurred_at": 1790598884.717969
+    },
+    {
+      "seq": 10350,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790598888.4991128
+    },
+    {
+      "seq": 10351,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 4,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790598888.4997172
+    },
+    {
+      "seq": 10352,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前已开通手机银行",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 656,
+              "name": "当前手机银行开通标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机银行开通标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 656,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 656,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录最多0天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "DAY",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 30
+              },
+              "time_constraint": "近30天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前时点AUM至少15万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "150000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+        "intent_plan": {
+          "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前已开通手机银行"
+              ],
+              "business_meaning": "客户当前已开通手机银行",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录最多0天"
+              ],
+              "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM至少15万"
+              ],
+              "business_meaning": "当前时点AUM不低于15万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "客户当前手机号码状态正常",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598888.500361
+    },
+    {
+      "seq": 10353,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790598888.500905
+    },
+    {
+      "seq": 10354,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 1,
+      "occurred_at": 1790598888.500965
+    },
+    {
+      "seq": 10365,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790598891.172171
+    },
+    {
+      "seq": 10366,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 4,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790598891.172852
+    },
+    {
+      "seq": 10367,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前已开通手机银行",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 656,
+              "name": "当前手机银行开通标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机银行开通标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 656,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 656,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录最多0天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "DAY",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 30
+              },
+              "time_constraint": "近30天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前时点AUM至少15万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "150000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+        "intent_plan": {
+          "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前已开通手机银行"
+              ],
+              "business_meaning": "客户当前已开通手机银行",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录最多0天"
+              ],
+              "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM至少15万"
+              ],
+              "business_meaning": "当前时点AUM不低于15万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "客户当前手机号码状态正常",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598891.1759858
+    },
+    {
+      "seq": 10368,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前已开通手机银行",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 656,
+              "name": "当前手机银行开通标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机银行开通标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 656,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 656,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录最多0天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "DAY",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 30
+              },
+              "time_constraint": "近30天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前时点AUM至少15万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "150000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+        "intent_plan": {
+          "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前已开通手机银行"
+              ],
+              "business_meaning": "客户当前已开通手机银行",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录最多0天"
+              ],
+              "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM至少15万"
+              ],
+              "business_meaning": "当前时点AUM不低于15万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "客户当前手机号码状态正常",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598891.176739
+    },
+    {
+      "seq": 10369,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "当前手机银行开通标志",
+      "occurred_at": 1790598891.177181
+    },
+    {
+      "seq": 10370,
+      "type": "clause.updated",
+      "clause_id": "C2",
+      "message": "近30天APP登录天数",
+      "occurred_at": 1790598891.177378
+    },
+    {
+      "seq": 10371,
+      "type": "clause.updated",
+      "clause_id": "C3",
+      "message": "当前时点AUM",
+      "occurred_at": 1790598891.17744
+    },
+    {
+      "seq": 10372,
+      "type": "clause.updated",
+      "clause_id": "C4",
+      "message": "当前手机号码正常标志",
+      "occurred_at": 1790598891.1777349
+    },
+    {
+      "seq": 10373,
+      "type": "draft.ready",
+      "message": "圈选方案已保存",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前已开通手机银行",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 656,
+              "name": "当前手机银行开通标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机银行开通标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 656,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 656,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "近30天APP登录最多0天",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "DAY",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 30
+              },
+              "time_constraint": "近30天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1448,
+              "name": "近30天APP登录天数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "DAY",
+              "definition": "近30天APP登录天数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "近30天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 30,
+                "unit": "DAY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "当前时点AUM至少15万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "150000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "线上渠道激活：开通手机银行且近30天APP登录≤0天、当前AUM≥15万、手机号正常",
+        "intent_plan": {
+          "original_request": "当前已开通手机银行，近30天APP登录最多0天，当前时点AUM至少15万的客户，作为线上渠道激活名单。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前已开通手机银行"
+              ],
+              "business_meaning": "客户当前已开通手机银行",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "近30天APP登录最多0天"
+              ],
+              "business_meaning": "近30天APP登录天数不超过0天（即0天）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM至少15万"
+              ],
+              "business_meaning": "当前时点AUM不低于15万元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "客户当前手机号码状态正常",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790598891.1778
+    },
+    {
+      "seq": 10374,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 6,
+      "occurred_at": 1790598891.1783628
+    },
+    {
+      "seq": 10375,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 6,
+      "occurred_at": 1790598891.1784341
+    },
+    {
+      "seq": 10376,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 6,
+        "deep": 0,
+        "details": 2,
+        "submit_rejections": 0,
+        "llm_turns": 7,
+        "model": "deepseek-flash",
+        "prompt_sha256": "e623268faa356b4498ca911c035afe5970f03b79e26996c95c97b34f1b830659",
+        "max_turns": 16,
+        "cli_start_ms": 147,
+        "cli_peak_rss_mb": 336.17,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.13733099999999998,
+        "usage": {
+          "input_tokens": 22095,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 85120,
+          "output_tokens": 3034,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790598891.1963441
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "p2-split.v1",
+  "phase": "P2",
+  "status": "PARTITIONED",
+  "mother_cases": 500,
+  "case_count": 500,
+  "formal_cases": 0,
+  "split": "ASSIGNED",
+  "splits": [
+    "DEV",
+    "HOLDOUT",
+    "REGRESSION"
+  ],
+  "quotas": {
+    "SINGLE": 150,
+    "COMPOSITION": 125,
+    "CLARIFICATION": 75,
+    "BOUNDARY": 50,
+    "MULTITURN": 50,
+    "GAP": 50
+  },
+  "p0_manifest_sha256": "25f005e766a51837f3ecccdb39cf38d604111900ae509c1288f422b37678cb9a",
+  "partition_sha256": "f40a10216813310adcc7b78862be40967db33f8db8fad9ebc4e99d372fd50995",
+  "isolation_keys": 496,
+  "supersedes": {
+    "schema_version": "p2-mothers.v1",
+    "description": "分区是母案例之上的确定分配，不改写任何真值"
+  },
+  "authorization": {
+    "authorized_by": "USER",
+    "authorized_at": "2026-09-27",
+    "basis": "会话授权：开启P2",
+    "budget_usd_cap": 150.0
+  },
+  "files": {
+    "partition.json": "2f2bb6092d62753ecd243aaaee02405179a149efc99f5ccacdf08133e4866fca",
+    "cases.jsonl": "7369afec8cf5231db87828d46734dca8f576872b9f4980a771ee3673234229a8",
+    "inputs.jsonl": "a7debd799a7f652ad04e010b478ad9e06c5cc53e3a38cd88663f5afd81afbe5d",
+    "oracle-results.jsonl": "278bcd453fd623210c2a382e37702435cf8a0c30c1fc0c3caf6f605f8a3bab75"
+  }
+}

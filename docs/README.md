@@ -2,7 +2,7 @@
 
 全项目文档的统一入口。
 
-合成评测当前交付：[P0 事实审计与 P1 工程骨架、200 个校准母案例](../tagpilot-eval/README.md)（校准稿待复核；P2 正式生成未执行）。
+合成评测入口：[P0/P1 校准与 P2 首期评测](../tagpilot-eval/README.md)；本轮 P3 语义改进及固定 100 个 Demo 案例见 [P3 报告](../tagpilot-eval/reports/p3-acceptance-v1/REPORT.md)与[案例清单](../tagpilot-eval/reports/p3-acceptance-v1/DEMO_CASES.md)。不进入 P4 扩量。
 
 导航关系：
 

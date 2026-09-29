@@ -1,0 +1,1136 @@
+{
+  "schema_version": "semantic-changeset.v1",
+  "library_id": 107,
+  "change_id": "p3-semantic-20260928-v2",
+  "baseline_snapshot": "L107-20260919-002",
+  "baseline_hash": "de5f8af51fd4baca3377c0d477187fefed3efadead7c6b5e3991387deba05ade",
+  "status": "REVIEWED",
+  "source_case_ids": [
+    "CAL-8001",
+    "CAL-8004",
+    "CAL-8061"
+  ],
+  "source_refs": [
+    "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+  ],
+  "changes": [
+    {
+      "table": "ts_tag_semantic",
+      "key": {
+        "tag_id": 1009
+      },
+      "before_hash": "c8eb61f0f112adb2fcff43e10042a276bed38488b9c7ca4ff2235b4ebc64fcf9",
+      "before": {
+        "unit": "CNY",
+        "tag_id": 1009,
+        "concept_id": 369,
+        "family_key": "12月保险购买金额|EOP|ALL|NONE|CNY|BASE",
+        "source_ref": "local-demo-review-20260919T083859Z;mode=AI_EXPERT_LOCAL_DEMO;freeze_sha256=b9288b16b73182d30f9ec7b16fb05d5cfef8cebfef1804229d1f7eef45e53781;dictionary_sha256=dc77160652fcc0fd52c4b406fc5650d1109a146e444390731d03f7063fb71e86",
+        "unit_scale": 1.0,
+        "semantic_type": "NUM_AMOUNT",
+        "caliber_struct": {
+          "unit": "CNY",
+          "scope": "ALL",
+          "numerator": null,
+          "statistic": "EOP",
+          "unit_scale": 1,
+          "denominator": null,
+          "period_edge": "WHOLE",
+          "calendar_mode": "CALENDAR",
+          "source_system": null,
+          "time_anchor_type": "YEAR_OFFSET",
+          "time_window_unit": null,
+          "time_anchor_label": "上年",
+          "time_offset_years": 1,
+          "time_window_value": null,
+          "boundary_semantics": null,
+          "time_offset_months": null
+        },
+        "definition_long": "上年12月保险购买金额",
+        "semantic_version": 1,
+        "allowed_operators": [
+          ">",
+          ">=",
+          "<",
+          "<=",
+          "between"
+        ]
+      },
+      "after": {
+        "unit": "CNY",
+        "tag_id": 1009,
+        "concept_id": 369,
+        "family_key": "12月保险购买金额|EOP|ALL|NONE|CNY|BASE",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署",
+        "unit_scale": 1.0,
+        "semantic_type": "NUM_AMOUNT",
+        "caliber_struct": {
+          "unit": "CNY",
+          "scope": "ALL",
+          "numerator": null,
+          "statistic": "EOP",
+          "unit_scale": 1,
+          "denominator": null,
+          "period_edge": "WHOLE",
+          "calendar_mode": "CALENDAR",
+          "source_system": null,
+          "time_anchor_type": "YEAR_OFFSET",
+          "time_window_unit": null,
+          "time_anchor_label": "上年12月",
+          "time_offset_years": 1,
+          "time_window_value": null,
+          "boundary_semantics": null,
+          "time_offset_months": null,
+          "month_of_year": 12
+        },
+        "definition_long": "上年12月保险购买金额。上年12月是上一个自然年的12月，不是整个上年；month_of_year=12。",
+        "semantic_version": 2,
+        "allowed_operators": [
+          ">",
+          ">=",
+          "<",
+          "<=",
+          "between"
+        ]
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1291",
+        "alias_norm": "异名入金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "异名入金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1291",
+        "alias_norm": "异名入金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1291",
+        "alias_norm": "异名跨行累计转入"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "异名跨行累计转入",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1291",
+        "alias_norm": "异名跨行累计转入",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1291",
+        "alias_norm": "入金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "入金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1291",
+        "alias_norm": "入金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1282",
+        "alias_norm": "同名入金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "同名入金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1282",
+        "alias_norm": "同名入金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1282",
+        "alias_norm": "入金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "入金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1282",
+        "alias_norm": "入金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1299",
+        "alias_norm": "异名跨行单笔最高入金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "异名跨行单笔最高入金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1299",
+        "alias_norm": "异名跨行单笔最高入金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1299",
+        "alias_norm": "入金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "入金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1299",
+        "alias_norm": "入金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "没持有理财"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "没持有理财",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "没持有理财",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "还没买理财"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "还没买理财",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "还没买理财",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "未持理财"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "未持理财",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "未持理财",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "当前没理财"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "当前没理财",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "当前没理财",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "现在没有理财"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "现在没有理财",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "601",
+        "alias_norm": "现在没有理财",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "没有基金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "没有基金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "没有基金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "未持有基金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "未持有基金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "未持有基金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "基金未持有"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "基金未持有",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "基金未持有",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "没持有基金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "没持有基金",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "620",
+        "alias_norm": "没持有基金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "721",
+        "alias_norm": "当前时点资产"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "当前时点资产",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "721",
+        "alias_norm": "当前时点资产",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "721",
+        "alias_norm": "当前时点总资产"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "当前时点总资产",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "721",
+        "alias_norm": "当前时点总资产",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1448",
+        "alias_norm": "app登录"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "APP登录",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1448",
+        "alias_norm": "app登录",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1448",
+        "alias_norm": "app低活跃"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "APP低活跃",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1448",
+        "alias_norm": "app低活跃",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "858",
+        "alias_norm": "下一笔定期"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "下一笔定期",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "858",
+        "alias_norm": "下一笔定期",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "858",
+        "alias_norm": "最近一笔定期"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "最近一笔定期",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "858",
+        "alias_norm": "最近一笔定期",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "859",
+        "alias_norm": "到期金额"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "到期金额",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "859",
+        "alias_norm": "到期金额",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_alias",
+      "key": {
+        "target_type": "TAG",
+        "target_id": "1319",
+        "alias_norm": "本月载体活动参与"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "alias_text": "本月载体活动参与",
+        "alias_type": "COLLOQUIAL",
+        "weight": 1,
+        "source": "HUMAN",
+        "target_type": "TAG",
+        "target_id": "1319",
+        "alias_norm": "本月载体活动参与",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 601,
+        "example_type": "POS",
+        "utterance": "现在没持有理财"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "expected_condition": {
+          "tag_id": 601,
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          }
+        },
+        "source": "HUMAN",
+        "tag_id": 601,
+        "example_type": "POS",
+        "utterance": "现在没持有理财",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 601,
+        "example_type": "POS",
+        "utterance": "请按“当前持有理财标志”字段筛选，保留该字段时间和范围口径。"
+      },
+      "before_hash": "f256a41fe103448372f8f2931ad861dd66bb5a075d132708a4a79cca4876f098",
+      "before": {
+        "source": "HUMAN",
+        "tag_id": 601,
+        "utterance": "请按“当前持有理财标志”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-Demo-20260928;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:业务分析场景完整清单.md",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 601,
+          "preserve_caliber": true
+        }
+      },
+      "after": {
+        "source": "HUMAN",
+        "tag_id": 601,
+        "utterance": "请按“当前持有理财标志”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 601,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          },
+          "preserve_caliber": true
+        }
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 620,
+        "example_type": "POS",
+        "utterance": "当前没有基金"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "expected_condition": {
+          "tag_id": 620,
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          }
+        },
+        "source": "HUMAN",
+        "tag_id": 620,
+        "example_type": "POS",
+        "utterance": "当前没有基金",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 620,
+        "example_type": "POS",
+        "utterance": "请按“当前持有基金标志”字段筛选，保留该字段时间和范围口径。"
+      },
+      "before_hash": "a6aec0cf22209c79b91b12fbf68320c6ae6481bfbad2f481b37a0e42b8e4b7f0",
+      "before": {
+        "source": "HUMAN",
+        "tag_id": 620,
+        "utterance": "请按“当前持有基金标志”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-Demo-20260928;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:业务分析场景完整清单.md",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 620,
+          "preserve_caliber": true
+        }
+      },
+      "after": {
+        "source": "HUMAN",
+        "tag_id": 620,
+        "utterance": "请按“当前持有基金标志”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 620,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          },
+          "preserve_caliber": true
+        }
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 1466,
+        "example_type": "POS",
+        "utterance": "当前理财风评属于C3、C4"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "expected_condition": {
+          "tag_id": 1466,
+          "operator": "in",
+          "values": [
+            "C3",
+            "C4"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          }
+        },
+        "source": "HUMAN",
+        "tag_id": 1466,
+        "example_type": "POS",
+        "utterance": "当前理财风评属于C3、C4",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 1466,
+        "example_type": "POS",
+        "utterance": "请按“当前理财风评等级”字段筛选，保留该字段时间和范围口径。"
+      },
+      "before_hash": "03b5c7d7b4555e06ba600caeb0b86565cd9b392399992336fb3de28e99a01276",
+      "before": {
+        "source": "HUMAN",
+        "tag_id": 1466,
+        "utterance": "请按“当前理财风评等级”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-Demo-20260928;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:业务分析场景完整清单.md",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 1466,
+          "preserve_caliber": true
+        }
+      },
+      "after": {
+        "source": "HUMAN",
+        "tag_id": 1466,
+        "utterance": "请按“当前理财风评等级”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 1466,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          },
+          "preserve_caliber": true
+        }
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 1477,
+        "example_type": "POS",
+        "utterance": "当前基金风评属于C3、C4"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "expected_condition": {
+          "tag_id": 1477,
+          "operator": "in",
+          "values": [
+            "C3",
+            "C4"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          }
+        },
+        "source": "HUMAN",
+        "tag_id": 1477,
+        "example_type": "POS",
+        "utterance": "当前基金风评属于C3、C4",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 1477,
+        "example_type": "POS",
+        "utterance": "请按“当前基金风评等级”字段筛选，保留该字段时间和范围口径。"
+      },
+      "before_hash": "344804ac0537a12aa835ccae982793a13d02ad8805c0838d4a3981ace6a413a6",
+      "before": {
+        "source": "HUMAN",
+        "tag_id": 1477,
+        "utterance": "请按“当前基金风评等级”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-Demo-20260928;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:业务分析场景完整清单.md",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 1477,
+          "preserve_caliber": true
+        }
+      },
+      "after": {
+        "source": "HUMAN",
+        "tag_id": 1477,
+        "utterance": "请按“当前基金风评等级”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 1477,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          },
+          "preserve_caliber": true
+        }
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 721,
+        "example_type": "POS",
+        "utterance": "当前时点AUM至少20万元"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "expected_condition": {
+          "tag_id": 721,
+          "operator": ">=",
+          "values": [
+            "20"
+          ],
+          "value_unit": "CNY",
+          "value_scale": 10000,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          }
+        },
+        "source": "HUMAN",
+        "tag_id": 721,
+        "example_type": "POS",
+        "utterance": "当前时点AUM至少20万元",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 721,
+        "example_type": "POS",
+        "utterance": "请按“当前时点AUM”字段筛选，保留该字段时间和范围口径。"
+      },
+      "before_hash": "f226d59d12a1b31b8c0af1b5123483d0956c116ce60f1f9b11c5f516d0979a93",
+      "before": {
+        "source": "HUMAN",
+        "tag_id": 721,
+        "utterance": "请按“当前时点AUM”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-Demo-20260928;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:业务分析场景完整清单.md",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 721,
+          "preserve_caliber": true
+        }
+      },
+      "after": {
+        "source": "HUMAN",
+        "tag_id": 721,
+        "utterance": "请按“当前时点AUM”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 721,
+          "expected_caliber": {
+            "period_edge": "END",
+            "time_anchor_type": "POINT"
+          },
+          "preserve_caliber": true
+        }
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 1448,
+        "example_type": "POS",
+        "utterance": "近30天APP登录最多2天"
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "expected_condition": {
+          "tag_id": 1448,
+          "operator": "<=",
+          "values": [
+            "2"
+          ],
+          "value_unit": "DAY",
+          "value_scale": 1,
+          "expected_caliber": {
+            "period_edge": "WHOLE",
+            "calendar_mode": "ROLLING",
+            "time_anchor_type": "WINDOW",
+            "time_window_unit": "DAY",
+            "time_window_value": 30
+          }
+        },
+        "source": "HUMAN",
+        "tag_id": 1448,
+        "example_type": "POS",
+        "utterance": "近30天APP登录最多2天",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_tag_example",
+      "key": {
+        "tag_id": 1448,
+        "example_type": "POS",
+        "utterance": "请按“近30天APP登录天数”字段筛选，保留该字段时间和范围口径。"
+      },
+      "before_hash": "d171497e365238da8b2a72012dd5bbd209a20e8df4f51fa50d2564ce647ca68e",
+      "before": {
+        "source": "HUMAN",
+        "tag_id": 1448,
+        "utterance": "请按“近30天APP登录天数”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-Demo-20260928;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:业务分析场景完整清单.md",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 1448,
+          "preserve_caliber": true
+        }
+      },
+      "after": {
+        "source": "HUMAN",
+        "tag_id": 1448,
+        "utterance": "请按“近30天APP登录天数”字段筛选，保留该字段时间和范围口径。",
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署",
+        "example_type": "POS",
+        "expected_condition": {
+          "tag_id": 1448,
+          "expected_caliber": {
+            "period_edge": "WHOLE",
+            "calendar_mode": "ROLLING",
+            "time_anchor_type": "WINDOW",
+            "time_window_unit": "DAY",
+            "time_window_value": 30
+          },
+          "preserve_caliber": true
+        }
+      }
+    },
+    {
+      "table": "ts_business_term",
+      "key": {
+        "term_id": 41
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "term": "持有理财",
+        "term_norm": "持有理财",
+        "term_type": "FUZZY_CATEGORY",
+        "options": [
+          "已明确为独立理财产品字段；未持有对应0，持有对应1；风评使用已发布理财等级；不自动添加基金保险要求"
+        ],
+        "default_policy": "RESOLVE_BY_FIELD",
+        "applicable_semantic_types": "BOOL,ENUM_ORDINAL",
+        "tag_object": "客户",
+        "term_id": 41,
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_business_term",
+      "key": {
+        "term_id": 42
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "term": "买理财",
+        "term_norm": "买理财",
+        "term_type": "FUZZY_CATEGORY",
+        "options": [
+          "已明确为独立理财产品字段；未持有对应0，持有对应1；风评使用已发布理财等级；不自动添加基金保险要求"
+        ],
+        "default_policy": "RESOLVE_BY_FIELD",
+        "applicable_semantic_types": "BOOL,ENUM_ORDINAL",
+        "tag_object": "客户",
+        "term_id": 42,
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_business_term",
+      "key": {
+        "term_id": 43
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "term": "未持理财",
+        "term_norm": "未持理财",
+        "term_type": "FUZZY_CATEGORY",
+        "options": [
+          "已明确为独立理财产品字段；未持有对应0，持有对应1；风评使用已发布理财等级；不自动添加基金保险要求"
+        ],
+        "default_policy": "RESOLVE_BY_FIELD",
+        "applicable_semantic_types": "BOOL,ENUM_ORDINAL",
+        "tag_object": "客户",
+        "term_id": 43,
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_business_term",
+      "key": {
+        "term_id": 44
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "term": "当前没理财",
+        "term_norm": "当前没理财",
+        "term_type": "FUZZY_CATEGORY",
+        "options": [
+          "已明确为独立理财产品字段；未持有对应0，持有对应1；风评使用已发布理财等级；不自动添加基金保险要求"
+        ],
+        "default_policy": "RESOLVE_BY_FIELD",
+        "applicable_semantic_types": "BOOL,ENUM_ORDINAL",
+        "tag_object": "客户",
+        "term_id": 44,
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_business_term",
+      "key": {
+        "term_id": 45
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "term": "现在没有理财",
+        "term_norm": "现在没有理财",
+        "term_type": "FUZZY_CATEGORY",
+        "options": [
+          "已明确为独立理财产品字段；未持有对应0，持有对应1；风评使用已发布理财等级；不自动添加基金保险要求"
+        ],
+        "default_policy": "RESOLVE_BY_FIELD",
+        "applicable_semantic_types": "BOOL,ENUM_ORDINAL",
+        "tag_object": "客户",
+        "term_id": 45,
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_business_term",
+      "key": {
+        "term_id": 46
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "term": "理财风评",
+        "term_norm": "理财风评",
+        "term_type": "FUZZY_CATEGORY",
+        "options": [
+          "已明确为独立理财产品字段；未持有对应0，持有对应1；风评使用已发布理财等级；不自动添加基金保险要求"
+        ],
+        "default_policy": "RESOLVE_BY_FIELD",
+        "applicable_semantic_types": "BOOL,ENUM_ORDINAL",
+        "tag_object": "客户",
+        "term_id": 46,
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    },
+    {
+      "table": "ts_business_term",
+      "key": {
+        "term_id": 47
+      },
+      "before_hash": null,
+      "before": null,
+      "after": {
+        "term": "入金",
+        "term_norm": "入金",
+        "term_type": "FUZZY_CATEGORY",
+        "options": [
+          "请明确同名或异名跨行转入",
+          "请明确统计窗口和累计或单笔最高",
+          "请明确比较阈值"
+        ],
+        "default_policy": "ASK",
+        "applicable_semantic_types": "NUM_AMOUNT",
+        "tag_object": "客户",
+        "term_id": 47,
+        "source_ref": "P3-DEV-refinement;source:sql/indiv_cust/01_create_L_INDVCST_LABEL.sql;demo:独立产品字段与用户明确时间;AI复核非银行签署"
+      }
+    }
+  ],
+  "review_records": [
+    {
+      "reviewer": "Codex",
+      "reviewer_type": "AI",
+      "status": "REVIEWED",
+      "scope": "DEV失败归因；词面消歧不设阈值，不导入完整评测问题；非银行签署"
+    }
+  ],
+  "regression_refs": [
+    "p2-cases-v3:REGRESSION"
+  ]
+}

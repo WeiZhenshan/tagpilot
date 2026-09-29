@@ -12,6 +12,10 @@ async def build_context(ctx):
     context={'requirement':req['requirement'],'current_utterance':req.get('_utterance',req['requirement']),
              'history':req.get('history',[])[-12:],'questions':req.get('_questions',[]),'answer':req.get('_answer'),
              'authority_diagnostics':req.get('_repair',[])}
+    # 评测/生产注入的固定基准日：相对时间表达只能以它为准，不能用运行当天。
+    if req.get('reference_date'):
+        context['reference_date']=req['reference_date']
+        context['timezone']=req.get('timezone') or 'Asia/Shanghai'
     if req.get('previous_plan',{}).get('tree'):
         context['previous_plan']=input_plan(req['previous_plan'])
         ids=plan_tag_ids(leaves(req['previous_plan']['tree'])) & ctx.eligible

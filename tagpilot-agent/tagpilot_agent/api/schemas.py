@@ -11,6 +11,8 @@ class RunRequest(BaseModel):
     artifact_hash: str
     eligible_tag_ids: list[int] = Field(max_length=100000)
     requirement: str = Field(min_length=1,max_length=2000)
+    reference_date: str | None = Field(default=None,pattern=r'^\d{4}-\d{2}-\d{2}$')
+    timezone: str = Field(default='Asia/Shanghai',max_length=64)
     previous_plan: dict = Field(default_factory=dict)
     edited_plan: dict | None = None
     history: list[dict] = Field(default_factory=list,max_length=20)

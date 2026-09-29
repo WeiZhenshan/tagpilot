@@ -11,8 +11,13 @@ async def submit_result(ctx,args):
         if args['questions'] or args['gaps']:errors.append('READY 不能包含问题或缺口')
     if outcome=='NEEDS_USER_INPUT':
         if not args['questions']:errors.append('需要提供具体业务问题')
+        asked={q['requirement_id'] for q in args['questions']}
+        pending={a['requirement_id'] for a in plan.get('intent_plan',{}).get('assumptions',[])
+            if a.get('status') in {'PENDING','PUBLISHED'} and not all(
+                n.get('assumption_confirmed') for n in nodes if a['requirement_id'] in n.get('requirement_ids',[]))}
+        if pending-asked:errors.append('待确认的业务假设必须逐项提问，不能将未询问的暂定口径冻结为条件：'+','.join(sorted(pending-asked)))
         for q in args['questions']:
-            if q['requirement_id'] not in requirements:errors.append('问题必须对应需求')
+            if q['requirement_id'] not in requirements:errors.append('问题必须对应需求：'+q['requirement_id']+'；可用ID：'+','.join(sorted(requirements)))
             if q['reason']!='GOAL_UNCLEAR' and not ctx.searches.get(q['requirement_id']):errors.append('请先查证该需求，再提出业务问题')
             if any(x in q['prompt'] for x in ('tag_id','SQL','caliber','eligible','build_id')):errors.append('问题中不能包含技术字段')
     declared_refs={rid for n in nodes if n.get('gap_reason') for rid in n.get('requirement_ids',[])}
@@ -28,7 +33,9 @@ async def submit_result(ctx,args):
     if errors:
         ctx.stats['submit_rejections']+=1
         if ctx.stats['submit_rejections']<=3:
-            return {'ok':False,'errors':errors,'diagnostics':plan.get('diagnostics',[])}
+            return {'ok':False,'errors':errors,'diagnostics':plan.get('diagnostics',[]),
+                'available_requirement_ids':sorted(requirements),'searched_requirement_ids':sorted(ctx.searches),
+                'repair_hint':'问题、检索查询、叶子requirement_ids和意图台账须使用同一需求ID；首轮可补齐叶子ID后重交，后续保留已有ID。'}
         outcome='PARTIAL';ctx.stats['forced_partial']=True
     plan.update(valid=outcome=='READY' and plan['valid'],plan_status={'READY':'READY','NEEDS_USER_INPUT':'NEEDS_DECISION','CAPABILITY_GAP':'CAPABILITY_GAP','PARTIAL':'DRAFT'}[outcome])
     for n in nodes:
@@ -42,4 +49,3 @@ async def submit_result(ctx,args):
     ctx.emit({'type':'draft.ready','message':args['summary'] or '圈选方案已保存','plan':plan})
     ctx.submitted.set()
     return {'ok':True,'accepted':True,'outcome':outcome,'message':'已提交，请结束'}
-

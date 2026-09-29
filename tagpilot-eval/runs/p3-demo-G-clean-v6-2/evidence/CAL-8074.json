@@ -1,0 +1,2128 @@
+{
+  "states": [
+    {
+      "run_id": "p3-cdae0065e20a-cal-8074",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "C1",
+                "source_span": "这个月载体活动参加了2次或更多的",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": ">=",
+                "values": [
+                  "2"
+                ],
+                "value_unit": "COUNT",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1319,
+                "name": "本月载体活动参与次数",
+                "semantic_type": "NUM_COUNT",
+                "unit": "COUNT",
+                "definition": "本月载体活动参与次数",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "value_scale": "1.0000",
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "CALENDAR",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "TO_DATE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "COUNT",
+                  "time_anchor_label": "本月",
+                  "time_anchor_type": "MTD",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "COUNT",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C2",
+                "source_span": "现在时点资产也有20万以上（含20万）",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": ">=",
+                "values": [
+                  "200000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 721,
+                "name": "当前时点AUM",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "当前时点AUM",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "当前时点",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "",
+          "intent_plan": {
+            "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "这个月载体活动参加了2次或更多的"
+                ],
+                "business_meaning": "本月载体活动参与次数>=2",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "现在时点资产也有20万以上（含20万）"
+                ],
+                "business_meaning": "当前时点AUM>=20万（含）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 6,
+            "deep": 1,
+            "details": 2,
+            "submit_rejections": 0,
+            "llm_turns": 7,
+            "model": "deepseek-flash",
+            "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+            "max_turns": 16,
+            "cli_start_ms": 150,
+            "cli_peak_rss_mb": 278.77,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.1129152,
+            "usage": {
+              "input_tokens": 19352,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 68864,
+              "output_tokens": 2280,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 16599,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790602087.770087
+        },
+        {
+          "seq": 16600,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790602089.48972
+        },
+        {
+          "seq": 16601,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 27,
+          "occurred_at": 1790602089.519182
+        },
+        {
+          "seq": 16602,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 27,
+          "occurred_at": 1790602089.519519
+        },
+        {
+          "seq": 16603,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790602089.522635
+        },
+        {
+          "seq": 16604,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 0,
+          "occurred_at": 1790602089.523036
+        },
+        {
+          "seq": 16605,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 1,
+          "occurred_at": 1790602089.52327
+        },
+        {
+          "seq": 16612,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790602091.004451
+        },
+        {
+          "seq": 16625,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 4911,
+          "occurred_at": 1790602095.9200351
+        },
+        {
+          "seq": 16626,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 4912,
+          "occurred_at": 1790602095.920197
+        },
+        {
+          "seq": 16630,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790602098.0402648
+        },
+        {
+          "seq": 16631,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 7,
+          "occurred_at": 1790602098.0474508
+        },
+        {
+          "seq": 16632,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 7,
+          "occurred_at": 1790602098.0477629
+        },
+        {
+          "seq": 16646,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790602101.636657
+        },
+        {
+          "seq": 16647,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790602101.6372638
+        },
+        {
+          "seq": 16648,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "这个月载体活动参加了2次或更多的",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "COUNT",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1319,
+                  "name": "本月载体活动参与次数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "COUNT",
+                  "definition": "本月载体活动参与次数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "COUNT",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "现在时点资产也有20万以上（含20万）",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "200000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "本月载体活动参与>=2次 且 当前时点AUM>=20万",
+            "intent_plan": {
+              "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "这个月载体活动参加了2次或更多的"
+                  ],
+                  "business_meaning": "本月载体活动参与次数>=2",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "现在时点资产也有20万以上（含20万）"
+                  ],
+                  "business_meaning": "当前时点AUM>=20万（含）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790602101.637743
+        },
+        {
+          "seq": 16649,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "这个月载体活动参加了2次或更多的",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "COUNT",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1319,
+                  "name": "本月载体活动参与次数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "COUNT",
+                  "definition": "本月载体活动参与次数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "COUNT",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "现在时点资产也有20万以上（含20万）",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "200000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "本月载体活动参与>=2次 且 当前时点AUM>=20万",
+            "intent_plan": {
+              "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "这个月载体活动参加了2次或更多的"
+                  ],
+                  "business_meaning": "本月载体活动参与次数>=2",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "现在时点资产也有20万以上（含20万）"
+                  ],
+                  "business_meaning": "当前时点AUM>=20万（含）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790602101.638203
+        },
+        {
+          "seq": 16650,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 2,
+          "occurred_at": 1790602101.6385589
+        },
+        {
+          "seq": 16651,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 2,
+          "occurred_at": 1790602101.6388621
+        },
+        {
+          "seq": 16658,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790602103.418963
+        },
+        {
+          "seq": 16659,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790602103.421681
+        },
+        {
+          "seq": 16660,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "这个月载体活动参加了2次或更多的",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "COUNT",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1319,
+                  "name": "本月载体活动参与次数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "COUNT",
+                  "definition": "本月载体活动参与次数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "COUNT",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "现在时点资产也有20万以上（含20万）",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "200000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "这个月载体活动参加了2次或更多的"
+                  ],
+                  "business_meaning": "本月载体活动参与次数>=2",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "现在时点资产也有20万以上（含20万）"
+                  ],
+                  "business_meaning": "当前时点AUM>=20万（含）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790602103.422245
+        },
+        {
+          "seq": 16661,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "这个月载体活动参加了2次或更多的",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "COUNT",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1319,
+                  "name": "本月载体活动参与次数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "COUNT",
+                  "definition": "本月载体活动参与次数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "COUNT",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "现在时点资产也有20万以上（含20万）",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "200000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "这个月载体活动参加了2次或更多的"
+                  ],
+                  "business_meaning": "本月载体活动参与次数>=2",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "现在时点资产也有20万以上（含20万）"
+                  ],
+                  "business_meaning": "当前时点AUM>=20万（含）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790602103.4232268
+        },
+        {
+          "seq": 16662,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "本月载体活动参与次数",
+          "occurred_at": 1790602103.4238238
+        },
+        {
+          "seq": 16663,
+          "type": "clause.updated",
+          "clause_id": "C2",
+          "message": "当前时点AUM",
+          "occurred_at": 1790602103.424035
+        },
+        {
+          "seq": 16664,
+          "type": "draft.ready",
+          "message": "本月载体活动参与>=2次 且 当前时点AUM>=20万",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "这个月载体活动参加了2次或更多的",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "2"
+                  ],
+                  "value_unit": "COUNT",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1319,
+                  "name": "本月载体活动参与次数",
+                  "semantic_type": "NUM_COUNT",
+                  "unit": "COUNT",
+                  "definition": "本月载体活动参与次数",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "value_scale": "1.0000",
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "COUNT",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "COUNT",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "现在时点资产也有20万以上（含20万）",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "200000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "这个月载体活动参加了2次或更多的"
+                  ],
+                  "business_meaning": "本月载体活动参与次数>=2",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "现在时点资产也有20万以上（含20万）"
+                  ],
+                  "business_meaning": "当前时点AUM>=20万（含）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790602103.424221
+        },
+        {
+          "seq": 16665,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 3,
+          "occurred_at": 1790602103.4245172
+        },
+        {
+          "seq": 16666,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 3,
+          "occurred_at": 1790602103.424843
+        },
+        {
+          "seq": 16667,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 6,
+            "deep": 1,
+            "details": 2,
+            "submit_rejections": 0,
+            "llm_turns": 7,
+            "model": "deepseek-flash",
+            "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+            "max_turns": 16,
+            "cli_start_ms": 150,
+            "cli_peak_rss_mb": 278.77,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.1129152,
+            "usage": {
+              "input_tokens": 19352,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 68864,
+              "output_tokens": 2280,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790602103.445302
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 16599,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790602087.770087
+    },
+    {
+      "seq": 16600,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790602089.48972
+    },
+    {
+      "seq": 16601,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 27,
+      "occurred_at": 1790602089.519182
+    },
+    {
+      "seq": 16602,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 27,
+      "occurred_at": 1790602089.519519
+    },
+    {
+      "seq": 16603,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790602089.522635
+    },
+    {
+      "seq": 16604,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 0,
+      "occurred_at": 1790602089.523036
+    },
+    {
+      "seq": 16605,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 1,
+      "occurred_at": 1790602089.52327
+    },
+    {
+      "seq": 16612,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790602091.004451
+    },
+    {
+      "seq": 16625,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 4911,
+      "occurred_at": 1790602095.9200351
+    },
+    {
+      "seq": 16626,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 4912,
+      "occurred_at": 1790602095.920197
+    },
+    {
+      "seq": 16630,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790602098.0402648
+    },
+    {
+      "seq": 16631,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 7,
+      "occurred_at": 1790602098.0474508
+    },
+    {
+      "seq": 16632,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 7,
+      "occurred_at": 1790602098.0477629
+    },
+    {
+      "seq": 16646,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790602101.636657
+    },
+    {
+      "seq": 16647,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790602101.6372638
+    },
+    {
+      "seq": 16648,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "这个月载体活动参加了2次或更多的",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "COUNT",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1319,
+              "name": "本月载体活动参与次数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "COUNT",
+              "definition": "本月载体活动参与次数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "COUNT",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "现在时点资产也有20万以上（含20万）",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "200000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "本月载体活动参与>=2次 且 当前时点AUM>=20万",
+        "intent_plan": {
+          "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "这个月载体活动参加了2次或更多的"
+              ],
+              "business_meaning": "本月载体活动参与次数>=2",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "现在时点资产也有20万以上（含20万）"
+              ],
+              "business_meaning": "当前时点AUM>=20万（含）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790602101.637743
+    },
+    {
+      "seq": 16649,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "这个月载体活动参加了2次或更多的",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "COUNT",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1319,
+              "name": "本月载体活动参与次数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "COUNT",
+              "definition": "本月载体活动参与次数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "COUNT",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "现在时点资产也有20万以上（含20万）",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "200000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "本月载体活动参与>=2次 且 当前时点AUM>=20万",
+        "intent_plan": {
+          "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "这个月载体活动参加了2次或更多的"
+              ],
+              "business_meaning": "本月载体活动参与次数>=2",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "现在时点资产也有20万以上（含20万）"
+              ],
+              "business_meaning": "当前时点AUM>=20万（含）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790602101.638203
+    },
+    {
+      "seq": 16650,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 2,
+      "occurred_at": 1790602101.6385589
+    },
+    {
+      "seq": 16651,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 2,
+      "occurred_at": 1790602101.6388621
+    },
+    {
+      "seq": 16658,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790602103.418963
+    },
+    {
+      "seq": 16659,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790602103.421681
+    },
+    {
+      "seq": 16660,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "这个月载体活动参加了2次或更多的",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "COUNT",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1319,
+              "name": "本月载体活动参与次数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "COUNT",
+              "definition": "本月载体活动参与次数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "COUNT",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "现在时点资产也有20万以上（含20万）",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "200000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "这个月载体活动参加了2次或更多的"
+              ],
+              "business_meaning": "本月载体活动参与次数>=2",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "现在时点资产也有20万以上（含20万）"
+              ],
+              "business_meaning": "当前时点AUM>=20万（含）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790602103.422245
+    },
+    {
+      "seq": 16661,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "这个月载体活动参加了2次或更多的",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "COUNT",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1319,
+              "name": "本月载体活动参与次数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "COUNT",
+              "definition": "本月载体活动参与次数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "COUNT",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "现在时点资产也有20万以上（含20万）",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "200000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "这个月载体活动参加了2次或更多的"
+              ],
+              "business_meaning": "本月载体活动参与次数>=2",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "现在时点资产也有20万以上（含20万）"
+              ],
+              "business_meaning": "当前时点AUM>=20万（含）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790602103.4232268
+    },
+    {
+      "seq": 16662,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "本月载体活动参与次数",
+      "occurred_at": 1790602103.4238238
+    },
+    {
+      "seq": 16663,
+      "type": "clause.updated",
+      "clause_id": "C2",
+      "message": "当前时点AUM",
+      "occurred_at": 1790602103.424035
+    },
+    {
+      "seq": 16664,
+      "type": "draft.ready",
+      "message": "本月载体活动参与>=2次 且 当前时点AUM>=20万",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "这个月载体活动参加了2次或更多的",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "2"
+              ],
+              "value_unit": "COUNT",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1319,
+              "name": "本月载体活动参与次数",
+              "semantic_type": "NUM_COUNT",
+              "unit": "COUNT",
+              "definition": "本月载体活动参与次数",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "value_scale": "1.0000",
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "COUNT",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "COUNT",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "现在时点资产也有20万以上（含20万）",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": ">=",
+              "values": [
+                "200000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "这个月载体活动参加了2次或更多的，现在时点资产也有20万以上（含20万），找给我看看。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "这个月载体活动参加了2次或更多的"
+              ],
+              "business_meaning": "本月载体活动参与次数>=2",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "现在时点资产也有20万以上（含20万）"
+              ],
+              "business_meaning": "当前时点AUM>=20万（含）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790602103.424221
+    },
+    {
+      "seq": 16665,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 3,
+      "occurred_at": 1790602103.4245172
+    },
+    {
+      "seq": 16666,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 3,
+      "occurred_at": 1790602103.424843
+    },
+    {
+      "seq": 16667,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 6,
+        "deep": 1,
+        "details": 2,
+        "submit_rejections": 0,
+        "llm_turns": 7,
+        "model": "deepseek-flash",
+        "prompt_sha256": "0549c06b3fdfd878511bbb28894fe54997af92122850efa6457710d629aee2ec",
+        "max_turns": 16,
+        "cli_start_ms": 150,
+        "cli_peak_rss_mb": 278.77,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.1129152,
+        "usage": {
+          "input_tokens": 19352,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 68864,
+          "output_tokens": 2280,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790602103.445302
+    }
+  ]
+}

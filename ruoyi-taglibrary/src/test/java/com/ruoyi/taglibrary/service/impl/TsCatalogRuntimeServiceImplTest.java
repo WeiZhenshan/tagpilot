@@ -168,6 +168,56 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         assertEquals("不能通过状态接口直接设置为 ACTIVE", ex.getMessage());
     }
 
+    @Test
+    void readyEvaluationAttachmentReconcilesImmutableIdentity() {
+        TsIndexBuild build = readyBuild();
+        TsCatalogSnapshot snapshot = new TsCatalogSnapshot();
+        snapshot.setContentHash("content");
+        when(indexBuildMapper.selectById("b1")).thenReturn(build);
+        when(snapshotMapper.selectById("s1")).thenReturn(snapshot);
+        when(runtime.get("/stats?build_id=b1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map(
+                "id_reconciled", true, "doc_id_hash", "ids", "snapshot_id", "s1",
+                "store_type", "MILVUS", "content_hash", "content"));
+        TsIndexBuild updated = runtimeService.updateBuildStatus("b1", "READY", "{\"L2\":\"PASS\"}");
+        assertEquals("READY", updated.getStatus());
+        assertEquals("{\"L2\":\"PASS\"}", updated.getEvalSummary());
+        assertEquals("s1", updated.getSnapshotId());
+        assertEquals("ids", updated.getDocIdHash());
+        verify(indexBuildMapper).updateBuild(updated);
+        org.mockito.Mockito.verify(runtime, org.mockito.Mockito.never()).post(any(), any());
+    }
+
+    @Test
+    void readyEvaluationAttachmentRejectsMismatchedArtifact() {
+        TsIndexBuild build = readyBuild();
+        when(indexBuildMapper.selectById("b1")).thenReturn(build);
+        when(snapshotMapper.selectById("s1")).thenReturn(new TsCatalogSnapshot());
+        when(runtime.get("/stats?build_id=b1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map(
+                "id_reconciled", true, "doc_id_hash", "different"));
+        assertThrows(ServiceException.class, () -> runtimeService.updateBuildStatus("b1", "READY", "{}"));
+        org.mockito.Mockito.verify(indexBuildMapper, org.mockito.Mockito.never()).updateBuild(any());
+    }
+
+    @Test
+    void evaluationAttachmentCannotRewindActiveBuild() {
+        TsIndexBuild build = readyBuild();
+        build.setStatus("ACTIVE");
+        when(indexBuildMapper.selectById("b1")).thenReturn(build);
+        assertThrows(ServiceException.class, () -> runtimeService.updateBuildStatus("b1", "READY", "{}"));
+        verifyNoInteractions(runtime);
+        org.mockito.Mockito.verify(indexBuildMapper, org.mockito.Mockito.never()).updateBuild(any());
+    }
+
+    private TsIndexBuild readyBuild() {
+        TsIndexBuild build = new TsIndexBuild();
+        build.setBuildId("b1");
+        build.setSnapshotId("s1");
+        build.setStatus("READY");
+        build.setDocIdHash("ids");
+        build.setStoreType("MILVUS");
+        return build;
+    }
+
     private TlTagLibrary library() {
         TlTagLibrary library = new TlTagLibrary();
         library.setLibraryId(107L);

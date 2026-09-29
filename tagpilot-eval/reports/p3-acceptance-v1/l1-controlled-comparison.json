@@ -1,0 +1,135 @@
+{
+  "phase": "P3",
+  "layer": "L1",
+  "controlled_factors": {
+    "model": "BAAI/bge-m3 + BAAI/bge-reranker-v2-m3",
+    "template": "tpl1",
+    "cases": "same DEV+REGRESSION 1296 cases / 1880 conditions",
+    "eligibility": "same source eligibility for L1",
+    "mode": "fast(no-rerank)",
+    "hardware": "same local Mac"
+  },
+  "variants": [
+    {
+      "variant": "A",
+      "bundle": {
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af",
+        "retrieval_config_hash": "96fec00554b48abc2379d93375cc9f55694626f52a9c61fb1debd5e81e9f1adb",
+        "content_hash": "de5f8af51fd4baca3377c0d477187fefed3efadead7c6b5e3991387deba05ade",
+        "doc_count": 3374,
+        "id_reconciled": true,
+        "store_type": "MILVUS",
+        "embedding_model": "BAAI/bge-m3",
+        "reranker_model": "BAAI/bge-reranker-v2-m3",
+        "doc_template_version": "tpl1"
+      },
+      "conditions": 1880,
+      "recalled": 1868,
+      "atomic_micro_recall": 0.9936170212765958,
+      "all_conditions_covered": 1284,
+      "failures": [
+        "CAL-1034",
+        "CAL-1131",
+        "CAL-1354",
+        "CAL-3100",
+        "CAL-3101",
+        "CAL-3102",
+        "CAL-3391",
+        "CAL-3392",
+        "CAL-3393",
+        "CAL-4060",
+        "CAL-4061",
+        "CAL-4062"
+      ],
+      "evidence_sha256": "a959364afb384aaedec834085099422738e4928127ad7d825066d65c460b1bfc"
+    },
+    {
+      "variant": "B",
+      "bundle": {
+        "build_id": "bge-m3-l107-20260928-004-p3v1",
+        "snapshot_id": "L107-20260928-004",
+        "artifact_hash": "53a5642f7dae4cf317f43a439451da0369e23c3401c12a4ed5b102b0882d28e9",
+        "retrieval_config_hash": "96fec00554b48abc2379d93375cc9f55694626f52a9c61fb1debd5e81e9f1adb",
+        "content_hash": "b5ec1d1f735a8727ca67e96076ba62c7c1da4830423b122b1ad080a0ae53d9a1",
+        "doc_count": 3382,
+        "id_reconciled": true,
+        "store_type": "MILVUS",
+        "embedding_model": "BAAI/bge-m3",
+        "reranker_model": "BAAI/bge-reranker-v2-m3",
+        "doc_template_version": "tpl1"
+      },
+      "conditions": 1880,
+      "recalled": 1868,
+      "atomic_micro_recall": 0.9936170212765958,
+      "all_conditions_covered": 1284,
+      "failures": [
+        "CAL-1034",
+        "CAL-1131",
+        "CAL-1354",
+        "CAL-3100",
+        "CAL-3101",
+        "CAL-3102",
+        "CAL-3391",
+        "CAL-3392",
+        "CAL-3393",
+        "CAL-4060",
+        "CAL-4061",
+        "CAL-4062"
+      ],
+      "evidence_sha256": "a959364afb384aaedec834085099422738e4928127ad7d825066d65c460b1bfc"
+    },
+    {
+      "variant": "C",
+      "bundle": {
+        "build_id": "bge-m3-l107-20260919-002-p3c",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "9f6fe5f3f42a02210ccf75f0c31da65bf185b309a7e1a2beb6fd2bed0c11d3fb",
+        "retrieval_config_hash": "fd72e8f6229290fec69f2b21c431f14d819e88fee8313bc5fcc58fc92876b5b4",
+        "content_hash": "de5f8af51fd4baca3377c0d477187fefed3efadead7c6b5e3991387deba05ade",
+        "doc_count": 3374,
+        "id_reconciled": true,
+        "store_type": "MILVUS",
+        "embedding_model": "BAAI/bge-m3",
+        "reranker_model": "BAAI/bge-reranker-v2-m3",
+        "doc_template_version": "tpl1"
+      },
+      "conditions": 1880,
+      "recalled": 1880,
+      "atomic_micro_recall": 1.0,
+      "all_conditions_covered": 1296,
+      "failures": [],
+      "evidence_sha256": "0f7200fb7d14984b207655bda17aee057106ca1de7d1cd9881ae4aec6f1fd2ed"
+    },
+    {
+      "variant": "D",
+      "bundle": {
+        "build_id": "bge-m3-l107-20260928-004-p3d",
+        "snapshot_id": "L107-20260928-004",
+        "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46",
+        "retrieval_config_hash": "fd72e8f6229290fec69f2b21c431f14d819e88fee8313bc5fcc58fc92876b5b4",
+        "content_hash": "b5ec1d1f735a8727ca67e96076ba62c7c1da4830423b122b1ad080a0ae53d9a1",
+        "doc_count": 3382,
+        "id_reconciled": true,
+        "store_type": "MILVUS",
+        "embedding_model": "BAAI/bge-m3",
+        "reranker_model": "BAAI/bge-reranker-v2-m3",
+        "doc_template_version": "tpl1"
+      },
+      "conditions": 1880,
+      "recalled": 1880,
+      "atomic_micro_recall": 1.0,
+      "all_conditions_covered": 1296,
+      "failures": [],
+      "evidence_sha256": "0f7200fb7d14984b207655bda17aee057106ca1de7d1cd9881ae4aec6f1fd2ed"
+    }
+  ],
+  "findings": {
+    "pure_data_A_to_B_gain": 0,
+    "NFKC_A_to_C_restored_conditions": 12,
+    "NFKC_B_to_D_restored_conditions": 12,
+    "new_data_at_NFKC_C_to_D_gain": 0,
+    "limitations": "L1只证明召回；数据修订的口径/码值意义需要L2/L3。此对照不能证明重排预算收益。P2旧atomic指标为case macro，P3另按1880条件计算micro，不改旧报告。"
+  }
+}

@@ -113,6 +113,42 @@ PILOT_FIELD_CONCEPTS: dict[str, dict[str, Any]] = {
     },
 }
 
+# 最高/最低属于同一指标概念的不同统计口径，概念名不得偏向其中一个成员。
+REVIEWED_CONCEPT_OVERRIDES: dict[str, dict[str, str]] = {
+    field: {
+        "code": "工薪贷提款利率",
+        "name": "工薪贷提款利率",
+        "definition": "历史工薪贷提款利率；最高值和最低值由标签统计口径区分",
+    }
+    for field in ("HIST_PAY_LOAN_MAX_RATE", "HIST_PAY_LOAN_MIN_RATE")
+}
+
+# 共享概念同时容纳期间累计值和单笔最高值；具体统计口径仍由标签族区分。
+TRANSFER_IN_CONCEPT_OVERRIDES: dict[str, dict[str, str]] = {
+    field: {
+        "code": code,
+        "name": code,
+        "definition": f"{code}；期间累计金额与单笔最高金额由标签统计口径区分",
+    }
+    for code, fields in {
+        "同名跨行转入金额": (
+            "CUR_YEAR_SAME_NAME_INTERBANK_TRANSFER_IN_MAX_AMT",
+            "CUR_YEAR_SAME_NAME_INTERBANK_TRANSFER_IN_AMT",
+            "CUR_MONTH_SAME_NAME_INTERBANK_TRANSFER_IN_MAX_AMT",
+            "LAST_7_DAYS_SAME_NAME_INTERBANK_TRANSFER_IN_MAX_AMT",
+            "CUR_MONTH_SAME_NAME_INTERBANK_TRANSFER_IN_AMT",
+            "LAST_7_DAYS_SAME_NAME_INTERBANK_TRANSFER_IN_AMT",
+        ),
+        "异名跨行转入金额": (
+            "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_MAX_AMT",
+            "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT",
+            "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_MAX_AMT",
+            "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT",
+        ),
+    }.items()
+    for field in fields
+}
+
 # 试点书面确认（方案推荐默认值，记入复核包；不是规则自动推断）
 PILOT_CONFIRMATIONS: dict[str, Any] = {
     "amount_unit": "CNY",
@@ -167,6 +203,10 @@ def resolve_concept(tag: dict[str, Any]) -> Optional[dict[str, Any]]:
     if tag.get("semantic_type") == "ID_KEY" or tag.get("business_candidate") is False:
         return None
     field = str(tag.get("field_name") or "")
+    if field in REVIEWED_CONCEPT_OVERRIDES:
+        return dict(REVIEWED_CONCEPT_OVERRIDES[field])
+    if field in TRANSFER_IN_CONCEPT_OVERRIDES:
+        return dict(TRANSFER_IN_CONCEPT_OVERRIDES[field])
     if field in PILOT_FIELD_CONCEPTS:
         return dict(PILOT_FIELD_CONCEPTS[field])
     candidate = str(tag.get("concept_candidate") or tag.get("name") or "UNNAMED")

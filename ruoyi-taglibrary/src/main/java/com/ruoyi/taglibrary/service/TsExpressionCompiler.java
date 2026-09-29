@@ -25,7 +25,7 @@ public class TsExpressionCompiler {
     @Autowired private TlObjectGroupExtMapper ext;
     @Autowired private DpOnlineVersionResolver versions;
     private static final List<String> TIME=Arrays.asList("calendar_mode","time_anchor_type","time_window_unit","time_window_value",
-        "time_anchor_label","time_offset_years","time_offset_months","period_edge");
+        "time_anchor_label","time_offset_years","time_offset_months","month_of_year","period_edge");
     public static class Result {
         public ObjectNode node;
         public String unit, grain;
