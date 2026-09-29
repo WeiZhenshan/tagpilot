@@ -129,6 +129,11 @@ class RuleSqlBuilderTest {
         assertTrue(sql.endsWith("limit 100"), sql);
     }
     @Test
+    void 洞察子查询只输出完整唯一客户键而不带预览字段或上限() {
+        mockVersion();RulePayload rule=importRule(BATCH);String sql=builder.buildSql(VERSION_ID,rule,IRuleSqlBuilder.MODE_IDS);
+        assertTrue(sql.startsWith("select distinct `cust_no` from `wide_tbl`"),sql);assertTrue(!sql.contains("limit"),sql);assertTrue(sql.contains("where"),sql);
+    }
+    @Test
     void V3严格比较不退化为闭区间且旧规则保持原语义() {
         mockVersion();
         RulePayload rule=importRule(BATCH);

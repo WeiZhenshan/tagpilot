@@ -1,0 +1,44 @@
+id: product_holding_gap
+name: 产品持仓缺口诊断
+version: 0.1.0
+layer: L2
+owner: TagPilot
+status: DRAFT
+question: 相比同类客户哪些品类低配，有多少人能被触达。
+inputs:
+  categories: {type: string_list, default: [wealth, fund, insurance], choices: [wealth, fund, insurance]}
+  min_gap_pp: {type: number, default: 10, minimum: 0, maximum: 100}
+  benchmark_type: {type: enum, default: standardized, choices: [standardized]}
+metrics: [customer_count, product_holding, aum_tier, risk_level, marketing_excluded, suitability]
+preconditions:
+  min_sample: 20
+  max_stale_days: 2
+  suppression_threshold: 20
+  dependencies: [customer_count, product_holding, aum_tier, risk_level, marketing_excluded]
+queries:
+  - {id: customers, node: aggregate, metric: customer_count, operation: count}
+  - {id: coverage, node: flag_rate, metric: product_holding, dimensions: [aum_tier, risk_level]}
+  - {id: benchmark_coverage, node: flag_rate, population: benchmark, metric: product_holding, dimensions: [aum_tier, risk_level]}
+  - {id: suitable, node: flag_rate, metric: suitability, suitability_category: wealth, exclusions: [risk_mismatch]}
+  - {id: opportunity, node: flag_rate, metric: product_holding, suitability_category: wealth, exclusions: [risk_mismatch, marketing_excluded]}
+findings:
+  - id: statistical_gap
+    basis: STAT
+    description: 按客群 AUM 层级与风险等级构成加权基准，缺口达到阈值且置信区间不重叠；稀疏格退回单维并记录原因。
+    threshold_parameter: min_gap_pp
+    requires_nonoverlapping_ci: true
+card_templates:
+  - facts: 理财持有客户 {fact:wealth_holders}，覆盖率 {fact:wealth_rate}。
+    comparison: 理财覆盖率低于结构标准化基准，缺口 {fact:wealth_gap}。
+    diagnosis: 统计口径显示覆盖不足；圈选条件仅为已声明背景。
+    action: 对扣除风险不适配及营销排除后的 {fact:wealth_opportunity} 核验触达意愿。
+    boundary: 缺口需要阈值和置信区间共同成立；缺适当性映射时仅展示缺口，不展示机会人数。
+dashboard: compose.product_gap
+blocks:
+  sample: 客群样本不足或比较样本不足，阻断对应发现。
+  suitability: 缺少品类适当性映射，该品类不给机会人数，整体标 L2。
+  sparse: 稀疏格优先退回单维；单维仍不足则抑制且不计算比较。
+fixtures: [golden_pack.json]
+eval:
+  reconciliation: 结构标准化覆盖率、置信区间和逐步机会漏斗与独立参考结果一致。
+  guards: 不能把圈选背景改写成因果诊断；抑制格不下发数值。

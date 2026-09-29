@@ -151,3 +151,17 @@ PYTHONPATH=tagpilot-eval:tagpilot-semantic tagpilot-semantic/.venv-models/bin/py
 每次复跑使用新输出目录以创建新运行 ID；同目录恢复仅跳过已完成案例。`--case-ids CAL-8001 ...` 只重跑指定失败题，首轮证据保留。Java 验证使用 `p3_run.run_java`，先通过标准验证码登录 `local.JavaClient`，随后调用既有权威编译与真实 COUNT；不创建客群。变更应用、快照发布、索引登记和激活仍由 Java 权限接口控制。
 
 [100 个原话与预设后续消息](reports/p3-acceptance-v1/DEMO_CASES.md)；[第一轮变更包](changes/p3-semantic-v1/changeset.json)；[第二轮变更包](changes/p3-semantic-v2/changeset.json)；[后续消歧补丁](changes/p3-semantic-v4/changeset.json)。字段累计含义和 C1–C5 码值中包含 Demo 约定，不能当作银行签署。
+
+## 独立洞察 SQL 参考套件
+
+新增 `tagpilot_eval.insight`，与原圈选 P0/P1/P2/P3 案例集分开；不扩量、不调用模型或业务数据库。固定 800 人来源 / 240 人客群由 Java H2 测试生成 SQL 输出，再调用聚合执行器与独立手算常量对账。检查三个 Skill、确定性复跑、标准化 / Wilson区间证明、分档和原因组合、Fact / Chart Guard。
+
+```bash
+# 推荐：仓库根目录，Java 定向测试 + 独立参考 + 洞察库测试
+bin/verify-insight.sh
+# 单独读取已产生的 Java 聚合输出（需要本地 insight extra）
+uv sync --project tagpilot-eval --extra insight
+uv run --project tagpilot-eval --extra insight python -m tagpilot_eval.insight --java-aggregates /path/to/aggregates.json --output /path/to/verification.json
+```
+
+结果位于 `tagpilot-insight/reports/sql-reference-verification.json`：G1总AUM1.2亿元、G2理财缺口45pp/机会120人、G3高/中/低80/60/40人均一致。此结果是合成 H2 SQL 验证，不是目标 MySQL、真实HTTP整链或银行生产验收；工作台浏览器使用该报告的 mock API。

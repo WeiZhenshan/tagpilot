@@ -124,7 +124,8 @@ export type Thread = {
   error?: string;
   outcome?: { outcome: string; gaps: { requirement_id: string; reason: string; nearest_tag_ids: number[] }[]; stats?: Record<string, unknown> };
   confirmed_clause_ids?: string[];
-  capabilities: { count: boolean; create: boolean; update?: boolean; preview: boolean };
+  insight_report?: import("./insight/types").InsightReport;
+  capabilities: { insight?: boolean; count: boolean; create: boolean; update?: boolean; preview: boolean };
   source_group_id?: number;
   source_group_name?: string;
   source_thread_reused?: boolean;

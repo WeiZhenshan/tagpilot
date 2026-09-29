@@ -1,0 +1,148 @@
+id: asset_structure_profile
+name: 客群资产结构透视
+version: 0.1.0
+layer: L1
+owner: TagPilot
+status: DRAFT
+question: 这群客户有多大、多富、钱放在哪。
+inputs:
+  benchmark_type:
+    type: enum
+    default: same_aum
+    choices:
+    - same_aum
+    - all_customers
+    - same_org
+  min_deviation_pp:
+    type: number
+    default: 10
+    minimum: 0
+    maximum: 100
+metrics:
+- customer_count
+- aum
+- aum_tier
+- liquid_aum
+- fixed_aum
+- investment_aum
+- liquid_share
+- asset_holder
+- aum_missing
+preconditions:
+  min_sample: 20
+  max_stale_days: 2
+  suppression_threshold: 20
+  dependencies:
+  - customer_count
+  - aum
+  - aum_tier
+  - liquid_aum
+  - fixed_aum
+  - investment_aum
+queries:
+- id: customers
+  node: aggregate
+  metric: customer_count
+  operation: count
+- id: total_aum
+  node: aggregate
+  metric: aum
+  operation: sum
+- id: average_aum
+  node: aggregate
+  metric: aum
+  operation: avg
+- id: median_aum
+  node: aggregate
+  metric: aum
+  operation: median
+- id: aum_bands
+  node: band
+  metric: aum
+  cuts:
+  - 300000
+  - 1000000
+- id: liquid
+  node: aggregate
+  metric: liquid_aum
+  operation: sum
+- id: fixed
+  node: aggregate
+  metric: fixed_aum
+  operation: sum
+- id: investment
+  node: aggregate
+  metric: investment_aum
+  operation: sum
+- id: benchmark_assets
+  node: aggregate
+  population: benchmark
+  metric: aum
+  operation: sum
+  dimensions:
+  - aum_tier
+- id: holders
+  node: flag_rate
+  metric: asset_holder
+- id: missing
+  node: flag_rate
+  metric: aum_missing
+- id: high_liquid
+  node: flag_rate
+  metric: liquid_share
+  exclusions:
+  - missing_aum
+- id: benchmark_liquid
+  node: aggregate
+  population: benchmark
+  metric: liquid_aum
+  operation: sum
+- id: benchmark_fixed
+  node: aggregate
+  population: benchmark
+  metric: fixed_aum
+  operation: sum
+- id: benchmark_investment
+  node: aggregate
+  population: benchmark
+  metric: investment_aum
+  operation: sum
+- id: benchmark_count
+  node: aggregate
+  population: benchmark
+  metric: customer_count
+  operation: count
+- id: benchmark_bands
+  node: band
+  population: benchmark
+  metric: aum
+  cuts:
+  - 300000
+  - 1000000
+findings:
+- id: scale
+  basis: RULE
+  description: 总额、均值和中位数描述规模，不推断因果。
+- id: composition_deviation
+  basis: RULE
+  description: 金额加权资产占比与基准差达到阈值且两侧样本充足。
+  threshold_parameter: min_deviation_pp
+- id: quality
+  basis: RULE
+  description: AUM 缺失率超过百分之五时提示数据质量。
+card_templates:
+- facts: 客群 {fact:customers}，总资产 {fact:total_aum}。
+  comparison: 流动资产占比高于同层级基准 {fact:liquid_gap}。
+  diagnosis: 规则提示配置结构存在偏离，需进一步核验产品持仓。
+  action: 对 {fact:high_liquid} 进入产品持仓缺口诊断。
+  boundary: 金额占比与持有客户占比口径不同；本结果不构成产品推荐。
+dashboard: compose.audience_overview
+blocks:
+  sample: 客群样本不足，阻断并不出数。
+  permission: 依赖标签无权限，阻断并不出数。
+  stale: 数据超过时效，阻断并不出数。
+fixtures:
+- golden_pack.json
+eval:
+  reconciliation: 金额合计、客户数合计及金额占比必须完整对账。
+  guards: 数字、基准、时效、小样本与版本拒绝用例全部通过。

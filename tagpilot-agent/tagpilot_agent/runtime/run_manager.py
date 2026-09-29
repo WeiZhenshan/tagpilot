@@ -46,6 +46,9 @@ class RunManager:
         await asyncio.gather(*list(self.tasks.values()),return_exceptions=True)
 
     async def execute(self,rid,request):
+        if request.get("profile") == "insight":
+            from tagpilot_agent.api.insight import execute_insight
+            return await execute_insight(self,rid,request)
         owner=request['owner_id'];admitted=False
         ctx=RunContext(request,self.retriever_for(request['library_id'],request['build_id']),
                        lambda e:self.store.emit(rid,e),lambda:self.store.get(rid,owner)['status']=='CANCELLED')

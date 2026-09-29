@@ -1,0 +1,784 @@
+{
+  "$defs": {
+    "AggregateQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "aggregate",
+          "title": "Node",
+          "type": "string"
+        },
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "count",
+            "sum",
+            "avg",
+            "median",
+            "percentile"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "percentile": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Percentile"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "metric",
+        "operation"
+      ],
+      "title": "AggregateQuery",
+      "type": "object"
+    },
+    "BandQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "band",
+          "title": "Node",
+          "type": "string"
+        },
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "cuts": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Cuts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "metric",
+        "cuts"
+      ],
+      "title": "BandQuery",
+      "type": "object"
+    },
+    "CardTemplate": {
+      "additionalProperties": false,
+      "properties": {
+        "facts": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Facts",
+          "type": "string"
+        },
+        "comparison": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Comparison",
+          "type": "string"
+        },
+        "diagnosis": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Diagnosis",
+          "type": "string"
+        },
+        "action": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Action",
+          "type": "string"
+        },
+        "boundary": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Boundary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "facts",
+        "comparison",
+        "diagnosis",
+        "action",
+        "boundary"
+      ],
+      "title": "CardTemplate",
+      "type": "object"
+    },
+    "FindingRule": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "basis": {
+          "enum": [
+            "RULE",
+            "STAT",
+            "HYPOTHESIS"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "min_comparison_sample": {
+          "default": 30,
+          "minimum": 30,
+          "title": "Min Comparison Sample",
+          "type": "integer"
+        },
+        "threshold_parameter": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold Parameter"
+        },
+        "requires_nonoverlapping_ci": {
+          "default": false,
+          "title": "Requires Nonoverlapping Ci",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "basis",
+        "description"
+      ],
+      "title": "FindingRule",
+      "type": "object"
+    },
+    "FlagRateQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "flag_rate",
+          "title": "Node",
+          "type": "string"
+        },
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "exclusions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "suitability_category": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Suitability Category"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "metric"
+      ],
+      "title": "FlagRateQuery",
+      "type": "object"
+    },
+    "InputSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "integer",
+            "number",
+            "enum",
+            "string_list"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Default"
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum"
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum"
+        },
+        "choices": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Choices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "default"
+      ],
+      "title": "InputSpec",
+      "type": "object"
+    },
+    "Preconditions": {
+      "additionalProperties": false,
+      "properties": {
+        "min_sample": {
+          "default": 20,
+          "minimum": 20,
+          "title": "Min Sample",
+          "type": "integer"
+        },
+        "max_stale_days": {
+          "default": 2,
+          "maximum": 30,
+          "minimum": 0,
+          "title": "Max Stale Days",
+          "type": "integer"
+        },
+        "suppression_threshold": {
+          "default": 20,
+          "minimum": 20,
+          "title": "Suppression Threshold",
+          "type": "integer"
+        },
+        "dependencies": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "title": "Dependencies",
+          "type": "array"
+        }
+      },
+      "required": [
+        "dependencies"
+      ],
+      "title": "Preconditions",
+      "type": "object"
+    },
+    "ScoreBand": {
+      "additionalProperties": false,
+      "properties": {
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Upper"
+        },
+        "points": {
+          "maximum": 100,
+          "minimum": -100,
+          "title": "Points",
+          "type": "number"
+        }
+      },
+      "required": [
+        "upper",
+        "points"
+      ],
+      "title": "ScoreBand",
+      "type": "object"
+    },
+    "ScoreComponent": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "weight": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Weight",
+          "type": "number"
+        },
+        "bands": {
+          "items": {
+            "$ref": "#/$defs/ScoreBand"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Bands",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metric",
+        "weight",
+        "bands"
+      ],
+      "title": "ScoreComponent",
+      "type": "object"
+    },
+    "ScoreQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "score",
+          "title": "Node",
+          "type": "string"
+        },
+        "profile": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Profile",
+          "type": "string"
+        },
+        "assumption": {
+          "const": true,
+          "title": "Assumption",
+          "type": "boolean"
+        },
+        "exclusions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 4,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/ScoreComponent"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Components",
+          "type": "array"
+        },
+        "tier_cuts": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Tier Cuts",
+          "type": "array"
+        },
+        "reason_top_k": {
+          "const": 2,
+          "default": 2,
+          "title": "Reason Top K",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "profile",
+        "assumption",
+        "exclusions",
+        "components",
+        "tier_cuts"
+      ],
+      "title": "ScoreQuery",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "layer": {
+      "enum": [
+        "L1",
+        "L2",
+        "L3"
+      ],
+      "title": "Layer",
+      "type": "string"
+    },
+    "owner": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Owner",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "REVIEWED",
+        "PUBLISHED",
+        "RETIRED"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "question": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "applicable_objects": {
+      "items": {
+        "const": "personal_customer_audience",
+        "type": "string"
+      },
+      "title": "Applicable Objects",
+      "type": "array"
+    },
+    "scenarios": {
+      "items": {
+        "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+        "type": "string"
+      },
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "required_permissions": {
+      "items": {
+        "maxLength": 500,
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Required Permissions",
+      "type": "array"
+    },
+    "executor": {
+      "const": "java_aggregate_python_compose",
+      "default": "java_aggregate_python_compose",
+      "title": "Executor",
+      "type": "string"
+    },
+    "output_schema": {
+      "const": "InsightReportV1",
+      "default": "InsightReportV1",
+      "title": "Output Schema",
+      "type": "string"
+    },
+    "validators": {
+      "items": {
+        "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+        "type": "string"
+      },
+      "title": "Validators",
+      "type": "array"
+    },
+    "inputs": {
+      "patternProperties": {
+        "^[a-z][a-z0-9_.-]{0,79}$": {
+          "$ref": "#/$defs/InputSpec"
+        }
+      },
+      "title": "Inputs",
+      "type": "object"
+    },
+    "metrics": {
+      "items": {
+        "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+        "type": "string"
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Metrics",
+      "type": "array"
+    },
+    "preconditions": {
+      "$ref": "#/$defs/Preconditions"
+    },
+    "queries": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "aggregate": "#/$defs/AggregateQuery",
+            "band": "#/$defs/BandQuery",
+            "flag_rate": "#/$defs/FlagRateQuery",
+            "score": "#/$defs/ScoreQuery"
+          },
+          "propertyName": "node"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/AggregateQuery"
+          },
+          {
+            "$ref": "#/$defs/BandQuery"
+          },
+          {
+            "$ref": "#/$defs/FlagRateQuery"
+          },
+          {
+            "$ref": "#/$defs/ScoreQuery"
+          }
+        ]
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Queries",
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/FindingRule"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Findings",
+      "type": "array"
+    },
+    "card_templates": {
+      "items": {
+        "$ref": "#/$defs/CardTemplate"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Card Templates",
+      "type": "array"
+    },
+    "dashboard": {
+      "enum": [
+        "compose.audience_overview",
+        "compose.product_gap",
+        "compose.opportunity_board"
+      ],
+      "title": "Dashboard",
+      "type": "string"
+    },
+    "blocks": {
+      "patternProperties": {
+        "^[a-z][a-z0-9_.-]{0,79}$": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "title": "Blocks",
+      "type": "object"
+    },
+    "fixtures": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Fixtures",
+      "type": "array"
+    },
+    "eval": {
+      "patternProperties": {
+        "^[a-z][a-z0-9_.-]{0,79}$": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "title": "Eval",
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "version",
+    "layer",
+    "owner",
+    "status",
+    "question",
+    "inputs",
+    "metrics",
+    "preconditions",
+    "queries",
+    "findings",
+    "card_templates",
+    "dashboard",
+    "blocks",
+    "fixtures",
+    "eval"
+  ],
+  "title": "Manifest",
+  "type": "object"
+}

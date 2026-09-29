@@ -51,6 +51,8 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
 
     @Override
     public String buildSql(Long versionId, RulePayload rule, String mode) {
+        if (!java.util.Arrays.asList(MODE_COUNT, MODE_SELECT, IRuleSqlBuilder.MODE_IDS).contains(mode))
+            throw new ServiceException("规则查询模式非法");
         if (rule.getSchemaVersion()!=null && rule.getSchemaVersion()>=4 && !rule.isAuthorityValidated())
             throw new ServiceException("发布方案须先经服务端核验");
         if (versionId == null) {
@@ -62,7 +64,9 @@ public class RuleSqlBuilder implements IRuleSqlBuilder {
         }
 
         StringBuilder sql = new StringBuilder();
-        if (MODE_SELECT.equals(mode)) {
+        if (IRuleSqlBuilder.MODE_IDS.equals(mode)) {
+            sql.append("select distinct ").append(backtick(resolveObjectKeyColumn(versionId, rule)));
+        } else if (MODE_SELECT.equals(mode)) {
             String objectKeyCol = resolveObjectKeyColumn(versionId, rule);
             List<String> selectCols = new ArrayList<>();
             selectCols.add(backtick(objectKeyCol));

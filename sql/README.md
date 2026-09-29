@@ -46,6 +46,8 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 
 | `V20260921_03__agent_workbench_v2.sql` | 用户会话密文与按方案版本的幂等执行记录 | **是**（CI Deploy） | 否 | 按文件名排序 | 现有若依用户、标签库与对象群模块 | taglibrary | 全部 | 自研迁移器 | 无历史数据覆盖；运行和检查点另存 Python 加密 SQLite |
 
+| `V20260929_02__insight_skill_registry.sql` | 洞察不可变版本、加密运行审计、反馈三表及五项权限 / 管理菜单 | **是**（CI Deploy） | 否 | 按文件名排序 | 现有标签库 / 用户与工作台模块 | taglibrary | 全部 | 自研迁移器 | 本批仅新增脚本，未应用；不自动分配业务角色 |
+
 **新增迁移脚本规范**：命名 `V<yyyymmdd>_<序号>__<描述>.sql`；幂等、只向前、不得包含 `drop table`。已应用的迁移文件**内容不可再修改**（因此其中标注的"来源"路径保留移动前的历史写法，实际文件见 `sql/archive/`）。
 
 ## 3. 种子 / 测试数据（`sql/seed/`）

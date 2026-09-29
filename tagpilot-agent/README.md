@@ -64,3 +64,24 @@ SQLite 仍限定单个服务进程，文件锁阻止多进程共用。运行中�
 同一需求先选业务指标，再询问该指标对应的码值阈值；旧并列题在 UI 和提交端使用相同顺序。`clarification_state` 保存最近 20 组结构化问题和回答，跨新运行、降级和历史截断继续使用；Java 提供 `continuation_of`，Python 只在同一所有者和会话内恢复旧版记录。旧并列题的混合回答重新请求确认，不作为冻结条件的修改授权。
 
 本地金标冒烟与后续完整验证（测试、600 封存 A/B、61×3 真模型评测、容量压测、Java 人数对齐、缺陷清单）结果见 [SDK 重构实施记录](../docs/development/Agent-SDK重构实施记录.md)。生产观察尚未执行。
+
+## 洞察画像（P0–P7 本地实现）
+
+通过本地依赖 `tagpilot-insight` 增加独立 `profile=insight`，不进入圈选 SDK 的工具循环。Java 注入已发布 hash、客群、声明式计划与经隐私处理的聚合；Python 不回调 Java 或接收客户明细。复用现有并发 / 用户限额、排队、取消、事件和加密 SQLite；insight 运行不得 resume / repair，快照变化后新建运行。
+
+| 方法 | 内部路径 | 用途 |
+| --- | --- | --- |
+| GET | `/agent/insight/catalog` | 三个代码包 / hash、指标语义与基准定义 |
+| POST | `/agent/insight/plan` | 绑定 / 参数 / 发布 hash 校验，返回声明式计划 |
+| POST | `/agent/insight/runs` | 聚合计算 / Guard；用现有 `/agent/v2/runs/{id}` 获取结果和取消 |
+| POST | `/agent/insight/route`、`/edit` | 一次受控 JSON 候选；默认确定性回退，数据 / 口径变化要求确认 |
+| POST | `/agent/insight/evaluate`、`/trial` | 固定合成门禁与沙盒；不证明真实绑定，不发布 |
+
+全部接口使用既有服务令牌。路由 / 改图要求 Java 注入 owner，计入同一准入，满额直接回退。洞察 worker 最多60秒；一次模型候选最多20秒。`TAG_INSIGHT_LLM_ENABLED` 默认为 `false`，设为 `true` 才使用当前 `ANTHROPIC_BASE_URL / MODEL / API_KEY` 做一次无工具 JSON 请求，候选未通过 Guard 时回退模板并保留数值。实际提供方质量与容量未验收。
+
+```bash
+# 从 tagpilot-agent 目录执行，全部使用本地材料
+.venv/bin/python -m pytest -q tests/test_insight_api.py tests/test_workbench.py
+```
+
+8项定向测试通过：服务认证、owner隔离、幂等与密文、洞察计算及恢复阻断、共享满额不调用模型、超时释放并发名额。部署前需同步本地依赖、应用Java迁移、业务复核绑定并通过真实MySQL/HTTP整链验证。详见 [洞察实施记录](../docs/development/洞察Skill体系实施记录.md)。

@@ -9,6 +9,8 @@ public interface IRuleSqlBuilder {
 
     String MODE_COUNT = "COUNT";
     String MODE_SELECT = "SELECT";
+    /** 仅供服务端洞察聚合子查询使用：完整客户键，不含样例列或 LIMIT。 */
+    String MODE_IDS = "IDS";
 
     /**
      * 生成查询 SQL

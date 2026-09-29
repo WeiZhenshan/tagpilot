@@ -430,6 +430,9 @@ dev = [
     { name = "jsonschema" },
     { name = "pytest" },
 ]
+insight = [
+    { name = "tagpilot-insight" },
+]
 live = [
     { name = "pyyaml" },
 ]
@@ -440,8 +443,26 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.10,<3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
     { name = "pyyaml", marker = "extra == 'live'", specifier = ">=6,<7" },
+    { name = "tagpilot-insight", marker = "extra == 'insight'", editable = "../tagpilot-insight" },
 ]
-provides-extras = ["dev", "live"]
+provides-extras = ["dev", "live", "insight"]
+
+[[package]]
+name = "tagpilot-insight"
+version = "0.1.0"
+source = { editable = "../tagpilot-insight" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pydantic", specifier = ">=2.10,<3" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
+    { name = "pyyaml", specifier = ">=6.0.3,<7" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "typing-extensions"

@@ -1,0 +1,129 @@
+id: opportunity_priority
+name: 营销机会优先级排序
+version: 0.1.0
+layer: L3
+owner: TagPilot
+status: DRAFT
+question: 先触达谁，走什么渠道，为什么。
+inputs:
+  profile:
+    type: enum
+    default: default_v1
+    choices:
+    - default_v1
+  recent_contact_days:
+    type: integer
+    default: 7
+    minimum: 1
+    maximum: 90
+metrics:
+- customer_count
+- value_score
+- demand_event
+- product_gap
+- historical_response
+- channel_reach
+- disturbance_penalty
+- channel
+- risk_mismatch
+- do_not_disturb
+- recent_contact
+- no_channel
+preconditions:
+  min_sample: 20
+  max_stale_days: 2
+  suppression_threshold: 20
+  dependencies:
+  - customer_count
+  - value_score
+  - demand_event
+  - product_gap
+  - historical_response
+  - channel_reach
+  - disturbance_penalty
+  - risk_mismatch
+  - do_not_disturb
+  - recent_contact
+  - no_channel
+queries:
+- id: customers
+  node: aggregate
+  metric: customer_count
+  operation: count
+- id: priority
+  node: score
+  profile: default_v1
+  assumption: true
+  exclusions:
+  - risk_mismatch
+  - do_not_disturb
+  - recent_contact
+  - no_channel
+  tier_cuts:
+  - 40
+  - 70
+  reason_top_k: 2
+  components:
+  - metric: value_score
+    weight: 1
+    bands:
+    - upper: 300000
+      points: 5
+    - upper: 1000000
+      points: 15
+    - upper: null
+      points: 25
+  - metric: demand_event
+    weight: 1
+    bands:
+    - upper: 1
+      points: 0
+    - upper: null
+      points: 20
+  - metric: product_gap
+    weight: 1
+    bands:
+    - upper: 10
+      points: 0
+    - upper: null
+      points: 20
+  - metric: historical_response
+    weight: 1
+    bands:
+    - upper: 1
+      points: 0
+    - upper: null
+      points: 15
+  - metric: channel_reach
+    weight: 1
+    bands:
+    - upper: 1
+      points: 0
+    - upper: null
+      points: 10
+  - metric: disturbance_penalty
+    weight: 1
+    bands:
+    - upper: 1
+      points: 0
+    - upper: null
+      points: -20
+findings:
+- id: priority
+  basis: HYPOTHESIS
+  description: 先硬排除后规则评分；贡献最大的两个分项作为原因码，权重未经响应数据校准。
+card_templates:
+- facts: 可营销客户 {fact:marketable}，高优先级客户 {fact:high}。
+  comparison: 各档按同一规则画像分档，本次不进行响应效果比较。
+  diagnosis: 假设：价值与产品缺口共同构成优先级信号。
+  action: 优先对 {fact:high} 按已核验渠道人工触达。
+  boundary: 权重是规则假设，未经响应数据校准；仅供排序参考，不做任务下发。
+dashboard: compose.opportunity_board
+blocks:
+  dependency: 缺少 G2 结果时由 Java 编排先运行 G2；不得编造产品缺口。
+  governance: 适当性与评分画像未经业务复核时仅限合成演示。
+fixtures:
+- golden_pack.json
+eval:
+  reconciliation: 排除原因、可营销总数、分档人数及贡献与独立手算结果一致。
+  guards: 不下发客户明细，不允许模型修改评分权重或排除规则。

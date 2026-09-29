@@ -92,6 +92,9 @@ export function AgentConversation({
   disabled,
   pending,
   contextControl,
+  skillChips,
+  skillRunDisabled = false,
+  insightSummary,
   composerRequest,
   contextTags = [],
   onRemoveContextTag,
@@ -106,6 +109,9 @@ export function AgentConversation({
   disabled: boolean;
   pending: boolean;
   contextControl?: ReactNode;
+  skillChips?: ReactNode;
+  skillRunDisabled?: boolean;
+  insightSummary?: ReactNode;
   composerRequest?: { text: string; id: number; focusOnly?: boolean };
   contextTags?: ContextTag[];
   onRemoveContextTag?: (id: number) => void;
@@ -188,6 +194,7 @@ export function AgentConversation({
                 </MessagePrimitive.Root>
               )}
             </ThreadPrimitive.Messages>
+            {insightSummary}
             {thread?.run_history?.map((r, i) => (
               <RunTimeline key={r.run_id} runId={r.run_id} events={r.events} running={false} label={`第 ${i + 1} 轮处理记录`} onReveal={onReveal} />
             ))}
@@ -229,6 +236,7 @@ export function AgentConversation({
         </div>
         <div className="composer-wrap">
           <ComposerPrimitive.Root className="composer">
+            {skillChips}
             {contextTags.length ? <div className="composer-tags"><TagChips tags={contextTags} onRemove={onRemoveContextTag} /></div> : null}
             <ComposerPrimitive.Input
               ref={composerInput}
@@ -259,8 +267,8 @@ export function AgentConversation({
                 <button type="button" className="send-button" disabled={pending} onClick={onCancel}>
                   停止处理
                 </button>
-              ) : contextTags.length ? (
-                <button className="send-button" type="button" aria-label="发送需求" disabled={disabled || pending} onClick={() => {
+              ) : contextTags.length || skillChips ? (
+                <button className="send-button" type="button" aria-label="发送需求" disabled={disabled || pending || (!!skillChips && skillRunDisabled)} onClick={() => {
                   const text = runtime.thread.composer.getState().text;
                   void onSend(text).then((sent) => { if (sent) runtime.thread.composer.setText(""); });
                 }}>发送</button>

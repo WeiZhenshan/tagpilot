@@ -1,0 +1,136 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "definition": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Definition",
+      "type": "string"
+    },
+    "calculation": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Calculation",
+      "type": "string"
+    },
+    "unit": {
+      "enum": [
+        "人",
+        "元",
+        "%",
+        "pp",
+        "分"
+      ],
+      "title": "Unit",
+      "type": "string"
+    },
+    "numerator": {
+      "anyOf": [
+        {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Numerator"
+    },
+    "denominator": {
+      "anyOf": [
+        {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Denominator"
+    },
+    "dimensions": {
+      "items": {
+        "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+        "type": "string"
+      },
+      "maxItems": 2,
+      "title": "Dimensions",
+      "type": "array"
+    },
+    "time_grain": {
+      "const": "day",
+      "default": "day",
+      "title": "Time Grain",
+      "type": "string"
+    },
+    "update_frequency": {
+      "default": "每日",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Update Frequency",
+      "type": "string"
+    },
+    "owner": {
+      "default": "待业务复核",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Owner",
+      "type": "string"
+    },
+    "quality_rules": {
+      "items": {
+        "maxLength": 500,
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Quality Rules",
+      "type": "array"
+    },
+    "permission": {
+      "const": "taglibrary:insight:run",
+      "default": "taglibrary:insight:run",
+      "title": "Permission",
+      "type": "string"
+    },
+    "version": {
+      "default": "0.1.0",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+        "type": "string"
+      },
+      "title": "Sources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "definition",
+    "calculation",
+    "unit",
+    "quality_rules"
+  ],
+  "title": "MetricDefinition",
+  "type": "object"
+}

@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -13,6 +15,11 @@ import {
 } from "./api";
 import * as api from "./agentApi";
 import { AgentConversation } from "./AgentConversation";
+import { InsightSummary } from "./insight/InsightSummary";
+import { SkillPicker } from "./insight/SkillPicker";
+import { GOLDEN_SKILLS, runInsight, skillNames, routeInsight, editInsight, insightFeedback, insightParameterSummary } from "./insight/insightApi";
+import "./insight/workbench-insight.css";
+const InsightReportPanel = lazy(() => import("./insight/InsightReportPanel").then((m) => ({ default: m.InsightReportPanel })));
 import { PlanPanel } from "./PlanPanel";
 import { TagTree, TagChips } from "./TagTree";
 import { MAX_CONTEXT_TAGS, selectionMessage, usedTagIds } from "./tagSelection";
@@ -54,7 +61,13 @@ export function App() {
   const [highlightedClauses, setHighlightedClauses] = useState<string[]>([]);
   useEffect(() => { setHighlightedClauses([]); }, [thread?.thread_id, thread?.run_id]);
   const [tab, setTab] = useState("chat");
-  const [railTab, setRailTab] = useState<"history" | "tags">("history");
+  const [railTab, setRailTab] = useState<"history" | "tags" | "skills">("history");
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [insightParameters,setInsightParameters] = useState<Record<string,unknown>>({});
+  const [insightNotice,setInsightNotice] = useState("");
+  const [rightTab, setRightTab] = useState<"plan" | "insight">("plan");
+  const [insightWide, setInsightWide] = useState(false);
+  useEffect(() => { setSelectedSkills([]); setInsightParameters({}); setInsightNotice(""); setRightTab("plan"); }, [library, thread?.thread_id]);
   const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
   const [contextTags, setContextTags] = useState<ContextTag[]>([]);
   const [tagConfirm, setTagConfirm] = useState(false);
@@ -316,6 +329,9 @@ export function App() {
   }
   async function send(text: string, tags: ContextTag[] = [], contextOnly = false) {
     if (!library) return false;
+    if (thread && thread.count?.revision === thread.revision && /^(请|帮我)?(分析|洞察)/.test(text)) {
+      return operation(async () => { const proposed = await routeInsight(thread,text); setSelectedSkills(proposed.skills); setInsightParameters(proposed.parameters); setInsightNotice("已添加推荐技能，请确认后发送运行。" ); });
+    }
     let sent = false;
     await operation(async () => {
       let t = current.current;
@@ -433,9 +449,23 @@ export function App() {
       }
     });
   }
+  function sameInsightSource(source: Thread) {
+    const latest = current.current;
+    return latest?.thread_id === source.thread_id && latest.revision === source.revision && latest.plan?.hash === source.plan?.hash;
+  }
+  async function analyze(ids = selectedSkills.length ? selectedSkills : GOLDEN_SKILLS) {
+    if (!thread || !thread.plan?.valid || thread.count?.revision !== thread.revision || !thread.capabilities.insight) { setError("请先完成圈选并统计人数，且需要洞察运行权限"); return false; }
+    const source = thread;
+    return operation(async () => {
+      const report = await runInsight(source, ids, insightParameters);
+      if (!sameInsightSource(source)) return;
+      update({ ...current.current!, insight_report: report }); setSelectedSkills([]); setRightTab("insight"); setTab("plan");
+    });
+  }
+  const insightReady = !!thread?.capabilities.insight && thread.count?.revision === thread.revision && !!thread.plan?.valid && !busy(thread) && !thread.archived;
   return (
     <div
-      className={`workbench mobile-${tab} ${
+      className={`workbench mobile-${tab} ${insightWide ? "insight-wide" : ""} ${
         sidebarCollapsed ? "sidebar-collapsed" : ""
       }`}
     >
@@ -503,8 +533,10 @@ export function App() {
           </button>
           <div className="rail-tabs" role="tablist" aria-label="侧栏内容">
             <button role="tab" aria-selected={railTab === "history"} aria-controls="rail-history" onClick={() => setRailTab("history")}>会话</button>
+            <button role="tab" aria-selected={railTab === "skills"} aria-controls="rail-skills" onClick={() => setRailTab("skills")}>技能</button>
             <button role="tab" aria-selected={railTab === "tags"} aria-controls="rail-tags" onClick={() => setRailTab("tags")}>标签</button>
           </div>
+          <div id="rail-skills" role="tabpanel" aria-label="技能" hidden={railTab !== "skills"} className="rail-content"><SkillPicker library={library} selected={selectedSkills} onChange={(ids) => { setSelectedSkills(ids); setInsightParameters({}); setInsightNotice(""); }} /></div>
           <div id="rail-tags" role="tabpanel" aria-label="标签" hidden={railTab !== "tags"} className="rail-content rail-tag-content">
             <TagTree libraryId={library} selected={selectedTags} used={usedTags} blockedReason={tagBlocked} onChange={setSelectedTags}
               onConfirm={() => { tagTrigger.current = document.activeElement as HTMLElement; setTagNote(""); setTagConfirm(true); }} onAdd={addTagsToComposer} />
@@ -716,7 +748,7 @@ export function App() {
               aria-selected={tab === "history"}
               onClick={() => setTab("history")}
             >
-              会话 / 标签
+              侧栏
             </button>
             <button
               role="tab"
@@ -727,11 +759,12 @@ export function App() {
             </button>
             <button
               role="tab"
-              aria-selected={tab === "plan"}
-              onClick={() => setTab("plan")}
+              aria-selected={tab === "plan" && rightTab === "plan"}
+              onClick={() => { setTab("plan"); setRightTab("plan"); }}
             >
               圈选方案
             </button>
+            <button role="tab" aria-selected={tab === "plan" && rightTab === "insight"} onClick={() => { setTab("plan"); setRightTab("insight"); }}>洞察</button>
           </div>
           {error || (thread && ["CANCELLED", "FAILED", "INTERRUPTED"].includes(thread.status) && thread.error) ? (
             <div className="banner error" role="alert">
@@ -746,6 +779,7 @@ export function App() {
               </button>
             </div>
           ) : null}
+          {insightReady && !thread?.insight_report && <div className="insight-entry"><p>人数统计已完成，可继续核验资产结构、产品缺口和机会排序。</p><button type="button" disabled={pending} onClick={() => void analyze()}>运行推荐洞察包</button></div>}
           <AgentConversation
             thread={thread}
             disabled={!library || !!thread?.archived}
@@ -759,6 +793,8 @@ export function App() {
                 onChange={fresh}
               />
             }
+            insightSummary={thread?.insight_report ? <InsightSummary report={thread.insight_report} revision={thread.revision} hash={thread.plan?.hash || ""} onExpand={() => { setRightTab("insight"); setTab("plan"); }} /> : undefined}
+            skillChips={selectedSkills.length ? <div><p role="status" className="insight-route-notice">{insightNotice}</p><div className="insight-chips">{selectedSkills.map((id) => <span className="insight-chip" key={id}>{skillNames[id]}<button type="button" aria-label={`移除${skillNames[id]}技能`} onClick={() => setSelectedSkills((items) => items.filter((s) => s !== id))}>移除</button></span>)}</div>{Object.keys(insightParameters).length > 0 && <p className="insight-route-notice">{insightParameterSummary(insightParameters)}</p>}</div> : undefined}
             contextTags={contextTags}
             onRemoveContextTag={(id) => setContextTags((items) => items.filter((t) => t.id !== id))}
             onReveal={(ids) => {
@@ -766,7 +802,8 @@ export function App() {
               setTab("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
-            onSend={(text) => send(text.trim() ? text : selectionMessage(contextTags), contextTags, !text.trim() && !!contextTags.length)}
+            skillRunDisabled={!insightReady}
+            onSend={(text) => selectedSkills.length ? (text.trim() ? send(text) : analyze()) : send(text.trim() ? text : selectionMessage(contextTags), contextTags, !text.trim() && !!contextTags.length)}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
             onRetry={() => void act((t) => api.resumeRun(t))}
@@ -776,7 +813,8 @@ export function App() {
             }}
           />
         </main>
-        <PlanPanel
+        <aside className="insight-right"><div className="insight-sidebar-heading"><button type="button" aria-pressed={rightTab === "plan"} onClick={() => setRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} onClick={() => setRightTab("insight")}>洞察</button>{rightTab === "insight" && <button type="button" aria-pressed={insightWide} onClick={() => setInsightWide(!insightWide)}>{insightWide ? "收起宽模式" : "宽模式"}</button>}</div>
+        {rightTab === "plan" ? <PlanPanel
           highlightedClauses={highlightedClauses}
           thread={thread}
           pending={pending}
@@ -796,7 +834,26 @@ export function App() {
             });
           }}
           onOpenGroup={openGroup}
-        />
+        /> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
+            if (inflight.current) throw new Error("当前操作尚未完成，请稍后重试");
+            const source = thread; let changed: Awaited<ReturnType<typeof editInsight>> | undefined;
+            const ok = await operation(async () => {
+              changed = await editInsight(source,skill,chart,utterance);
+              if (!sameInsightSource(source)) throw new Error("当前方案已变化，请重新打开报告");
+              if (changed.report) update({ ...current.current!, insight_report: changed.report });
+            });
+            if (!ok || !changed) throw new Error("图表核验未完成，请查看当前操作提示");
+            return changed;
+          }} onConfirmRerun={async (skill, parameters) => {
+            const source = current.current; if (!source) return;
+            const ok = await operation(async () => {
+              const report = await runInsight(source,[skill],{[skill]:parameters});
+              if (!sameInsightSource(source)) throw new Error("当前方案已变化，请重新运行");
+              update({ ...current.current!, insight_report: report });
+            });
+            if (!ok) throw new Error("重跑未完成，请查看当前操作提示");
+          }} onReviewChange={(utterance) => { setRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : <div className="insight-empty"><p>先统计当前方案人数，再选择已发布技能。</p><button type="button" disabled={!insightReady || pending} onClick={() => void analyze()}>运行推荐洞察包</button></div>}
+        </aside>
       </div>
       {tagConfirm ? <dialog ref={tagDialog} className="confirm-overlay tag-confirm-overlay" aria-labelledby="tag-confirm-title" onCancel={() => setTagConfirm(false)} onKeyDown={(event) => {
         if (event.key !== "Tab") return;

@@ -1,0 +1,30 @@
+{
+  "scope": "P0/P1 聚合 fixtures 与 Guard；不是 Java 业务计算验收",
+  "synthetic": true,
+  "skills": [
+    {
+      "id": "asset_structure_profile",
+      "version": "0.1.0",
+      "pack_hash": "da1252d45b606d5d7993f660db12317b2091982aefd79bf64a46b22e4e430eee",
+      "facts": 32,
+      "charts": 7,
+      "status": "PASS"
+    },
+    {
+      "id": "product_holding_gap",
+      "version": "0.1.0",
+      "pack_hash": "6eac30db46409384a76fe2a3f34e9dc01f73e418b5d2f4dabec99f23a944b836",
+      "facts": 21,
+      "charts": 4,
+      "status": "PASS"
+    },
+    {
+      "id": "opportunity_priority",
+      "version": "0.1.0",
+      "pack_hash": "840edde707673784e2d9825a0b6a0b6d4f4ef1773c24645f7298d0108836ebc0",
+      "facts": 33,
+      "charts": 6,
+      "status": "PASS"
+    }
+  ]
+}

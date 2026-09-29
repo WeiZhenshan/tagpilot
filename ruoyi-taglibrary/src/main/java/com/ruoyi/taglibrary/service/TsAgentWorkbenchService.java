@@ -35,6 +35,7 @@ public class TsAgentWorkbenchService {
     @Autowired private TsAudiencePlanCompiler compiler;
     @Autowired private ITlObjectGroupService groups;
     @Autowired private ITlTagService tags;
+    @Autowired private TsInsightRegistryService insightRegistry;
 
     private Long uid() { return SecurityUtils.getUserId(); }
     private String id() { return UUID.randomUUID().toString(); }
@@ -79,7 +80,8 @@ public class TsAgentWorkbenchService {
     private Map<String,Object> view(TsAgentThread row,Map<String,Object> state) {
         Map<String,Object> out=new LinkedHashMap<>(state);
         out.putAll(map("thread_id",row.getThreadId(),"library_id",row.getLibraryId(),"title",row.getTitle(),"archived","1".equals(row.getArchived()),"pinned","1".equals(row.getPinned()),
-            "capabilities",map("count",permissions.hasPermi("objectgroup:group:run"),"create",permissions.hasPermi("objectgroup:group:add"),"update",permissions.hasPermi("objectgroup:group:edit"),"preview",permissions.hasPermi("objectgroup:group:preview"))));
+            "capabilities",map("insight",permissions.hasPermi("taglibrary:insight:run"),"count",permissions.hasPermi("objectgroup:group:run"),"create",permissions.hasPermi("objectgroup:group:add"),"update",permissions.hasPermi("objectgroup:group:edit"),"preview",permissions.hasPermi("objectgroup:group:preview"))));
+        if(!permissions.hasPermi("taglibrary:insight:run") || (out.get("insight_report") instanceof Map && !insightRegistry.reportVisible(row.getLibraryId(),obj(out.get("insight_report")))))out.remove("insight_report");
         out.remove("run_request");out.remove("source_plan"); return out;
     }
     /** 仅暴露当前发布且仍可执行的轻量标签树，不要求标签管理权限。 */
@@ -324,6 +326,23 @@ public class TsAgentWorkbenchService {
         RuleRunResultVO count=groups.runRule(null,row.getLibraryId(),compiler.compile(row.getLibraryId(),plan));
         state.put("count",map("value",count.getCount(),"revision",state.get("revision"),"plan_hash",plan.get("hash"),"executed_at",Instant.now().toString(),"data_as_of",null,"warning",count.getWarning()));
         save(row,state);return view(row,state);
+    }
+    /** 洞察仅从当前已核验、已统计的快照进入，不接受浏览器传入客群规则或人数。 */
+    @Transactional
+    public Map<String,Object> insightContext(String thread,Map<String,Object> request) {
+        TsAgentThread row=owned(thread);Map<String,Object> state=data(row);Map<String,Object> plan=currentPlan(state,request);
+        Map<String,Object> count=obj(state.get("count"));
+        if(number(count.get("revision"))!=number(state.get("revision")) || !Objects.equals(count.get("plan_hash"),plan.get("hash")))
+            throw new ServiceException("请先统计当前方案人数",409);
+        return map("library_id",row.getLibraryId(),"name",row.getTitle(),"revision",state.get("revision"),"plan",plan,"count",count,
+            "rule",compiler.compile(row.getLibraryId(),plan),"report",state.get("insight_report"));
+    }
+    @Transactional
+    public void saveInsight(String thread,Map<String,Object> request,Map<String,Object> report) {
+        TsAgentThread row=owned(thread);Map<String,Object> state=data(row);Map<String,Object> plan=currentPlan(state,request);
+        Map<String,Object> cohort=obj(report.get("cohort"));
+        if(number(cohort.get("revision"))!=number(state.get("revision"))||!Objects.equals(cohort.get("plan_hash"),plan.get("hash")))throw new ServiceException("洞察完成时方案已变化",409);
+        state.put("insight_report",report);save(row,state);
     }
     @Transactional
     public Map<String,Object> preview(String thread,Map<String,Object> request) {
