@@ -31,7 +31,7 @@
       <el-table-column label="操作" width="140" fixed="right">
         <template #default="scope">
           <el-button type="text" size="mini" icon="el-icon-edit" @click="handleEdit(scope.row)" v-hasPermi="['objectgroup:group:edit']"
-            :disabled="scope.row.agentEditable && !canUseAgent" :title="scope.row.agentEditable && !canUseAgent ? '需要标签智能体访问权限' : ''">{{ scope.row.agentEditable ? '智能体编辑' : '规则编辑' }}</el-button>
+            :disabled="scope.row.agentEditable && !canUseAgent" :title="scope.row.agentEditable && !canUseAgent ? '需要标签智能体访问权限' : ''">{{ scope.row.agentEditable ? '继续圈选' : '规则编辑' }}</el-button>
           <el-button type="text" size="mini" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['objectgroup:group:remove']">删除</el-button>
         </template>
       </el-table-column>
