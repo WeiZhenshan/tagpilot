@@ -327,9 +327,14 @@ test("new draft keeps its identity while changing libraries", async ({ page }) =
   expect(t.library_id).toBe(108);
 });
 
-test("library picker opens below its trigger", async ({ page }) => {
+test("library picker sits in the composer and opens above its trigger", async ({
+  page,
+}) => {
   await page.goto("/agent-ui/");
-  const trigger = page.getByRole("button", { name: "当前标签库" });
+  const trigger = page
+    .locator(".composer-footer")
+    .getByRole("button", { name: "当前标签库" });
+  await expect(trigger).toBeVisible();
   await trigger.click();
   const listbox = page.getByRole("listbox", { name: "选择标签库" });
   await expect(listbox).toBeVisible();
@@ -338,7 +343,9 @@ test("library picker opens below its trigger", async ({ page }) => {
   const listboxBox = await listbox.boundingBox();
   expect(triggerBox).not.toBeNull();
   expect(listboxBox).not.toBeNull();
-  expect(listboxBox!.y).toBeGreaterThanOrEqual(triggerBox!.y + triggerBox!.height);
+  expect(listboxBox!.y + listboxBox!.height).toBeLessThanOrEqual(
+    triggerBox!.y + 1
+  );
 
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");

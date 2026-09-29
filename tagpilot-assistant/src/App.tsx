@@ -428,16 +428,6 @@ export function App() {
           />
         </button>
         <strong>客群圈选</strong>
-        <span className="header-divider" />
-        <div className="library-picker">
-          <span>标签库</span>
-          <LibraryPicker
-            libraries={libraries}
-            value={library || ""}
-            disabled={pending || busy(thread) || thread?.status === "WAITING"}
-            onChange={fresh}
-          />
-        </div>
         <span className="topbar-status" role="status">
           {pending
             ? "正在保存…"
@@ -693,6 +683,14 @@ export function App() {
             thread={thread}
             disabled={!library || !!thread?.archived}
             pending={pending}
+            contextControl={
+              <LibraryPicker
+                libraries={libraries}
+                value={library || ""}
+                disabled={pending || busy(thread) || thread?.status === "WAITING"}
+                onChange={fresh}
+              />
+            }
             onSend={send}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
@@ -880,7 +878,11 @@ function LibraryPicker({
   return (
     <ListboxSelect
       ariaLabel="当前标签库"
-      placeholder="请选择标签库"
+      listboxLabel="选择标签库"
+      placeholder="选择标签库"
+      placement="top"
+      triggerClassName="library-select-trigger--context"
+      leading={<LibraryGlyph />}
       disabled={disabled}
       value={value === "" ? "" : String(value)}
       onChange={(libraryId) => onChange(Number(libraryId))}
@@ -889,6 +891,24 @@ function LibraryPicker({
         label: item.libraryName,
       }))}
     />
+  );
+}
+
+function LibraryGlyph() {
+  return (
+    <svg
+      className="composer-context-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20.4 13.2 13 20.6a2 2 0 0 1-2.8 0L3.4 13.8a2 2 0 0 1 0-2.8L10.8 3.6A2 2 0 0 1 12.2 3H19a2 2 0 0 1 2 2v6.8a2 2 0 0 1-.6 1.4Z" />
+      <circle cx="16.2" cy="7.8" r="1.15" />
+    </svg>
   );
 }
 

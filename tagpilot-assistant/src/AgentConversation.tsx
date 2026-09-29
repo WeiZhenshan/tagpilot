@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   AssistantRuntimeProvider,
   ComposerPrimitive,
@@ -144,6 +144,7 @@ export function AgentConversation({
   thread,
   disabled,
   pending,
+  contextControl,
   onSend,
   onCancel,
   onAnswer,
@@ -152,6 +153,7 @@ export function AgentConversation({
   thread: Thread | null;
   disabled: boolean;
   pending: boolean;
+  contextControl?: ReactNode;
   onSend: (text: string) => Promise<void>;
   onCancel: () => void;
   onAnswer: (text: string) => void;
@@ -270,13 +272,14 @@ export function AgentConversation({
               }
             />
             <div className="composer-footer">
-              <span>
-                {thread
-                  ? "会话自动保存"
-                  : disabled
-                  ? "选择标签库后开始圈选"
-                  : "发送后自动保存会话"}
-              </span>
+              {contextControl ? (
+                <div className="composer-context">{contextControl}</div>
+              ) : null}
+              {thread || !disabled ? (
+                <span className="composer-hint">
+                  {thread ? "会话自动保存" : "发送后自动保存会话"}
+                </span>
+              ) : null}
               {busy(thread) ? (
                 <ComposerPrimitive.Cancel className="send-button">
                   停止处理

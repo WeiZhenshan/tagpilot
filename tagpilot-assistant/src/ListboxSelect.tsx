@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 export type ListboxOption = { value: string; label: string };
 
@@ -38,9 +38,12 @@ type BaseProps = {
   options: ListboxOption[];
   disabled?: boolean;
   ariaLabel: string;
+  listboxLabel?: string;
   placeholder?: string;
   className?: string;
   triggerClassName?: string;
+  leading?: ReactNode;
+  placement?: "bottom" | "top";
 };
 
 type SingleProps = BaseProps & {
@@ -60,9 +63,12 @@ export function ListboxSelect(props: SingleProps | MultiProps) {
     options,
     disabled = false,
     ariaLabel,
+    listboxLabel,
     placeholder = "请选择",
     className,
     triggerClassName,
+    leading,
+    placement = "bottom",
   } = props;
   const multiple = props.multiple === true;
   const [open, setOpen] = useState(false);
@@ -182,21 +188,28 @@ export function ListboxSelect(props: SingleProps | MultiProps) {
           .filter(Boolean)
           .join(" ")}
         aria-label={ariaLabel}
+        title={triggerLabel()}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listboxId : undefined}
         disabled={disabled}
         onClick={() => (open ? close() : openAt())}
       >
+        {leading}
         <span>{triggerLabel()}</span>
         <ChevronIcon open={open} />
       </button>
       {open ? (
         <div
           id={listboxId}
-          className="library-options"
+          className={[
+            "library-options",
+            placement === "top" ? "library-options--up" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           role="listbox"
-          aria-label={ariaLabel}
+          aria-label={listboxLabel || ariaLabel}
           aria-multiselectable={multiple || undefined}
         >
           {options.map((item, index) => {
