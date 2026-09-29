@@ -5,6 +5,7 @@ from tagpilot_agent.domain.plan_model import StrictModel, AudiencePlan
 from tagpilot_agent.agent.outcome import AgentOutcome
 from tagpilot_agent.retrieval.semantic_client import SemanticRetrieveError
 from .cards import observation
+from .summaries import started_fields, completed_fields
 from typing import Literal
 
 class Query(StrictModel):
@@ -47,19 +48,23 @@ async def dispatch(ctx,name,args):
     if ctx.accepted:return respond({'ok':False,'message':'运行已提交'},True)
     ctx.stats['tools']+=1
     ctx.budget.announce(ctx)
-    if ctx.stats['tools']>ctx.budget.max_tools:
-        ctx.stats['tool_budget_hit']=True
-        if name not in {'check_plan','submit_result'}:
-            return respond({'ok':False,'code':'TOOL_BUDGET','message':'工具预算已用完，请立即提交 PARTIAL'},True)
-    ctx.emit({'type':'tool.started','tool':name,'message':MESSAGES[name]})
+    call_id=f"{ctx.request['run_id']}-{ctx.stats['tools']}"
     started=time.monotonic()
+    result={'ok':False}
     try:
         args=MODELS[name].model_validate(args).model_dump(exclude_none=True)
+        ctx.emit({'type':'tool.started','call_id':call_id,'tool':name,'message':MESSAGES[name],**started_fields(ctx,name,args)})
+        if ctx.stats['tools']>ctx.budget.max_tools:
+            ctx.stats['tool_budget_hit']=True
+            if name not in {'check_plan','submit_result'}:
+                result={'ok':False,'code':'TOOL_BUDGET','message':'工具预算已用完，请立即提交 PARTIAL'}
+                return respond(result,True)
         if ((ctx.lean and name=='find_tags' and args['depth']=='deep') or
             (ctx.budget.converging(ctx) and (name=='find_capabilities' or
              (name=='find_tags' and args['depth']=='deep') or
              (name=='get_tag_details' and not set(args['tag_ids'])<=ctx.details_loaded)))):
-            return respond({'ok':False,'code':'BUDGET_CONVERGE','message':'预算进入收敛期，请提交当前最佳方案或 PARTIAL'},True)
+            result={'ok':False,'code':'BUDGET_CONVERGE','message':'预算进入收敛期，请提交当前最佳方案或 PARTIAL'}
+            return respond(result,True)
         result=await HANDLERS[name](ctx,args)
         ctx.budget.announce(ctx)
         return respond(result,result.get('ok') is False)
@@ -67,12 +72,14 @@ async def dispatch(ctx,name,args):
         if exc.status_code in {401,403,409}:
             ctx.stats['fatal_status']=exc.status_code;ctx.submitted.set()
         else:ctx.stats['retrieval_unavailable']=True
-        return respond({'ok':False,'code':'RETRIEVAL_UNAVAILABLE','retryable':exc.status_code not in {401,403,409}},True)
+        result={'ok':False,'code':'RETRIEVAL_UNAVAILABLE','retryable':exc.status_code not in {401,403,409}}
+        return respond(result,True)
     except (ValueError,TypeError,KeyError) as exc:
-        return respond({'ok':False,'code':'SCHEMA_INVALID','message':str(exc)[:500] if not isinstance(exc,ValidationError) else '工具参数不符合契约'},True)
+        result={'ok':False,'code':'TOOL_BUDGET' if '预算' in str(exc) else 'SCHEMA_INVALID','message':str(exc)[:500] if not isinstance(exc,ValidationError) else '工具参数不符合契约'}
+        return respond(result,True)
     finally:
         ctx.emit({'type':'telemetry.span','name':'tool.'+name,'duration_ms':round((time.monotonic()-started)*1000)})
-        ctx.emit({'type':'tool.completed','tool':name,'message':MESSAGES[name].replace('正在','已完成'),'duration_ms':round((time.monotonic()-started)*1000)})
+        ctx.emit({'type':'tool.completed','call_id':call_id,'tool':name,'message':MESSAGES[name].replace('正在','已完成'),'duration_ms':round((time.monotonic()-started)*1000),**completed_fields(ctx,name,result)})
 
 def create_server(ctx):
     from claude_agent_sdk import tool, create_sdk_mcp_server

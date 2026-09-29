@@ -48,6 +48,8 @@ export function App() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [archived, setArchived] = useState(false);
+  const [highlightedClauses, setHighlightedClauses] = useState<string[]>([]);
+  useEffect(() => { setHighlightedClauses([]); }, [thread?.thread_id, thread?.run_id]);
   const [tab, setTab] = useState("chat");
   const [composerRequest, setComposerRequest] = useState<{ text: string; id: number }>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
@@ -694,6 +696,11 @@ export function App() {
                 onChange={fresh}
               />
             }
+            onReveal={(ids) => {
+              setHighlightedClauses(ids);
+              setTab("plan");
+              requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
+            }}
             onSend={send}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
@@ -705,6 +712,7 @@ export function App() {
           />
         </main>
         <PlanPanel
+          highlightedClauses={highlightedClauses}
           thread={thread}
           pending={pending}
           onSave={savePlan}

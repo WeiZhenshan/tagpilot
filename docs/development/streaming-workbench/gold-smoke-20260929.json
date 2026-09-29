@@ -1,0 +1,137 @@
+{
+  "date": "2026-09-29",
+  "model": "deepseek-flash",
+  "build": {
+    "build_id": "bge-m3-l107-20260919-002-r3",
+    "snapshot_id": "L107-20260919-002",
+    "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+  },
+  "scope": "A01/B02 each once per prompt; fixed snapshot; no customer queries or group writes",
+  "comparison": "Same modified implementation with HEAD vs updated stable prompt. Sequential before/after; caches and model route are not controlled.",
+  "results": [
+    {
+      "version": "before",
+      "case": "A01",
+      "status": "COMPLETED",
+      "valid": true,
+      "outcome": "READY",
+      "seconds": 6.21,
+      "turns": 2,
+      "tools": 1,
+      "estimated_usd": 0.05556900000000001,
+      "usage": {
+        "input_tokens": 16223,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 460,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "prompt_sha256": "8d298a1c894df875c024b0cf748836287217e512e4eba2afc8958a5ffbcc048b",
+      "narration_events": 0
+    },
+    {
+      "version": "before",
+      "case": "B02",
+      "status": "COMPLETED",
+      "valid": true,
+      "outcome": "READY",
+      "seconds": 54.9,
+      "turns": 7,
+      "tools": 6,
+      "estimated_usd": 0.1961448,
+      "usage": {
+        "input_tokens": 22488,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 68736,
+        "output_tokens": 7204,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "prompt_sha256": "8d298a1c894df875c024b0cf748836287217e512e4eba2afc8958a5ffbcc048b",
+      "narration_events": 0
+    },
+    {
+      "version": "after",
+      "case": "A01",
+      "status": "COMPLETED",
+      "valid": true,
+      "outcome": "READY",
+      "seconds": 3.07,
+      "turns": 2,
+      "tools": 1,
+      "estimated_usd": 0.056496,
+      "usage": {
+        "input_tokens": 16277,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 511,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "prompt_sha256": "68be2721cd01ec272e7b79b29747fbe76a129be2802678e1f8f8f3cbd1f8757e",
+      "narration_events": 1
+    },
+    {
+      "version": "after",
+      "case": "B02",
+      "status": "COMPLETED",
+      "valid": true,
+      "outcome": "READY",
+      "seconds": 17.0,
+      "turns": 4,
+      "tools": 3,
+      "estimated_usd": 0.1263708,
+      "usage": {
+        "input_tokens": 18954,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 39296,
+        "output_tokens": 3848,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "prompt_sha256": "68be2721cd01ec272e7b79b29747fbe76a129be2802678e1f8f8f3cbd1f8757e",
+      "narration_events": 3
+    }
+  ]
+}

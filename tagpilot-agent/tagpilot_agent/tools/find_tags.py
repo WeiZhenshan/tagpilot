@@ -28,6 +28,10 @@ async def find_tags(ctx,args):
         rid=q.get('requirement_id')
         if rid:ctx.searches.setdefault(rid,set()).add(depth)
         context=data.get('selection_context',data)
+        if rid:
+            for tag in context.get('tags',[]):
+                tid=int(tag['tag_id'])
+                if tid in ctx.eligible:ctx.tag_requirements.setdefault(tid,set()).add(rid)
         candidates={int(c['tag_id']):c for c in data.get('candidates',[])}
         output.append({'requirement_id':rid,'cards':[card({**t,**{'matched_by':candidates.get(int(t['tag_id']),{}).get('matched_by','SEMANTIC' if depth=='deep' else 'LEXICAL')}}) for t in context.get('tags',[])],
                        'terms':data.get('terms',[]),'decision':data.get('decision'),'cached':cached})

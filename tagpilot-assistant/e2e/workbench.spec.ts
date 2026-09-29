@@ -749,3 +749,73 @@ test('定义确认提交失败后保留当前待办并可重试',async({page})=>
   expect((await sent).postDataJSON().confirmed_clause_ids).toEqual(['a','b']);
   await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeEnabled();
 });
+
+test("streaming timeline paces updates, replays history, and highlights changed conditions", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  const now = Date.now() / 1000;
+  t.status = "RUNNING"; t.run_id = "live-run"; t.events = [];
+  delete t.plan; t.messages = t.messages.slice(0, 1);
+  t.run_history = [{ run_id: "old-run", events: [{ seq: -1, type: "run.cancelled" }, { seq: -1, type: "run.cancelled" }] }];
+  await page.route("**/dev-api/**/events", (route) => route.fulfill({ contentType: "text/event-stream", body: `event: state\ndata: ${JSON.stringify(t)}\n\n` }));
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const current = page.getByRole("region", { name: "处理记录", exact: true });
+  await expect(current.locator(".run-content")).toBeVisible();
+  await expect(page.getByRole("region", { name: "第 1 轮处理记录" }).locator(".run-content")).toHaveCount(0);
+  t.events = [{ seq: 1, type: "narration", text: "先核对转入金额与客户状态的口径", occurred_at: now },
+    { seq: 2, type: "tool.started", tool: "find_tags", call_id: "live-1", targets: ["近30天转入"], queries: [{ text: "近30天转入", requirement_id: "R1" }], requirement_ids: ["R1"], occurred_at: now + .2 }];
+  await expect(current.locator(".run-todos")).toContainText("近30天转入");
+  await expect(current.locator(".run-entries")).toContainText("查找标签「近30天转入」");
+  const livePlan: any = structuredClone(plan);
+  livePlan.intent_plan = { requirements: [{ requirement_id: "R1", business_meaning: "转入超过50万元" }, { requirement_id: "R2", business_meaning: "排除已销户客户" }] };
+  livePlan.tree.children[0].requirement_ids = ["R1"]; livePlan.tree.children[1].requirement_ids = ["R2"];
+  t.events.push({ seq: 3, type: "tool.completed", tool: "find_tags", call_id: "live-1", ok: true, summary: "找到 5 个相关标签", items: [{ name: "近30天异名跨行转入金额" }], duration_ms: 400, occurred_at: now + 1 },
+    { seq: 4, type: "intent.ready", plan: livePlan, occurred_at: now + 1 },
+    { seq: 5, type: "plan.observed", plan: livePlan, occurred_at: now + 1.2 },
+    { seq: 6, type: "tool.started", tool: "get_tag_details", call_id: "live-2", targets: ["客户状态"], requirement_ids: ["R2"], occurred_at: now + 1.4 });
+  t.live_plan = livePlan;
+  await expect(current.locator(".run-entries")).toContainText("核对「客户状态」的口径");
+  await expect(current.getByRole("button", { name: /查找标签「近30天转入」/ })).toHaveAttribute("aria-expanded", "false");
+  await expect(current.getByRole("button", { name: /核对「客户状态」/ })).toHaveAttribute("aria-expanded", "true");
+  if (process.env.CAPTURE_DIR) await page.screenshot({ animations: "disabled", path: process.env.CAPTURE_DIR + "/timeline-running-desktop.png" });
+  await page.reload();
+  await current.getByRole("button", { name: /已说明：先核对/ }).click();
+  await expect(current.locator(".run-narration-text")).toHaveText("先核对转入金额与客户状态的口径");
+  await expect(current.locator(".run-caret")).toHaveCount(0);
+  t.events.push({ seq: 7, type: "tool.completed", tool: "get_tag_details", call_id: "live-2", ok: true, summary: "已核对客户状态取值", occurred_at: now + 2 },
+    { seq: 8, type: "plan.validated", plan: livePlan, occurred_at: now + 3 });
+  t.plan = livePlan; t.status = "COMPLETED";
+  await expect(current.locator(".run-content")).toHaveCount(0);
+  await current.locator(".run-heading").click();
+  await current.getByRole("button", { name: "方案变更 · 2 项" }).click();
+  await expect(page.locator('.clause-row[data-highlighted="true"]')).toHaveCount(2);
+  await page.getByRole("region", { name: "第 1 轮处理记录" }).locator(".run-heading").click();
+  await expect(page.getByRole("region", { name: "第 1 轮处理记录" }).locator(".run-entry-status")).toHaveCount(2);
+});
+
+test("waiting questions stay inside the timeline and reduced motion preserves replay", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" }); await page.setViewportSize({ width: 390, height: 844 });
+  t.status = "WAITING"; t.run_id = "waiting-run"; t.interrupt_id = "choice";
+  t.questions = [{ clause_id: "a", prompt: "转入统计口径采用哪个时间范围？", options: ["近30天", "上个自然月"] }]; t.plan.valid = false;
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const current = page.getByRole("region", { name: "处理记录", exact: true });
+  await expect(current.locator(".ask-card")).toBeVisible();
+  await expect(current.locator('.run-todos [data-status="blocked"]')).not.toHaveCount(0);
+  await expect(current.locator(".run-caret")).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  if (process.env.CAPTURE_DIR) await page.screenshot({ animations: "disabled", path: process.env.CAPTURE_DIR + "/timeline-waiting-mobile.png" });
+  await current.getByRole("button", { name: "近30天", exact: true }).click();
+  await expect(current.getByRole("button", { name: "提交并继续" })).toBeEnabled();
+});
+
+test("cancelled and failed operations stop spinning and keep their replay", async ({ page }) => {
+  t.status = "CANCELLED"; t.events = [{ seq: 1, type: "tool.started", tool: "find_tags" }, { seq: -1, type: "run.cancelled" }];
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const current = page.getByRole("region", { name: "处理记录", exact: true });
+  await expect(current.locator(".run-content")).toHaveCount(0); await current.locator(".run-heading").click();
+  await expect(current.locator(".marker-active")).toHaveCount(0);
+  await expect(current.locator(".run-entries")).toContainText("本次操作未完成");
+  t.status = "FAILED"; t.error = "检索服务暂不可用"; t.events.push({ seq: 3, type: "run.failed" });
+  await page.reload(); await expect(current.locator(".run-heading")).toContainText("已保存处理进度");
+  await current.locator(".run-heading").click(); await expect(current.locator(".marker-active")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "从保存位置继续" })).toBeVisible();
+});

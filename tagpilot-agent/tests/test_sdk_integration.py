@@ -356,3 +356,22 @@ def test_queue_timeout_fails_with_saved_progress(tmp_path, monkeypatch):
     assert row['error'] == '当前使用人数较多，排队已超时，请稍后重试'
     assert row['result']['outcome']['stats']['stop_reason'] == 'queue_timeout'
     store.db.close()
+
+
+def test_text_before_tools_streams_business_narration(tmp_path, gateway):
+    app = gateway([{'text': '先确认全部客户的授权范围', 'calls': [
+        ('mcp__tagpilot__check_plan', {'plan': ALL_PLAN})]},
+        [('mcp__tagpilot__submit_result', {'outcome': 'READY', 'plan': ALL_PLAN, 'summary': '完成'})]])
+    store, manager = manager_for(tmp_path)
+    async def scenario():
+        request = request_for('timeline-text', requirement='全部客户')
+        store.create('timeline-text', request)
+        await manager.execute('timeline-text', request)
+        await manager.close()
+    asyncio.run(scenario())
+    assert store.get('timeline-text', '7')['status'] == 'COMPLETED'
+    events = store.events('timeline-text')
+    assert [e['text'] for e in events if e['type'] == 'narration'] == ['先确认全部客户的授权范围']
+    assert len(app.state.requests) == 2
+    assert all(e.get('call_id') and 'ok' in e for e in events if e['type'] == 'tool.completed')
+    store.db.close()

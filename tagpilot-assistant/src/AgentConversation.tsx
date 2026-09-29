@@ -7,78 +7,15 @@ import {
   useExternalStoreRuntime,
   type ThreadMessageLike,
 } from "@assistant-ui/react";
-import type { Thread, AgentMessage, RunEvent } from "./agentTypes";
-import { busy, clauses, stateText, toolText, degradedOf, degradedText, runNotice } from "./agentTypes";
+import type { Thread, AgentMessage } from "./agentTypes";
+import { busy, clauses, stateText, degradedOf, degradedText, runNotice } from "./agentTypes";
+import { RunTimeline } from "./RunTimeline.tsx";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
   content: [{ type: "text", text: m.text }],
   createdAt: new Date(m.created_at),
 });
-function Process({
-  events,
-  running,
-  label = "处理记录",
-}: {
-  events: RunEvent[];
-  running: boolean;
-  label?: string;
-}) {
-  const tools = events.filter(
-    (e) => e.type === "tool.started" || e.type === "tool.completed"
-  );
-  const understood = events.some((e) => e.type === "intent.ready");
-  const lastPlan = [...events].reverse().find((e) => e.plan)?.plan;
-  const bound =
-    clauses(lastPlan?.tree).length > 0 &&
-    clauses(lastPlan?.tree).every((c) => c.status === "BOUND");
-  const validated = events.some(
-    (e) => e.type === "plan.validated" && e.plan?.valid
-  );
-  return (
-    <details className="process" open={running}>
-      <summary>
-        {running
-          ? (events.at(-1)?.type === "run.queued" ? events.at(-1)?.message : "正在处理圈选需求")
-          : `${label} · ${
-              tools.filter((e) => e.type === "tool.completed").length
-            } 次处理操作`}
-      </summary>
-      <ol className="todo-plan">
-        {[
-          ["理解圈选需求", understood],
-          ["匹配标签与口径", bound],
-          ["校验圈选方案", validated],
-        ].map(([label, done]) => (
-          <li key={String(label)} data-done={!!done}>
-            <span className="step-marker" />
-            {label}
-            <small>{done ? "已完成" : running ? "待完成" : "未完成"}</small>
-          </li>
-        ))}
-      </ol>
-      <ol className="event-list">
-        {events
-          .filter((e) => e.message || (e.tool && toolText[e.tool]))
-          .map((e) => (
-            <li key={e.seq}>
-              <span>{e.message || (e.tool && toolText[e.tool])}</span>
-              {e.occurred_at ? (
-                <time>
-                  {new Date(e.occurred_at * 1000).toLocaleTimeString("zh-CN")}
-                </time>
-              ) : null}
-              {e.candidates?.length ? (
-                <small>
-                  候选：{e.candidates.map((c) => c.name).join("、")}
-                </small>
-              ) : null}
-            </li>
-          ))}
-      </ol>
-    </details>
-  );
-}
 function Ask({
   thread,
   pending,
@@ -151,6 +88,7 @@ export function AgentConversation({
   onAnswer,
   onRetry,
   onEdit,
+  onReveal,
 }: {
   thread: Thread | null;
   disabled: boolean;
@@ -162,6 +100,7 @@ export function AgentConversation({
   onAnswer: (text: string) => void;
   onRetry: () => void;
   onEdit: () => void;
+  onReveal: (ids: string[]) => void;
 }) {
   const degraded = degradedOf(thread);
   const composerInput = useRef<HTMLTextAreaElement>(null);
@@ -234,27 +173,14 @@ export function AgentConversation({
               )}
             </ThreadPrimitive.Messages>
             {thread?.run_history?.map((r, i) => (
-              <Process
-                key={r.run_id}
-                events={r.events}
-                running={false}
-                label={`第 ${i + 1} 轮处理记录`}
-              />
+              <RunTimeline key={r.run_id} runId={r.run_id} events={r.events} running={false} label={`第 ${i + 1} 轮处理记录`} onReveal={onReveal} />
             ))}
-            {thread?.events?.length ? (
-              <Process events={thread.events} running={busy(thread)} />
-            ) : busy(thread) ? (
-              <p className="progress-text" role="status">
-                正在理解你的需求…
-              </p>
-            ) : null}
-            {thread?.status === "WAITING" ? (
-              <Ask
-                key={thread.interrupt_id}
-                thread={thread}
-                pending={pending}
-                onAnswer={onAnswer}
-              />
+            {thread && (thread.events.length || busy(thread) || thread.status === "WAITING") ? (
+              <RunTimeline key={`${thread.thread_id}:${thread.run_id || "current"}`} runId={thread.run_id || thread.thread_id}
+                events={thread.events} running={busy(thread)} plan={thread.live_plan || thread.plan}
+                status={thread.status} questions={thread.questions} onReveal={onReveal}>
+                {thread.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} /> : null}
+              </RunTimeline>
             ) : null}
             {thread && runNotice(thread) === "partial" && degraded ? (
               <div className="run-degraded" role="status">

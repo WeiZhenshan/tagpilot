@@ -16,6 +16,7 @@ class RunContext:
     capabilities: dict = field(default_factory=dict)
     details_loaded: set = field(default_factory=set)
     searches: dict = field(default_factory=dict)
+    tag_requirements: dict = field(default_factory=dict)
     stats: dict = field(default_factory=lambda: {'tools':0,'deep':0,'details':0,'submit_rejections':0,'llm_turns':0})
     best_plan: dict | None = None
     best_errors: int = 10000

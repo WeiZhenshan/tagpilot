@@ -11,6 +11,7 @@ from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient, PermissionResu
 from tagpilot_agent.agent.system_prompt import SYSTEM_PROMPT
 from tagpilot_agent.tools.registry import create_server, MODELS
 from .degrade import Reason
+from .narration import NarrationEmitter
 
 DENIED=['Bash','Read','Write','Edit','Glob','Grep','WebFetch','WebSearch','Task','Agent','Skill','TodoWrite','AskUserQuestion','NotebookEdit']
 
@@ -51,7 +52,9 @@ class ClaudeRunner:
                 monitor=asyncio.create_task(self.watch(client,ctx))
                 try:
                     await client.query(prompt)
+                    narration = NarrationEmitter()
                     async for message in client.receive_response():
+                        narration.consume(ctx,message)
                         if isinstance(message,SystemMessage) and message.subtype=='api_retry':
                             ctx.stats['sdk_error']='gateway_retry'
                             ctx.stats['gateway_retries']=ctx.stats.get('gateway_retries',0)+1

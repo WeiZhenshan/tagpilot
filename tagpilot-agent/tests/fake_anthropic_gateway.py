@@ -26,7 +26,10 @@ def create_gateway(script):
                     if await request.is_disconnected():break
                     await asyncio.sleep(.2)
             return JSONResponse(status_code=500,content={'type':'error','error':{'type':'api_error','message':'fake gateway failure'}})
+        narration=calls.get('text') if isinstance(calls,dict) else None
+        calls=calls.get('calls',[]) if isinstance(calls,dict) else calls
         content=[{'type':'tool_use','id':'toolu_'+uuid.uuid4().hex,'name':name,'input':args} for name,args in calls]
+        if narration:content.insert(0,{'type':'text','text':narration})
         if not content:content=[{'type':'text','text':'已处理'}]
         response={'id':'msg_'+uuid.uuid4().hex,'type':'message','role':'assistant','model':body.get('model','fake'),
                   'content':content,'stop_reason':'tool_use' if calls else 'end_turn','stop_sequence':None,'usage':{'input_tokens':100,'output_tokens':100}}

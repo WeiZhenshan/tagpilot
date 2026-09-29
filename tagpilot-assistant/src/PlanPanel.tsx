@@ -14,8 +14,8 @@ function acceptedConfirmations(thread: Thread | null, plan?: Plan): string[] {
     c.clause_id === id && c.status === "BOUND" && c.assumption_confirmed === true));
 }
 
-export function PlanPanel({ thread, pending, onSave, onRefine, onDiscuss, onCancel, onCount, onCreate, onPreview, onOpenGroup }: {
-  thread: Thread | null; pending: boolean; onSave: (p: Plan) => void; onRefine: (message: string) => void;
+export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefine, onDiscuss, onCancel, onCount, onCreate, onPreview, onOpenGroup }: {
+  highlightedClauses?: string[]; thread: Thread | null; pending: boolean; onSave: (p: Plan) => void; onRefine: (message: string) => void;
   onDiscuss: (message: string) => void; onCancel: () => void; onCount: () => void; onCreate: (name: string) => void;
   onPreview: () => void; onOpenGroup: (id: number) => void;
 }) {
@@ -94,7 +94,7 @@ export function PlanPanel({ thread, pending, onSave, onRefine, onDiscuss, onCanc
       </section> : null}
       {shown?.tree ? <>
         {!("children" in shown.tree) ? <p className="single-condition-heading">圈选条件</p> : null}
-        <SummaryTree tree={shown.tree} items={items} changes={changes} editing={editing} disabled={disabled} onEdit={(id) => setEditing(editing === id ? undefined : id)}
+        <SummaryTree highlightedClauses={highlightedClauses} tree={shown.tree} items={items} changes={changes} editing={editing} disabled={disabled} onEdit={(id) => setEditing(editing === id ? undefined : id)}
           onChange={changeTree} onDone={() => setEditing(undefined)} onDiscuss={onDiscuss} />
         {removed.map((c) => <p className="removed-clause" key={c.clause_id}><del>{clauseSentence(c)}</del><span>已删除</span></p>)}
         <button className="text-button add-condition" disabled={disabled} onClick={() => onDiscuss("在当前方案中补充一项条件，保留其余要求：")}>＋ 补充条件（在对话里说）</button>

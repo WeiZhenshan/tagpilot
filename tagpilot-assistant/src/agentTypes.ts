@@ -54,7 +54,7 @@ export type Tree = Clause | Group;
 export type Plan = {
   schema_version?: number;
   plan_status?: string;
-  intent_plan?: { requirements: { requirement_id: string; business_meaning: string }[]; assumptions?: { status: string; question?: string }[] };
+  intent_plan?: { requirements: { requirement_id: string; business_meaning: string }[]; assumptions?: { requirement_id?: string; status: string; question?: string }[] };
   diagnostics?: Diagnostic[];
   tree: Tree;
   valid?: boolean;
@@ -72,6 +72,18 @@ export type RunEvent = {
   type: string;
   message?: string;
   tool?: string;
+  call_id?: string;
+  call_ids?: string[];
+  targets?: string[];
+  requirement_ids?: string[];
+  queries?: { text: string; requirement_id?: string }[];
+  depth?: "quick" | "deep";
+  ok?: boolean;
+  summary?: string;
+  items?: { name: string }[];
+  counts?: { found?: number; pending?: number };
+  duration_ms?: number;
+  text?: string;
   clause_id?: string;
   occurred_at?: number;
   steps?: { id: string; label: string; status: string }[];
@@ -101,7 +113,7 @@ export type Thread = {
   events: RunEvent[];
   run_history?: { run_id: string; events: RunEvent[] }[];
   run_id?: string;
-  questions?: { clause_id?: string; prompt: string; options?: string[] }[];
+  questions?: { clause_id?: string; requirement_id?: string; prompt: string; options?: string[] }[];
   interrupt_id?: string;
   error?: string;
   outcome?: { outcome: string; gaps: { requirement_id: string; reason: string; nearest_tag_ids: number[] }[]; stats?: Record<string, unknown> };

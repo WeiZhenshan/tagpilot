@@ -61,8 +61,8 @@ export function ClauseEditor({ clause: c, disabled, onChange, onDone, onRemove, 
   </div>;
 }
 
-export function ClauseSummary({ clause: c, number, change, open, disabled, onEdit, onChange, onDone, onRemove, onDiscuss }: {
-  clause: Clause; number: number; change?: "新" | "改"; open: boolean; disabled: boolean;
+export function ClauseSummary({ highlighted, clause: c, number, change, open, disabled, onEdit, onChange, onDone, onRemove, onDiscuss }: {
+  highlighted?: boolean; clause: Clause; number: number; change?: "新" | "改"; open: boolean; disabled: boolean;
   onEdit: () => void; onChange: (c: Clause) => void; onDone: () => void; onRemove?: () => void; onDiscuss: (text: string) => void;
 }) {
   const [info, setInfo] = useState(false);
@@ -72,7 +72,7 @@ export function ClauseSummary({ clause: c, number, change, open, disabled, onEdi
   const editorId = useId();
   const sentence = clauseSentence(c);
   const exception = c.status === "ASSUMED" ? "待确认" : (c.status && c.status !== "BOUND") || c.unresolved || c.gap_reason ? "待补充" : undefined;
-  return <section className="condition clause-row" ref={row}>
+  return <section className="condition clause-row" data-highlighted={highlighted || undefined} ref={row}>
     <div className="clause-summary">
       <span className="clause-number">{number}</span>
       <div className="clause-copy">
@@ -98,8 +98,8 @@ export function ClauseSummary({ clause: c, number, change, open, disabled, onEdi
   </section>;
 }
 
-export function SummaryTree({ tree, items, changes, editing, disabled, onEdit, onChange, onDone, onDiscuss, onRemove }: {
-  tree: Tree; items: Clause[]; changes: Map<string, "新" | "改">; editing?: string; disabled: boolean; onEdit: (id: string) => void;
+export function SummaryTree({ highlightedClauses, tree, items, changes, editing, disabled, onEdit, onChange, onDone, onDiscuss, onRemove }: {
+  highlightedClauses?: string[]; tree: Tree; items: Clause[]; changes: Map<string, "新" | "改">; editing?: string; disabled: boolean; onEdit: (id: string) => void;
   onChange: (tree: Tree) => void; onDone: () => void; onDiscuss: (text: string) => void; onRemove?: () => void;
 }) {
   const [changingLogic, setChangingLogic] = useState(false);
@@ -114,10 +114,10 @@ export function SummaryTree({ tree, items, changes, editing, disabled, onEdit, o
         </button>}
     </div>
     <div className="condition-children">{tree.children.map((child, i) => <SummaryTree key={"clause_id" in child ? child.clause_id : `group:${i}`}
-      tree={child} items={items} changes={changes} editing={editing} disabled={disabled} onEdit={onEdit} onDone={onDone} onDiscuss={onDiscuss}
+      highlightedClauses={highlightedClauses} tree={child} items={items} changes={changes} editing={editing} disabled={disabled} onEdit={onEdit} onDone={onDone} onDiscuss={onDiscuss}
       onChange={(next) => onChange({ ...tree, children: tree.children.map((c, j) => i === j ? next : c) })}
       onRemove={tree.children.length > 1 ? () => onChange({ ...tree, children: tree.children.filter((_, j) => i !== j) }) : onRemove} />)}</div>
   </div>;
-  return <ClauseSummary clause={tree} number={items.findIndex((c) => c.clause_id === tree.clause_id) + 1} change={changes.get(tree.clause_id)}
+  return <ClauseSummary highlighted={highlightedClauses?.includes(tree.clause_id)} clause={tree} number={items.findIndex((c) => c.clause_id === tree.clause_id) + 1} change={changes.get(tree.clause_id)}
     open={editing === tree.clause_id} disabled={disabled} onEdit={() => onEdit(tree.clause_id)} onChange={onChange} onDone={onDone} onRemove={onRemove} onDiscuss={onDiscuss} />;
 }
