@@ -3,7 +3,11 @@ from __future__ import annotations
 import os
 import sqlite3
 import threading
-import fcntl
+import sys
+if sys.platform == 'win32':
+    fcntl = None  # Windows 开发环境：无 flock，单进程运行即可保证互斥
+else:
+    import fcntl
 from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -55,11 +59,12 @@ def register_workbench(app, authenticate, retriever_for, secret, storage_path=No
                 path = Path(storage_path or os.getenv('TAG_AGENT_DB', './data/agent/workbench.sqlite')).resolve()
                 path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
                 lease = open(str(path) + '.lock', 'a')
-                try:
-                    fcntl.flock(lease, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                except BlockingIOError:
-                    lease.close()
-                    raise HTTPException(503, '该检查点库已有运行进程；请使用单个 Agent 服务进程')
+                if fcntl is not None:
+                    try:
+                        fcntl.flock(lease, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    except BlockingIOError:
+                        lease.close()
+                        raise HTTPException(503, '该检查点库已有运行进程；请使用单个 Agent 服务进程')
                 store = RunStore(str(path), os.getenv('TAG_AGENT_STORAGE_KEY') or secret)
                 checkpoint_path = str(path) + '.checkpoints'
                 conn = sqlite3.connect(checkpoint_path, check_same_thread=False)

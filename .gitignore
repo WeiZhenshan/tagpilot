@@ -73,9 +73,17 @@ docs/项目参考文档/
 
 # Local immutable semantic artifacts (backup separately)
 /data/tag-snapshots/
+/tagpilot-agent/data/tag-snapshots/
 /data/tag-index/
+/tagpilot-agent/data/tag-index/
 /logs/runtime/
+/tagpilot-agent/logs/runtime/
 
 # Encrypted local Agent V2 state (keep with its key, never commit)
 /data/agent/
+/tagpilot-agent/data/agent/
 /tagpilot-agent/out/
+
+# 技能引擎运行时产物（SQLite 注册表 / 本地缓存，随跑随建，不提交）
+*.sqlite
+*.sqlite3

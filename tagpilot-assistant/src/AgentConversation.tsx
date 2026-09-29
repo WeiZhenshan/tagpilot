@@ -9,6 +9,7 @@ import {
 } from "@assistant-ui/react";
 import type { Thread, AgentMessage, RunEvent } from "./agentTypes";
 import { busy, clauses, stateText } from "./agentTypes";
+import { SkillDock } from "./SkillDock";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
@@ -148,6 +149,7 @@ export function AgentConversation({
   onCancel,
   onAnswer,
   onRetry,
+  onSkillError,
 }: {
   thread: Thread | null;
   disabled: boolean;
@@ -156,6 +158,7 @@ export function AgentConversation({
   onCancel: () => void;
   onAnswer: (text: string) => void;
   onRetry: () => void;
+  onSkillError: (message: string) => void;
 }) {
   const runtime = useExternalStoreRuntime<AgentMessage>({
     messages: thread?.messages || [],
@@ -279,6 +282,12 @@ export function AgentConversation({
               )}
             </div>
           </ComposerPrimitive.Root>
+          <SkillDock
+            thread={thread}
+            disabled={disabled}
+            pending={pending}
+            onError={onSkillError}
+          />
           <p className="composer-note">
             条件可随时核对和修改；创建客群前会请你确认。
           </p>

@@ -45,6 +45,8 @@ class Planner:
     def __init__(self):
         self.url = os.getenv('TAG_LLM_BASE_URL', '').rstrip('/')
         self.model = os.getenv('TAG_LLM_MODEL', '')
+        # 推理类模型（如 hy3）单次调用常在 15s 以上，默认超时放宽到 90s，可通过 TAG_LLM_TIMEOUT 覆盖。
+        self.timeout = float(os.getenv('TAG_LLM_TIMEOUT', '90'))
 
     def decide(self, context):
         if not self.url or not self.model:
@@ -53,7 +55,7 @@ class Planner:
                     {'role': 'user', 'content': json.dumps(context, ensure_ascii=False)}]
         for attempt in range(2):
             try:
-                response = httpx.post(self.url + '/v1/chat/completions', timeout=60,
+                response = httpx.post(self.url + '/v1/chat/completions', timeout=self.timeout,
                     headers={'authorization': 'Bearer ' + os.getenv('TAG_LLM_API_KEY', '')},
                     json={'model': self.model, 'temperature': 0, 'response_format': {'type': 'json_object'}, 'messages': messages})
                 response.raise_for_status()

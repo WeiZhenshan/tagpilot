@@ -65,6 +65,8 @@ def create_app(token=None, semantic_url=None, retriever_factory: Callable | None
 
     from tagpilot_agent.workbench_api import register_workbench
     register_workbench(app, authenticate, retriever_for, secret)
+    from tagpilot_agent.skills.api import register_skills
+    register_skills(app, authenticate)
     return app
 
 

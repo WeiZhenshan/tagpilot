@@ -451,6 +451,7 @@ export function App() {
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
             onRetry={() => void act((t) => api.resumeRun(t))}
+            onSkillError={(message) => setError(message)}
           />
         </main>
         <PlanPanel
