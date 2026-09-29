@@ -365,6 +365,45 @@ textarea {
   scrollbar-width: thin;
   scrollbar-color: #cbd1da transparent;
 }
+.rail-tabs { display: flex; gap: 4px; padding: 3px; border: 1px solid var(--border); border-radius: 6px; }
+.rail-tabs button { flex: 1; border: 0; padding: 5px 8px; background: transparent; color: var(--muted); }
+.rail-tabs button[aria-selected="true"] { background: #fff; color: #24272c; font-weight: 500; }
+.rail-content { display: flex; flex: 1; min-height: 0; flex-direction: column; gap: 10px; }
+.rail-content[hidden] { display: none; }
+.tag-browser { display: flex; flex: 1; flex-direction: column; min-height: 0; gap: 8px; }
+.tag-browser-hint, .tag-blocked-hint { font-size: 12px; color: var(--muted); }
+.tag-tree-scroll { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: #cbd1da transparent; }
+.tag-tree-list { list-style: none; padding: 0; margin: 0; }
+.tag-tree-list .tag-tree-list { padding-left: 8px; }
+.tag-tree-row { display: flex; align-items: center; min-height: 34px; gap: 3px; border-radius: 6px; padding: 3px 2px; }
+.tag-tree-row:hover { background: #eef0f3; }
+.tag-expand { width: 20px; height: 26px; padding: 3px; border: 0; background: transparent; flex-shrink: 0; }
+.tag-expand svg { display: block; width: 14px; height: 14px; }
+.tag-leaf-space { width: 8px; flex-shrink: 0; }
+.tag-node-label { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; cursor: pointer; font-size: 12px; }
+.tag-node-label input { width: 14px; height: 14px; padding: 0; margin: 0; flex-shrink: 0; accent-color: #263345; }
+.tag-node-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tag-type-dot { width: 5px; height: 5px; border-radius: 50%; background: #68717d; flex-shrink: 0; }
+.tag-type-dot[data-type="数值型"] { background: #235382; }
+.tag-type-dot[data-type="布尔型"] { background: #347451; }
+.tag-type-dot[data-type="选项型"] { background: #845714; }
+.tag-type, .tag-used { font-size: 10px; color: var(--muted); flex-shrink: 0; }
+.tag-in-plan .tag-node-name, .tag-used { color: #347451; }
+.tag-selection-tray { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+.tag-tray-heading { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.tag-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.tag-chip { display: inline-flex; align-items: center; max-width: 100%; gap: 4px; padding: 3px 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; background: #fff; }
+.tag-chip > span { min-width: 0; overflow-wrap: anywhere; }
+.chip-remove { display: grid; place-items: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; border: 0; background: transparent; }
+.chip-remove svg { width: 14px; height: 14px; }
+.tag-selection-tray .tag-chips { max-height: 210px; overflow: auto; }
+.tag-selection-notice { color: #845714; font-size: 12px; }
+.tag-tree-error { font-size: 12px; color: var(--danger); padding: 8px 2px; overflow-wrap: anywhere; }
+.tag-tree-error button { margin-top: 8px; }
+.composer-tags { padding: 12px 15px 0; }
+.message > .tag-chips { margin-bottom: 6px; }
+.tag-confirm-overlay .confirm-dialog { display: flex; flex-direction: column; gap: 16px; }
+.tag-confirm-overlay textarea { width: 100%; resize: vertical; max-height: 220px; }
 .history-item {
   position: relative;
   width: 100%;

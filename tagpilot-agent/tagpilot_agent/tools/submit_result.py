@@ -9,6 +9,11 @@ async def submit_result(ctx,args):
     errors=[];outcome=args['outcome'];nodes=leaves(plan['tree']) if plan.get('tree') else []
     requirements={r['requirement_id'] for r in plan.get('intent_plan',{}).get('requirements',[])}
     if not nodes:errors.append('必须保留需求条件树')
+    if ctx.request.get('pinned_only') and not ctx.request.get('_answer'):
+        previous=ctx.request.get('previous_plan') or {}
+        prior_ids={n['clause_id'] for n in leaves(previous['tree'])} if previous.get('tree') else set()
+        if any(n['clause_id'] not in prior_ids and (n.get('kind')=='SCOPE_ALL' or n.get('operator') or n.get('values')) for n in nodes):
+            errors.append('仅选择标签尚未授权取值：新增叶子必须保留未绑定条件，通过业务问题询问筛选值及组合关系')
     if outcome=='READY':
         if not plan['valid'] or any(n.get('status')!='BOUND' for n in nodes):errors.append('READY 须零阻断且所有条件 BOUND')
         if args['questions'] or args['gaps']:errors.append('READY 不能包含问题或缺口')
@@ -21,7 +26,11 @@ async def submit_result(ctx,args):
         if pending-asked:errors.append('待确认的业务假设必须逐项提问，不能将未询问的暂定口径冻结为条件：'+','.join(sorted(pending-asked)))
         for q in args['questions']:
             if q['requirement_id'] not in requirements:errors.append('问题必须对应需求：'+q['requirement_id']+'；可用ID：'+','.join(sorted(requirements)))
-            if q['reason']!='GOAL_UNCLEAR' and not ctx.searches.get(q['requirement_id']):errors.append('请先查证该需求，再提出业务问题')
+            pinned=set(ctx.request.get('pinned_tag_ids',[])) & ctx.details_loaded
+            pinned_verified=any(q['requirement_id'] in n.get('requirement_ids',[]) and
+                (n.get('tag_id') in pinned or any(ctx.tags[tid].get('name') in n.get('source_span','') for tid in pinned if ctx.tags[tid].get('name')))
+                for n in nodes)
+            if q['reason']!='GOAL_UNCLEAR' and not ctx.searches.get(q['requirement_id']) and not pinned_verified:errors.append('请先查证该需求，再提出业务问题')
             if any(x in q['prompt'] for x in ('tag_id','SQL','caliber','eligible','build_id')):errors.append('问题中不能包含技术字段')
     budget_partial=outcome=='PARTIAL' and (ctx.budget.converging(ctx) or ctx.lean or progress(ctx.request.get('previous_plan')))
     declared_refs={rid for n in nodes if n.get('gap_reason') and not (budget_partial and n['gap_reason']=='BUDGET_EXHAUSTED')

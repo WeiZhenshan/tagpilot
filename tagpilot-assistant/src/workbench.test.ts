@@ -6,12 +6,18 @@ describe("parseWorkbenchQuery", () => {
     expect(parseWorkbenchQuery("?libraryId=107&libraryName=个人客户&from=/taglibrary/tags")).toEqual({
       libraryId: 107,
       libraryName: "个人客户",
+      groupId: undefined,
       from: "/taglibrary/tags",
     });
   });
 
   it("rejects protocol-relative from values", () => {
     expect(parseWorkbenchQuery("?from=//evil.example/phish").from).toBe("/taglibrary/list");
+  });
+  it("仅接受正整数客群编号", () => {
+    expect(parseWorkbenchQuery("?groupId=90").groupId).toBe(90);
+    expect(parseWorkbenchQuery("?groupId=1.5").groupId).toBeUndefined();
+    expect(parseWorkbenchQuery("?groupId=-1").groupId).toBeUndefined();
   });
 });
 

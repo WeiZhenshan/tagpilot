@@ -27,6 +27,7 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | 标签系统核心功能模块详解 | 架构 / 模块说明 | 全局 | [`architecture/标签系统核心功能模块详解.md`](architecture/标签系统核心功能模块详解.md) | 统一标签管理系统的定位与四大核心模块（数据代理 / 标签库 / 对象群 / 审批流程）的功能定义与机制 | 现行 |
 | 标签语义引擎与 Agent 编排层 | 架构 / 使用指南 | taglibrary + tagpilot-semantic + tagpilot-agent + tagpilot-assistant | [`architecture/标签语义引擎与Agent编排层.md`](architecture/标签语义引擎与Agent编排层.md) | 对照代码整理：`ts_*` 语义层、快照/索引、六通道检索、历史 LangGraph 圈选工作台（threads/runs）、智能体工作台；含本机启动与运营使用指南 | 语义层参考；Agent runtime 以 SDK 实施记录为准 |
 | Agent V2 圈选工作台 | 实施说明 / 验证 | taglibrary + objectgroup + agent + assistant | [`development/Agent-V2实施说明.md`](development/Agent-V2实施说明.md) | 持久会话、条件树、工具循环、Ask、版本统计与确认创建；含开发计划和验证边界 | 现行（2026-09-21） |
+| 标签上下文与客群编辑 | 实施说明 / 验证 | taglibrary + objectgroup + agent + assistant | [`development/标签上下文与客群编辑实施说明.md`](development/标签上下文与客群编辑实施说明.md) | 左栏最多5项多选、补充说明、标签chip全链路及原客群回灌/更新；含权限与迁移边界 | 现行（2026-09-29） |
 
 ### 设计 `docs/design/`
 

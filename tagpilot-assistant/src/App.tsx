@@ -14,6 +14,8 @@ import {
 import * as api from "./agentApi";
 import { AgentConversation } from "./AgentConversation";
 import { PlanPanel } from "./PlanPanel";
+import { TagTree, TagChips } from "./TagTree";
+import { MAX_CONTEXT_TAGS, selectionMessage, usedTagIds } from "./tagSelection";
 import { ChevronIcon, ListboxSelect } from "./ListboxSelect";
 import {
   busy,
@@ -23,6 +25,7 @@ import {
   type Thread,
   type ThreadRow,
   type Plan,
+  type ContextTag,
 } from "./agentTypes";
 import {
   parseWorkbenchQuery,
@@ -51,7 +54,25 @@ export function App() {
   const [highlightedClauses, setHighlightedClauses] = useState<string[]>([]);
   useEffect(() => { setHighlightedClauses([]); }, [thread?.thread_id, thread?.run_id]);
   const [tab, setTab] = useState("chat");
-  const [composerRequest, setComposerRequest] = useState<{ text: string; id: number }>();
+  const [railTab, setRailTab] = useState<"history" | "tags">("history");
+  const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
+  const [contextTags, setContextTags] = useState<ContextTag[]>([]);
+  const [tagConfirm, setTagConfirm] = useState(false);
+  const [tagNote, setTagNote] = useState("");
+  const tagDialog = useRef<HTMLDialogElement>(null);
+  const tagTrigger = useRef<HTMLElement | null>(null);
+  const usedTags = useMemo(() => usedTagIds(thread?.live_plan?.tree || thread?.plan?.tree), [thread?.live_plan, thread?.plan]);
+  useEffect(() => { setSelectedTags([]); setContextTags([]); setTagConfirm(false); }, [library]);
+  useEffect(() => {
+    setSelectedTags((items) => items.filter((t) => !usedTags.has(t.id)));
+    setContextTags((items) => items.filter((t) => !usedTags.has(t.id)));
+  }, [usedTags]);
+  useEffect(() => {
+    if (!tagConfirm) return;
+    tagDialog.current?.showModal();
+    return () => { tagTrigger.current?.focus(); };
+  }, [tagConfirm]);
+  const [composerRequest, setComposerRequest] = useState<{ text: string; id: number; focusOnly?: boolean }>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem("tagpilot:history-collapsed") === "1"
   );
@@ -102,6 +123,7 @@ export function App() {
     setLibrary(value.library_id);
     const url = new URL(location.href);
     url.searchParams.set("threadId", value.thread_id);
+    url.searchParams.delete("groupId");
     historyReplace(url);
   }, []);
   function historyReplace(url: URL) {
@@ -162,11 +184,19 @@ export function App() {
   }, [reloadHistory]);
   useEffect(() => {
     const id = new URLSearchParams(location.search).get("threadId");
-    if (id)
-      void api
-        .getThread(id)
-        .then(update)
-        .catch((e) => setError(e.message));
+    let dead = false;
+    const seq = generation.current;
+    if (initial.groupId || id) {
+      setPending(true); inflight.current = true;
+      void (initial.groupId ? api.fromGroup(initial.groupId) : api.getThread(id!))
+        .then((value) => {
+          if (dead || seq !== generation.current) return;
+          update(value);
+          if (initial.groupId) { setRailTab("tags"); setSidebarCollapsed(false); void reloadHistory(); }
+        }).catch((e) => { if (!dead) setError(e.message); })
+        .finally(() => { if (!dead) { setPending(false); inflight.current = false; } });
+    }
+    return () => { dead = true; };
   }, [update]);
   useEffect(() => {
     if (!thread || !busy(thread)) return;
@@ -239,14 +269,16 @@ export function App() {
     };
   }, []);
   async function operation(fn: () => Promise<void>) {
-    if (inflight.current) return;
+    if (inflight.current) return false;
     inflight.current = true;
     setPending(true);
     setError("");
     try {
       await fn();
+      return true;
     } catch (e) {
       setError(e instanceof Error ? e.message : "操作失败，请重试");
+      return false;
     } finally {
       inflight.current = false;
       setPending(false);
@@ -260,6 +292,7 @@ export function App() {
         update(t);
         setSample(null);
         setTab("chat");
+        setSelectedTags([]); setContextTags([]); setTagConfirm(false);
       }
     });
   }
@@ -268,23 +301,38 @@ export function App() {
     generation.current++;
     current.current = null;
     setThread(null);
+    setSelectedTags([]); setContextTags([]); setTagConfirm(false);
     setLibrary(next);
     setSample(null);
     setEditingThreadId(null);
     setTab("chat");
     const url = new URL(location.href);
     url.searchParams.delete("threadId");
+    url.searchParams.delete("groupId");
     historyReplace(url);
   }
-  async function send(text: string) {
+  async function send(text: string, tags: ContextTag[] = [], contextOnly = false) {
+    if (!library) return false;
+    let sent = false;
     await operation(async () => {
-      if (!library) return;
       let t = current.current;
       if (!t) t = await api.createThread(library);
       update(t);
-      update(await api.startRun(t, text));
+      update(await api.startRun(t, text, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), contextOnly));
+      sent = true;
+      setContextTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
+      setSelectedTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
+      setTab("chat");
       await reloadHistory();
     });
+    return sent;
+  }
+  const tagBlocked = !library ? "请先选择标签库" : pending ? "正在保存，请稍候" : thread?.archived ? "会话已归档，恢复后可发送" : busy(thread) ? "正在处理，可先浏览并选择标签" : thread?.status === "WAITING" ? "请先回答当前待补充问题" : "";
+  function addTagsToComposer() {
+    const merged = [...new Map([...contextTags, ...selectedTags].map((t) => [t.id, t])).values()];
+    if (merged.length > MAX_CONTEXT_TAGS) { setError("输入框每轮最多加入5个标签，请先移除部分标签。"); return; }
+    setContextTags(merged); setSelectedTags([]); setTab("chat");
+    setComposerRequest({ text: "", id: Date.now(), focusOnly: true });
   }
   const act = (fn: (t: Thread) => Promise<Thread>) =>
     operation(async () => {
@@ -338,6 +386,7 @@ export function App() {
     generation.current++;
     current.current = null;
     setThread(null);
+    setSelectedTags([]); setContextTags([]); setTagConfirm(false);
     setSample(null);
     const url = new URL(location.href);
     url.searchParams.delete("threadId");
@@ -449,6 +498,15 @@ export function App() {
           >
             新建圈选
           </button>
+          <div className="rail-tabs" role="tablist" aria-label="侧栏内容">
+            <button role="tab" aria-selected={railTab === "history"} aria-controls="rail-history" onClick={() => setRailTab("history")}>会话</button>
+            <button role="tab" aria-selected={railTab === "tags"} aria-controls="rail-tags" onClick={() => setRailTab("tags")}>标签</button>
+          </div>
+          <div id="rail-tags" role="tabpanel" aria-label="标签" hidden={railTab !== "tags"} className="rail-content rail-tag-content">
+            <TagTree libraryId={library} selected={selectedTags} used={usedTags} blockedReason={tagBlocked} onChange={setSelectedTags}
+              onConfirm={() => { tagTrigger.current = document.activeElement as HTMLElement; setTagNote(""); setTagConfirm(true); }} onAdd={addTagsToComposer} />
+          </div>
+          <div id="rail-history" role="tabpanel" aria-label="会话" hidden={railTab !== "history"} className="rail-content">
           <input
             className="history-search"
             aria-label="搜索会话"
@@ -589,6 +647,7 @@ export function App() {
                 : "你的圈选任务会保存在这里"}
             </p>
           ) : null}
+          </div>
           <div className="account" ref={account}>
             {accountOpen ? (
               <div className="account-menu" role="menu" aria-label="个人菜单">
@@ -603,6 +662,7 @@ export function App() {
                   role="menuitem"
                   onClick={() => {
                     setArchived((value) => !value);
+                    setRailTab("history");
                     setAccountOpen(false);
                     if (mobile) setTab("history");
                   }}
@@ -653,7 +713,7 @@ export function App() {
               aria-selected={tab === "history"}
               onClick={() => setTab("history")}
             >
-              历史
+              会话 / 标签
             </button>
             <button
               role="tab"
@@ -696,12 +756,14 @@ export function App() {
                 onChange={fresh}
               />
             }
+            contextTags={contextTags}
+            onRemoveContextTag={(id) => setContextTags((items) => items.filter((t) => t.id !== id))}
             onReveal={(ids) => {
               setHighlightedClauses(ids);
               setTab("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
-            onSend={send}
+            onSend={(text) => send(text.trim() ? text : selectionMessage(contextTags), contextTags, !text.trim() && !!contextTags.length)}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
             onRetry={() => void act((t) => api.resumeRun(t))}
@@ -733,6 +795,25 @@ export function App() {
           onOpenGroup={openGroup}
         />
       </div>
+      {tagConfirm ? <dialog ref={tagDialog} className="confirm-overlay tag-confirm-overlay" aria-labelledby="tag-confirm-title" onCancel={() => setTagConfirm(false)} onKeyDown={(event) => {
+        if (event.key !== "Tab") return;
+        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("textarea, button:not(:disabled)"));
+        const first = controls[0], last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }}>
+        <form className="confirm-dialog" onSubmit={(event) => {
+          event.preventDefault();
+          void send(selectionMessage(selectedTags, tagNote), selectedTags, !tagNote.trim()).then((sent) => { if (sent) setTagConfirm(false); });
+        }}>
+          <h2 id="tag-confirm-title">让智能体梳理所选标签</h2>
+          <TagChips tags={selectedTags} />
+          <label className="field-label">补充说明（可选）<textarea autoFocus rows={3} maxLength={Math.max(0, 2000 - selectionMessage(selectedTags).length - 8)} value={tagNote} onChange={(event) => setTagNote(event.target.value)} placeholder="例如：这些条件需要同时满足；具体阈值请逐项和我确认" /></label>
+          <p>标签作为优先候选；未说明的筛选值和组合关系会继续向你确认。</p>
+          {error ? <p className="tag-selection-notice" role="alert">{error}</p> : null}
+          <div className="confirm-actions"><button type="button" disabled={pending} onClick={() => setTagConfirm(false)}>取消</button><button className="primary" disabled={!selectedTags.length || !!tagBlocked}>确认并梳理</button></div>
+        </form>
+      </dialog> : null}
       {deleteAllConfirm ? (
         <dialog
           ref={deleteAllDialog}

@@ -34,6 +34,7 @@ public class TsAgentWorkbenchService {
     @Autowired private TsAgentClient agent;
     @Autowired private TsAudiencePlanCompiler compiler;
     @Autowired private ITlObjectGroupService groups;
+    @Autowired private ITlTagService tags;
 
     private Long uid() { return SecurityUtils.getUserId(); }
     private String id() { return UUID.randomUUID().toString(); }
@@ -68,13 +69,46 @@ public class TsAgentWorkbenchService {
         long next=number(state.get("revision"))+1;
         plan.remove("hash");plan.put("revision",next);plan.put("hash",TsSnapshotCanonicalizer.sha256(encode(plan)));
         state.put("revision",next);state.put("plan",plan);state.remove("live_plan");state.remove("count");state.remove("execution");
+        if(Boolean.TRUE.equals(plan.get("valid")))state.remove("source_requires_validation");
         List<Map<String,Object>> versions=list(state.get("versions"));versions.add(plan);state.put("versions",versions);
     }
     private Map<String,Object> view(TsAgentThread row,Map<String,Object> state) {
         Map<String,Object> out=new LinkedHashMap<>(state);
         out.putAll(map("thread_id",row.getThreadId(),"library_id",row.getLibraryId(),"title",row.getTitle(),"archived","1".equals(row.getArchived()),"pinned","1".equals(row.getPinned()),
-            "capabilities",map("count",permissions.hasPermi("objectgroup:group:run"),"create",permissions.hasPermi("objectgroup:group:add"),"preview",permissions.hasPermi("objectgroup:group:preview"))));
+            "capabilities",map("count",permissions.hasPermi("objectgroup:group:run"),"create",permissions.hasPermi("objectgroup:group:add"),"update",permissions.hasPermi("objectgroup:group:edit"),"preview",permissions.hasPermi("objectgroup:group:preview"))));
         out.remove("run_request"); return out;
+    }
+    /** 仅暴露当前发布且仍可执行的轻量标签树，不要求标签管理权限。 */
+    public List<Map<String,Object>> tagTree(Long library) {
+        visible(library);
+        Map<String,Object> bundle=catalog.activeBundle(library);
+        Set<Long> eligible=new HashSet<>(catalog.eligibleTagIds(library,String.valueOf(bundle.get("snapshot_id"))));
+        return pruneTags(tags.buildTree(library,"online"),eligible,"");
+    }
+    private List<Map<String,Object>> pruneTags(List<Map<String,Object>> nodes,Set<Long> eligible,String path) {
+        List<Map<String,Object>> out=new ArrayList<>();
+        for(Map<String,Object> node:nodes) {
+            String key=String.valueOf(node.get("id")),label=String.valueOf(node.get("label"));
+            if(key.startsWith("tag-")) {
+                Long tagId=Long.valueOf(key.substring(4));
+                if(eligible.contains(tagId))out.add(map("id",key,"tagId",tagId,"label",label,"tagType",node.get("tagType"),"dirPath",path));
+            } else {
+                List<Map<String,Object>> children=pruneTags(list(node.get("children")),eligible,path.isEmpty()?label:path+" / "+label);
+                if(!children.isEmpty())out.add(map("id",key,"label",label,"children",children));
+            }
+        }
+        return out;
+    }
+    private List<Long> contextIds(Map<String,Object> request) {
+        Object raw=request.get("context_tag_ids");
+        if(raw==null)return new ArrayList<>();
+        if(!(raw instanceof List) || ((List<?>)raw).size()>5)throw new ServiceException("每轮最多选择5个标签");
+        Set<Long> ids=new TreeSet<>();
+        for(Object value:(List<?>)raw) {
+            if(!(value instanceof Number) || !String.valueOf(value).matches("[1-9][0-9]*"))throw new ServiceException("标签编号非法");
+            ids.add(number(value));
+        }
+        return new ArrayList<>(ids);
     }
     public List<TsAgentThread> listThreads(boolean archived) {
         return threads.list(uid(),archived?"1":"0");
@@ -167,11 +201,15 @@ public class TsAgentWorkbenchService {
     @Transactional
     public Map<String,Object> start(String thread,Map<String,Object> request) {
         TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
+        List<Long> pinned=contextIds(request);
+        if(Boolean.TRUE.equals(request.get("context_only")) && pinned.isEmpty())throw new ServiceException("请先选择标签");
         String client=String.valueOf(request.get("client_request_id"));
         if(!client.matches("[a-zA-Z0-9-]{16,64}"))throw new ServiceException("请求编号非法");
         if(client.equals(state.get("run_id"))) {
             Map<String,Object> original=obj(state.get("run_request"));
-            if(!Objects.equals(original.get("requirement"),request.getOrDefault("message","编辑圈选条件")) || !Objects.equals(original.get("edited_plan"),request.get("plan")))
+            if(!Objects.equals(original.get("requirement"),request.getOrDefault("message","编辑圈选条件")) || !Objects.equals(original.get("edited_plan"),request.get("plan"))
+                || !Objects.equals(contextIds(map("context_tag_ids",original.get("pinned_tag_ids"))),pinned)
+                || !Objects.equals(original.getOrDefault("pinned_only",false),Boolean.TRUE.equals(request.get("context_only"))))
                 throw new ServiceException("重复请求内容不一致",409);
             return view(row,state);
         }
@@ -186,9 +224,17 @@ public class TsAgentWorkbenchService {
             state.put("confirmed_clause_ids",confirmed);
         }
         Map<String,Object> bundle=catalog.activeBundle(row.getLibraryId());
+        List<Long> eligible=catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(bundle.get("snapshot_id")));
+        List<Map<String,Object>> contextTags=new ArrayList<>();
+        for(Long tagId:pinned) {
+            TlTag tag=tags.selectTagById(tagId);
+            if(tag==null || !Objects.equals(tag.getLibraryId(),row.getLibraryId()) || !eligible.contains(tagId))
+                throw new ServiceException("所选标签已不可用或不属于当前标签库，请重新选择",409);
+            contextTags.add(map("id",tagId,"name",tag.getTagName()));
+        }
         Map<String,Object> req=map("run_id",client,"owner_id",String.valueOf(uid()),"thread_id",thread,"library_id",row.getLibraryId(),
             "build_id",bundle.get("build_id"),"snapshot_id",bundle.get("snapshot_id"),"artifact_hash",bundle.get("artifact_hash"),
-            "eligible_tag_ids",catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(bundle.get("snapshot_id"))),"requirement",text,
+            "eligible_tag_ids",eligible,"pinned_tag_ids",pinned,"pinned_only",Boolean.TRUE.equals(request.get("context_only")),"requirement",text,
             "previous_plan",obj(state.get("plan")),"edited_plan",request.get("plan"),"confirmed_clause_ids",state.getOrDefault("confirmed_clause_ids",new ArrayList<>()));
         // 基准日由服务端注入并随运行持久化，恢复时沿用；明确写出的年份优先。
         req.put("reference_date",LocalDate.now(ZoneId.of("Asia/Shanghai")).toString());
@@ -200,7 +246,7 @@ public class TsAgentWorkbenchService {
         state.put("run_history",priorRuns);
         List<Map<String,Object>> history=list(state.get("messages"));req.put("history",history.subList(Math.max(0,history.size()-12),history.size()));
         agent.post("/agent/v2/runs",req);
-        List<Map<String,Object>> messages=new ArrayList<>(history);messages.add(map("id",id(),"role","user","text",text,"run_id",client,"created_at",Instant.now().toString()));
+        List<Map<String,Object>> messages=new ArrayList<>(history);messages.add(map("id",id(),"role","user","text",text,"context_tags",contextTags,"run_id",client,"created_at",Instant.now().toString()));
         if("新的圈选".equals(row.getTitle()))row.setTitle(text.substring(0,Math.min(40,text.length())));
         state.putAll(map("run_id",client,"run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
         state.remove("error");state.remove("authority_repairs");state.remove("live_plan");state.remove("count");state.remove("execution");save(row,state);return view(row,state);
@@ -259,6 +305,7 @@ public class TsAgentWorkbenchService {
 
     private Map<String,Object> currentPlan(Map<String,Object> state,Map<String,Object> request) {
         revision(state,request);idle(state);Map<String,Object> plan=obj(state.get("plan"));
+        if(Boolean.TRUE.equals(state.get("source_requires_validation")))throw new ServiceException("请先按最新发布版本重新核验原客群条件");
         if(!Boolean.TRUE.equals(plan.get("valid")))throw new ServiceException("圈选条件尚未校验通过");
         checkClauseState(obj(plan.get("tree")),new HashSet<>((List<String>)state.getOrDefault("confirmed_clause_ids",new ArrayList<>())));
         if(!Objects.equals(plan.get("hash"),request.get("plan_hash")))throw new ServiceException("确认的方案已变化",409);
@@ -280,21 +327,75 @@ public class TsAgentWorkbenchService {
     }
     @Transactional
     public Map<String,Object> createGroup(String thread,Map<String,Object> request) {
-        if(!permissions.hasPermi("objectgroup:group:add"))throw new ServiceException("没有创建客群权限",403);
-        TsAgentThread row=owned(thread);Map<String,Object> state=data(row);Map<String,Object> plan=currentPlan(state,request);
+        TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
+        boolean updating=state.get("source_group_id")!=null;
+        if(!permissions.hasPermi(updating?"objectgroup:group:edit":"objectgroup:group:add"))throw new ServiceException(updating?"没有更新客群权限":"没有创建客群权限",403);
+        if("1".equals(row.getArchived()))throw new ServiceException("请先恢复已归档会话",409);
+        Map<String,Object> plan=currentPlan(state,request);
         Map<String,Object> previous=threads.execution(thread,uid(),number(state.get("revision")));
         if(previous!=null)return previous;
         String name=String.valueOf(request.getOrDefault("name","" )).trim();if(name.isEmpty()||name.length()>100)throw new ServiceException("客群名称须为1至100字");
-        RulePayload rule=compiler.compile(row.getLibraryId(),plan);groups.buildRuleSql(row.getLibraryId(),rule);
+        TlObjectGroup source=null;
+        if(updating) {
+            source=groups.selectObjectGroupByIdForUpdate(number(state.get("source_group_id")));
+            if(source==null || !Objects.equals(source.getLibraryId(),row.getLibraryId()))throw new ServiceException("原客群不存在或所属标签库已变化",409);
+            if(!Objects.equals(state.get("source_rule_hash"),TsSnapshotCanonicalizer.sha256(source.getRuleJson()))
+                || (state.containsKey("source_group_name") && !Objects.equals(state.get("source_group_name"),source.getGroupName())))
+                throw new ServiceException("原客群已被其他操作更新，请从客群列表重新进入",409);
+        }
+        RulePayload rule=compiler.compile(row.getLibraryId(),plan);String sql=groups.buildRuleSql(row.getLibraryId(),rule);
         TlObjectGroup group=new TlObjectGroup();group.setLibraryId(row.getLibraryId());group.setGroupName(name);group.setRuleJson(encode(rule));
-        group.setGroupDesc("圈选会话 "+thread+" / 方案 v"+state.get("revision"));groups.insertObjectGroup(group);
+        if(updating) {
+            group.setGroupId(source.getGroupId());group.setGroupSql(sql);
+            Map<String,Object> count=obj(state.get("count"));
+            group.setUserCount(number(count.get("revision"))==number(state.get("revision"))?number(count.get("value")):0L);
+            if(groups.updateObjectGroup(group)!=1)throw new ServiceException("原客群更新失败",409);
+            state.put("source_rule_hash",TsSnapshotCanonicalizer.sha256(group.getRuleJson()));state.put("source_group_name",name);
+        } else {
+            group.setGroupDesc("圈选会话 "+thread+" / 方案 v"+state.get("revision"));groups.insertObjectGroup(group);
+        }
         String eid=id();threads.executionInsert(eid,thread,uid(),number(state.get("revision")),String.valueOf(plan.get("hash")),group.getGroupId());
-        Map<String,Object> result=map("execution_id",eid,"group_id",group.getGroupId(),"revision",state.get("revision"),"plan_hash",plan.get("hash"));
+        Map<String,Object> result=map("execution_id",eid,"group_id",group.getGroupId(),"revision",state.get("revision"),"plan_hash",plan.get("hash"),"updated",updating);
         state.put("execution",result);save(row,state);return result;
     }
     @Transactional
     public Map<String,Object> execution(String thread) {
         TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
         Map<String,Object> found=threads.execution(thread,uid(),number(state.get("revision")));return found==null?map("status","NOT_CREATED"):found;
+    }
+    /** 客群的保存方案是回灌来源；其他用户的会话、历史版本及删除会话均不直接复用。 */
+    @Transactional
+    public Map<String,Object> fromGroup(Long groupId) {
+        if(!permissions.hasPermi("objectgroup:group:edit"))throw new ServiceException("没有编辑客群权限",403);
+        TlObjectGroup group=groups.selectObjectGroupById(groupId);
+        if(group==null)throw new ServiceException("客群不存在",404);
+        visible(group.getLibraryId());
+        Map<String,Object> rule;
+        try {rule=json.readValue(group.getRuleJson(),Map.class);}catch(Exception e){throw new ServiceException("客群规则无法读取");}
+        Map<String,Object> saved=obj(rule.get("audiencePlan"));
+        if(number(rule.get("schemaVersion"))<4 || !saved.containsKey("tree"))throw new ServiceException("手工规则客群请使用规则编辑器");
+        TsAgentThread row=null;Map<String,Object> state=null;
+        for(Map<String,Object> execution:threads.executionsForGroup(groupId,uid())) {
+            TsAgentThread candidate=threads.lock(String.valueOf(execution.get("thread_id")),uid());
+            if(candidate==null || "1".equals(candidate.getArchived()) || !Objects.equals(candidate.getLibraryId(),group.getLibraryId()))continue;
+            Map<String,Object> candidateState=data(candidate),candidatePlan=obj(candidateState.get("plan"));
+            if(Arrays.asList("RUNNING","WAITING","SUBMITTING").contains(candidateState.get("status")))continue;
+            if(!Objects.equals(saved.get("hash"),execution.get("plan_hash")) || !saved.equals(candidatePlan))continue;
+            if(candidateState.get("source_group_id")!=null && number(candidateState.get("source_group_id"))!=groupId)continue;
+            row=candidate;state=candidateState;break;
+        }
+        boolean reused=row!=null;
+        if(!reused) {
+            Map<String,Object> created=create(group.getLibraryId());row=owned(String.valueOf(created.get("thread_id")));state=data(row);
+            row.setTitle("编辑："+group.getGroupName().substring(0,Math.min(100,group.getGroupName().length())));
+        }
+        state.put("source_group_id",groupId);state.put("source_group_name",group.getGroupName());
+        state.put("source_rule_hash",TsSnapshotCanonicalizer.sha256(group.getRuleJson()));state.put("source_thread_reused",reused);
+        state.put("source_requires_validation",true);state.put("status","IDLE");
+        Map<String,Object> plan=json.convertValue(saved,Map.class);plan.put("valid",false);plan.put("plan_status","DRAFT");
+        plan.put("diagnostics",Arrays.asList(map("code","REVALIDATION_REQUIRED","message","请按最新发布版本重新核验保存的客群条件")));
+        applyPlan(state,plan);
+        list(state.get("messages")).add(map("id",id(),"role","assistant","text",reused?"已载入客群保存的条件，请按最新发布版本重新核验。":"已根据客群保存的条件建立编辑会话，请按最新发布版本重新核验。","created_at",Instant.now().toString()));
+        save(row,state);return view(row,state);
     }
 }

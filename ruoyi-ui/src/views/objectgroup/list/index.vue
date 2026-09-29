@@ -30,7 +30,8 @@
       <el-table-column prop="createBy" label="创建人" width="100" align="center" />
       <el-table-column label="操作" width="140" fixed="right">
         <template #default="scope">
-          <el-button type="text" size="mini" icon="el-icon-edit" @click="handleEdit(scope.row)" v-hasPermi="['objectgroup:group:edit']">编辑</el-button>
+          <el-button type="text" size="mini" icon="el-icon-edit" @click="handleEdit(scope.row)" v-hasPermi="['objectgroup:group:edit']"
+            :disabled="scope.row.agentEditable && !canUseAgent" :title="scope.row.agentEditable && !canUseAgent ? '需要标签智能体访问权限' : ''">{{ scope.row.agentEditable ? '智能体编辑' : '规则编辑' }}</el-button>
           <el-button type="text" size="mini" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['objectgroup:group:remove']">删除</el-button>
         </template>
       </el-table-column>
@@ -43,6 +44,7 @@
 
 <script>
 import { listGroup, delGroup, runGroup } from '@/api/objectgroup/group'
+import { checkPermi } from '@/utils/permission'
 
 export default {
   name: 'ObjectGroupList',
@@ -56,6 +58,11 @@ export default {
         pageSize: 10,
         groupName: ''
       }
+    }
+  },
+  computed: {
+    canUseAgent() {
+      return checkPermi(['taglibrary:semantic:list'])
     }
   },
   created() {
@@ -78,6 +85,10 @@ export default {
       this.$router.push({ path: '/objectgroup/group-edit/index', query: { mode: 'add' } })
     },
     handleEdit(row) {
+      if (row.agentEditable) {
+        this.$router.push({ path: '/agent', query: { libraryId: row.libraryId, groupId: row.groupId, from: '/objectgroup/list' } })
+        return
+      }
       this.$router.push({ path: '/objectgroup/group-edit/index', query: { groupId: row.groupId } })
     },
     handleDelete(row) {

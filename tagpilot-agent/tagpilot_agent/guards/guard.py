@@ -10,7 +10,7 @@ from tagpilot_agent.retrieval.working_set import ensure_details
 from .plan_validator import validate_plan, leaves
 from .ledger import capture_intent, frozen_errors
 from .diagnostics import diagnostic
-from .literals import check_literals, literal_warnings
+from .literals import check_literals, literal_warnings, NUMBER
 from .binding import check_named_binding, remove_explicit_enum_assumptions
 from tagpilot_agent.telemetry import span
 
@@ -60,6 +60,25 @@ async def check(plan,ctx,strict=False,trusted=False):
                     elif a['status']=='CONFIRMED' and n['clause_id'] not in confirmed:
                         errors.append(diagnostic('BUSINESS_AMBIGUITY','业务解释尚未由用户确认',n['clause_id'],decision=True))
             if not ctx.request.get('_manual_edit'):
+                if ctx.request.get('pinned_only') and not ctx.request.get('_answer'):
+                    old_ids={n['clause_id'] for n in leaves((ctx.request.get('previous_plan') or {})['tree'])} if (ctx.request.get('previous_plan') or {}).get('tree') else set()
+                    for n in nodes:
+                        if n['clause_id'] not in old_ids and (n.get('kind')=='SCOPE_ALL' or n.get('operator') or n.get('values')):
+                            errors.append(diagnostic('BUSINESS_AMBIGUITY','仅选择标签尚未授权取值，请先询问筛选值及条件组合关系',n['clause_id'],decision=True))
+                if ctx.request.get('pinned_tag_ids'):
+                    source=ctx.request.get('_utterance',ctx.request['requirement'])
+                    for tid in ctx.request['pinned_tag_ids']:
+                        name=ctx.tags.get(tid,{}).get('name')
+                        if name:source=source.replace(name,'')
+                    # 标签名中的“近30天”等数字是指标口径，不能充当用户给出的金额阈值。
+                    if not NUMBER.search(source):
+                        previous=ctx.request.get('previous_plan') or {}
+                        old={n['clause_id']:n for n in leaves(previous['tree'])} if previous.get('tree') else {}
+                        for n in nodes:
+                            prior=old.get(n['clause_id'],{})
+                            unchanged=prior.get('status')=='BOUND' and all(prior.get(k)==n.get(k) for k in ('tag_id','operator','values'))
+                            if not unchanged and n.get('tag_id') in ctx.request['pinned_tag_ids'] and n.get('values') and str(ctx.tags[n['tag_id']].get('semantic_type','')).startswith('NUM'):
+                                errors.append(diagnostic('BUSINESS_AMBIGUITY','所选数值标签尚未指定阈值，请先向用户确认',n['clause_id'],decision=True))
                 errors.extend(check_named_binding(plan,ctx.tags))
                 errors.extend(check_literals(plan,ctx.request,ctx.tags))
                 warnings=literal_warnings(plan,ctx.request)

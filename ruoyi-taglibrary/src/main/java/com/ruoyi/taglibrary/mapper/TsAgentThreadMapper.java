@@ -15,6 +15,8 @@ public interface TsAgentThreadMapper {
     int update(TsAgentThread row);
     @Select("select execution_id,group_id,revision,plan_hash from ts_agent_execution where thread_id=#{id} and user_id=#{uid} and revision=#{rev}")
     Map<String,Object> execution(@Param("id") String id,@Param("uid") Long uid,@Param("rev") Long rev);
+    @Select("select e.thread_id,e.plan_hash from ts_agent_execution e join ts_agent_thread t on t.thread_id=e.thread_id and t.user_id=e.user_id where e.group_id=#{gid} and e.user_id=#{uid} and t.archived='0' order by e.create_time desc")
+    List<Map<String,Object>> executionsForGroup(@Param("gid") Long gid,@Param("uid") Long uid);
     @Insert("insert into ts_agent_execution(execution_id,thread_id,user_id,revision,plan_hash,group_id) values(#{eid},#{id},#{uid},#{rev},#{hash},#{gid})")
     int executionInsert(@Param("eid") String eid,@Param("id") String id,@Param("uid") Long uid,@Param("rev") Long rev,@Param("hash") String hash,@Param("gid") Long gid);
     @Delete("delete from ts_agent_execution where thread_id=#{id} and user_id=#{uid}")

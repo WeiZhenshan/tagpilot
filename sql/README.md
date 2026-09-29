@@ -177,5 +177,6 @@ mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
 | `migration/V20260921_02__agent_workbench_menu.sql` | 改用 `menu_id` 2300 补齐「智能体工作台」；已有 `path=agent` 顶级菜单则只补角色授权 |
 | `migration/V20260922_02__agent_thread_pinned.sql` | 会话新增持久置顶状态与归属/归档/置顶排序索引；幂等前向迁移 |
 | `migration/V20260928_01__semantic_p3_changeset_relation.sql` | P3 候选概念关联与受控语义变更审计表；只前向、幂等，不改客户数据 |
+| `migration/V20260929_01__agent_group_lookup.sql` | 智能体客群回跳反查索引 `(group_id, user_id, create_time)`；幂等前向迁移，本次未执行 |
 
 两条迁移已在本地隔离库重复验证并应用本地 ry；详情见 `docs/validation/语义索引层建设验收记录.md`。其它环境仍由 `bin/db-migrate.sh` 读取迁移记录按序执行，不重跑初始化 SQL。

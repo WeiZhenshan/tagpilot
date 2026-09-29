@@ -74,6 +74,16 @@ class TlObjectGroupServiceImplTest {
     /** parseImportFile 生成的 32 位十六进制批次号 */
     private static final String BATCH = "0123456789abcdef0123456789abcdef";
 
+    @Test
+    void onlyGroupsWithSavedAgentPlanAreEditableInWorkbench() {
+        TlObjectGroup agent=new TlObjectGroup();agent.setRuleJson("{\"schemaVersion\":4,\"audiencePlan\":{\"tree\":{\"kind\":\"SCOPE_ALL\"}}}");
+        TlObjectGroup manual=new TlObjectGroup();manual.setRuleJson("{\"schemaVersion\":3,\"conditions\":[]}");
+        TlObjectGroup malformed=new TlObjectGroup();malformed.setRuleJson("invalid json");
+        when(groupMapper.selectObjectGroupList(any())).thenReturn(Arrays.asList(agent,manual,malformed));
+        service.selectObjectGroupList(new TlObjectGroup());
+        assertTrue(agent.isAgentEditable());assertFalse(manual.isAgentEditable());assertFalse(malformed.isAgentEditable());
+    }
+
     @Mock
     private TlObjectGroupMapper groupMapper;
     @Mock

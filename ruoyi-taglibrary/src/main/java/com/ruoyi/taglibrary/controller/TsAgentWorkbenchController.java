@@ -31,6 +31,8 @@ public class TsAgentWorkbenchController extends BaseController {
             .body("retry: 1000\nevent: state\ndata: "+json.writeValueAsString(service.get(id))+"\n\n");
     }
     @GetMapping("/threads") public AjaxResult list(@RequestParam(defaultValue="false") boolean archived) { return success(service.listThreads(archived)); }
+    @GetMapping("/tags/tree") public AjaxResult tagTree(@RequestParam Long libraryId) {return success(service.tagTree(libraryId));}
+    @PostMapping("/threads/from-group") public AjaxResult fromGroup(@RequestBody Map<String,Object> body) {return success(service.fromGroup(Long.valueOf(String.valueOf(body.get("groupId")))));}
     @PostMapping("/threads") public AjaxResult create(@RequestBody Map<String,Object> body) { return success(service.create(Long.valueOf(String.valueOf(body.get("library_id"))))); }
     @GetMapping("/threads/{id}") public AjaxResult get(@PathVariable String id) { return success(service.get(id)); }
     @PatchMapping("/threads/{id}") public AjaxResult rename(@PathVariable String id,@RequestBody Map<String,Object> body) {return success(service.rename(id,body));}

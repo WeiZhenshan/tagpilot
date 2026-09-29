@@ -12,6 +12,8 @@ public interface ITlObjectGroupService {
     List<TlObjectGroup> selectObjectGroupList(TlObjectGroup query);
 
     TlObjectGroup selectObjectGroupById(Long groupId);
+    /** 事务内锁定原客群，防止工作台更新覆盖并发修改。 */
+    TlObjectGroup selectObjectGroupByIdForUpdate(Long groupId);
 
     int insertObjectGroup(TlObjectGroup group);
 

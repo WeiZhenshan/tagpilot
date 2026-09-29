@@ -38,6 +38,10 @@
         where g.group_id = #{groupId} and g.del_flag = '0'
     </select>
 
+    <select id="selectObjectGroupByIdForUpdate" parameterType="Long" resultMap="TlObjectGroupResult">
+        select * from tl_object_group where group_id = #{groupId} and del_flag = '0' for update
+    </select>
+
     <insert id="insertObjectGroup" parameterType="TlObjectGroup" useGeneratedKeys="true" keyProperty="groupId">
         insert into tl_object_group (
             group_name, group_desc, library_id, rule_json, group_sql, user_count,

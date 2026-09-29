@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "ruoyi-ui/src/views/objectgroup/edit/index.vue"
+        ],
+        "createdAt": "2026-09-29T06:59:04.249Z",
+        "reason": "Codex 审查：HEAD 已有 .rule-row.is-invalid 的 3px 红边，模板仅在 !isConditionValid(cond) 时启用，用于标示校验失败条件，不是装饰性卡片强调；本次未修改该样式。"
+      }
+    ]
+  }
+}

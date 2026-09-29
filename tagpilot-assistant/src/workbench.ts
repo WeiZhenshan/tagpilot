@@ -5,6 +5,7 @@ export const DEFAULT_FROM = "/taglibrary/list";
 export type WorkbenchContext = {
   libraryId?: number;
   libraryName?: string;
+  groupId?: number;
   from: string;
 };
 
@@ -16,9 +17,11 @@ export function parseWorkbenchQuery(search: string): WorkbenchContext {
   const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
   const rawId = params.get("libraryId");
   const libraryId = rawId ? Number(rawId) : undefined;
+  const groupId = Number(params.get("groupId"));
   return {
     libraryId: Number.isFinite(libraryId) && libraryId! > 0 ? libraryId : undefined,
     libraryName: params.get("libraryName") || undefined,
+    groupId: Number.isSafeInteger(groupId) && groupId > 0 ? groupId : undefined,
     from: isSafeInternalPath(params.get("from")) ? params.get("from")! : DEFAULT_FROM,
   };
 }

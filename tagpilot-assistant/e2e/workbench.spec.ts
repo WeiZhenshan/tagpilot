@@ -107,6 +107,7 @@ test.beforeEach(async ({ page }) => {
           ],
         },
       });
+    if (url.pathname.endsWith("/tags/tree")) return route.fulfill({ json: { code: 200, data: [] } });
     if (url.pathname.endsWith("/events")) {
       t.status = "COMPLETED";
       return route.fulfill({
@@ -369,7 +370,7 @@ test("mobile errors remain visible and history is accessible", async ({
       animations: "disabled",
       path: process.env.CAPTURE_DIR + "/mobile-error.png",
     });
-  await page.getByRole("tab", { name: "历史", exact: true }).click();
+  await page.getByRole("tab", { name: "会话 / 标签", exact: true }).click();
   await expect(
     page.getByRole("navigation", { name: "圈选会话" })
   ).toBeVisible();

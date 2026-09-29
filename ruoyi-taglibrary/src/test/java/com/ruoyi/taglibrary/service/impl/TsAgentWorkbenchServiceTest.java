@@ -34,6 +34,7 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     @Mock TsAgentClient agent;
     @Mock TsAudiencePlanCompiler compiler;
     @Mock ITlObjectGroupService groups;
+    @Mock ITlTagService tags;
     @InjectMocks TsAgentWorkbenchService service;
     TsAgentThread row;
     @BeforeEach void setup() throws Exception {
@@ -50,6 +51,88 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     }
     void state(Map<String,Object> s) throws Exception {row.setPayload(json.writeValueAsString(s));}
     Map<String,Object> confirmation(){return map("base_revision",2,"plan_hash","h","name","测试客群");}
+    void activeTags() {
+        when(catalog.activeBundle(107L)).thenReturn(map("build_id","build","snapshot_id","snapshot","artifact_hash","hash"));
+        when(catalog.eligibleTagIds(107L,"snapshot")).thenReturn(Arrays.asList(1L,2L));
+    }
+    TlTag tag(Long id,Long library,String name) {TlTag tag=new TlTag();tag.setTagId(id);tag.setLibraryId(library);tag.setTagName(name);return tag;}
+    @Test void tagTreePrunesIneligibleLeavesAndPhysicalMetadata() {
+        activeTags();
+        when(tags.buildTree(107L,"online")).thenReturn(Arrays.asList(map("id","lib-107","label","库","children",Arrays.asList(
+            map("id","dir-1","label","目录","children",Arrays.asList(map("id","tag-1","label","余额","tagType","数值型","fieldName","secret_column"),map("id","tag-3","label","不可执行"))),
+            map("id","dir-2","label","空目录","children",Arrays.asList(map("id","tag-9","label","未发布")))))));
+        String result=json.valueToTree(service.tagTree(107L)).toString();
+        assertTrue(result.contains("tag-1"));assertFalse(result.contains("tag-3"));assertFalse(result.contains("空目录"));assertFalse(result.contains("secret_column"));
+    }
+    @Test void contextTagsAreValidatedForwardedAndSavedWithoutChangingText() {
+        activeTags();when(tags.selectTagById(1L)).thenReturn(tag(1L,107L,"余额"));
+        Map<String,Object> result=service.start("owned",map("base_revision",2,"client_request_id","context-request-001","message","请帮我梳理", "context_tag_ids",Arrays.asList(1),"context_only",true));
+        ArgumentCaptor<Map> req=ArgumentCaptor.forClass(Map.class);verify(agent).post(eq("/agent/v2/runs"),req.capture());
+        assertEquals(Arrays.asList(1L),req.getValue().get("pinned_tag_ids"));assertEquals(true,req.getValue().get("pinned_only"));
+        assertEquals("请帮我梳理",req.getValue().get("requirement"));
+        Map message=(Map)((List)result.get("messages")).get(0);assertEquals("余额",((Map)((List)message.get("context_tags")).get(0)).get("name"));
+        // 相同编号的标签顺序、Jackson Integer/Long 差异不能破坏幂等。
+        service.start("owned",map("client_request_id","context-request-001","message","请帮我梳理","context_tag_ids",Arrays.asList(1),"context_only",true));
+        assertThrows(ServiceException.class,()->service.start("owned",map("client_request_id","context-request-001","message","请帮我梳理","context_tag_ids",Arrays.asList(2),"context_only",true)));
+        verify(agent,times(1)).post(eq("/agent/v2/runs"),any());
+    }
+    @Test void rejectsOversizedInvalidAndWrongLibraryContextBeforeAgent() {
+        assertThrows(ServiceException.class,()->service.start("owned",map("context_tag_ids",Arrays.asList(1,2,3,4,5,6))));
+        assertThrows(ServiceException.class,()->service.start("owned",map("context_tag_ids",Arrays.asList(-1))));
+        assertThrows(ServiceException.class,()->service.start("owned",map("context_tag_ids",Arrays.asList("1"))));
+        activeTags();when(tags.selectTagById(1L)).thenReturn(tag(1L,108L,"其他库"));
+        assertThrows(ServiceException.class,()->service.start("owned",map("base_revision",2,"client_request_id","context-request-002","message","需求","context_tag_ids",Arrays.asList(1))));
+        verifyNoInteractions(agent);
+    }
+    TlObjectGroup source(Map<String,Object> plan) throws Exception {
+        TlObjectGroup group=new TlObjectGroup();group.setGroupId(90L);group.setLibraryId(107L);group.setGroupName("原客群");
+        group.setRuleJson(json.writeValueAsString(map("schemaVersion",4,"audiencePlan",plan)));
+        return group;
+    }
+    void allowNewThread() {
+        doAnswer(i->{TsAgentThread created=i.getArgument(0);when(threads.lock(created.getThreadId(),2L)).thenReturn(created);return 1;}).when(threads).insert(any());
+    }
+    @Test void fromGroupReusesOnlyMatchingOwnIdlePlanAndRequiresRevalidation() throws Exception {
+        Map<String,Object> plan=map("hash","h","valid",true,"tree",map("clause_id","a","tag_id",1));
+        state(map("revision",2,"status","COMPLETED","plan",plan,"messages",new ArrayList<>(),"versions",new ArrayList<>()));
+        TlObjectGroup group=source(plan);when(groups.selectObjectGroupById(90L)).thenReturn(group);
+        when(threads.executionsForGroup(90L,2L)).thenReturn(Arrays.asList(map("thread_id","owned","plan_hash","h")));
+        Map<String,Object> result=service.fromGroup(90L);
+        assertEquals("owned",result.get("thread_id"));assertEquals(true,result.get("source_thread_reused"));assertEquals(true,result.get("source_requires_validation"));
+        assertEquals(90L,result.get("source_group_id"));assertFalse((Boolean)((Map)result.get("plan")).get("valid"));
+        assertThrows(ServiceException.class,()->service.createGroup("owned",map("base_revision",3,"plan_hash",((Map)result.get("plan")).get("hash"),"name","更新")));
+        verifyNoInteractions(agent);verify(threads,never()).insert(any());
+    }
+    @Test void fromGroupCopiesSavedConditionsWhenConversationDivergedOrDeleted() throws Exception {
+        Map<String,Object> saved=map("hash","original","valid",true,"tree",map("clause_id","saved","tag_id",1));
+        TlObjectGroup group=source(saved);when(groups.selectObjectGroupById(90L)).thenReturn(group);
+        when(threads.executionsForGroup(90L,2L)).thenReturn(Arrays.asList(map("thread_id","owned","plan_hash","original"),map("thread_id","deleted","plan_hash","original")));
+        allowNewThread();Map<String,Object> result=service.fromGroup(90L);
+        assertNotEquals("owned",result.get("thread_id"));assertEquals(false,result.get("source_thread_reused"));
+        assertEquals("saved",((Map)((Map)result.get("plan")).get("tree")).get("clause_id"));verifyNoInteractions(agent);
+    }
+    @Test void fromGroupRejectsMissingPermissionAndManualRules() throws Exception {
+        when(permissions.hasPermi("objectgroup:group:edit")).thenReturn(false);
+        assertThrows(ServiceException.class,()->service.fromGroup(90L));verifyNoInteractions(groups);
+        when(permissions.hasPermi("objectgroup:group:edit")).thenReturn(true);
+        TlObjectGroup manual=source(Collections.emptyMap());manual.setRuleJson("{\"schemaVersion\":3,\"conditions\":[]}");
+        when(groups.selectObjectGroupById(90L)).thenReturn(manual);
+        assertThrows(ServiceException.class,()->service.fromGroup(90L));verify(threads,never()).insert(any());
+    }
+    @Test void updatesOriginalGroupWithEditPermissionAndConflictProtection() throws Exception {
+        TlObjectGroup source=source(map("tree",map("clause_id","a")));
+        state(map("revision",2,"status","COMPLETED","plan",map("valid",true,"hash","h"),"source_group_id",90,
+            "source_rule_hash",TsSnapshotCanonicalizer.sha256(source.getRuleJson()),"messages",new ArrayList<>()));
+        when(groups.selectObjectGroupByIdForUpdate(90L)).thenReturn(source);
+        when(threads.execution(eq("owned"),eq(2L),anyLong())).thenReturn(null);
+        when(compiler.compile(eq(107L),any())).thenReturn(new RulePayload());when(groups.updateObjectGroup(any())).thenReturn(1);
+        assertEquals(90L,service.createGroup("owned",confirmation()).get("group_id"));
+        verify(groups).updateObjectGroup(argThat(g->g.getGroupId()==90L && "测试客群".equals(g.getGroupName())));verify(groups,never()).insertObjectGroup(any());
+        verify(permissions,never()).hasPermi("objectgroup:group:add");
+        state(map("revision",3,"status","COMPLETED","plan",map("valid",true,"hash","h"),"source_group_id",90,"source_rule_hash","stale"));
+        assertThrows(ServiceException.class,()->service.createGroup("owned",map("base_revision",3,"plan_hash","h","name","更新")));
+        verify(groups,times(1)).updateObjectGroup(any());
+    }
     @Test void deniesOtherUsersThreadWithoutCallingAgent() {
         assertThrows(ServiceException.class,()->service.get("someone-elses-thread"));
         verifyNoInteractions(agent);

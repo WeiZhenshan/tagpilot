@@ -7,7 +7,8 @@ import {
   useExternalStoreRuntime,
   type ThreadMessageLike,
 } from "@assistant-ui/react";
-import type { Thread, AgentMessage } from "./agentTypes";
+import type { Thread, AgentMessage, ContextTag } from "./agentTypes";
+import { TagChips } from "./TagTree";
 import { busy, clauses, stateText, degradedOf, degradedMessage, degradedText, runNotice } from "./agentTypes";
 import { RunTimeline } from "./RunTimeline.tsx";
 import { stagedQuestions } from "./clarification";
@@ -92,6 +93,8 @@ export function AgentConversation({
   pending,
   contextControl,
   composerRequest,
+  contextTags = [],
+  onRemoveContextTag,
   onSend,
   onCancel,
   onAnswer,
@@ -103,8 +106,10 @@ export function AgentConversation({
   disabled: boolean;
   pending: boolean;
   contextControl?: ReactNode;
-  composerRequest?: { text: string; id: number };
-  onSend: (text: string) => Promise<void>;
+  composerRequest?: { text: string; id: number; focusOnly?: boolean };
+  contextTags?: ContextTag[];
+  onRemoveContextTag?: (id: number) => void;
+  onSend: (text: string) => Promise<boolean>;
   onCancel: () => void;
   onAnswer: (text: string) => void;
   onRetry: () => void;
@@ -124,7 +129,8 @@ export function AgentConversation({
         .filter((p) => p.type === "text")
         .map((p) => ("text" in p ? p.text : ""))
         .join("\n");
-      await onSend(text);
+      const sent = await onSend(text);
+      if (!sent) runtime.thread.composer.setText(text);
     },
     onCancel: async () => onCancel(),
   });
@@ -134,7 +140,7 @@ export function AgentConversation({
       document.querySelector<HTMLElement>(".ask-card button:not(:disabled), .ask-card input:not(:disabled)")?.focus();
       return;
     }
-    runtime.thread.composer.setText(composerRequest.text);
+    if (!composerRequest.focusOnly) runtime.thread.composer.setText(composerRequest.text);
     composerInput.current?.focus();
     // 只响应右栏发起的一次预填请求，避免轮询刷新覆盖用户后续输入。
   }, [composerRequest]);
@@ -175,6 +181,7 @@ export function AgentConversation({
                   <span className="speaker">
                     {message.role === "user" ? "你" : "圈选助手"}
                   </span>
+                  {thread?.messages.find((m) => m.id === message.id)?.context_tags?.length ? <TagChips tags={thread.messages.find((m) => m.id === message.id)!.context_tags!} /> : null}
                   <div className="message-text">
                     <MessagePrimitive.Parts />
                   </div>
@@ -222,13 +229,14 @@ export function AgentConversation({
         </div>
         <div className="composer-wrap">
           <ComposerPrimitive.Root className="composer">
+            {contextTags.length ? <div className="composer-tags"><TagChips tags={contextTags} onRemove={onRemoveContextTag} /></div> : null}
             <ComposerPrimitive.Input
               ref={composerInput}
               className="composer-input"
               rows={2}
               placeholder={
-                disabled
-                  ? "请先选择标签库"
+                thread?.archived ? "会话已归档，请先恢复"
+                  : disabled ? "请先选择标签库"
                   : thread?.status === "WAITING"
                   ? "请先回答待补充的问题"
                   : "描述客户条件，或继续修改当前方案…"
@@ -251,6 +259,11 @@ export function AgentConversation({
                 <button type="button" className="send-button" disabled={pending} onClick={onCancel}>
                   停止处理
                 </button>
+              ) : contextTags.length ? (
+                <button className="send-button" type="button" aria-label="发送需求" disabled={disabled || pending} onClick={() => {
+                  const text = runtime.thread.composer.getState().text;
+                  void onSend(text).then((sent) => { if (sent) runtime.thread.composer.setText(""); });
+                }}>发送</button>
               ) : (
                 <ComposerPrimitive.Send
                   className="send-button"

@@ -1,5 +1,5 @@
 import { apiRequest, readAdminToken } from "./api";
-import type { Thread, ThreadRow, Plan } from "./agentTypes";
+import type { Thread, ThreadRow, Plan, TagTreeNode } from "./agentTypes";
 const prefix = "/taglibrary/agent/threads";
 async function data<T>(
   path: string,
@@ -17,6 +17,8 @@ export const listThreads = (archived = false) =>
 export const createThread = (library_id: number) =>
   data<Thread>(prefix, "POST", { library_id });
 export const getThread = (id: string) => data<Thread>(`${prefix}/${id}`);
+export const fromGroup = (groupId: number) => data<Thread>(`${prefix}/from-group`, "POST", { groupId });
+export const tagTree = (libraryId: number) => data<TagTreeNode[]>(`/taglibrary/agent/tags/tree?libraryId=${libraryId}`);
 export const changeThread = (id: string, body: unknown) =>
   data<Thread>(`${prefix}/${id}`, "PATCH", body);
 export const deleteThread = async (id: string) => {
@@ -26,7 +28,9 @@ export const startRun = (
   t: Thread,
   message: string,
   plan?: Plan,
-  requestId = crypto.randomUUID()
+  requestId = crypto.randomUUID(),
+  contextTagIds: number[] = [],
+  contextOnly = false
 ) =>
   data<Thread>(`${prefix}/${t.thread_id}/runs`, "POST", {
     client_request_id: requestId,
@@ -34,6 +38,8 @@ export const startRun = (
     message,
     plan,
     confirmed_clause_ids: plan?.confirmed_clause_ids,
+    context_tag_ids: contextTagIds,
+    context_only: contextOnly,
   });
 export const resumeRun = (t: Thread, answer?: unknown) =>
   data<Thread>(`${prefix}/${t.thread_id}/resume`, "POST", {
