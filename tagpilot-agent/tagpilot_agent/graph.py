@@ -25,11 +25,13 @@ class Selector(Protocol):
 class OpenAICompatibleSelector:
     """面向本地或远端 OpenAI-compatible 服务；只发送已过滤候选，不发送全库或客户数据。"""
 
-    def __init__(self, base_url: str, model: str, api_key: str = "", timeout: float = 30.0):
+    def __init__(self, base_url: str, model: str, api_key: str = "", timeout: float | None = None):
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.api_key = api_key
-        self.timeout = timeout
+        # 推理类模型（如 hy3）会先输出 reasoning_content 再给正文，单次调用常在 15s 以上，
+        # 默认超时放宽到 90s，可通过 TAG_LLM_TIMEOUT 覆盖。
+        self.timeout = float(os.getenv("TAG_LLM_TIMEOUT", "90")) if timeout is None else timeout
         self.name = f"openai-compatible:{model}"
 
     def select(self, requirement, candidates, catalog):

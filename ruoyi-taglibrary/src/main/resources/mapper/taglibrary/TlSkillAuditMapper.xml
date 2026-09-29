@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.taglibrary.mapper.TlSkillAuditMapper">
+
+    <resultMap type="TlSkillAudit" id="TlSkillAuditResult">
+        <id     property="auditId"      column="audit_id"      />
+        <result property="skillId"      column="skill_id"      />
+        <result property="version"      column="version"       />
+        <result property="action"       column="action"        />
+        <result property="operatorId"   column="operator_id"   />
+        <result property="operatorName" column="operator_name" />
+        <result property="reason"       column="reason"        />
+        <result property="result"       column="result"        />
+        <result property="createTime"   column="create_time"   />
+    </resultMap>
+
+    <insert id="insertAudit" parameterType="TlSkillAudit" useGeneratedKeys="true" keyProperty="auditId">
+        insert into tl_skill_audit (
+            skill_id, version, action, operator_id, operator_name, reason, result, create_time
+        ) values (
+            #{skillId}, #{version}, #{action}, #{operatorId}, #{operatorName}, #{reason}, #{result}, sysdate()
+        )
+    </insert>
+</mapper>

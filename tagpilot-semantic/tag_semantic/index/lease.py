@@ -1,7 +1,11 @@
 """同机多进程共享租约；清理等待所有在途请求释放。"""
 from contextlib import contextmanager
 from pathlib import Path
-import fcntl
+import sys
+if sys.platform == 'win32':
+    fcntl = None  # Windows 开发环境：无 flock，单进程运行即可保证租约语义
+else:
+    import fcntl
 import re
 
 @contextmanager
@@ -11,8 +15,10 @@ def build_lease(root: Path, build_id: str, exclusive=False):
     leases = root / '.leases'
     leases.mkdir(parents=True, exist_ok=True)
     with (leases / (build_id + '.lock')).open('a') as stream:
-        fcntl.flock(stream, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
+        if fcntl is not None:
+            fcntl.flock(stream, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
         try:
             yield
         finally:
-            fcntl.flock(stream, fcntl.LOCK_UN)
+            if fcntl is not None:
+                fcntl.flock(stream, fcntl.LOCK_UN)
