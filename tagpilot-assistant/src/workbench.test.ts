@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isSafeInternalPath, parseWorkbenchQuery } from "./workbench";
+import { isSafeInternalPath, parseWorkbenchQuery, normalizeBackPath } from "./workbench";
 
 describe("parseWorkbenchQuery", () => {
   it("reads library context and a safe from path", () => {
@@ -18,6 +18,11 @@ describe("parseWorkbenchQuery", () => {
     expect(parseWorkbenchQuery("?groupId=90").groupId).toBe(90);
     expect(parseWorkbenchQuery("?groupId=1.5").groupId).toBeUndefined();
     expect(parseWorkbenchQuery("?groupId=-1").groupId).toBeUndefined();
+  });
+  it("兼容旧返回地址并保留查询参数，不改写其它路径", () => {
+    expect(parseWorkbenchQuery("?from=/objectgroup/list").from).toBe("/objectgroup/group");
+    expect(normalizeBackPath("/objectgroup/list?pageNum=2")).toBe("/objectgroup/group?pageNum=2");
+    expect(normalizeBackPath("/objectgroup/list-other")).toBe("/objectgroup/list-other");
   });
 });
 

@@ -5,8 +5,8 @@ from .diagnostics import diagnostic
 from .plan_validator import leaves
 
 
-def remove_explicit_enum_assumptions(plan, tags, codes):
-    """首轮明写完整字段名和全部码值时，清除模型误加的默认定义假设。
+def remove_explicit_enum_assumptions(plan, tags, codes, clause_ids=None):
+    """明写完整字段名和全部码值时，清除模型误加的默认定义假设。
 
     只处理已校验 BOUND 的枚举叶子，不处理数值阈值、模糊别名或多字段歧义。
     这是用户显式条件，不写成虚假的 CONFIRMED。
@@ -17,6 +17,7 @@ def remove_explicit_enum_assumptions(plan, tags, codes):
         return
     direct=set()
     for node in leaves(plan['tree']):
+        if clause_ids is not None and node['clause_id'] not in clause_ids:continue
         tid=node.get('tag_id');tag=tags.get(tid,{})
         if node.get('status')!='BOUND' or not str(tag.get('semantic_type','')).startswith(('ENUM_','BOOL')):
             continue

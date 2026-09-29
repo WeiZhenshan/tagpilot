@@ -72,11 +72,15 @@ public class TsAgentWorkbenchService {
         if(Boolean.TRUE.equals(plan.get("valid")))state.remove("source_requires_validation");
         List<Map<String,Object>> versions=list(state.get("versions"));versions.add(plan);state.put("versions",versions);
     }
+    private void savedConfirmations(Map<String,Object> node,Set<String> ids) {
+        if(node.containsKey("children")) {for(Map<String,Object> child:list(node.get("children")))savedConfirmations(child,ids);}
+        else if(Boolean.TRUE.equals(node.get("assumption_confirmed")) && node.get("clause_id")!=null)ids.add(String.valueOf(node.get("clause_id")));
+    }
     private Map<String,Object> view(TsAgentThread row,Map<String,Object> state) {
         Map<String,Object> out=new LinkedHashMap<>(state);
         out.putAll(map("thread_id",row.getThreadId(),"library_id",row.getLibraryId(),"title",row.getTitle(),"archived","1".equals(row.getArchived()),"pinned","1".equals(row.getPinned()),
             "capabilities",map("count",permissions.hasPermi("objectgroup:group:run"),"create",permissions.hasPermi("objectgroup:group:add"),"update",permissions.hasPermi("objectgroup:group:edit"),"preview",permissions.hasPermi("objectgroup:group:preview"))));
-        out.remove("run_request"); return out;
+        out.remove("run_request");out.remove("source_plan"); return out;
     }
     /** 仅暴露当前发布且仍可执行的轻量标签树，不要求标签管理权限。 */
     public List<Map<String,Object>> tagTree(Long library) {
@@ -238,6 +242,8 @@ public class TsAgentWorkbenchService {
             "previous_plan",obj(state.get("plan")),"edited_plan",request.get("plan"),"confirmed_clause_ids",state.getOrDefault("confirmed_clause_ids",new ArrayList<>()));
         // 基准日由服务端注入并随运行持久化，恢复时沿用；明确写出的年份优先。
         req.put("reference_date",LocalDate.now(ZoneId.of("Asia/Shanghai")).toString());
+        // 客群保存的已核验条件是服务端来源，不能从浏览器请求伪造。
+        if(state.containsKey("source_plan"))req.put("source_plan",state.get("source_plan"));
         req.put("timezone","Asia/Shanghai");
         if(state.get("clarification_state") instanceof Map)req.put("clarification_state",state.get("clarification_state"));
         if(state.get("run_id")!=null)req.put("continuation_of",state.get("run_id"));
@@ -374,6 +380,19 @@ public class TsAgentWorkbenchService {
         try {rule=json.readValue(group.getRuleJson(),Map.class);}catch(Exception e){throw new ServiceException("客群规则无法读取");}
         Map<String,Object> saved=obj(rule.get("audiencePlan"));
         if(number(rule.get("schemaVersion"))<4 || !saved.containsKey("tree"))throw new ServiceException("手工规则客群请使用规则编辑器");
+        String sourceHash=TsSnapshotCanonicalizer.sha256(group.getRuleJson());
+        // 刷新或再次进入时恢复本人正在编辑的草稿，不重置条件、Ask 或运行进度。
+        for(TsAgentThread item:threads.list(uid(),"0")) {
+            if(!Objects.equals(item.getLibraryId(),group.getLibraryId()))continue;
+            TsAgentThread editing=threads.lock(item.getThreadId(),uid());
+            if(editing==null || "1".equals(editing.getArchived()))continue;
+            Map<String,Object> editingState=data(editing);
+            if(number(editingState.get("source_group_id"))==groupId && Objects.equals(sourceHash,editingState.get("source_rule_hash"))) {
+                editingState.put("source_thread_reused",true);
+                if(!editingState.containsKey("source_plan"))editingState.put("source_plan",saved);
+                save(editing,editingState);return view(editing,editingState);
+            }
+        }
         TsAgentThread row=null;Map<String,Object> state=null;
         for(Map<String,Object> execution:threads.executionsForGroup(groupId,uid())) {
             TsAgentThread candidate=threads.lock(String.valueOf(execution.get("thread_id")),uid());
@@ -390,8 +409,10 @@ public class TsAgentWorkbenchService {
             row.setTitle("编辑："+group.getGroupName().substring(0,Math.min(100,group.getGroupName().length())));
         }
         state.put("source_group_id",groupId);state.put("source_group_name",group.getGroupName());
-        state.put("source_rule_hash",TsSnapshotCanonicalizer.sha256(group.getRuleJson()));state.put("source_thread_reused",reused);
+        state.put("source_rule_hash",sourceHash);state.put("source_thread_reused",reused);state.put("source_plan",saved);
         state.put("source_requires_validation",true);state.put("status","IDLE");
+        Set<String> confirmed=new LinkedHashSet<>();savedConfirmations(obj(saved.get("tree")),confirmed);
+        state.put("confirmed_clause_ids",new ArrayList<>(confirmed));
         Map<String,Object> plan=json.convertValue(saved,Map.class);plan.put("valid",false);plan.put("plan_status","DRAFT");
         plan.put("diagnostics",Arrays.asList(map("code","REVALIDATION_REQUIRED","message","请按最新发布版本重新核验保存的客群条件")));
         applyPlan(state,plan);

@@ -104,12 +104,13 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         verifyNoInteractions(agent);verify(threads,never()).insert(any());
     }
     @Test void fromGroupCopiesSavedConditionsWhenConversationDivergedOrDeleted() throws Exception {
-        Map<String,Object> saved=map("hash","original","valid",true,"tree",map("clause_id","saved","tag_id",1));
+        Map<String,Object> saved=map("hash","original","valid",true,"tree",map("clause_id","saved","tag_id",1,"assumption_confirmed",true));
         TlObjectGroup group=source(saved);when(groups.selectObjectGroupById(90L)).thenReturn(group);
         when(threads.executionsForGroup(90L,2L)).thenReturn(Arrays.asList(map("thread_id","owned","plan_hash","original"),map("thread_id","deleted","plan_hash","original")));
         allowNewThread();Map<String,Object> result=service.fromGroup(90L);
         assertNotEquals("owned",result.get("thread_id"));assertEquals(false,result.get("source_thread_reused"));
         assertEquals("saved",((Map)((Map)result.get("plan")).get("tree")).get("clause_id"));verifyNoInteractions(agent);
+        assertEquals(Arrays.asList("saved"),result.get("confirmed_clause_ids"));
     }
     @Test void fromGroupRejectsMissingPermissionAndManualRules() throws Exception {
         when(permissions.hasPermi("objectgroup:group:edit")).thenReturn(false);
@@ -118,6 +119,25 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         TlObjectGroup manual=source(Collections.emptyMap());manual.setRuleJson("{\"schemaVersion\":3,\"conditions\":[]}");
         when(groups.selectObjectGroupById(90L)).thenReturn(manual);
         assertThrows(ServiceException.class,()->service.fromGroup(90L));verify(threads,never()).insert(any());
+    }
+    @Test void fromGroupRestoresExistingEditWithoutCreatingOrResettingProgress() throws Exception {
+        Map<String,Object> saved=map("hash","saved","valid",true,"tree",map("clause_id","old","tag_id",1));
+        TlObjectGroup group=source(saved);when(groups.selectObjectGroupById(90L)).thenReturn(group);
+        Map<String,Object> draft=map("valid",false,"tree",map("clause_id","new","tag_id",2));
+        state(map("revision",4,"status","WAITING","plan",draft,"source_group_id",90,"source_rule_hash",TsSnapshotCanonicalizer.sha256(group.getRuleJson()),
+            "questions",Arrays.asList(map("prompt","待补充值")),"messages",new ArrayList<>(),"versions",new ArrayList<>()));
+        when(threads.list(2L,"0")).thenReturn(Arrays.asList(row));
+        Map<String,Object> first=service.fromGroup(90L),again=service.fromGroup(90L);
+        assertEquals("owned",first.get("thread_id"));assertEquals(first.get("thread_id"),again.get("thread_id"));
+        assertEquals("WAITING",again.get("status"));assertEquals(4,((Number)again.get("revision")).intValue());
+        assertEquals(draft,again.get("plan"));assertFalse(again.containsKey("source_plan"));
+        verify(threads,never()).insert(any());verifyNoInteractions(agent);
+    }
+    @Test void startUsesServerSavedSourceAndIgnoresBrowserSourceForgery() throws Exception {
+        activeTags();Map<String,Object> saved=map("valid",true,"tree",map("clause_id","old"));
+        state(map("revision",2,"status","IDLE","source_plan",saved,"messages",new ArrayList<>(),"versions",new ArrayList<>()));
+        service.start("owned",map("base_revision",2,"client_request_id","saved-source-001","message","新增标签条件","source_plan",map("forged",true)));
+        verify(agent).post(eq("/agent/v2/runs"),argThat(r->r instanceof Map && saved.equals(((Map)r).get("source_plan"))));
     }
     @Test void updatesOriginalGroupWithEditPermissionAndConflictProtection() throws Exception {
         TlObjectGroup source=source(map("tree",map("clause_id","a")));

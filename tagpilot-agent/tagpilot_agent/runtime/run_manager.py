@@ -138,11 +138,14 @@ class RunManager:
         else:
             diagnostics=plan.get('diagnostics',[])
             blocked={d['clause_id'] for d in diagnostics if d.get('clause_id')}
-            global_error=any(not d.get('clause_id') and d.get('code')!='BUDGET_EXHAUSTED' for d in diagnostics)
             same_version=all(plan.get(k)==ctx.request[k] for k in ('build_id','snapshot_id','artifact_hash'))
             for node in leaves(plan['tree']):
                 cid=node['clause_id']
-                ok=same_version and not global_error and not ({cid,*node.get('requirement_ids',[])} & blocked) and node.get('status')=='BOUND' and plan_tag_ids([node])<=ctx.eligible
+                pre_status=node.get('status')
+                refs={cid,*node.get('requirement_ids',[])}
+                blocked_hit=bool(refs & blocked)
+                # 方案级诊断（无 clause_id）只说明整方案未 READY，不能把已 BOUND 的存量条件误标为预算耗尽。
+                ok=same_version and not blocked_hit and pre_status=='BOUND' and plan_tag_ids([node])<=ctx.eligible
                 (kept if ok else unresolved).append(cid)
                 if not ok:
                     node.update(status='GAP',gap_reason='BUDGET_EXHAUSTED')

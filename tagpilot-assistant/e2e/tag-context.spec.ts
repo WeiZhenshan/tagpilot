@@ -8,8 +8,9 @@ const savedPlan = { revision: 1, valid: true, hash: "saved", schema_version: 3, 
 let t: any;
 let failNext: boolean;
 let requests: any[];
+let groupRequests: number;
 test.beforeEach(async ({ page }) => {
-  failNext = false; requests = [];
+  failNext = false; requests = []; groupRequests = 0;
   t = { thread_id: "tag-thread", library_id: 107, title: "新的圈选", status: "IDLE", revision: 0, archived: false, messages: [], events: [], versions: [], capabilities: { count: true, create: false, update: true, preview: true } };
   await page.route("**/dev-api/**", async (route) => {
     const url = new URL(route.request().url()); const body = route.request().postDataJSON(); let data: any;
@@ -17,6 +18,7 @@ test.beforeEach(async ({ page }) => {
     if (url.pathname.endsWith("/library/list")) return route.fulfill({ json: { code: 200, rows: [{ libraryId: 107, libraryName: "个人客户经营标签库" }, { libraryId: 108, libraryName: "公司客户经营标签库" }] } });
     if (url.pathname.endsWith("/tags/tree")) return route.fulfill({ json: { code: 200, data: url.searchParams.get("libraryId") === "107" ? tree : [] } });
     if (url.pathname.endsWith("/from-group")) {
+      groupRequests++;
       t = { ...t, title: "编辑：测试客群", plan: { ...structuredClone(savedPlan), valid: false }, revision: 1, versions: [structuredClone(savedPlan)], source_group_id: 90, source_group_name: "测试客群", source_requires_validation: true, source_thread_reused: false };
       data = t;
     } else if (url.pathname.endsWith("/threads")) data = route.request().method() === "GET" ? [] : t;
@@ -152,4 +154,44 @@ test("切换标签库清空选择与输入框上下文", async ({ page }) => {
   await expect(page.locator(".composer-tags")).toHaveCount(0);
   await expect(page.getByText("已选 0 / 5 项")).toBeVisible();
   await expect(page.getByText("当前库暂无已发布且可执行的标签")).toBeVisible();
+});
+test("StrictMode 进入客群编辑只请求一次，旧返回链接不再404", async ({ page }) => {
+  await page.goto("/agent-ui/?groupId=90&from=/objectgroup/list");
+  await expect(page.getByRole("button", { name: "按最新发布版本核验" })).toBeVisible();
+  expect(groupRequests).toBe(1);
+  await page.route("**/objectgroup/group", (route) => route.fulfill({ contentType: "text/html; charset=utf-8", body: "<h1>对象群管理</h1>" }));
+  await page.getByRole("button", { name: "返回标签系统" }).click();
+  await expect(page).toHaveURL(/\/objectgroup\/group$/);
+  await expect(page.getByRole("heading", { name: "对象群管理" })).toBeVisible();
+});
+test("编辑客群新增条件一次确认，来源格式不再逐项提问", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  t = { ...t, revision: 2, title: "编辑：测试客群", source_group_id: 90, source_group_name: "测试客群", source_requires_validation: false,
+    status: "COMPLETED", versions: [structuredClone(savedPlan)],
+    plan: { ...structuredClone(savedPlan), revision: 2, valid: false,
+      tree: { logic: "AND", children: [structuredClone(savedPlan.tree), { kind: "TAG_PREDICATE", clause_id: "b", name: names[2], tag_id: 3, operator: "=", values: ["1"], status: "BOUND" }] },
+      diagnostics: [{ code: "LITERAL_DRIFT", message: "条件来源必须逐字引用用户原话", clause_id: "b" },
+        { code: "LITERAL_DRIFT", message: "需求台账来源必须逐字引用用户原话", clause_id: "b" }] } };
+  await page.goto("/agent-ui/?threadId=tag-thread");
+  await expect(page.getByRole("button", { name: "确认新增条件" })).toBeVisible();
+  await expect(page.getByText("这项条件需要处理", { exact: true })).toHaveCount(0);
+  await capture(page, "group-edit-desktop");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("tab", { name: "圈选方案", exact: true }).click();
+  await expect(page.getByRole("button", { name: "确认新增条件" })).toBeVisible();
+  await capture(page, "group-edit-mobile");
+  await page.getByRole("button", { name: "确认新增条件" }).click();
+  await expect(page.getByRole("button", { name: "统计人数", exact: true })).toBeEnabled();
+  expect(requests).toHaveLength(1); expect(requests[0].plan.tree.children[1].tag_id).toBe(3);
+  expect(requests[0].plan.tree.children[0].values).toEqual(["50"]);
+  await expect(page.getByRole("button", { name: "确认新增条件" })).toHaveCount(0);
+});
+test("新增条件的数值错误仍须处理，不能借确认绕过", async ({ page }) => {
+  t = { ...t, revision: 2, source_group_id: 90, status: "COMPLETED", versions: [structuredClone(savedPlan)],
+    plan: { ...structuredClone(savedPlan), revision: 2, valid: false,
+      tree: { logic: "AND", children: [structuredClone(savedPlan.tree), { kind: "TAG_PREDICATE", clause_id: "b", name: names[5], tag_id: 6, operator: ">", values: ["50"], status: "BOUND" }] },
+      diagnostics: [{ code: "LITERAL_DRIFT", message: "原话中的数值未被条件或时间口径保留", clause_id: "b" }] } };
+  await page.goto("/agent-ui/?threadId=tag-thread");
+  await expect(page.getByText("原话中的数值未被条件或时间口径保留")).toBeVisible();
+  await expect(page.getByRole("button", { name: "确认新增条件" })).toHaveCount(0);
 });

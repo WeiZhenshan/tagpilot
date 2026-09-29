@@ -40,9 +40,36 @@ def check_literals(plan,request,tags):
     previous=request.get('previous_plan',{})
     if previous.get('intent_plan'):sources.append(previous['intent_plan'].get('original_request',''))
     old_nodes={n['clause_id']:n for n in leaves(previous['tree'])} if previous.get('tree') else {}
+    # 来源既包括用户原话，也包括服务端保存的已核验条件和本轮主动勾选的标签。
+    # 只承认语义未改变的保存条件，不能用旧来源替新增值或模型改写背书。
+    anchors=[p for p in (previous,request.get('source_plan') or {}) if p.get('valid') and p.get('tree')]
+    semantic_keys=('kind','tag_id','operator','values','value_scale','value_unit','expected_caliber',
+                   'expression','compare_expression','source_span','time_constraint','unknown_policy','requirement_ids')
+    def fingerprint(node):
+        result={k:node[k] for k in semantic_keys if node.get(k) not in (None,[],{},'')}
+        result.setdefault('kind','TAG_PREDICATE');result.setdefault('unknown_policy','EXCLUDE')
+        if 'value_scale' in result:result['value_scale']=str(result['value_scale'])
+        return result
+    trusted_nodes={}
+    trusted_requirements={}
+    for anchor in anchors:
+        old={n['clause_id']:n for n in leaves(anchor['tree'])}
+        for node in nodes:
+            prior=old.get(node['clause_id'])
+            if prior and fingerprint(prior)==fingerprint(node):
+                trusted_nodes[node['clause_id']]=node
+                for rid in node.get('requirement_ids',[node['clause_id']]):
+                    for r in (anchor.get('intent_plan') or {}).get('requirements',[]):
+                        if r['requirement_id']==rid:trusted_requirements.setdefault(rid,set()).update(r.get('source_spans',[]))
+    def selected_source(node,span):
+        if node.get('tag_id') not in request.get('pinned_tag_ids',[]):return False
+        name=tags.get(node['tag_id'],{}).get('name')
+        if not name or name not in span:return False
+        remainder=span.replace(name,'',1).strip(' ，,：:；;、')
+        return not remainder or any(remainder in s for s in sources)
     for n in nodes:
         span=n.get('source_span','')
-        if not span or not any(span in s for s in sources):
+        if not span or (n['clause_id'] not in trusted_nodes and not any(span in s for s in sources) and not selected_source(n,span)):
             errors.append(diagnostic('LITERAL_DRIFT','条件来源必须逐字引用用户原话',n['clause_id']))
         if n.get('status') in {'GAP','NEEDS_DECISION'}:continue
         prior=old_nodes.get(n['clause_id'])
@@ -104,7 +131,9 @@ def check_literals(plan,request,tags):
             if match.group(0).strip() not in spans:
                 errors.append(diagnostic('LITERAL_DRIFT','方案遗漏原始需求中的数值',expected=match.group(0).strip()))
     for r in plan.get('intent_plan',{}).get('requirements',[]):
-        if any(not any(span in s for s in sources) for span in r.get('source_spans',[])):
+        selected_spans={n.get('source_span') for n in nodes if r['requirement_id'] in n.get('requirement_ids',[n['clause_id']]) and selected_source(n,n.get('source_span',''))}
+        if any(span not in trusted_requirements.get(r['requirement_id'],set()) and span not in selected_spans
+               and not any(span in s for s in sources) for span in r.get('source_spans',[])):
             errors.append(diagnostic('LITERAL_DRIFT','需求台账来源必须逐字引用用户原话',r['requirement_id']))
     return errors
 

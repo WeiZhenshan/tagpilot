@@ -39,8 +39,11 @@ async def check(plan,ctx,strict=False,trusted=False):
             declared_gaps={n['clause_id']:n.get('gap_reason') for n in nodes if n.get('gap_reason')}
             plan=validate_plan(plan,ctx.tags,ctx.codes,ctx.eligible,ctx.capabilities)
             errors=plan['diagnostics']
-            if not ctx.request.get('_manual_edit') and not ctx.request.get('previous_plan'):
-                remove_explicit_enum_assumptions(plan,ctx.tags,ctx.codes)
+            if not ctx.request.get('_manual_edit'):
+                previous=ctx.request.get('previous_plan') or {}
+                old_ids={n['clause_id'] for n in leaves(previous['tree'])} if previous.get('tree') else set()
+                selected_new={n['clause_id'] for n in nodes if n['clause_id'] not in old_ids and n.get('tag_id') in ctx.request.get('pinned_tag_ids',[])}
+                remove_explicit_enum_assumptions(plan,ctx.tags,ctx.codes,selected_new if previous else None)
             for n in nodes:
                 n['status']='BOUND' if n.get('status')=='BOUND' else 'GAP'
                 if n['clause_id'] in declared_gaps:

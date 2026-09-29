@@ -117,6 +117,7 @@ export function App() {
   }, [sample]);
   const generation = useRef(0);
   const inflight = useRef(false);
+  const initialLoad = useRef<Promise<Thread> | null>(null);
   const update = useCallback((value: Thread) => {
     current.current = value;
     setThread(value);
@@ -188,7 +189,9 @@ export function App() {
     const seq = generation.current;
     if (initial.groupId || id) {
       setPending(true); inflight.current = true;
-      void (initial.groupId ? api.fromGroup(initial.groupId) : api.getThread(id!))
+      // StrictMode 会重放 effect；建编辑会话的请求只发一次，重放仅重新订阅结果。
+      initialLoad.current ||= initial.groupId ? api.fromGroup(initial.groupId) : api.getThread(id!);
+      void initialLoad.current
         .then((value) => {
           if (dead || seq !== generation.current) return;
           update(value);

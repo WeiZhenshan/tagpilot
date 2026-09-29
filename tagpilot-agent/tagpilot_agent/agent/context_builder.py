@@ -27,6 +27,7 @@ async def build_context(ctx):
             'code_values_truncated':sum(int(c['tag_id'])==tid for c in ctx.codes)>40} for tid in pinned]
         context['pinned_only']=req.get('pinned_only',False)
         context['pinned_instruction']='用户主动选择的优先候选；只选标签不代表已指定取值。缺阈值、码值或条件组合关系必须分轮追问，不猜值；保留上一版条件。'
+        context['pinned_instruction']+='点选标签本身是用户提供的结构化来源，source_span 可用完整标签名与逐字补充说明组合；旧条件沿用保存来源，不要求用户重复输入。明确选定的字段及已发布码值不用再确认默认业务定义。'
     # 评测/生产注入的固定基准日：相对时间表达只能以它为准，不能用运行当天。
     if req.get('reference_date'):
         context['reference_date']=req['reference_date']

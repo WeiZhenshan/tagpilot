@@ -86,7 +86,7 @@ export default {
     },
     handleEdit(row) {
       if (row.agentEditable) {
-        this.$router.push({ path: '/agent', query: { libraryId: row.libraryId, groupId: row.groupId, from: '/objectgroup/list' } })
+        this.$router.push({ path: '/agent', query: { libraryId: row.libraryId, groupId: row.groupId, from: this.$route.fullPath } })
         return
       }
       this.$router.push({ path: '/objectgroup/group-edit/index', query: { groupId: row.groupId } })

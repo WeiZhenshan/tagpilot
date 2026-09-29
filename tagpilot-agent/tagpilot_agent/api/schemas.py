@@ -27,6 +27,7 @@ class RunRequest(BaseModel):
     reference_date: str | None = Field(default=None,pattern=r'^\d{4}-\d{2}-\d{2}$')
     timezone: str = Field(default='Asia/Shanghai',max_length=64)
     previous_plan: dict = Field(default_factory=dict)
+    source_plan: dict = Field(default_factory=dict)
     edited_plan: dict | None = None
     history: list[dict] = Field(default_factory=list,max_length=20)
     confirmed_clause_ids: list[str] = Field(default_factory=list,max_length=30)

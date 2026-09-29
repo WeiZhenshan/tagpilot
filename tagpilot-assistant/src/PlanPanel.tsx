@@ -38,10 +38,9 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   const running = busy(thread);
   const disabled = !!(pending || running || historical || thread?.archived);
   const items = clauses(shown?.tree);
-  const queue = pendingItems(thread, shown).filter((p) => p.kind !== "assumption" || !confirmedIds.includes(p.clause_id!));
+  const pendingQueue = pendingItems(thread, shown).filter((p) => p.kind !== "assumption" || !confirmedIds.includes(p.clause_id!));
   const updating = !!thread?.source_group_id;
   const savePermission = updating ? thread?.capabilities.update : thread?.capabilities.create;
-  const canExecute = !!thread?.plan?.valid && !!shown?.valid && !thread?.source_requires_validation && !dirty && !historical && !disabled && thread?.status !== "WAITING" && !queue.length;
   const count = !dirty && !historical && !running && shown?.valid && thread?.count && thread.count.revision === thread.revision ? thread.count : undefined;
   const execution = !dirty && !historical && !running && thread?.execution && thread.execution.revision === thread.revision ? thread.execution : undefined;
   const previous = thread?.versions.find((p) => p.revision === (shown?.revision || 1) - 1);
@@ -54,6 +53,13 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
     else if (clauseChanged(before, c)) changes.set(c.clause_id, "改");
   }
   const removed = comparison ? clauses(comparison.tree).filter((c) => !items.some((item) => item.clause_id === c.clause_id)) : [];
+  const provenanceOnly = !!shown?.diagnostics?.length && shown.diagnostics.every((d) => d.code === "LITERAL_DRIFT" && d.message.includes("来源必须逐字引用用户原话"));
+  const confirmNew = updating && !dirty && !historical && !thread?.source_requires_validation && thread?.status !== "WAITING"
+    && !execution && [...changes.values()].includes("新") && items.every((c) => c.status === "BOUND")
+    && (!pendingQueue.length || provenanceOnly);
+  // 用户在右侧确认可见的新条件后走既有手工编辑核验；来源格式不再逐项追问。
+  const queue = confirmNew && provenanceOnly ? [] : pendingQueue;
+  const canExecute = !!thread?.plan?.valid && !!shown?.valid && !thread?.source_requires_validation && !dirty && !historical && !disabled && thread?.status !== "WAITING" && !queue.length && !confirmNew;
   const status = running ? "整理中" : dirty ? "未保存" : historical ? "历史版本" : queue.length ? "待处理" : execution ? updating ? "已更新" : "已创建" : shown?.valid ? "已核验" : "待核验";
   function changeTree(tree: Tree) {
     if (!shown || disabled) return;
@@ -92,7 +98,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
       {shown && !running && !historical && !execution && (!queue.length || dirty) ? <section className="plan-count" aria-label="圈选客户数">
         <div className="plan-count-heading"><span>圈选客户数</span>{count ? <button className="text-button" disabled={!canExecute || !thread?.capabilities.count} onClick={onCount}>重新统计</button> : null}</div>
         <strong>{count ? count.value.toLocaleString() : "—"}{count ? <small> 人</small> : null}</strong>
-        <p>{count ? `${countTime(count.executed_at)} · 数据截至 ${count.data_as_of || "未提供"}` : dirty ? "修改后须重新核验和统计" : "条件已核验，统计后显示人数"}</p>
+        <p>{count ? `${countTime(count.executed_at)} · 数据截至 ${count.data_as_of || "未提供"}` : dirty ? "修改后须重新核验和统计" : confirmNew ? "确认新增条件后可统计人数" : "条件已核验，统计后显示人数"}</p>
         {count?.warning ? <details className="evidence"><summary>统计说明</summary><p>{count.warning}</p></details> : null}
       </section> : null}
       {shown?.tree ? <>
@@ -106,7 +112,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
     {shown && !running ? <div className="plan-actions">
       {dirty ? <><p className="muted">已修改 · 原人数失效</p><button className="primary" disabled={disabled} onClick={() => draft && onSave({ ...draft, confirmed_clause_ids: confirmedIds })}>保存并核验</button>
         <button className="text-button" disabled={disabled} onClick={discard}>放弃修改</button></> : historical ? <><button className="primary" disabled={pending || running || thread?.status === "WAITING" || !!thread?.archived} onClick={() => onSave(shown)}>以此版本继续</button>
-          <button className="text-button" onClick={() => setVersion(undefined)}>返回当前方案</button></> : thread?.source_requires_validation ? <button className="primary" disabled={disabled || thread?.status === "WAITING"} onClick={() => onSave(shown)}>按最新发布版本核验</button> : queue.length ? <p className="muted">处理上方待确认事项后，可继续统计和{updating ? "更新" : "创建"}。</p> : execution ?
+          <button className="text-button" onClick={() => setVersion(undefined)}>返回当前方案</button></> : thread?.source_requires_validation ? <button className="primary" disabled={disabled || thread?.status === "WAITING"} onClick={() => onSave(shown)}>按最新发布版本核验</button> : confirmNew ? <button className="primary" disabled={disabled} onClick={() => onSave({ ...shown, confirmed_clause_ids: confirmedIds })}>确认新增条件</button> : queue.length ? <p className="muted">处理上方待确认事项后，可继续统计和{updating ? "更新" : "创建"}。</p> : execution ?
             <button className="primary" disabled={disabled} onClick={() => onOpenGroup(execution.group_id)}>打开客群</button> : confirm ? <div className="create-form">
               <label className="field-label">客群名称<input autoFocus disabled={disabled} value={name} maxLength={100} onChange={(e) => setName(e.target.value)} placeholder="输入便于识别的名称" /></label>
               <p>将按当前 v{thread?.revision} 的 {items.length} 项条件{updating ? "更新原客群" : "创建客群"}。</p>
