@@ -231,6 +231,84 @@ export function planDiff(before: Plan | undefined, after: Plan): string[] {
   return changes;
 }
 
+export const operatorNames: Record<string, string> = {
+  "=": "等于", "!=": "不等于", ">": "大于", ">=": "至少", "<": "小于", "<=": "不超过",
+  in: "属于", not_in: "不属于", between: "介于", contains: "包含", like: "匹配", is_null: "为空", is_not_null: "不为空",
+};
+export const unitLabels: Record<string, string> = {
+  CNY: "元", COUNT: "次", RATIO: "比例", PERSON: "人", DAY: "天", MONTH: "月", POINT: "点", SHARE: "份",
+};
+export function clauseUnit(c: Clause): string {
+  const unit = c.value_unit || c.unit;
+  if (!unit || unit === "NONE") return "";
+  const scale = Number(c.value_scale || 1);
+  return `${scale === 10000 ? "万" : scale !== 1 ? `${c.value_scale} × ` : ""}${unitLabels[unit] || unit}`;
+}
+export function clauseSentence(c: Clause): string {
+  if (c.kind === "SCOPE_ALL") return "当前授权范围内的全部客户";
+  const name = c.kind === "DERIVED_PREDICATE" ? expressionText(c.expression) : c.name || c.source_span || c.query || "待选择标签";
+  const time = c.time_constraint && !name.includes(c.time_constraint) ? `${c.time_constraint} ` : "";
+  if (!c.operator) return `${time}${name}`;
+  const op = operatorNames[c.operator] || c.operator;
+  if (["is_null", "is_not_null"].includes(c.operator)) return `${time}${name} ${op}`;
+  const values = (c.values || []).map((v) => c.code_options?.find((o) => o.code === v)?.label || v);
+  const value = c.compare_expression ? expressionText(c.compare_expression)
+    : values.length ? `${values.join(c.operator === "between" ? " 至 " : "、")}${c.code_options?.length ? "" : clauseUnit(c) === "比例" ? "（比例）" : clauseUnit(c)}` : "待补充条件值";
+  return `${time}${name} ${op} ${value}`;
+}
+export function clauseChanged(before: Clause, after: Clause): boolean {
+  const content = (c: Clause) => [c.kind, c.tag_id, c.name, c.operator, c.values, c.expression, c.compare_expression,
+    c.expected_caliber, c.time_alignment, c.time_constraint, c.unit, c.value_unit, c.value_scale, c.null_policy, c.unknown_policy];
+  return JSON.stringify(content(before)) !== JSON.stringify(content(after));
+}
+export function treeSentence(tree: Tree): string {
+  if (!("children" in tree)) return clauseSentence(tree);
+  return `满足以下${tree.logic === "AND" ? "全部" : "任一"}条件：\n${tree.children.map((child) =>
+    "children" in child ? `（${treeSentence(child)}）` : `• ${clauseSentence(child)}`).join("\n")}`;
+}
+export type PendingItem = {
+  id: string;
+  kind: "gap" | "assumption" | "clause" | "diagnostic" | "question";
+  title: string;
+  message: string;
+  clause_id?: string;
+};
+export function pendingItems(thread: Thread | null, plan?: Plan): PendingItem[] {
+  const result: PendingItem[] = [];
+  const items = clauses(plan?.tree);
+  const covered = new Set<string>();
+  if (thread?.status === "WAITING") for (const [i, q] of (thread.questions || []).entries()) {
+    result.push({ id: `question:${i}`, kind: "question", title: q.prompt, message: "在对话中确认业务选择后继续。", clause_id: q.clause_id });
+    if (q.clause_id) covered.add(q.clause_id);
+  }
+  for (const gap of thread?.outcome?.gaps || []) {
+    const c = items.find((c) => (c.requirement_ids || [c.clause_id]).includes(gap.requirement_id));
+    if (c && covered.has(c.clause_id)) continue;
+    result.push({ id: `gap:${gap.requirement_id}`, kind: "gap", clause_id: c?.clause_id,
+      title: plan?.intent_plan?.requirements.find((r) => r.requirement_id === gap.requirement_id)?.business_meaning || c?.source_span || c?.name || "一项圈选要求",
+      message: c?.gap_reason === "BUDGET_EXHAUSTED" ? "这项条件暂未确定，候选标签尚待核验" : gapText[gap.reason] || "当前证据不足" });
+    if (c) covered.add(c.clause_id);
+  }
+  for (const c of items) {
+    if (covered.has(c.clause_id)) continue;
+    const assumed = c.status === "ASSUMED" && !c.assumption_confirmed;
+    const unresolved = !!c.unresolved || !!c.gap_reason || (c.status !== "BOUND" && !plan?.valid);
+    if (!assumed && !unresolved) continue;
+    result.push({ id: `clause:${c.clause_id}`, kind: assumed ? "assumption" : "clause", clause_id: c.clause_id,
+      title: assumed ? c.assumption?.question || `请确认“${c.name || c.source_span || "这项条件"}”的业务定义` : c.name || c.source_span || c.query || "待补充条件",
+      message: assumed ? clauseSentence(c) : c.unresolved || gapText[c.gap_reason || ""] || "请选择标签或补充条件，然后重新核验。" });
+    covered.add(c.clause_id);
+  }
+  for (const [i, d] of (plan?.diagnostics?.length ? plan.diagnostics : plan?.validation_errors || []).entries()) {
+    if (d.clause_id && covered.has(d.clause_id)) continue;
+    if (result.some((item) => item.message === d.message)) continue;
+    result.push({ id: `diagnostic:${i}`, kind: "diagnostic", title: "这项条件需要处理", message: d.message, clause_id: d.clause_id });
+    if (d.clause_id) covered.add(d.clause_id);
+  }
+  if (plan && !plan.valid && !result.length) result.push({ id: "validation", kind: "diagnostic", title: "方案尚待核验", message: "核对条件后保存并核验，或在对话中继续补充要求。" });
+  return result;
+}
+
 export const toolText: Record<string, string> = {
   find_tags: "查找相关标签", get_tag_details: "核对标签口径与码值", find_capabilities: "查找已发布业务能力",
   check_plan: "核验圈选条件", submit_result: "整理圈选方案",

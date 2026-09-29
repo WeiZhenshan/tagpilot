@@ -1,585 +1,119 @@
 import { useEffect, useState } from "react";
-import type { Clause, Plan, Thread, Tree } from "./agentTypes";
-import { busy, clauses, planDiff, planStateText, expressionText, gapText, degradedOf } from "./agentTypes";
-import { ListboxSelect } from "./ListboxSelect";
-const unitLabels: Record<string, string> = {
-  CNY: "元",
-  COUNT: "次",
-  RATIO: "比例",
-  PERSON: "人",
-  DAY: "天",
-  MONTH: "月",
-  POINT: "点",
-  SHARE: "份",
-};
-const caliberLabels: Record<string, string> = {
-  unit: "单位",
-  scope: "统计范围",
-  statistic: "统计方式",
-  unit_scale: "单位倍率",
-  calendar_mode: "周期类型",
-  time_anchor_type: "时间类型",
-  time_window_unit: "窗口单位",
-  time_window_value: "窗口长度",
-  time_anchor_label: "时间口径",
-  period_edge: "期间边界",
-  time_offset_years: "年偏移",
-  time_offset_months: "月偏移",
-  numerator: "分子",
-  denominator: "分母",
-  source_system: "来源系统",
-  boundary_semantics: "边界含义",
-};
-const caliberValues: Record<string, string> = {
-  NONE: "无",
-  ALL: "全部",
-  FLAG: "标志",
-  SUM: "合计",
-  AVG: "平均",
-  MAX: "最大值",
-  MIN: "最小值",
-  COUNT: "计数",
-  ROLLING: "滚动周期",
-  CALENDAR: "自然周期",
-  WINDOW: "时间窗口",
-  WHOLE: "完整期间",
-  DAY: "天",
-  MONTH: "月",
-  YEAR: "年",
-  CNY: "元",
-};
-const operatorNames: Record<string, string> = {
-  "=": "等于",
-  "!=": "不等于",
-  ">": "大于",
-  ">=": "至少",
-  "<": "小于",
-  "<=": "不超过",
-  in: "属于",
-  not_in: "不属于",
-  between: "介于",
-  contains: "包含",
-  like: "匹配",
-  is_null: "为空",
-  is_not_null: "不为空",
-};
-function TreeEditor({
-  tree,
-  onChange,
-  disabled = false,
-}: {
-  tree: Tree;
-  onChange: (v: Tree) => void;
-  disabled?: boolean;
-}) {
-  if ("children" in tree)
-    return (
-      <div className="condition-group">
-        <div className="group-heading">
-          <ListboxSelect
-            ariaLabel="条件组合"
-            disabled={disabled}
-            value={tree.logic}
-            triggerClassName="library-select-trigger--compact"
-            onChange={(logic) =>
-              onChange({ ...tree, logic: logic as "AND" | "OR" })
-            }
-            options={[
-              { value: "AND", label: "全部满足" },
-              { value: "OR", label: "任一满足" },
-            ]}
-          />
-          <span>{tree.children.length} 项条件</span>
-        </div>
-        <div className="condition-children">
-          {tree.children.map((child, i) => (
-            <div key={"clause_id" in child ? child.clause_id : i}>
-              <TreeEditor
-                tree={child}
-                disabled={disabled}
-                onChange={(v) =>
-                  onChange({
-                    ...tree,
-                    children: tree.children.map((c, j) => (j === i ? v : c)),
-                  })
-                }
-              />
-              {!disabled && tree.children.length > 1 ? (
-                <button
-                  className="text-button remove-condition"
-                  onClick={() =>
-                    onChange({
-                      ...tree,
-                      children: tree.children.filter((_, j) => j !== i),
-                    })
-                  }
-                >
-                  移除此条件
-                </button>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  const c = tree;
-  const patch = (p: Partial<Clause>) =>
-    onChange({ ...c, ...p, unresolved: null, gap_reason: undefined });
-  if (c.kind === "SCOPE_ALL") return <section className="condition">
-    <strong>当前授权范围内的全部客户</strong>
-    <p className="muted">统计沿用当前标签库的数据范围与权限。</p>
-  </section>;
-  if (c.kind === "DERIVED_PREDICATE") return <section className="condition">
-    <div className="condition-title"><strong>{c.name || c.source_span || "计算条件"}</strong>
-      <span className={`status-dot ${c.status === "BOUND" ? "bound" : ""}`}>{c.status === "BOUND" ? "已核验" : "待核验"}</span></div>
-    <p>{expressionText(c.expression)}</p>
-    <p>{operatorNames[c.operator || "="] || c.operator} {c.compare_expression ? expressionText(c.compare_expression) : (c.values || []).join(" 至 ")}</p>
-    <p className="muted">缺失值保留为未知；比例的分母须大于零。可在对话中修改指标或阈值。</p>
-    {c.unresolved ? <p className="field-error">{c.unresolved}</p> : null}
-  </section>;
-  return (
-    <section className="condition">
-      <div className="condition-title">
-        <strong>{c.name || c.source_span || c.query || "待选择标签"}</strong>
-        <span className={`status-dot ${c.status === "BOUND" ? "bound" : ""}`}>
-          {c.status === "BOUND" ? "已匹配" : "待补充"}
-        </span>
-      </div>
-      {c.source_span && c.source_span !== c.name ? (
-        <p className="source-text">{c.source_span}</p>
-      ) : null}
-      {c.candidates?.length ? (
-        <label className="field-label field-label--tag">
-          关联标签
-          <ListboxSelect
-            ariaLabel="关联标签"
-            disabled={disabled}
-            placeholder="请选择标签"
-            triggerClassName="library-select-trigger--field"
-            value={c.tag_id ? String(c.tag_id) : ""}
-            onChange={(tagId) => {
-              const id = Number(tagId);
-              patch({
-                tag_id: id,
-                name: c.candidates?.find((x) => x.tag_id === id)?.name,
-                values: [],
-                code_options: [],
-                allowed_operators: undefined,
-                value_unit: undefined,
-                value_scale: undefined,
-                status: "UNRESOLVED",
-              });
-            }}
-            options={[
-              ...[...new Map(c.candidates.map((x) => [x.tag_id, x])).values()].map(
-                (x) => ({ value: String(x.tag_id), label: x.name })
-              ),
-            ]}
-          />
-        </label>
-      ) : null}
-      <div className="condition-inputs">
-        <label className="field-label field-label--operator">
-          比较方式
-          <ListboxSelect
-            ariaLabel={`${c.name || c.clause_id}比较方式`}
-            disabled={disabled}
-            value={c.operator || "="}
-            triggerClassName="library-select-trigger--field"
-            onChange={(operator) => patch({ operator })}
-            options={[
-              ...new Set([
-                ...(c.allowed_operators || [
-                  "=",
-                  ">",
-                  ">=",
-                  "<",
-                  "<=",
-                  "between",
-                  "in",
-                  "not_in",
-                ]),
-                c.operator || "=",
-              ]),
-            ].map((op) => ({
-              value: op,
-              label: operatorNames[op] || op,
-            }))}
-          />
-        </label>
-        {!["is_null", "is_not_null"].includes(c.operator || "") ? (
-          <label className="field-label field-label--value">
-            条件值
-            {c.unit && c.unit !== "NONE"
-              ? `（${
-                  Number(c.value_scale || 1) === 10000
-                    ? "万"
-                    : Number(c.value_scale || 1) !== 1
-                    ? `${c.value_scale} × `
-                    : ""
-                }${unitLabels[c.unit] || c.unit}）`
-              : ""}
-            {c.code_options?.length ? (
-              ["in", "not_in"].includes(c.operator || "") ? (
-                <ListboxSelect
-                  multiple
-                  ariaLabel={`${c.name || c.clause_id}条件值`}
-                  disabled={disabled}
-                  placeholder="请选择"
-                  triggerClassName="library-select-trigger--field"
-                  value={c.values || []}
-                  onChange={(values) => patch({ values })}
-                  options={c.code_options.map((o) => ({
-                    value: o.code,
-                    label: o.label || o.code,
-                  }))}
-                />
-              ) : (
-                <ListboxSelect
-                  ariaLabel={`${c.name || c.clause_id}条件值`}
-                  disabled={disabled}
-                  placeholder="请选择"
-                  triggerClassName="library-select-trigger--field"
-                  value={c.values?.[0] || ""}
-                  onChange={(value) => patch({ values: value ? [value] : [] })}
-                  options={c.code_options.map((o) => ({
-                    value: o.code,
-                    label: o.label || o.code,
-                  }))}
-                />
-              )
-            ) : (
-              <input
-                disabled={disabled}
-                value={(c.values || []).join(", ")}
-                aria-label={`${c.name || c.clause_id}条件值`}
-                placeholder={
-                  c.operator === "between" ? "下限, 上限" : "填写条件值"
-                }
-                onChange={(e) =>
-                  patch({
-                    values: e.target.value.split(/[,，]/).map((v) => v.trim()),
-                  })
-                }
-              />
-            )}
-          </label>
-        ) : null}
-      </div>
-      {c.time_constraint ? (
-        <p className="muted">时间口径：{c.time_constraint}</p>
-      ) : null}
-      {["not_in", "!="].includes(c.operator || "") ? (
-        <p className="muted">
-          排除空值；{c.unknown_policy === "INCLUDE" ? "包含" : "排除"}未知码值。
-        </p>
-      ) : null}
-      {c.gap_reason ? <p className="field-error">{gapText[c.gap_reason] || c.gap_reason}</p> : null}
-      {c.unresolved ? <p className="field-error">{c.unresolved}</p> : null}
-      <details className="evidence">
-        <summary>查看口径与依据</summary>
-        <p>{c.definition || "选择标签后将读取发布口径"}</p>
-        {c.caliber_struct ? (
-          <dl>
-            {Object.entries(c.caliber_struct)
-              .filter(([, v]) => v !== null && v !== "")
-              .map(([k, v]) => (
-                <div key={k}>
-                  <dt>{caliberLabels[k] || k}</dt>
-                  <dd>{caliberValues[String(v)] || String(v)}</dd>
-                </div>
-              ))}
-          </dl>
-        ) : null}
-        <p className="muted">依据：{c.evidence_id || "待核验"}</p>
-      </details>
-    </section>
-  );
+import type { Plan, Thread, Tree } from "./agentTypes";
+import { busy, clauses, clauseChanged, clauseSentence, pendingItems } from "./agentTypes";
+import { SummaryTree } from "./ClauseSummary";
+import { PendingCard } from "./PendingCard";
+import { PlanMenu } from "./PlanMenu";
+
+function countTime(value: string): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "统计时间未提供" : date.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
-export function PlanPanel({
-  thread,
-  pending,
-  onSave,
-  onRefine,
-  onCount,
-  onCreate,
-  onPreview,
-  onOpenGroup,
-}: {
-  thread: Thread | null;
-  pending: boolean;
-  onSave: (p: Plan) => void;
-  onRefine: (message: string) => void;
-  onCount: () => void;
-  onCreate: (name: string) => void;
-  onPreview: () => void;
-  onOpenGroup: (id: number) => void;
+function acceptedConfirmations(thread: Thread | null, plan?: Plan): string[] {
+  return (thread?.confirmed_clause_ids || []).filter((id) => clauses(plan?.tree).some((c) =>
+    c.clause_id === id && c.status === "BOUND" && c.assumption_confirmed === true));
+}
+
+export function PlanPanel({ thread, pending, onSave, onRefine, onDiscuss, onCancel, onCount, onCreate, onPreview, onOpenGroup }: {
+  thread: Thread | null; pending: boolean; onSave: (p: Plan) => void; onRefine: (message: string) => void;
+  onDiscuss: (message: string) => void; onCancel: () => void; onCount: () => void; onCreate: (name: string) => void;
+  onPreview: () => void; onOpenGroup: (id: number) => void;
 }) {
   const active = thread?.live_plan || thread?.plan;
   const [draft, setDraft] = useState<Plan>();
   const [dirty, setDirty] = useState(false);
-  const [version, setVersion] = useState("current");
+  const [version, setVersion] = useState<number>();
+  const [editing, setEditing] = useState<string>();
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState(false);
-  const [approximation, setApproximation] = useState("");
-  const [showApproximation, setShowApproximation] = useState(false);
   const [confirmedIds, setConfirmedIds] = useState<string[]>([]);
   useEffect(() => {
-    setDraft(active);
-    setShowApproximation(false);
-    setApproximation("");
-    setConfirmedIds(thread?.confirmed_clause_ids || []);
-    setDirty(false);
-    setConfirm(false);
-    setVersion("current");
+    setDraft(active); setDirty(false); setConfirm(false); setVersion(undefined); setEditing(undefined);
+    setConfirmedIds(acceptedConfirmations(thread, active));
   }, [thread?.thread_id, thread?.revision, active]);
-  const historical = version !== "current";
-  const shown = historical
-    ? thread?.versions.find((p) => String(p.revision) === version)
-    : draft;
-  const disabled = pending || busy(thread) || historical || thread?.archived;
-  const canExecute =
-    !!thread?.plan?.valid &&
-    !dirty &&
-    !historical &&
-    !disabled &&
-    thread?.status !== "WAITING";
+  useEffect(() => { setName(""); }, [thread?.thread_id]);
+  useEffect(() => { setConfirm(false); }, [thread?.execution?.group_id]);
+  const historical = version !== undefined;
+  const shown = historical ? thread?.versions.find((p) => p.revision === version) : draft;
+  const running = busy(thread);
+  const disabled = !!(pending || running || historical || thread?.archived);
   const items = clauses(shown?.tree);
-  const previous = thread?.versions.find(
-    (p) => p.revision === (shown?.revision || 1) - 1
-  );
-  return (
-    <aside id="agent-plan-editor" tabIndex={-1} className="plan-panel" aria-label="圈选方案">
-      <div className="panel-heading">
-        <div>
-          <h2>圈选方案</h2>
-          <p>
-            {shown
-              ? `${items.length} 项条件 · ${
-                  dirty ? "有未保存修改" : `版本 ${shown.revision || "草稿"}`
-                }`
-              : "条件会随对话逐步整理"}
-          </p>
-        </div>
-        {thread?.versions.length ? (
-          <ListboxSelect
-            ariaLabel="方案版本"
-            className="plan-version-select"
-            value={version}
-            triggerClassName="library-select-trigger--heading"
-            onChange={(v) => {
-              setVersion(v);
-              setConfirm(false);
-            }}
-            options={[
-              { value: "current", label: "当前方案" },
-              ...thread.versions.map((p) => ({
-                value: String(p.revision),
-                label: `v${p.revision}`,
-              })),
-            ]}
-          />
-        ) : null}
-      </div>
-      <div className="plan-scroll">
-        {shown?.plan_status ? <p className="plan-state" role="status">{!historical && degradedOf(thread)?.level === "L3" ? "候选标签待核验" : planStateText[shown.plan_status] || "方案待核验"}</p> : null}
-        {shown?.intent_plan?.requirements?.length ? <details className="evidence">
-          <summary>原始业务要求</summary>
-          {shown.intent_plan.requirements.map((r) => <p key={r.requirement_id}>{r.business_meaning}</p>)}
-        </details> : null}
-        {!historical && thread?.outcome?.gaps?.length ? (
-          <section className="inline-warning" aria-label="需求缺口">
-            <strong>这些要求暂未满足</strong>
-            {thread.outcome.gaps.map((gap) => <div key={gap.requirement_id}>
-              <p>{shown?.intent_plan?.requirements.find((r) => r.requirement_id === gap.requirement_id)?.business_meaning || items.find((c) => c.requirement_ids?.includes(gap.requirement_id))?.source_span || "一项圈选要求"}</p>
-              <p>{items.some((c) => (c.requirement_ids || [c.clause_id]).includes(gap.requirement_id) && c.gap_reason === "BUDGET_EXHAUSTED") ? "这项条件暂未确定，候选标签尚待核验" : gapText[gap.reason] || "当前证据不足"}</p>
-              <button className="text-button" disabled={disabled || items.length <= 1}
-                onClick={() => onRefine(`请移除这项要求：${shown?.intent_plan?.requirements.find((r) => r.requirement_id === gap.requirement_id)?.business_meaning || items.find((c) => c.requirement_ids?.includes(gap.requirement_id))?.source_span || gap.requirement_id}，保留其余条件。`)}>移除此项要求</button>
-            </div>)}
-            <p>调整要求后将重新核验，不会直接执行。</p>
-            <button className="text-button" disabled={disabled} onClick={() => setShowApproximation(!showApproximation)}>说明可接受的近似范围</button>
-            {showApproximation ? <div className="create-form">
-              <label className="field-label">你愿意如何调整这项要求？
-                <textarea value={approximation} maxLength={1500} onChange={(e) => setApproximation(e.target.value)} disabled={disabled} />
-              </label>
-              <button disabled={disabled || !approximation.trim()} onClick={() => onRefine(`我确认调整以下要求：${approximation.trim()}。保留未提及的其余条件，并重新核验。`)}>确认调整并重新核验</button>
-            </div> : null}
-          </section>
-        ) : null}
-        {items.some((c) => c.status === "ASSUMED") ? (
-          <section className="inline-warning" aria-label="确认业务定义">
-            <strong>请核对采用的业务定义</strong>
-            {items.filter((c) => c.status === "ASSUMED").map((c) => <label className="field-label" key={c.clause_id}>
-              <input type="checkbox" disabled={disabled} checked={confirmedIds.includes(c.clause_id)}
-                onChange={(e) => setConfirmedIds((ids) => e.target.checked ? [...ids, c.clause_id] : ids.filter((id) => id !== c.clause_id))} />
-              {c.assumption?.question || c.name || c.source_span}
-            </label>)}
-            <button disabled={disabled || items.some((c) => c.status === "ASSUMED" && !confirmedIds.includes(c.clause_id))}
-              onClick={() => shown && onSave({ ...shown, confirmed_clause_ids: confirmedIds })}>确认定义并重新核验</button>
-          </section>
-        ) : null}
-        {shown?.tree ? (
-          <>
-            <TreeEditor
-              tree={shown.tree}
-              disabled={disabled}
-              onChange={(tree) => {
-                setDraft({ ...shown, tree, valid: false });
-                setDirty(true);
-                setConfirm(false);
-              }}
-            />
-            {(shown.diagnostics || shown.validation_errors)?.length ? (
-              <div className="inline-warning">
-                <strong>{shown.plan_status === "NEEDS_DECISION" ? "需要你决定" : "尚未完成的条件"}</strong>
-                {(shown.diagnostics || shown.validation_errors || []).map((e, i) => (
-                  <div key={i}><p>{e.message}</p>{e.expected || e.actual ? <details className="evidence"><summary>查看口径差异</summary><p>要求：{JSON.stringify(e.expected)}</p><p>当前证据：{JSON.stringify(e.actual)}</p></details> : null}</div>
-                ))}
-              </div>
-            ) : null}
-            {shown.revision ? (
-              <details className="version-diff">
-                <summary>本版变化</summary>
-                {planDiff(previous, shown).map((line, i) => (
-                  <p key={i}>{line}</p>
-                ))}
-              </details>
-            ) : null}
-            <details className="evidence">
-              <summary>版本与技术详情</summary>
-              <p>快照：{shown.snapshot_id || "待核验"}</p>
-              <p>构建：{shown.build_id || "待核验"}</p>
-            </details>
-          </>
-        ) : (
-          <div className="plan-empty">
-            <div className="empty-lines" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </div>
-            <p>先描述你想寻找的客户</p>
-            <span>
-              标签、时间、金额与组合关系
-              <br />
-              会整理为可编辑的条件。
-            </span>
-          </div>
-        )}
-      </div>
-      {shown ? (
-        <div className="plan-actions">
-          {dirty ? (
-            <>
-              <p className="muted">修改后将重新校验，原人数结果失效。</p>
-              <button
-                className="primary"
-                disabled={disabled}
-                onClick={() => draft && onSave(draft)}
-              >
-                保存并核验修改
-              </button>
-            </>
-          ) : historical ? (
-            <button
-              disabled={pending || busy(thread) || thread?.status === "WAITING"}
-              onClick={() => onSave(shown)}
-            >
-              以此版本继续圈选
-            </button>
-          ) : (
-            <>
-              <div className="count-result">
-                {thread?.count && thread.count.revision === thread.revision ? (
-                  <>
-                    <strong>
-                      {thread.count.value.toLocaleString()}
-                      <small> 人</small>
-                    </strong>
-                    <span>
-                      统计于{" "}
-                      {new Date(thread.count.executed_at).toLocaleString(
-                        "zh-CN"
-                      )}
-                    </span>
-                    <span>
-                      数据时点：{thread.count.data_as_of || "数据源未提供"}
-                    </span>
-                    {thread.count.warning ? (
-                      <p>{thread.count.warning}</p>
-                    ) : null}
-                  </>
-                ) : (
-                  <span>
-                    {canExecute
-                      ? "条件已校验，尚未统计人数"
-                      : "完成条件核验后可统计人数"}
-                  </span>
-                )}
-              </div>
-              <div className="action-row">
-                <button
-                  disabled={!canExecute || !thread?.capabilities.count}
-                  onClick={onCount}
-                >
-                  统计人数
-                </button>
-                <button
-                  disabled={!canExecute || !thread?.capabilities.preview}
-                  onClick={onPreview}
-                >
-                  查看样例
-                </button>
-              </div>
-              {thread?.execution &&
-              thread.execution.revision === thread.revision ? (
-                <button
-                  className="primary"
-                  onClick={() => onOpenGroup(thread.execution!.group_id)}
-                >
-                  打开已创建客群
-                </button>
-              ) : (
-                <button
-                  className="primary"
-                  disabled={!canExecute || !thread?.capabilities.create}
-                  onClick={() => setConfirm(!confirm)}
-                >
-                  创建客群
-                </button>
-              )}
-              {confirm ? (
-                <div className="create-form">
-                  <label className="field-label">
-                    客群名称
-                    <input
-                      autoFocus
-                      value={name}
-                      maxLength={100}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="输入便于识别的名称"
-                    />
-                  </label>
-                  <p>
-                    将按当前 v{thread?.revision} 的 {items.length}{" "}
-                    项条件创建客群。
-                  </p>
-                  <div className="action-row">
-                    <button onClick={() => setConfirm(false)}>取消</button>
-                    <button
-                      className="primary"
-                      disabled={!name.trim() || pending}
-                      onClick={() => onCreate(name.trim())}
-                    >
-                      确认创建
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-            </>
-          )}
-        </div>
-      ) : null}
-    </aside>
-  );
+  const queue = pendingItems(thread, shown).filter((p) => p.kind !== "assumption" || !confirmedIds.includes(p.clause_id!));
+  const canExecute = !!thread?.plan?.valid && !!shown?.valid && !dirty && !historical && !disabled && thread?.status !== "WAITING" && !queue.length;
+  const count = !dirty && !historical && !running && shown?.valid && thread?.count && thread.count.revision === thread.revision ? thread.count : undefined;
+  const execution = !dirty && !historical && !running && thread?.execution && thread.execution.revision === thread.revision ? thread.execution : undefined;
+  const previous = thread?.versions.find((p) => p.revision === (shown?.revision || 1) - 1);
+  const comparison = dirty ? active : previous;
+  const old = new Map(clauses(comparison?.tree).map((c) => [c.clause_id, c]));
+  const changes = new Map<string, "新" | "改">();
+  if (comparison) for (const c of items) {
+    const before = old.get(c.clause_id);
+    if (!before) changes.set(c.clause_id, "新");
+    else if (clauseChanged(before, c)) changes.set(c.clause_id, "改");
+  }
+  const removed = comparison ? clauses(comparison.tree).filter((c) => !items.some((item) => item.clause_id === c.clause_id)) : [];
+  const status = running ? "整理中" : dirty ? "未保存" : historical ? "历史版本" : queue.length ? "待处理" : execution ? "已创建" : shown?.valid ? "已核验" : "待核验";
+  function changeTree(tree: Tree) {
+    if (!shown || disabled) return;
+    setConfirmedIds((ids) => ids.filter((id) => {
+      const before = items.find((c) => c.clause_id === id);
+      const after = clauses(tree).find((c) => c.clause_id === id);
+      return before && after && !clauseChanged(before, after);
+    }));
+    setDraft({ ...shown, tree, valid: false }); setDirty(true); setConfirm(false);
+  }
+  function discard() {
+    setDraft(active); setDirty(false); setEditing(undefined); setConfirm(false); setConfirmedIds(acceptedConfirmations(thread, active));
+  }
+  function confirmAssumption(id: string) {
+    if (!shown || disabled) return;
+    const ids = [...new Set([...confirmedIds, id])];
+    if (!items.some((c) => c.status === "ASSUMED" && !ids.includes(c.clause_id))) {
+      // 最后一项保留至服务端核验成功，提交失败时仍可直接重试。
+      onSave({ ...shown, confirmed_clause_ids: ids });
+    } else setConfirmedIds(ids);
+  }
+  return <aside id="agent-plan-editor" tabIndex={-1} className="plan-panel" aria-label="圈选方案">
+    <div className="panel-heading plan-heading"><h2>圈选方案</h2>
+      {shown || running ? <span className="plan-status" role="status">{shown?.revision ? `v${shown.revision} · ` : ""}{status}</span> : null}
+      <PlanMenu thread={thread} plan={shown} historical={historical} dirty={dirty} onVersion={(revision) => { setVersion(revision); setEditing(undefined); setConfirm(false); }} />
+    </div>
+    <div className="plan-scroll">
+      {thread?.archived ? <p className="plan-history-notice">会话已归档，恢复后可继续圈选。</p> : null}
+      {historical ? <p className="plan-history-notice">你正在查看 v{version}<button className="text-button" onClick={() => setVersion(undefined)}>返回当前</button></p> : null}
+      {running ? <div className="plan-progress" role="status"><p>正在整理条件…</p><button className="text-button" disabled={pending} onClick={onCancel}>停止</button></div> : null}
+      {!historical && !running && !dirty ? <PendingCard items={queue} disabled={disabled} canRemove={items.length > 1 || (shown?.intent_plan?.requirements.length || 0) > 1}
+        onConfirm={confirmAssumption} onEdit={setEditing} onDiscuss={onDiscuss}
+        onRemove={(item) => onRefine(`请移除这项要求：${item.title}，保留其余条件，并重新核验。`)} /> : null}
+      {execution ? <div className="plan-created" role="status"><strong>已创建客群{name ? `《${name}》` : ""}</strong><span>按 v{thread?.revision} 的圈选条件创建</span></div> : null}
+      {shown && !running && !historical && !execution && (!queue.length || dirty) ? <section className="plan-count" aria-label="圈选客户数">
+        <div className="plan-count-heading"><span>圈选客户数</span>{count ? <button className="text-button" disabled={!canExecute || !thread?.capabilities.count} onClick={onCount}>重新统计</button> : null}</div>
+        <strong>{count ? count.value.toLocaleString() : "—"}{count ? <small> 人</small> : null}</strong>
+        <p>{count ? `${countTime(count.executed_at)} · 数据截至 ${count.data_as_of || "未提供"}` : dirty ? "修改后须重新核验和统计" : "条件已核验，统计后显示人数"}</p>
+        {count?.warning ? <details className="evidence"><summary>统计说明</summary><p>{count.warning}</p></details> : null}
+      </section> : null}
+      {shown?.tree ? <>
+        {!("children" in shown.tree) ? <p className="single-condition-heading">圈选条件</p> : null}
+        <SummaryTree tree={shown.tree} items={items} changes={changes} editing={editing} disabled={disabled} onEdit={(id) => setEditing(editing === id ? undefined : id)}
+          onChange={changeTree} onDone={() => setEditing(undefined)} onDiscuss={onDiscuss} />
+        {removed.map((c) => <p className="removed-clause" key={c.clause_id}><del>{clauseSentence(c)}</del><span>已删除</span></p>)}
+        <button className="text-button add-condition" disabled={disabled} onClick={() => onDiscuss("在当前方案中补充一项条件，保留其余要求：")}>＋ 补充条件（在对话里说）</button>
+      </> : !running ? <div className="plan-empty"><p>先描述你想寻找的客户</p><span>例如：近 3 个月消费至少 1 万元的金卡客户。</span></div> : null}
+    </div>
+    {shown && !running ? <div className="plan-actions">
+      {dirty ? <><p className="muted">已修改 · 原人数失效</p><button className="primary" disabled={disabled} onClick={() => draft && onSave({ ...draft, confirmed_clause_ids: confirmedIds })}>保存并核验</button>
+        <button className="text-button" disabled={disabled} onClick={discard}>放弃修改</button></> : historical ? <><button className="primary" disabled={pending || running || thread?.status === "WAITING" || !!thread?.archived} onClick={() => onSave(shown)}>以此版本继续</button>
+          <button className="text-button" onClick={() => setVersion(undefined)}>返回当前方案</button></> : queue.length ? <p className="muted">处理上方待确认事项后，可继续统计和创建。</p> : execution ?
+            <button className="primary" disabled={disabled} onClick={() => onOpenGroup(execution.group_id)}>打开客群</button> : confirm ? <div className="create-form">
+              <label className="field-label">客群名称<input autoFocus disabled={disabled} value={name} maxLength={100} onChange={(e) => setName(e.target.value)} placeholder="输入便于识别的名称" /></label>
+              <p>将按当前 v{thread?.revision} 的 {items.length} 项条件创建客群。</p>
+              <div className="action-row"><button disabled={disabled} onClick={() => setConfirm(false)}>取消</button><button className="primary" disabled={!name.trim() || !canExecute || !thread?.capabilities.create} onClick={() => onCreate(name.trim())}>确认创建</button></div>
+            </div> : <>
+              {count ? <button className="primary" disabled={!canExecute || !thread?.capabilities.create} onClick={() => setConfirm(true)}>创建客群</button> :
+                <button className="primary" disabled={!canExecute || !thread?.capabilities.count} onClick={onCount}>统计人数</button>}
+              <button className="text-button" disabled={!canExecute || !thread?.capabilities.preview} onClick={onPreview}>查看样例客户</button>
+              {count && !thread?.capabilities.create ? <p className="muted">当前账号暂无创建客群权限。</p> : !count && !thread?.capabilities.count ? <p className="muted">当前账号暂无统计权限。</p> : null}
+            </>}
+    </div> : null}
+  </aside>;
 }

@@ -38,3 +38,26 @@ it('部分完成进入提示分支，真故障进入错误分支',()=>{
   t.status='RUNNING';expect(runNotice(t)).toBeUndefined();
   expect(runNotice({status:'COMPLETED'} as Thread)).toBeUndefined();
 });
+
+import {clauseSentence,clauseUnit,pendingItems,treeSentence,type Clause} from './agentTypes';
+describe('圈选方案业务摘要',()=>{
+  it('保留单位倍率、否定、时间及区间，不把业务码值暴露为原始编码',()=>{
+    const c:Clause={clause_id:'a',name:'消费金额',operator:'between',values:['1','5'],value_unit:'CNY',value_scale:'10000',time_constraint:'近3个月'};
+    expect(clauseSentence(c)).toBe('近3个月 消费金额 介于 1 至 5万元');
+    expect(clauseUnit(c)).toBe('万元');
+    expect(clauseSentence({...c,name:'近3个月消费金额'})).toBe('近3个月消费金额 介于 1 至 5万元');
+    expect(clauseSentence({clause_id:'b',name:'等级',operator:'not_in',values:['GOLD','NEW'],code_options:[{code:'GOLD',label:'金卡'}]})).toBe('等级 不属于 金卡、NEW');
+    expect(clauseSentence({...c,operator:'is_not_null',values:[]})).toBe('近3个月 消费金额 不为空');
+  });
+  it('复制方案保留嵌套 AND/OR 和计算条件',()=>{
+    const text=treeSentence(plan.tree);
+    expect(text).toContain('满足以下全部条件');expect(text).toContain('满足以下任一条件');
+    expect(clauseSentence({clause_id:'c',kind:'DERIVED_PREDICATE',operator:'>=',values:['0.8'],expression:{kind:'DIV',args:[{kind:'TAG',name:'存款'},{kind:'TAG',name:'AUM'}]}})).toBe('(存款 ÷ AUM) 至少 0.8');
+  });
+  it('合并相同条件的缺口与诊断，保留独立待处理事项',()=>{
+    const p:Plan={valid:false,tree:{logic:'AND',children:[{clause_id:'a',requirement_ids:['r'],name:'消费',status:'GAP',gap_reason:'NO_PUBLISHED_TAG'}, {clause_id:'b',name:'高净值',status:'ASSUMED',assumption:{status:'PENDING',question:'确认口径'}}]},diagnostics:[{clause_id:'a',message:'缺少标签'},{message:'独立计算能力缺口'}]};
+    const t={status:'COMPLETED',outcome:{gaps:[{requirement_id:'r',reason:'NO_PUBLISHED_TAG',nearest_tag_ids:[]}]}} as unknown as Thread;
+    const q=pendingItems(t,p);expect(q.map(i=>i.kind)).toEqual(['gap','assumption','diagnostic']);expect(q[0].clause_id).toBe('a');
+    expect(pendingItems(null,{...p,valid:true,tree:{clause_id:'a',status:'BOUND'},diagnostics:[]})).toEqual([]);
+  });
+});

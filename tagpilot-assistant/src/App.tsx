@@ -49,6 +49,7 @@ export function App() {
   const [search, setSearch] = useState("");
   const [archived, setArchived] = useState(false);
   const [tab, setTab] = useState("chat");
+  const [composerRequest, setComposerRequest] = useState<{ text: string; id: number }>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem("tagpilot:history-collapsed") === "1"
   );
@@ -684,6 +685,7 @@ export function App() {
             thread={thread}
             disabled={!library || !!thread?.archived}
             pending={pending}
+            composerRequest={composerRequest}
             contextControl={
               <LibraryPicker
                 libraries={libraries}
@@ -707,6 +709,11 @@ export function App() {
           pending={pending}
           onSave={savePlan}
           onRefine={send}
+          onDiscuss={(text) => {
+            setTab("chat");
+            setComposerRequest({ text, id: Date.now() });
+          }}
+          onCancel={() => void act(api.cancelRun)}
           onCount={() => void act(api.countPlan)}
           onCreate={(name) => void create(name)}
           onPreview={() => {

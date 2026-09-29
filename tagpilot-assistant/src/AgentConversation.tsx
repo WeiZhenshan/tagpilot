@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   AssistantRuntimeProvider,
   ComposerPrimitive,
@@ -145,6 +145,7 @@ export function AgentConversation({
   disabled,
   pending,
   contextControl,
+  composerRequest,
   onSend,
   onCancel,
   onAnswer,
@@ -155,6 +156,7 @@ export function AgentConversation({
   disabled: boolean;
   pending: boolean;
   contextControl?: ReactNode;
+  composerRequest?: { text: string; id: number };
   onSend: (text: string) => Promise<void>;
   onCancel: () => void;
   onAnswer: (text: string) => void;
@@ -162,6 +164,7 @@ export function AgentConversation({
   onEdit: () => void;
 }) {
   const degraded = degradedOf(thread);
+  const composerInput = useRef<HTMLTextAreaElement>(null);
   const runtime = useExternalStoreRuntime<AgentMessage>({
     messages: thread?.messages || [],
     convertMessage,
@@ -177,6 +180,16 @@ export function AgentConversation({
     },
     onCancel: async () => onCancel(),
   });
+  useEffect(() => {
+    if (!composerRequest) return;
+    if (thread?.status === "WAITING") {
+      document.querySelector<HTMLElement>(".ask-card button:not(:disabled), .ask-card input:not(:disabled)")?.focus();
+      return;
+    }
+    runtime.thread.composer.setText(composerRequest.text);
+    composerInput.current?.focus();
+    // 只响应右栏发起的一次预填请求，避免轮询刷新覆盖用户后续输入。
+  }, [composerRequest]);
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <ThreadPrimitive.Root className="thread">
@@ -275,6 +288,7 @@ export function AgentConversation({
         <div className="composer-wrap">
           <ComposerPrimitive.Root className="composer">
             <ComposerPrimitive.Input
+              ref={composerInput}
               className="composer-input"
               rows={2}
               placeholder={

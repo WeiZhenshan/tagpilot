@@ -48,6 +48,7 @@ let t: any;
 let deleted = false;
 let createdThreads = 0;
 test.beforeEach(async ({ page }) => {
+  if (process.env.CAPTURE_DIR) fs.mkdirSync(process.env.CAPTURE_DIR, { recursive: true });
   deleted = false;
   createdThreads = 0;
   t = {
@@ -172,6 +173,20 @@ test.beforeEach(async ({ page }) => {
       t.revision++;
       t.plan.revision = t.revision;
       t.plan.valid = true;
+      t.plan.plan_status = "READY";
+      t.plan.diagnostics = [];
+      if (body.confirmed_clause_ids?.length) {
+        t.confirmed_clause_ids = body.confirmed_clause_ids;
+        const confirm = (tree: any) => {
+          if (tree.children) tree.children.forEach(confirm);
+          else if (body.confirmed_clause_ids.includes(tree.clause_id)) {
+            tree.status = "BOUND";
+            tree.assumption_confirmed = true;
+          }
+        };
+        confirm(t.plan.tree);
+      }
+      if (t.outcome) t.outcome.gaps = [];
       t.versions.push(structuredClone(t.plan));
       t.status = "RUNNING";
       t.questions = [];
@@ -199,25 +214,29 @@ test("condition edits invalidate count, persist through refresh, and creation ne
   ).toBeEnabled();
   await page.getByRole("button", { name: "统计人数", exact: true }).click();
   await expect(page.getByText("1,268")).toBeVisible();
+  await page.getByRole("button", { name: "编辑条件：近30天异名跨行转入金额" }).click();
   await page.getByLabel("近30天异名跨行转入金额条件值").fill("600000");
   await expect(
-    page.getByRole("button", { name: "保存并核验修改" })
+    page.getByRole("button", { name: "保存并核验" })
   ).toBeVisible();
-  await page.getByRole("button", { name: "保存并核验修改" }).click();
+  await page.getByRole("button", { name: "保存并核验" }).click();
   await expect(
     page.getByRole("button", { name: "统计人数", exact: true })
   ).toBeEnabled();
   await expect(page.getByText("1,268")).toHaveCount(0);
   await page.reload();
+  await page.getByRole("button", { name: "编辑条件：近30天异名跨行转入金额" }).click();
   await expect(page.getByLabel("近30天异名跨行转入金额条件值")).toHaveValue(
     "600000"
   );
+  await page.getByRole("button", { name: "完成", exact: true }).click();
+  await page.getByRole("button", { name: "统计人数", exact: true }).click();
   await page.getByRole("button", { name: "创建客群", exact: true }).click();
   await expect(page.getByRole("button", { name: "确认创建" })).toBeVisible();
   await page.getByLabel("客群名称").fill("界面测试客群");
   await page.getByRole("button", { name: "确认创建" }).click();
   await expect(
-    page.getByRole("button", { name: "打开已创建客群" })
+    page.getByRole("button", { name: "打开客群" })
   ).toBeVisible();
 });
 test("clarification and responsive layout remain usable", async ({ page }) => {
@@ -256,7 +275,8 @@ test("clarification and responsive layout remain usable", async ({ page }) => {
   await expect(
     page.getByRole("tab", { name: "圈选方案", exact: true })
   ).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByLabel("近30天异名跨行转入金额条件值")).toBeVisible();
+  await expect(page.getByText("近30天异名跨行转入金额 大于 500000元", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("近30天异名跨行转入金额条件值")).toHaveCount(0);
   await page.evaluate(() => new Promise(requestAnimationFrame));
   expect(
     await page.evaluate(
@@ -274,7 +294,7 @@ test("sample dialog traps focus, closes on Escape, and restores focus", async ({
   page,
 }) => {
   await page.goto("/agent-ui/?threadId=test-thread");
-  await page.getByRole("button", { name: "查看样例" }).click();
+  await page.getByRole("button", { name: "查看样例客户" }).click();
   await expect(page.getByRole("dialog", { name: "客户样例" })).toBeVisible();
   await page.keyboard.press("Tab");
   expect(
@@ -282,7 +302,7 @@ test("sample dialog traps focus, closes on Escape, and restores focus", async ({
   ).toBeTruthy();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "查看样例" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "查看样例客户" })).toBeFocused();
 });
 
 test("mobile errors remain visible and history is accessible", async ({
@@ -477,46 +497,40 @@ test("history rail supports collapse, inline rename, row actions and account men
   await expect(page.getByRole("navigation", { name: "圈选会话" })).toBeVisible();
 });
 
-test("plan panel listboxes fit their triggers", async ({ page }) => {
+test("inline editors and logic selector fit the plan panel", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.goto("/agent-ui/?threadId=test-thread");
   const panel = page.getByRole("complementary", { name: "圈选方案" });
-  await expect(panel).toBeVisible();
   const panelBox = await panel.boundingBox();
-  const labels = [
-    "条件组合",
-    "方案版本",
-    "近30天异名跨行转入金额比较方式",
-    "客户状态条件值",
-  ];
-  for (const name of labels) {
-    const trigger = page.getByRole("button", { name, exact: true });
+  for (const clause of ["近30天异名跨行转入金额", "客户状态"]) {
+    await page.getByRole("button", { name: `编辑条件：${clause}` }).click();
+    await expect(page.locator(".clause-editor")).toHaveCount(1);
+    const label = clause === "客户状态" ? `${clause}条件值` : `${clause}比较方式`;
+    const trigger = page.getByRole("button", { name: label, exact: true });
     await trigger.click();
-    const listbox = page.getByRole("listbox", { name, exact: true });
-    await expect(listbox).toBeVisible();
-    const triggerBox = await trigger.boundingBox();
+    const listbox = page.getByRole("listbox", { name: label, exact: true });
     const optionsBox = await listbox.boundingBox();
-    expect(triggerBox, name).toBeTruthy();
-    expect(optionsBox, name).toBeTruthy();
-    expect(optionsBox!.width, name).toBeGreaterThanOrEqual(triggerBox!.width - 1);
-    expect(optionsBox!.width, name).toBeLessThan(panelBox!.width);
-    expect(triggerBox!.width, name).toBeLessThan(panelBox!.width * 0.92);
+    const triggerBox = await trigger.boundingBox();
+    expect(optionsBox!.width).toBeGreaterThanOrEqual(triggerBox!.width - 1);
+    expect(optionsBox!.width).toBeLessThan(panelBox!.width);
     await page.keyboard.press("Escape");
   }
-  const logic = await page.getByRole("button", { name: "条件组合" }).boundingBox();
-  const version = await page.getByRole("button", { name: "方案版本" }).boundingBox();
-  expect(logic!.width).toBeLessThan(panelBox!.width * 0.45);
-  expect(version!.width).toBeLessThan(panelBox!.width * 0.45);
+  await page.getByRole("button", { name: "条件组合：满足以下全部条件" }).click();
+  await page.getByRole("button", { name: "条件组合", exact: true }).click();
+  await expect(page.getByRole("option", { name: "满足以下任一条件" })).toBeVisible();
+  await page.keyboard.press("Escape");
 });
 
 test('计算草案展示缺口且禁止执行',async({page})=>{
   t.outcome={outcome:'CAPABILITY_GAP',gaps:[{requirement_id:'ratio',reason:'NO_CAPABILITY',nearest_tag_ids:[]}]};
   t.plan={...structuredClone(plan),valid:false,plan_status:'CAPABILITY_GAP',tree:{kind:'DERIVED_PREDICATE',clause_id:'ratio',name:'存款占 AUM 至少八成',operator:'>=',values:['0.8'],expression:{kind:'DIV',args:[{kind:'TAG',tag_id:1,name:'当前存款余额'},{kind:'TAG',tag_id:2,name:'当前 AUM'}]}},diagnostics:[{code:'CAPABILITY_UNAVAILABLE',message:'当前发布版本缺少可核验的基金持仓明细能力',user_decision_required:false}]};
   await page.goto('/agent-ui/?threadId=test-thread');
-  await expect(page.getByText('存款占 AUM 至少八成',{exact:true})).toBeVisible();
+  await expect(page.locator('.clause-copy')).toContainText('(当前存款余额 ÷ 当前 AUM) 至少 0.8');
+  await expect(page.getByRole('region',{name:'待处理事项'})).toBeVisible();
+  await page.getByRole('button',{name:'先跳过'}).click();
   await expect(page.getByText('当前发布版本缺少可核验的基金持仓明细能力')).toBeVisible();
-  await expect(page.getByRole('region',{name:'需求缺口'})).toBeVisible();
-  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeDisabled();
+  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'创建客群',exact:true})).toHaveCount(0);
   for(const width of [1440,390]){
     await page.setViewportSize({width,height:900});
     if(width===390){const tab=page.getByRole('tab',{name:/方案/});if(await tab.count()){await tab.click();await expect(tab).toHaveAttribute('aria-selected','true');}}
@@ -532,7 +546,8 @@ test('预算降级保留部分方案，补全使用新消息且不可执行', as
   await page.goto('/agent-ui/?threadId=test-thread');
   await expect(page.getByText('已保留 1/2 项条件')).toBeVisible();
   await expect(page.locator('.run-error')).toHaveCount(0);
-  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeDisabled();
+  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'创建客群',exact:true})).toHaveCount(0);
   await expect(page.getByText('部分完成',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'手工编辑方案',exact:true}).click();
   await expect(page.locator('#agent-plan-editor')).toBeFocused();
@@ -555,8 +570,9 @@ test('候选建议能选标签，超过续跑次数只提供编辑入口', async
   await expect(page.getByRole('button',{name:'手工编辑方案',exact:true})).toBeVisible();
   await expect(page.getByText('已找到可能相关的标签，请在方案中选择并核验。')).toBeVisible();
   await expect(page.getByText('这项条件暂未确定，候选标签尚待核验')).toBeVisible();
-  await page.getByRole('button',{name:'关联标签',exact:true}).first().click();
-  await expect(page.getByRole('option',{name:'近30天异名跨行转入金额',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'编辑条件：近30天异名跨行转入金额',exact:true}).click();
+  await page.getByRole('button',{name:'采用标签：近30天异名跨行转入金额',exact:true}).click();
+  await expect(page.getByRole('button',{name:'保存并核验',exact:true})).toBeVisible();
 });
 
 test('排队超时显示对应错误及稍后重试',async({page})=>{
@@ -566,4 +582,170 @@ test('排队超时显示对应错误及稍后重试',async({page})=>{
   await expect(page.locator('.run-error')).toContainText('当前使用人数较多，排队已超时');
   await expect(page.getByRole('button',{name:'稍后重试',exact:true})).toBeVisible();
   await expect(page.locator('.run-degraded')).toHaveCount(0);
+});
+
+test('摘要、口径、菜单和版本只读状态按需展示', async ({page})=>{
+  t.revision=2;
+  t.plan.revision=2;
+  t.plan.tree.children[0].values=['600000'];
+  t.plan.tree.children.pop();
+  t.versions.push(structuredClone(t.plan));
+  t.count={value:0,revision:2,executed_at:'2026-09-29T01:30:00Z',data_as_of:'2026-09-28'};
+  await page.setViewportSize({width:1440,height:960});
+  await page.goto('/agent-ui/?threadId=test-thread');
+  const panel=page.getByRole('complementary',{name:'圈选方案'});
+  await expect(panel.locator('.clause-copy')).toContainText('近30天异名跨行转入金额 大于 600000元');
+  await expect(panel.locator('.clause-change')).toHaveText('改');
+  await expect(panel.locator('.removed-clause del')).toContainText('客户状态 不属于 已销户');
+  await expect(panel.locator('.clause-editor')).toHaveCount(0);
+  await expect(panel.getByText('已匹配',{exact:true})).toHaveCount(0);
+  await expect(panel.locator('.plan-count > strong')).toHaveText('0 人');
+  await expect(panel.getByRole('button',{name:'创建客群',exact:true})).toBeEnabled();
+  await expect(panel.getByText('test-snapshot')).toHaveCount(0);
+  await panel.getByRole('button',{name:'近30天异名跨行转入金额口径说明'}).click();
+  await expect(panel.getByRole('note')).toContainText('近30天异名跨行转入金额合计');
+  if(process.env.CAPTURE_DIR)await page.screenshot({path:`${process.env.CAPTURE_DIR}/summary-count-desktop.png`});
+  await panel.getByRole('button',{name:'方案更多操作'}).click();
+  await page.getByRole('button',{name:'技术详情',exact:true}).click();
+  const technical=page.getByRole('dialog',{name:'技术详情'});
+  await expect(technical).toContainText('test-snapshot');
+  await page.keyboard.press('Escape');
+  await expect(panel.getByRole('button',{name:'方案更多操作'})).toBeFocused();
+  await panel.getByRole('button',{name:'方案更多操作'}).click();
+  await page.getByRole('button',{name:'原始需求',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'原始需求'})).toContainText(t.messages[0].text);
+  await page.keyboard.press('Escape');
+  await panel.getByRole('button',{name:'方案更多操作'}).click();
+  await page.getByRole('button',{name:'版本历史',exact:true}).click();
+  await page.getByRole('dialog',{name:'版本历史'}).getByRole('button',{name:/^v1/}).click();
+  await expect(panel).toContainText('你正在查看 v1');
+  await expect(panel.getByRole('button',{name:'编辑条件：客户状态'})).toBeDisabled();
+  await expect(panel.getByRole('button',{name:'以此版本继续',exact:true})).toBeEnabled();
+  await expect(panel.locator('.plan-count')).toHaveCount(0);
+  await panel.getByRole('button',{name:'返回当前',exact:true}).click();
+  await expect(panel.locator('.plan-count > strong')).toHaveText('0 人');
+  await panel.getByRole('button',{name:'编辑条件：近30天异名跨行转入金额'}).click();
+  await page.getByLabel('近30天异名跨行转入金额条件值').fill('700000');
+  await expect(panel.locator('.plan-count > strong')).toHaveText('—');
+  await panel.getByRole('button',{name:'方案更多操作'}).click();
+  await page.getByRole('button',{name:'版本历史',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'版本历史'}).getByRole('button',{name:/^v1/})).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await panel.getByRole('button',{name:'放弃修改',exact:true}).click();
+  await expect(panel.locator('.plan-count > strong')).toHaveText('0 人');
+});
+
+test('待处理逐项确认，跳过不解除阻断，改写预填且不自动发送',async({page})=>{
+  t.plan.valid=false;
+  t.plan.tree.children[0].status='GAP';
+  t.plan.tree.children[0].requirement_ids=['r'];
+  t.plan.tree.children[1].status='ASSUMED';
+  t.plan.tree.children[1].assumption={status:'PENDING',question:'采用当前客户状态口径？'};
+  t.outcome={outcome:'PARTIAL',gaps:[{requirement_id:'r',reason:'CALIBER_UNAVAILABLE',nearest_tag_ids:[]}]};
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/agent-ui/?threadId=test-thread');
+  await page.getByRole('tab',{name:'圈选方案',exact:true}).click();
+  const card=page.getByRole('region',{name:'待处理事项'});
+  await expect(card).toContainText('第 1/2 项');
+  await expect(card.getByText('采用当前客户状态口径？')).toHaveCount(0);
+  await page.getByRole('button',{name:'先跳过'}).click();
+  await expect(card).toContainText('采用当前客户状态口径？');
+  await expect(page.getByRole('button',{name:'创建客群',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'先跳过'}).click();
+  const requests:string[]=[];
+  page.on('request',r=>{if(r.method()==='POST')requests.push(r.url());});
+  await page.getByRole('button',{name:'换个说法',exact:true}).click();
+  const composer=page.getByPlaceholder('描述客户条件，或继续修改当前方案…');
+  await expect(composer).toBeFocused();
+  await expect(composer).toHaveValue(/我可接受的范围是/);
+  await expect(page.getByRole('tab',{name:'对话',exact:true})).toHaveAttribute('aria-selected','true');
+  expect(requests).toEqual([]);
+});
+
+test('多项定义分别确认，只提交已明确确认的条件',async({page})=>{
+  t.plan.valid=false;
+  t.confirmed_clause_ids=['a','b']; // 旧版本确认记录不能跳过本版仍为 ASSUMED 的定义。
+  t.plan.tree.children.forEach((c:any)=>{c.status='ASSUMED';c.assumption={status:'PENDING',question:`请确认${c.name}口径`};});
+  await page.goto('/agent-ui/?threadId=test-thread');
+  const card=page.getByRole('region',{name:'待处理事项'});
+  await expect(card).toContainText('第 1/2 项');
+  await card.getByRole('button',{name:'确认',exact:true}).click();
+  await expect(card).toContainText('请确认客户状态口径');
+  const sent=page.waitForRequest(r=>r.url().endsWith('/runs')&&r.method()==='POST');
+  await card.getByRole('button',{name:'确认',exact:true}).click();
+  expect((await sent).postDataJSON().confirmed_clause_ids).toEqual(['a','b']);
+  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeEnabled();
+});
+
+test('嵌套条件、单项编辑、删除和放弃保持逻辑',async({page})=>{
+  const second=t.plan.tree.children.pop();
+  t.plan.tree.children.push({logic:'OR',children:[second,{...second,clause_id:'c',name:'备用客户状态',operator:'in',values:['ACTIVE']}]});
+  t.versions=[structuredClone(t.plan)];
+  await page.goto('/agent-ui/?threadId=test-thread');
+  await expect(page.getByRole('button',{name:'条件组合：满足以下任一条件'})).toBeVisible();
+  await page.getByRole('button',{name:'编辑条件：客户状态',exact:true}).click();
+  await page.getByRole('button',{name:'删除此条件',exact:true}).click();
+  await expect(page.locator('.clause-copy')).toHaveCount(2);
+  await expect(page.getByRole('button',{name:'保存并核验',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'放弃修改',exact:true}).click();
+  await expect(page.locator('.clause-copy')).toHaveCount(3);
+  await page.getByRole('button',{name:'编辑条件：近30天异名跨行转入金额'}).click();
+  await page.getByRole('button',{name:'编辑条件：备用客户状态'}).click();
+  await expect(page.locator('.clause-editor')).toHaveCount(1);
+  await expect(page.getByLabel('近30天异名跨行转入金额条件值')).toHaveCount(0);
+});
+
+test('过期人数不显示，权限与处理状态约束主动作',async({page})=>{
+  t.count={value:999,revision:0,executed_at:'bad-date'};
+  t.capabilities.count=false;
+  await page.goto('/agent-ui/?threadId=test-thread');
+  await expect(page.locator('.plan-count > strong')).toHaveText('—');
+  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeDisabled();
+  await expect(page.getByText('当前账号暂无统计权限。')).toBeVisible();
+});
+
+test('空态与处理中的方案只呈现当前动作',async({page})=>{
+  t.plan=undefined;t.versions=[];t.messages=[];t.revision=0;t.status='IDLE';
+  await page.goto('/agent-ui/?threadId=test-thread');
+  const panel=page.getByRole('complementary',{name:'圈选方案'});
+  await expect(panel).toContainText('先描述你想寻找的客户');
+  await expect(panel.locator('.plan-actions')).toHaveCount(0);
+  t.plan=structuredClone(plan);t.live_plan=structuredClone(plan);t.revision=1;t.status='RUNNING';
+  await page.reload();
+  await expect(panel).toContainText('正在整理条件…');
+  await expect(panel.locator('.plan-actions')).toHaveCount(0);
+  await expect(panel.getByRole('button',{name:'编辑条件：客户状态'})).toBeDisabled();
+  const sent=page.waitForRequest(r=>r.url().endsWith('/cancel')&&r.method()==='POST');
+  await panel.getByRole('button',{name:'停止',exact:true}).click();
+  await sent;
+});
+
+test('复制方案文字保留中文码值及嵌套关系',async({page,context})=>{
+  await context.grantPermissions(['clipboard-read','clipboard-write']);
+  await page.goto('/agent-ui/?threadId=test-thread');
+  await page.getByRole('button',{name:'方案更多操作'}).click();
+  await page.getByRole('button',{name:'复制方案文字',exact:true}).click();
+  await expect(page.getByText('已复制方案文字',{exact:true})).toBeVisible();
+  const text=await page.evaluate(()=>navigator.clipboard.readText());
+  expect(text).toContain('满足以下全部条件');expect(text).toContain('客户状态 不属于 已销户');expect(text).not.toContain('CLOSED');
+});
+
+test('定义确认提交失败后保留当前待办并可重试',async({page})=>{
+  t.plan.valid=false;
+  t.plan.tree.children.forEach((c:any)=>{c.status='ASSUMED';c.assumption={status:'PENDING',question:`请确认${c.name}口径`};});
+  let fail=true;
+  await page.route('**/runs',async route=>{
+    if(fail){fail=false;await route.fulfill({json:{code:500,msg:'暂时无法保存，请重试'}});}
+    else await route.fallback();
+  });
+  await page.goto('/agent-ui/?threadId=test-thread');
+  const card=page.getByRole('region',{name:'待处理事项'});
+  await card.getByRole('button',{name:'确认',exact:true}).click();
+  await card.getByRole('button',{name:'确认',exact:true}).click();
+  await expect(page.getByRole('alert')).toContainText('暂时无法保存');
+  await expect(card).toContainText('请确认客户状态口径');
+  const sent=page.waitForRequest(r=>r.url().endsWith('/runs')&&r.method()==='POST');
+  await card.getByRole('button',{name:'确认',exact:true}).click();
+  expect((await sent).postDataJSON().confirmed_clause_ids).toEqual(['a','b']);
+  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeEnabled();
 });

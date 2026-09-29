@@ -292,18 +292,6 @@ textarea {
 .plan-panel .library-option > span:last-child {
   overflow-wrap: anywhere;
 }
-.plan-version-select {
-  flex: 0 0 auto;
-  width: max-content;
-  max-width: 40%;
-  min-width: 0;
-}
-.plan-version-select .library-options {
-  left: auto;
-  right: 0;
-  width: max-content;
-  max-width: min(10rem, 70vw);
-}
 .group-heading .library-select {
   flex: 0 1 auto;
   width: max-content;
@@ -853,70 +841,84 @@ textarea {
   line-height: 1.9;
   color: var(--muted);
 }
-.empty-lines {
-  display: grid;
-  gap: 9px;
-  width: 80px;
-  margin: auto;
-}
-.empty-lines span {
-  height: 6px;
-  background: #e5e9ef;
-  border-radius: 2px;
-}
-.empty-lines span:nth-child(2) {
-  width: 65%;
-}
-.empty-lines span:nth-child(3) {
-  width: 82%;
-}
-.condition-group + .condition-group {
-  margin-top: 15px;
-}
-.group-heading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.group-heading span {
-  font-size: 11px;
-  color: var(--muted);
-}
-.condition-children {
-  padding-left: 10px;
-  border-left: 1px solid #dce1e8;
-}
-.condition-children > div {
-  margin-bottom: 17px;
-}
-.condition {
-  container-type: inline-size;
-  container-name: condition;
-  padding: 0 0 8px;
-  min-width: 0;
-}
-.condition-title {
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
-  align-items: flex-start;
-  font-size: 13px;
-}
-.status-dot {
-  font-size: 10px;
-  color: #9a6700;
-  white-space: nowrap;
-  padding-top: 2px;
-}
-.status-dot.bound {
-  color: #347451;
-}
-.source-text {
-  font-size: 11px;
-  color: var(--muted);
-  margin: 5px 0 8px;
-}
+/* 圈选方案默认摘要，编辑与依据按需展开。 */
+.plan-heading { gap: 8px; }
+.plan-heading h2 { margin-right: auto; white-space: nowrap; }
+.plan-status { color: var(--muted); background: var(--soft); border: 1px solid var(--border); border-radius: 6px; padding: 3px 7px; font-size: 11px; white-space: nowrap; }
+.plan-icon-button { display: inline-flex; align-items: center; justify-content: center; padding: 5px; width: 30px; height: 30px; border-color: transparent; background: transparent; flex-shrink: 0; }
+.plan-icon-button svg { width: 17px; height: 17px; }
+.plan-menu { position: relative; }
+.plan-menu-options { position: absolute; top: calc(100% + 6px); right: 0; width: 156px; padding: 5px; background: #fff; border: 1px solid var(--border); border-radius: 6px; z-index: 6; }
+.plan-menu-options button { display: block; width: 100%; text-align: left; border: 0; }
+.plan-copy-notice { position: absolute; right: 0; top: 40px; width: 200px; padding: 8px; background: #fff; border: 1px solid var(--border); font-size: 12px; z-index: 6; }
+.plan-detail-dialog { position: fixed; inset: 0 0 0 auto; margin: 0; height: 100dvh; max-height: 100dvh; width: 420px; max-width: 100vw; padding: 0; color: #24272c; border: 0; border-left: 1px solid var(--border); background: #fff; }
+.plan-detail-dialog[open] { display: flex; flex-direction: column; }
+.plan-detail-dialog::backdrop { background: #1d26354d; }
+.plan-detail-content { padding: 20px; overflow: auto; font-size: 13px; overflow-wrap: anywhere; flex: 1; }
+.plan-detail-content pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; background: var(--soft); padding: 12px; border-radius: 6px; }
+.plan-detail-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.plan-detail-section h3 { margin: 0 0 8px; font-size: 13px; }
+.plan-detail-section p { margin: 8px 0; }
+.technical-meta { margin: 0; }
+.technical-meta div { margin-bottom: 12px; }
+.technical-meta dt { font-size: 12px; color: var(--muted); }
+.technical-meta dd { margin: 3px 0 0; }
+.plan-copy-text { white-space: pre-wrap; }
+.plan-version-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.plan-version-list button { text-align: left; padding: 12px; }
+.plan-version-list button[aria-pressed="true"] { background: var(--soft); border-color: var(--accent); }
+.plan-version-list strong, .plan-version-list span { display: block; }
+.plan-version-list span { margin-top: 3px; font-size: 12px; color: var(--muted); }
+.plan-history-notice, .plan-progress { margin: 0 0 18px; padding: 10px 12px; background: var(--soft); font-size: 12px; display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.plan-progress p { margin: 0; }
+.plan-created { margin-bottom: 24px; font-size: 13px; overflow-wrap: anywhere; }
+.plan-created strong, .plan-created span { display: block; }
+.plan-created span { color: var(--muted); font-size: 12px; margin-top: 5px; }
+.plan-count { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.plan-count-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
+.plan-count > strong { display: block; font-size: 23px; font-weight: 600; margin-top: 4px; }
+.plan-count small { font-size: 12px; font-weight: 400; }
+.plan-count > p { color: var(--muted); font-size: 11px; margin: 4px 0 0; }
+.condition-group + .condition-group { margin-top: 15px; }
+.group-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.group-heading .logic-summary { padding: 2px 0; color: var(--muted); font-size: 12px; text-align: left; }
+.single-condition-heading { color: var(--muted); font-size: 12px; margin: 0 0 6px; }
+.condition-children .condition-group { padding: 12px 0 0 10px; border-left: 1px solid var(--border); }
+.condition { container-type: inline-size; container-name: condition; min-width: 0; }
+.clause-row { border-bottom: 1px solid var(--border); padding: 14px 0; }
+.clause-summary { display: flex; align-items: flex-start; gap: 9px; }
+.clause-number { width: 19px; height: 19px; margin-top: 3px; flex-shrink: 0; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.clause-copy { min-width: 0; flex: 1; font-size: 13px; line-height: 1.85; }
+.clause-copy p { margin: 0; overflow-wrap: anywhere; }
+.clause-tools { display: flex; gap: 1px; }
+.clause-tools .plan-icon-button { width: 27px; height: 28px; color: var(--muted); }
+.clause-tools .plan-icon-button[aria-expanded="true"] { background: var(--soft); color: #24272c; }
+.clause-markers { display: flex; gap: 8px; margin-top: 4px; font-size: 11px; }
+.clause-exception { color: #845714; }
+.clause-change { color: #235382; background: #f0f6fb; padding: 0 5px; border-radius: 6px; }
+.clause-info { position: fixed; inset: auto; margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--soft); color: #566171; font-size: 12px; line-height: 1.7; max-height: 180px; overflow: auto; }
+.clause-info p { margin: 0; }
+.clause-info p + p { margin-top: 5px; }
+.clause-editor { margin: 10px 0 0 28px; padding-top: 2px; }
+.clause-editor-actions { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.clause-editor-actions .remove-condition { margin: 0; }
+.clause-discuss { margin-top: 10px; text-align: left; }
+.add-condition { margin: 16px 0 0 24px; text-align: left; }
+.removed-clause { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--muted); padding: 12px 0; border-bottom: 1px solid var(--border); }
+.removed-clause del { flex: 1; }
+.removed-clause span { white-space: nowrap; font-size: 11px; }
+.pending-card { padding: 14px; margin-bottom: 24px; border-radius: 6px; color: #845714; background: #fff7e8; font-size: 12px; overflow-wrap: anywhere; }
+.pending-heading { display: flex; justify-content: space-between; gap: 8px; }
+.pending-heading span { white-space: nowrap; font-size: 11px; }
+.pending-card p { margin: 8px 0 0; }
+.pending-title { font-weight: 600; font-size: 13px; }
+.pending-options { border: 0; padding: 0; margin: 12px 0 0; }
+.pending-options label { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+.pending-options input { accent-color: var(--accent); margin-top: 3px; }
+.pending-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+.pending-actions button { font-size: 12px; }
+.pending-actions .text-button { color: inherit; }
+.pending-note { display: block; margin-top: 10px; font-size: 11px; }
 .field-label {
   display: flex;
   flex-direction: column;
@@ -976,50 +978,17 @@ textarea {
   color: var(--muted);
   overflow-wrap: anywhere;
 }
-.evidence summary,
-.version-diff summary {
+.evidence summary {
   cursor: pointer;
 }
 .evidence p {
   margin: 6px 0;
 }
-.evidence dl {
-  margin: 6px 0;
-}
-.evidence dl div {
-  display: flex;
-  gap: 10px;
-}
-.evidence dt {
-  min-width: 85px;
-}
-.evidence dd {
-  margin: 0;
-}
 .muted {
   font-size: 12px;
   color: var(--muted);
 }
-.condition > .muted {
-  margin-top: 8px;
-}
-.remove-condition {
-  margin-top: -5px;
-}
-.remove-condition:hover {
-  color: var(--danger);
-}
-.inline-warning {
-  background: #fff7e8;
-  color: #845714;
-  padding: 12px;
-  font-size: 12px;
-  margin-top: 16px;
-  border-radius: 6px;
-}
-.inline-warning p {
-  margin-top: 5px;
-}
+.remove-condition:hover { color: var(--danger); }
 .run-degraded {
   background: #fff7e8;
   color: #845714;
@@ -1035,14 +1004,6 @@ textarea {
   color: var(--danger);
   margin-top: 6px;
 }
-.version-diff {
-  font-size: 12px;
-  margin-top: 18px;
-}
-.version-diff p {
-  margin-top: 6px;
-  color: var(--muted);
-}
 .plan-actions {
   border-top: 1px solid var(--border);
   padding: 16px 20px;
@@ -1050,11 +1011,9 @@ textarea {
   max-height: 48%;
   overflow: auto;
 }
-.plan-actions > .primary,
-.plan-actions > button {
-  width: 100%;
-  margin-top: 10px;
-}
+.plan-actions > button { width: 100%; margin-top: 8px; }
+.plan-actions > button:first-child { margin-top: 0; }
+.plan-actions .create-form { margin: 0; padding: 0; border: 0; }
 .primary {
   background: color-mix(in srgb, var(--accent) 60%, #000);
   border-color: var(--accent);
@@ -1070,23 +1029,6 @@ textarea {
 }
 .action-row > button {
   flex: 1;
-}
-.count-result {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 11px;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.count-result strong {
-  font-size: 23px;
-  font-weight: 600;
-  color: #263345;
-}
-.count-result small {
-  font-size: 12px;
-  font-weight: 400;
 }
 .create-form {
   margin-top: 15px;
@@ -1462,5 +1404,4 @@ textarea {
   }
 }
 
-.plan-state { margin: 0 0 12px; color: var(--text-secondary, #475569); font-size: 13px; }
-.condition p, .inline-warning p { overflow-wrap: anywhere; }
+.condition p { overflow-wrap: anywhere; }
