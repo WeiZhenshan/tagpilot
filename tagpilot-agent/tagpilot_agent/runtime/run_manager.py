@@ -4,13 +4,20 @@ from collections import Counter
 from copy import deepcopy
 import os
 import time
+import logging
 from fastapi import HTTPException
 from tagpilot_agent.runtime.run_context import RunContext
 from tagpilot_agent.agent.context_builder import build_context
 from tagpilot_agent.agent.outcome import result_for
 from tagpilot_agent.guards.guard import check
+from tagpilot_agent.guards.plan_validator import leaves
+from tagpilot_agent.domain.expressions import plan_tag_ids
 from tagpilot_agent.retrieval.semantic_client import SemanticRetrieveError
 from .claude_runner import ClaudeRunner
+from .budget import Budget
+from .degrade import Reason, BUDGET_REASONS, LEAN_REASONS, MESSAGES, classify, degraded_info, progress
+
+logger=logging.getLogger(__name__)
 
 class RunManager:
     def __init__(self,store,retriever_for,runner=None):
@@ -56,8 +63,15 @@ class RunManager:
                 self.waiters.remove(rid)
                 if ctx.cancelled():return
                 self.active+=1;self.users[owner]+=1;admitted=True
-            ctx.started=time.monotonic();ctx.emit({'type':'run.started','message':'正在理解圈选需求'})
-            async with asyncio.timeout(float(os.getenv('TAG_AGENT_HARD_TIMEOUT','90'))+5):
+            ctx.started=time.monotonic()
+            previous=progress(request.get('previous_plan'))
+            loaded=len(self.waiters)>=max(1,int(os.getenv('TAG_AGENT_LEAN_QUEUE_DEPTH',str(self.limit))))
+            ctx.lean=previous.get('reason') in LEAN_REASONS or loaded
+            ctx.budget=Budget.from_env(lean=ctx.lean)
+            ctx.stats['lean']=ctx.lean
+            ctx.emit({'type':'run.started','message':'正在理解圈选需求'})
+            if ctx.lean:ctx.emit({'type':'run.lean','message':'当前使用人数较多，已启用快速模式' if loaded else '正在补全尚未确定的条件'})
+            async with asyncio.timeout(ctx.budget.hard+5):
                 if request.get('edited_plan'):
                     request['_manual_edit']=True
                     plan=await check(request['edited_plan'],ctx,True,True)
@@ -68,13 +82,14 @@ class RunManager:
                         try:
                             await self.runner.run(ctx,prompt)
                             break
-                        except Exception:
+                        except Exception as exc:
                             if ctx.accepted or ctx.cancelled() or ctx.stats.get('fatal_status'):break
-                            if attempt:raise
+                            if isinstance(exc,SemanticRetrieveError):raise
+                            if attempt or classify(ctx,exc) in BUDGET_REASONS or ctx.budget.salvage_at()-ctx.budget.elapsed(ctx)<float(os.getenv('TAG_AGENT_RETRY_MIN_S','25')):raise
                             ctx.stats['cli_retries']=1
+                            await asyncio.sleep(.5)
             if ctx.stats.get('fatal_status'):raise SemanticRetrieveError(ctx.stats['fatal_status'],'权限或发布版本发生变化')
-            failure=ctx.stats.get('stop_reason') in {'memory_limit','timeout'}
-            self.finish(ctx,'运行资源或时间预算已耗尽，已保存进度' if failure else None)
+            self.finish(ctx,classify(ctx))
         except asyncio.CancelledError:
             self.store.status(rid,'INTERRUPTED',self.fallback(ctx,'服务重启，已保存进度'))
             raise
@@ -82,9 +97,9 @@ class RunManager:
             if exc.status_code in {401,403,409}:
                 self.store.status(rid,'FAILED',error='权限或发布版本发生变化，请重新核验')
                 ctx.emit({'type':'run.failed','message':'权限或发布版本发生变化，请重新核验'})
-            else:self.finish(ctx,'检索暂不可用，已保存进度')
-        except Exception:
-            self.finish(ctx,'处理暂未完成，已保存进度供重试')
+            else:self.finish(ctx,classify(ctx,exc,admitted))
+        except Exception as exc:
+            self.finish(ctx,classify(ctx,exc,admitted))
         finally:
             self.contexts.pop(rid,None)
             async with self.condition:
@@ -92,24 +107,82 @@ class RunManager:
                 if admitted:self.active-=1;self.users[owner]-=1
                 self.condition.notify_all()
 
-    def fallback(self,ctx,message):
+    def placeholder(self,ctx,plan,reason):
+        text=ctx.request['requirement']
+        plan.update(schema_version=3,tree={'kind':'TAG_PREDICATE','clause_id':'pending','source_span':text,
+            'requirement_ids':['pending'],'status':'GAP','gap_reason':reason},
+            intent_plan={'original_request':text,'requirements':[{'requirement_id':'pending','source_spans':[text],'business_meaning':text,'origin':'USER'}],
+                         'logic_tree':{'requirement_id':'pending'},'assumptions':[]},
+            **{k:ctx.request[k] for k in ('build_id','snapshot_id','artifact_hash')})
+
+    def salvage(self,ctx,reason):
+        """仅消费已有校验结果；中断 SDK 后不再触发网络或业务执行。"""
+        plan=deepcopy(ctx.best_plan or ctx.request.get('previous_plan') or {})
+        prior=progress(ctx.request.get('previous_plan'))
+        attempt=int(prior.get('attempt',0))+1
+        kept=[];unresolved=[];gaps=[];level='L2'
+        if not plan.get('tree'):
+            if not ctx.tags:return None
+            level='L3'
+            self.placeholder(ctx,plan,'BUDGET_EXHAUSTED')
+            candidates=[tid for tid in ctx.tags if tid in ctx.eligible][:5]
+            plan['tree']['candidates']=[{'tag_id':tid,'name':ctx.tags[tid].get('name',str(tid))} for tid in candidates]
+            unresolved=['pending']
+            gaps=[{'requirement_id':'pending','reason':'NO_PUBLISHED_TAG','nearest_tag_ids':candidates}]
+        else:
+            diagnostics=plan.get('diagnostics',[])
+            blocked={d['clause_id'] for d in diagnostics if d.get('clause_id')}
+            global_error=any(not d.get('clause_id') and d.get('code')!='BUDGET_EXHAUSTED' for d in diagnostics)
+            same_version=all(plan.get(k)==ctx.request[k] for k in ('build_id','snapshot_id','artifact_hash'))
+            for node in leaves(plan['tree']):
+                cid=node['clause_id']
+                ok=same_version and not global_error and not ({cid,*node.get('requirement_ids',[])} & blocked) and node.get('status')=='BOUND' and plan_tag_ids([node])<=ctx.eligible
+                (kept if ok else unresolved).append(cid)
+                if not ok:
+                    node.update(status='GAP',gap_reason='BUDGET_EXHAUSTED')
+            # 历史预算诊断只能用最新一条；保留原校验诊断作为解释依据。
+        plan['diagnostics']=[d for d in plan.get('diagnostics',[]) if d.get('code')!='BUDGET_EXHAUSTED']
+        plan['diagnostics'].append({'code':'BUDGET_EXHAUSTED','reason':reason,'attempt':attempt,
+                                    'message':MESSAGES[reason],'retryable':reason!=Reason.MEMORY})
+        plan.update(valid=False,plan_status='CAPABILITY_GAP' if level=='L3' else 'DRAFT')
+        ctx.stats['degraded']=degraded_info(ctx,reason,level,kept,unresolved,attempt)
+        return {'plan':plan,'questions':[],'interrupt_id':None,
+                'outcome':{'outcome':'PARTIAL','gaps':gaps,'stats':ctx.stats}}
+
+    def fallback(self,ctx,message,reason=None):
         result=result_for(ctx);plan=result['plan']=deepcopy(result['plan'])
         if not plan.get('tree'):
-            text=ctx.request['requirement']
-            plan.update(schema_version=3,tree={'kind':'TAG_PREDICATE','clause_id':'pending','source_span':text,
-                'requirement_ids':['pending'],'status':'GAP','gap_reason':'RETRIEVAL_UNAVAILABLE'},
-                intent_plan={'original_request':text,'requirements':[{'requirement_id':'pending','source_spans':[text],'business_meaning':text,'origin':'USER'}],
-                             'logic_tree':{'requirement_id':'pending'},'assumptions':[]},
-                **{k:ctx.request[k] for k in ('build_id','snapshot_id','artifact_hash')})
-        plan.update(valid=False,plan_status='RETRYABLE_FAILURE' if ctx.stats.get('stop_reason') in {'memory_limit','timeout'} or ctx.stats.get('cli_retries') else 'DRAFT')
+            self.placeholder(ctx,plan,'RETRIEVAL_UNAVAILABLE')
+        plan.update(valid=False,plan_status='RETRYABLE_FAILURE' if reason else 'DRAFT')
         plan.setdefault('diagnostics',[]).append({'code':'TRANSIENT_FAILURE','message':message,'retryable':True})
         result['outcome']['outcome']='PARTIAL';ctx.stats['agent_failure']=True
+        result['questions']=[];result['interrupt_id']=None
+        if reason:ctx.stats['degraded']=degraded_info(ctx,reason,'L4',[],[n['clause_id'] for n in leaves(plan['tree'])])
         return result
 
-    def finish(self,ctx,error=None):
+    def finish(self,ctx,reason=None):
         rid=ctx.request['run_id']
         if ctx.cancelled():return
-        result=result_for(ctx) if ctx.accepted else self.fallback(ctx,error or '运行已结束，保留当前最佳草案')
+        error=None
+        if ctx.accepted and (reason not in BUDGET_REASONS or ctx.accepted['outcome']!='PARTIAL'):result=result_for(ctx)
+        elif reason in BUDGET_REASONS:
+            ctx.stats['stop_reason']=reason
+            result=self.salvage(ctx,reason)
+            if result is None:
+                ctx.stats['budget_stop_reason']=reason
+                reason=Reason.RETRIEVAL
+                ctx.stats['stop_reason']=reason
+                error=MESSAGES[reason];result=self.fallback(ctx,error,reason)
+                if ctx.stats['budget_stop_reason']==Reason.MEMORY:
+                    ctx.stats['degraded'].update(ops_alert=True,resumable=False,resume_mode='manual')
+        else:
+            if reason:ctx.stats['stop_reason']=reason;error=MESSAGES[reason]
+            result=self.fallback(ctx,error or '运行已结束，保留当前最佳草案',reason)
+        ctx.stats['elapsed_s']=round(ctx.budget.elapsed(ctx),3)
+        if ctx.stats.get('degraded',{}).get('ops_alert'):
+            logger.warning('Agent 内存预算超限，run_id=%s peak_rss_mb=%s',rid,ctx.stats.get('cli_peak_rss_mb'))
         status='WAITING' if result['interrupt_id'] else 'FAILED' if error else 'COMPLETED'
         self.store.status(rid,status,result,error=error)
-        ctx.emit({'type':'run.'+status.lower(),'message':'等待业务选择' if status=='WAITING' else '圈选方案与处理进度已保存','stats':ctx.stats})
+        degraded=ctx.stats.get('degraded')
+        ctx.emit({'type':'run.degraded' if degraded and status=='COMPLETED' else 'run.'+status.lower(),
+                  'message':degraded['user_message'] if degraded else '等待业务选择' if status=='WAITING' else '圈选方案与处理进度已保存','stats':ctx.stats})

@@ -17,6 +17,7 @@ import { PlanPanel } from "./PlanPanel";
 import { ChevronIcon, ListboxSelect } from "./ListboxSelect";
 import {
   busy,
+  degradedOf,
   stateText,
   planStateText,
   type Thread,
@@ -432,7 +433,7 @@ export function App() {
           {pending
             ? "正在保存…"
             : thread
-            ? (thread.status === "COMPLETED" && thread.plan?.plan_status ? planStateText[thread.plan.plan_status] : stateText[thread.status])
+            ? (thread.status === "COMPLETED" && degradedOf(thread) ? "部分完成" : thread.status === "COMPLETED" && thread.plan?.plan_status ? planStateText[thread.plan.plan_status] : stateText[thread.status])
             : "准备就绪"}
         </span>
       </header>
@@ -695,6 +696,10 @@ export function App() {
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
             onRetry={() => void act((t) => api.resumeRun(t))}
+            onEdit={() => {
+              setTab("plan");
+              requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
+            }}
           />
         </main>
         <PlanPanel

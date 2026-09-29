@@ -1,5 +1,4 @@
 """五个闭包领域工具；SDK 仅负责调用，不拥有业务校验。"""
-import os
 import time
 from pydantic import Field, ValidationError
 from tagpilot_agent.domain.plan_model import StrictModel, AudiencePlan
@@ -44,23 +43,33 @@ from .submit_result import submit_result
 HANDLERS={'find_tags':find_tags,'get_tag_details':tag_details,'find_capabilities':capabilities,'check_plan':check_plan,'submit_result':submit_result}
 
 async def dispatch(ctx,name,args):
-    if ctx.accepted:return observation({'ok':False,'message':'运行已提交'},True)
+    def respond(data,error=False):return observation({**data,'budget':ctx.budget.snapshot(ctx)},error)
+    if ctx.accepted:return respond({'ok':False,'message':'运行已提交'},True)
     ctx.stats['tools']+=1
-    if ctx.stats['tools']>int(os.getenv('TAG_AGENT_MAX_TOOLS','16')) and name!='submit_result':
-        return observation({'ok':False,'message':'工具预算已用完，请立即提交 PARTIAL'},True)
+    ctx.budget.announce(ctx)
+    if ctx.stats['tools']>ctx.budget.max_tools:
+        ctx.stats['tool_budget_hit']=True
+        if name not in {'check_plan','submit_result'}:
+            return respond({'ok':False,'code':'TOOL_BUDGET','message':'工具预算已用完，请立即提交 PARTIAL'},True)
     ctx.emit({'type':'tool.started','tool':name,'message':MESSAGES[name]})
     started=time.monotonic()
     try:
         args=MODELS[name].model_validate(args).model_dump(exclude_none=True)
+        if ((ctx.lean and name=='find_tags' and args['depth']=='deep') or
+            (ctx.budget.converging(ctx) and (name=='find_capabilities' or
+             (name=='find_tags' and args['depth']=='deep') or
+             (name=='get_tag_details' and not set(args['tag_ids'])<=ctx.details_loaded)))):
+            return respond({'ok':False,'code':'BUDGET_CONVERGE','message':'预算进入收敛期，请提交当前最佳方案或 PARTIAL'},True)
         result=await HANDLERS[name](ctx,args)
-        if time.monotonic()-ctx.started>float(os.getenv('TAG_AGENT_SOFT_TIMEOUT','40')):result['budget_hint']='请尽快提交当前最佳方案'
-        return observation(result,result.get('ok') is False)
+        ctx.budget.announce(ctx)
+        return respond(result,result.get('ok') is False)
     except SemanticRetrieveError as exc:
         if exc.status_code in {401,403,409}:
             ctx.stats['fatal_status']=exc.status_code;ctx.submitted.set()
-        return observation({'ok':False,'code':'RETRIEVAL_UNAVAILABLE','retryable':exc.status_code not in {401,403,409}},True)
+        else:ctx.stats['retrieval_unavailable']=True
+        return respond({'ok':False,'code':'RETRIEVAL_UNAVAILABLE','retryable':exc.status_code not in {401,403,409}},True)
     except (ValueError,TypeError,KeyError) as exc:
-        return observation({'ok':False,'code':'SCHEMA_INVALID','message':str(exc)[:500] if not isinstance(exc,ValidationError) else '工具参数不符合契约'},True)
+        return respond({'ok':False,'code':'SCHEMA_INVALID','message':str(exc)[:500] if not isinstance(exc,ValidationError) else '工具参数不符合契约'},True)
     finally:
         ctx.emit({'type':'telemetry.span','name':'tool.'+name,'duration_ms':round((time.monotonic()-started)*1000)})
         ctx.emit({'type':'tool.completed','tool':name,'message':MESSAGES[name].replace('正在','已完成'),'duration_ms':round((time.monotonic()-started)*1000)})
@@ -72,4 +81,3 @@ def create_server(ctx):
         async def handler(args,_name=name):return await dispatch(ctx,_name,args)
         registered.append(tool(name,DESCRIPTIONS[name],model.model_json_schema())(handler))
     return create_sdk_mcp_server(name='tagpilot',version='1.0.0',tools=registered)
-

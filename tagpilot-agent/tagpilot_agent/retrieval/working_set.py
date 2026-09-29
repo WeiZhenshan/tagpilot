@@ -1,6 +1,5 @@
 """一次运行共享的证据；版本与资格永远由可信请求决定。"""
 import asyncio
-import os
 from copy import deepcopy
 from .cache import details_cache, eligible_hash
 from .semantic_client import SemanticRetrieveError
@@ -37,7 +36,9 @@ async def ensure_details(ctx,ids):
     for offset in range(0,len(missing),10):
         batch=missing[offset:offset+10]
         ctx.stats['evidence_requests']=ctx.stats.get('evidence_requests',0)+1
-        if ctx.stats['evidence_requests']>int(os.getenv('TAG_AGENT_MAX_DETAILS','6')):raise ValueError('详情读取预算已用完')
+        if ctx.stats['evidence_requests']>ctx.budget.max_details:
+            ctx.stats['tool_budget_hit']=True
+            raise ValueError('详情读取预算已用完')
         data=await asyncio.to_thread(ctx.retriever.evidence,batch,ctx.request['requirement'],ctx.eligible)
         merge(ctx,data,True)
         # 完整校验用码值留在进程内，向模型呈现时才过滤截断。

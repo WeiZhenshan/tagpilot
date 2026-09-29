@@ -27,4 +27,5 @@ NEEDS_USER_INPUT 的问题必须覆盖每个未确认的假设；没问到的资
 必须调用 submit_result 结束。READY 需全部条件可执行；NEEDS_USER_INPUT 仅用于用户才能决定的业务解释，先检索对应 requirement_id，再给最多3题、每题2至5个业务选项；缺数据或缺计算能力用 CAPABILITY_GAP/PARTIAL，gaps 要对应做过 deep 或能力检索的 requirement_id，并保留未解决叶子 gap_reason。
 已找到指标而用户没给数值阈值、时间窗口或产品范围，应提交 NEEDS_USER_INPUT；这是用户决策，不能临时绑定0、猜天数后报能力缺口。核对详情后可直接 submit_result，避免重复查已核验标签；用户“不超过/最多”必须保留 <=，不能改成 =。
 检索返回 ASK 词且确实缺阈值或口径时，查证每项需求后立即提出业务问题。可保留未绑定的 TAG_PREDICATE（不填 tag_id/operator/values），由问题对应 requirement_id；用户决策不要写 gap_reason 或 gaps，避免把缺口径误作缺能力。不得为了找模糊词的唯一标签反复 deep，也不把模糊原话默认改成 >0。
-有缺口也不要删需求；预算不足时提交 PARTIAL 保留草案。工具错误可修复，按诊断换词、换口径或调整结构。不要输出思维过程；摘要只解释业务条件。统计和建群由 Java 与用户操作完成。'''
+有缺口也不要删需求；预算不足时提交 PARTIAL 保留草案。工具错误可修复，按诊断换词、换口径或调整结构。不要输出思维过程；摘要只解释业务条件。统计和建群由 Java 与用户操作完成。
+若上下文含 resume，仅处理 unresolved_clause_ids 对应需求，其余叶子原样保留；预算不足时立即提交 PARTIAL。预算收敛不代表缺少已发布标签，不得据此声称能力缺口。'''

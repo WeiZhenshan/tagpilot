@@ -18,3 +18,23 @@ it('五个领域工具与缺口原因都有业务化文案',()=>{
   for(const reason of ['NO_PUBLISHED_TAG','NO_CAPABILITY','CALIBER_UNAVAILABLE','METADATA_INCOMPLETE'])
     expect(gapText[reason],reason).toBeTruthy();
 });
+
+import {degradedOf,degradedText,runNotice,type Thread} from './agentTypes';
+const partialThread = () => ({status:'COMPLETED',outcome:{outcome:'PARTIAL',gaps:[],stats:{degraded:{
+  level:'L2',reason:'timeout',kept_clauses:['a'],unresolved_clause_ids:['b'],resumable:true,
+  resume_mode:'lean',attempt:1,ops_alert:false,
+}}}} as unknown as Thread);
+it('降级结果可区分，旧结果和不合契约的数据安全兜底',()=>{
+  expect(degradedOf(partialThread())?.kept_clauses).toEqual(['a']);
+  expect(degradedOf({status:'COMPLETED'} as Thread)).toBeUndefined();
+  const malformed=partialThread();malformed.outcome!.stats!.degraded={level:'L2',reason:'timeout'};
+  expect(degradedOf(malformed)).toBeUndefined();
+  for(const reason of ['timeout','memory_limit','max_turns','max_budget','tool_budget','queue_timeout','gateway','retrieval'])
+    expect(degradedText[reason as keyof typeof degradedText]).toBeTruthy();
+});
+it('部分完成进入提示分支，真故障进入错误分支',()=>{
+  const t=partialThread();expect(runNotice(t)).toBe('partial');
+  t.status='FAILED';expect(runNotice(t)).toBe('failure');
+  t.status='RUNNING';expect(runNotice(t)).toBeUndefined();
+  expect(runNotice({status:'COMPLETED'} as Thread)).toBeUndefined();
+});

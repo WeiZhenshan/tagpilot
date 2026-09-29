@@ -25,13 +25,18 @@ export ANTHROPIC_API_KEY='<模型密钥>'
 | `TAG_AGENT_MAX_TURNS / TAG_AGENT_MAX_TOOLS` | `16 / 16` |
 | `TAG_AGENT_MAX_DEEP / TAG_AGENT_MAX_DETAILS` | `4 / 6`；详情限额也覆盖 Guard 自动读取 |
 | `TAG_AGENT_SOFT_TIMEOUT / TAG_AGENT_HARD_TIMEOUT` | `40 / 90` 秒 |
+| `TAG_AGENT_CONVERGE_RATIO / TAG_AGENT_SALVAGE_MARGIN` | `0.65 / 12`；任一预算进入收敛期；提前收尾预留秒数（最多硬预算的 20%） |
+| `TAG_AGENT_RETRY_MIN_S` | `25`；剩余收尾前时间不足时不重试 CLI，网关重试一次前退避 0.5 秒 |
+| `TAG_AGENT_MAX_DEGRADE_RESUMES` | `2`；首次降级后最多提供两轮补全入口，再次降级提示拆分需求或手工编辑 |
+| `TAG_AGENT_LEAN_QUEUE_DEPTH` | 等于并发上限；准入后剩余队列达到阈值时启用精简模式 |
+| `TAG_AGENT_LEAN_SOFT / TAG_AGENT_LEAN_HARD` | `25 / 60` 秒；精简模式不扩大用户已有预算，关闭 deep，模型轮数减半 |
 | `TAG_AGENT_MAX_RSS_MB / TAG_AGENT_MAX_BUDGET_USD` | `600 / 1`；SDK 成本估值不等于 DeepSeek 实际账单 |
 
 `runtime/` 管理准入、取消、子进程、加密事件库；`agent/` 提供稳定提示、上下文和 outcome；`tools/` 是唯一 MCP 工具集合；`retrieval/` 管理版本与资格隔离的 WorkingSet/LRU；`domain/` 定义严格输入；`guards/` 是不依赖 SDK 的确定性校验。根目录旧纯函数模块保留薄导入入口。
 
 Java 工作台为新运行注入上海时区的服务端基准日，随运行保存，恢复时沿用。日期区间中的省略年份优先由另一端明确写出的年份补全，跨年按端点顺序推导；例如 `9月19号到2026-09-30` 对应 `2026-09-19` 至 `2026-09-30`。未写年份且没有基准日时返回明确的日期诊断，不从模型答案猜年份；错误、缺失端点及金额阈值仍须通过校验。
 
-每次发送、resume、repair 都冷建 SDK 会话。禁用内置工具、外部 MCP、用户设置、文件检查点与会话持久化；临时配置目录退出即清理。`submit_result` 接受后通过 PostToolUse 与 interrupt 结束，不再等待模型生成结尾。手工编辑直接进入 Guard。
+每次发送、resume、repair 都新建 SDK 会话；预算续跑从 `previous_plan.diagnostics` 恢复未解决条件与次数，已保留条件不再预取详情，最终 Guard 仍核验当前版本与资格。禁用内置工具、外部 MCP、用户设置、文件检查点与会话持久化；临时配置目录退出即清理。`submit_result` 接受后通过 PostToolUse 与 interrupt 结束，不再等待模型生成结尾。手工编辑直接进入 Guard。
 
 SQLite 仍限定单个服务进程，文件锁阻止多进程共用。运行中的草案写入加密运行库，启动后未完成运行标为 INTERRUPTED，可从保存的原话、问答、上一版方案冷恢复。旧 `.checkpoints` 不再读取或生成；本次未删除用户已有历史文件。旧版本存储兼容入口保留，但旧数据实库升级演练尚未执行。应备份运行库及密钥，部署前完成升级演练。
 
@@ -47,6 +52,8 @@ SQLite 仍限定单个服务进程，文件锁阻止多进程共用。运行中�
 | POST | `/agent/v2/runs/{id}/cancel` | 取消并保留草案 |
 | DELETE | `/agent/v2/threads/{thread_id}?owner_id=…` | 删除该所有者的运行记录 |
 
-终态工具返回 `READY / NEEDS_USER_INPUT / CAPABILITY_GAP / PARTIAL`，映射为兼容的 `result.plan/questions/interrupt_id` 和新增 `result.outcome`。`schema_version=3`，新诊断统一使用 `diagnostics`。历史 UI 仍兼容读取 `validation_errors`。
+终态工具返回 `READY / NEEDS_USER_INPUT / CAPABILITY_GAP / PARTIAL`，映射为兼容的 `result.plan/questions/interrupt_id` 和新增 `result.outcome`。`schema_version=3`，新诊断统一使用 `diagnostics`。历史 UI 仍兼容读取 `validation_errors`。预算类停止有草案时返回 L2 `COMPLETED / DRAFT`，无草案但有合资格候选时返回 L3 `COMPLETED / CAPABILITY_GAP`；两者都保持 `valid=false`，不能统计或建群。模型、检索或排队故障返回 L4 `FAILED / RETRYABLE_FAILURE`；401/403/409 保持原失败路径。降级契约只写 `outcome.stats.degraded`，无需增加 Java 状态或字段。
+
+收敛期每个工具观察均包含 `budget`，拒绝 deep、新详情与能力检索，允许 quick、已加载详情、校验与提交。程序收尾只使用已有校验结果，冻结已确认叶子，未完成叶子标记 `BUDGET_EXHAUSTED`，不发网络请求。L3 候选只是建议，不能据此断言没有已发布标签。前端以琥珀提示展示部分完成，补全通过新消息发送；内存超限写告警并关闭补全按钮，避免盲目重试。手工编辑仍直接走 Guard。
 
 本地金标冒烟与后续完整验证（测试、600 封存 A/B、61×3 真模型评测、容量压测、Java 人数对齐、缺陷清单）结果见 [SDK 重构实施记录](../docs/development/Agent-SDK重构实施记录.md)。生产观察尚未执行。

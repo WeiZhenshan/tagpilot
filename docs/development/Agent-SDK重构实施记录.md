@@ -158,3 +158,31 @@ mvn -pl ruoyi-taglibrary -am test -Dtest=TsAgentSdkGoldenSmokeTest \
 当前代码的 `TAG_AGENT_RUNTIME=langgraph` 会明确拒绝启动运行，回滚需恢复旧版本代码和锁文件，不能只改环境变量。旧 `.checkpoints` 文件不会自动清理；确认旧版回滚窗口结束后再由运维清理。本次没有执行数据库迁移、Docker 生命周期命令或生产发布，已有 Redis/Milvus 保持不变。
 
 SDK 参考：[Claude Agent SDK Python](https://code.claude.com/docs/en/agent-sdk/python)、[DeepSeek Anthropic API](https://api-docs.deepseek.com/guides/anthropic_api/)。版本与实际配置以本次锁文件及代码为准。
+
+## 2026-09-29：优雅降级实施
+
+依据《优雅降级.md》及《详细方案步骤.md》完成五步本地实施，采用详细步骤的兼容修正：`outcome.stats.degraded` 保存分级信息；`previous_plan.diagnostics` 保存停止原因、续跑次数；L2/L3 以新消息补全，不增加 Java 状态或私有请求载荷。
+
+### 降级路径
+
+- **L1 收敛**：时间、轮数、工具、deep 或详情达到 65%（或软超时）时发布 `budget.converging`，每个观察携带剩余预算；阻止 deep、新详情、能力检索，保留 quick、已加载详情、check/submit。预算 PARTIAL 可以保留 `BUDGET_EXHAUSTED` 叶子，不要求把处理未完成伪装成经过检索证明的能力缺口；真正 `CAPABILITY_GAP` 仍要求 deep/能力留痕。
+- **L2 草案收尾**：在硬超时前预留 `min(12s, hard*20%)` 中断 CLI。仅使用已有校验方案和诊断，验证当前版本/资格；有阻断诊断或未绑定叶子改为预算缺口。保留原树、阈值、时间和 AND/OR，不发网络请求；返回 `COMPLETED / DRAFT / PARTIAL / valid=false`。内存停止同样收尾，写 `ops_alert` 和 warning，并关闭补全按钮。
+- **L3 候选建议**：无草案但有已发布、合资格卡片时生成原话占位叶子，保存前五个候选的 ID 与名称；返回 `COMPLETED / CAPABILITY_GAP / PARTIAL / valid=false`。界面说明“候选标签待核验”，可从已有标签选择入口编辑，不能据此声称当前没有已发布标签。
+- **L4 真故障**：持续网关错误、排队超时、检索不可用返回 `FAILED / RETRYABLE_FAILURE` 并展示具体恢复文案；401/403/409、取消、重启保留原路径。SDK `SystemMessage(api_retry)` 提供持续 5xx 的分类证据，避免提前超时把网关错误归为普通预算停止。
+
+### 续跑与负载
+
+预算进度从方案诊断恢复；超时、轮数、费用或工具预算续跑采用精简模式：deep=0，轮数减半，默认软/硬预算 25/60 秒，不扩大用户已配置上限。预取只处理未解决条件，已确认条件不预取详情；最终 Guard 仍读取必要证据核验资格、版本与业务语义。冻结授权精确到未解决 `clause_id`，即使多个执行叶子共用一个 `requirement_id`，也不会解锁已确认兄弟叶子或改写原始需求台账。补全入口最多提供两轮，之后提示拆分需求或手工编辑；用户编辑直接走 Guard。
+
+准入后剩余队列深度达到并发上限时自动使用精简预算。CLI 重试最多一次，退避 0.5 秒，共用已消耗时间和轮数；剩余收尾前时间低于 25 秒时不重试。Java 契约与执行权限保持兼容，所有降级方案不可统计/建群。
+
+### 配置与验证
+
+新增配置表见 `tagpilot-agent/README.md`。本次验证仅使用确定性单元测试、本机假 Anthropic 网关的真实 SDK/CLI、合成工作台接口；没有真实模型评测、客户查询、容量压测或生产发布。
+
+- Agent 回归：`UV_CACHE_DIR=/private/tmp/tagpilot-degrade-uv-cache uv run --no-sync --project tagpilot-agent pytest tagpilot-agent/tests -x -q`。真实 CLI 集成需要允许临时本机端口。140 项全部通过；新增降级/冻结测试覆盖停止分类、预算快照、无网络收尾、候选资格、续跑次数、精简模式、已确认条件与需求台账冻结、手工恢复及 SDK 预算结果。
+- 前端 `npm test`：10 项通过；`npm run build` 通过，保留原有大包体积提示。
+- Playwright 降级代表用例：3 项通过，验证琥珀提示/非红色、L3 候选选择、补全走新消息、次数上限、排队专用错误，以及 `valid=false` 禁用统计。使用已安装 Chrome，无需下载浏览器；桌面/手机截图已检查。
+- `git diff --check` 通过。Java 未改代码，未运行 Maven 业务测试；不将上述本地结果视为银行业务或生产验收。
+
+实施期间工作区出现另一个界面调整的并行改动，已保留，未覆盖或提交。当前变更尚未提交、未推送。

@@ -99,7 +99,7 @@ def transition_errors(previous, proposed, utterance):
     return [diagnostic('INTENT_COVERAGE','本轮改写遗漏旧条件，须保留未修改条件或引用用户明确删除的原话',cid,actions=['repair_plan']) for cid in sorted(old-new-removed)]
 
 
-def frozen_errors(previous, proposed, utterance, authorized_requirements=None):
+def frozen_errors(previous, proposed, utterance, authorized_requirements=None, budget_clause_ids=None):
     from tagpilot_agent.guards.plan_validator import leaves
     from tagpilot_agent.domain.normalize import input_plan
     import json
@@ -139,7 +139,7 @@ def frozen_errors(previous, proposed, utterance, authorized_requirements=None):
     for cid,node in old.items():
         if cid not in new and cid not in removed:
             errors.append(diagnostic('REQUIREMENT_MISSING','未授权删除上一版条件',cid))
-        elif cid in new and cid not in allowed and fp(node)!=fp(new[cid]):
+        elif cid in new and cid not in allowed and cid not in set(budget_clause_ids or []) and fp(node)!=fp(new[cid]):
             errors.append(diagnostic('FROZEN_CLAUSE_CHANGED','本轮未授权修改该条件，请恢复原值',cid))
     new_requirements={r['requirement_id']:r for r in proposed.get('intent_plan',{}).get('requirements',[])}
     authorized_refs={rid for cid in allowed for rid in old[cid].get('requirement_ids',[cid])}

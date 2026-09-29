@@ -1,5 +1,4 @@
 import asyncio
-import os
 from tagpilot_agent.retrieval.working_set import merge
 from tagpilot_agent.retrieval.cache import cards_cache
 from .cards import card
@@ -15,7 +14,9 @@ async def find_tags(ctx,args):
     if pending:
         if depth=='deep':
             ctx.stats['deep']+=1
-            if ctx.stats['deep']>int(os.getenv('TAG_AGENT_MAX_DEEP','4')):raise ValueError('深度检索预算已用完，请提交当前草案')
+            if ctx.stats['deep']>ctx.budget.max_deep:
+                ctx.stats['tool_budget_hit']=True
+                raise ValueError('深度检索预算已用完，请提交当前草案')
             data=await asyncio.to_thread(ctx.retriever.retrieve_batch,[q['text'] for q,k in pending],ctx.eligible,args['top_k'],'deep')
         else:
             data=await asyncio.gather(*(asyncio.to_thread(ctx.retriever.lookup,q['text'],ctx.eligible,args['top_k']) for q,k in pending))
@@ -31,4 +32,3 @@ async def find_tags(ctx,args):
         output.append({'requirement_id':rid,'cards':[card({**t,**{'matched_by':candidates.get(int(t['tag_id']),{}).get('matched_by','SEMANTIC' if depth=='deep' else 'LEXICAL')}}) for t in context.get('tags',[])],
                        'terms':data.get('terms',[]),'decision':data.get('decision'),'cached':cached})
     return {'results':output}
-

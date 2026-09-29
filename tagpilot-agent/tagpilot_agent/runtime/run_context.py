@@ -3,6 +3,7 @@ from typing import Callable, Any
 import asyncio
 import time
 from tagpilot_agent.retrieval.cache import eligible_hash
+from tagpilot_agent.runtime.budget import Budget
 
 @dataclass
 class RunContext:
@@ -24,6 +25,8 @@ class RunContext:
     intent_emitted: bool = False
     last_diagnostic: str = ''
     diagnostic_repeats: int = 0
+    budget: Budget = field(default_factory=Budget.from_env)
+    lean: bool = False
 
     @property
     def eligible(self):return set(self.request['eligible_tag_ids'])

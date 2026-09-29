@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Clause, Plan, Thread, Tree } from "./agentTypes";
-import { busy, clauses, planDiff, planStateText, expressionText, gapText } from "./agentTypes";
+import { busy, clauses, planDiff, planStateText, expressionText, gapText, degradedOf } from "./agentTypes";
 import { ListboxSelect } from "./ListboxSelect";
 const unitLabels: Record<string, string> = {
   CNY: "元",
@@ -124,7 +124,7 @@ function TreeEditor({
     );
   const c = tree;
   const patch = (p: Partial<Clause>) =>
-    onChange({ ...c, ...p, unresolved: null });
+    onChange({ ...c, ...p, unresolved: null, gap_reason: undefined });
   if (c.kind === "SCOPE_ALL") return <section className="condition">
     <strong>当前授权范围内的全部客户</strong>
     <p className="muted">统计沿用当前标签库的数据范围与权限。</p>
@@ -349,7 +349,7 @@ export function PlanPanel({
     (p) => p.revision === (shown?.revision || 1) - 1
   );
   return (
-    <aside className="plan-panel" aria-label="圈选方案">
+    <aside id="agent-plan-editor" tabIndex={-1} className="plan-panel" aria-label="圈选方案">
       <div className="panel-heading">
         <div>
           <h2>圈选方案</h2>
@@ -382,7 +382,7 @@ export function PlanPanel({
         ) : null}
       </div>
       <div className="plan-scroll">
-        {shown?.plan_status ? <p className="plan-state" role="status">{planStateText[shown.plan_status] || "方案待核验"}</p> : null}
+        {shown?.plan_status ? <p className="plan-state" role="status">{!historical && degradedOf(thread)?.level === "L3" ? "候选标签待核验" : planStateText[shown.plan_status] || "方案待核验"}</p> : null}
         {shown?.intent_plan?.requirements?.length ? <details className="evidence">
           <summary>原始业务要求</summary>
           {shown.intent_plan.requirements.map((r) => <p key={r.requirement_id}>{r.business_meaning}</p>)}
@@ -392,7 +392,7 @@ export function PlanPanel({
             <strong>这些要求暂未满足</strong>
             {thread.outcome.gaps.map((gap) => <div key={gap.requirement_id}>
               <p>{shown?.intent_plan?.requirements.find((r) => r.requirement_id === gap.requirement_id)?.business_meaning || items.find((c) => c.requirement_ids?.includes(gap.requirement_id))?.source_span || "一项圈选要求"}</p>
-              <p>{gapText[gap.reason] || "当前证据不足"}</p>
+              <p>{items.some((c) => (c.requirement_ids || [c.clause_id]).includes(gap.requirement_id) && c.gap_reason === "BUDGET_EXHAUSTED") ? "这项条件暂未确定，候选标签尚待核验" : gapText[gap.reason] || "当前证据不足"}</p>
               <button className="text-button" disabled={disabled || items.length <= 1}
                 onClick={() => onRefine(`请移除这项要求：${shown?.intent_plan?.requirements.find((r) => r.requirement_id === gap.requirement_id)?.business_meaning || items.find((c) => c.requirement_ids?.includes(gap.requirement_id))?.source_span || gap.requirement_id}，保留其余条件。`)}>移除此项要求</button>
             </div>)}

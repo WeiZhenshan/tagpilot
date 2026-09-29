@@ -143,6 +143,44 @@ export const stateText: Record<string, string> = {
   FAILED: "暂未完成",
   INTERRUPTED: "可恢复",
 };
+export const degradedText = {
+  timeout: "处理时间较长，已保留已确认的条件",
+  memory_limit: "运行资源不足，已保存进度，请手工编辑或稍后重试",
+  max_turns: "本轮处理次数已达上限，已保留当前方案",
+  max_budget: "本轮模型预算已用完，已保留当前方案",
+  tool_budget: "本轮检索与核验预算已用完，已保留当前方案",
+  queue_timeout: "当前使用人数较多，排队已超时，请稍后重试",
+  gateway: "模型服务暂不可用，已保存进度，请稍后重试",
+  retrieval: "标签检索服务暂不可用，已保存进度，请稍后重试",
+};
+export type Degraded = {
+  level: "L2" | "L3" | "L4";
+  reason: keyof typeof degradedText;
+  kept_clauses: string[];
+  unresolved_clause_ids: string[];
+  resumable: boolean;
+  resume_mode: "lean" | "manual" | "retry";
+  attempt: number;
+  user_message?: string;
+  ops_alert: boolean;
+};
+export function degradedOf(thread?: Thread | null): Degraded | undefined {
+  const value = thread?.outcome?.stats?.degraded;
+  if (!value || typeof value !== "object") return undefined;
+  const d = value as Degraded;
+  if (!["L2", "L3", "L4"].includes(d.level) || !Object.hasOwn(degradedText, d.reason) ||
+      !Array.isArray(d.kept_clauses) || !Array.isArray(d.unresolved_clause_ids) ||
+      !d.kept_clauses.every((id) => typeof id === "string") ||
+      !d.unresolved_clause_ids.every((id) => typeof id === "string")) return undefined;
+  return { ...d, resumable: d.resumable === true, user_message: typeof d.user_message === "string" ? d.user_message : undefined };
+}
+export function runNotice(thread?: Thread | null): "partial" | "failure" | undefined {
+  if (!thread) return undefined;
+  if (["FAILED", "INTERRUPTED"].includes(thread.status)) return "failure";
+  const d = degradedOf(thread);
+  if (thread.status === "COMPLETED" && d && d.level !== "L4") return "partial";
+  return undefined;
+}
 export const planStateText: Record<string, string> = {
   DRAFT: "方案草稿", NEEDS_DECISION: "待业务选择", CAPABILITY_GAP: "缺少数据或计算能力",
   READY: "条件已核验", RETRYABLE_FAILURE: "已保存进度，可稍后继续",
@@ -198,6 +236,8 @@ export const toolText: Record<string, string> = {
   check_plan: "核验圈选条件", submit_result: "整理圈选方案",
 };
 export const gapText: Record<string, string> = {
+  BUDGET_EXHAUSTED: "本轮预算已用完，这项条件暂未确定",
+  RETRIEVAL_UNAVAILABLE: "标签检索暂不可用，请稍后重试",
   NO_PUBLISHED_TAG: "尚无已发布标签覆盖这项要求", NO_CAPABILITY: "尚无已发布计算能力覆盖这项要求",
   CALIBER_UNAVAILABLE: "缺少符合要求的时间或统计口径", METADATA_INCOMPLETE: "发布信息不足，暂时无法核验",
 };

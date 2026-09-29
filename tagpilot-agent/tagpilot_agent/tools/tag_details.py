@@ -1,10 +1,12 @@
-import os
 from tagpilot_agent.retrieval.working_set import ensure_details
 
 async def tag_details(ctx,args):
     if not set(args['tag_ids'])<=ctx.eligible:raise ValueError('INELIGIBLE_TAG：标签不在当前资格范围')
-    ctx.stats['details']+=1
-    if ctx.stats['details']>int(os.getenv('TAG_AGENT_MAX_DETAILS','6')):raise ValueError('详情读取预算已用完')
+    if not set(args['tag_ids'])<=ctx.details_loaded:
+        ctx.stats['details']+=1
+        if ctx.stats['details']>ctx.budget.max_details:
+            ctx.stats['tool_budget_hit']=True
+            raise ValueError('详情读取预算已用完')
     await ensure_details(ctx,args['tag_ids'])
     result=[]
     for tid in args['tag_ids']:

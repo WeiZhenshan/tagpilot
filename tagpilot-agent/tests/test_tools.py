@@ -132,7 +132,8 @@ def test_detail_budget_shared_with_guard_reads(monkeypatch):
     assert not asyncio.run(dispatch(ctx, 'get_tag_details', {'tag_ids': [1]}))['is_error']
     assert not asyncio.run(dispatch(ctx, 'get_tag_details', {'tag_ids': [1]}))['is_error']
     third = asyncio.run(dispatch(ctx, 'get_tag_details', {'tag_ids': [1]}))
-    assert third['is_error'] and '详情读取预算已用完' in payload(third)['message']
+    assert not third['is_error']
+    assert ctx.stats['details'] == 1 and ctx.stats['evidence_requests'] == 1
 
 
 def test_observation_byte_cap_truncates_with_hint():

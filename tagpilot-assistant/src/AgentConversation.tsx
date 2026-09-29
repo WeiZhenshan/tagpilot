@@ -8,7 +8,7 @@ import {
   type ThreadMessageLike,
 } from "@assistant-ui/react";
 import type { Thread, AgentMessage, RunEvent } from "./agentTypes";
-import { busy, clauses, stateText, toolText } from "./agentTypes";
+import { busy, clauses, stateText, toolText, degradedOf, degradedText, runNotice } from "./agentTypes";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
@@ -149,6 +149,7 @@ export function AgentConversation({
   onCancel,
   onAnswer,
   onRetry,
+  onEdit,
 }: {
   thread: Thread | null;
   disabled: boolean;
@@ -158,7 +159,9 @@ export function AgentConversation({
   onCancel: () => void;
   onAnswer: (text: string) => void;
   onRetry: () => void;
+  onEdit: () => void;
 }) {
+  const degraded = degradedOf(thread);
   const runtime = useExternalStoreRuntime<AgentMessage>({
     messages: thread?.messages || [],
     convertMessage,
@@ -240,13 +243,24 @@ export function AgentConversation({
                 onAnswer={onAnswer}
               />
             ) : null}
-            {thread && ["FAILED", "INTERRUPTED"].includes(thread.status) ? (
+            {thread && runNotice(thread) === "partial" && degraded ? (
+              <div className="run-degraded" role="status">
+                <strong>已保留 {degraded.kept_clauses.length}/{clauses(thread.plan?.tree).length} 项条件</strong>
+                <p>{degraded.user_message || degradedText[degraded.reason]}</p>
+                {degraded.level === "L3" ? <p>已找到可能相关的标签，请在方案中选择并核验。</p> : null}
+                <div className="degraded-actions">
+                  {degraded.resumable ? <button disabled={disabled || pending} onClick={() => void onSend("请继续补全尚未确定的条件")}>补全剩余条件</button> : null}
+                  <button disabled={disabled || pending} onClick={onEdit}>手工编辑方案</button>
+                </div>
+              </div>
+            ) : null}
+            {thread && runNotice(thread) === "failure" ? (
               <div className="run-error" role="alert">
                 <strong>{stateText[thread.status]}</strong>
-                <p>{thread.error || "处理位置已保存，可以继续。"}</p>
-                <button disabled={pending} onClick={onRetry}>
-                  从保存位置继续
-                </button>
+                <p>{degraded?.user_message || thread.error || (degraded ? degradedText[degraded.reason] : "处理位置已保存，可以继续。")}</p>
+                {!degraded || degraded.resumable ? <button disabled={disabled || pending} onClick={onRetry}>
+                  {degraded ? "稍后重试" : "从保存位置继续"}
+                </button> : null}
               </div>
             ) : null}
           </ThreadPrimitive.Viewport>

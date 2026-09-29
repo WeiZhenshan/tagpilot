@@ -1020,6 +1020,16 @@ textarea {
 .inline-warning p {
   margin-top: 5px;
 }
+.run-degraded {
+  background: #fff7e8;
+  color: #845714;
+  padding: 12px;
+  margin-top: 16px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.run-degraded p { margin-top: 5px; }
+.degraded-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .field-error {
   font-size: 12px;
   color: var(--danger);

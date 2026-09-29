@@ -174,9 +174,12 @@ def test_hard_timeout_returns_best_draft(tmp_path, gateway, monkeypatch):
 
     asyncio.run(scenario())
     row = store.get('r-f', '7')
-    assert row['status'] == 'FAILED'
-    assert '运行资源或时间预算已耗尽' in row['error']
-    assert row['result']['plan']['plan_status'] == 'RETRYABLE_FAILURE'
+    assert row['status'] == 'COMPLETED'
+    assert row['error'] is None
+    assert row['result']['plan']['plan_status'] == 'DRAFT'
+    degraded = row['result']['outcome']['stats']['degraded']
+    assert degraded['level'] == 'L2' and degraded['kept_clauses'] == ['a']
+    assert not row['result']['plan']['valid']
     assert row['result']['plan']['tree']['clause_id'] == 'a'
     assert row['result']['outcome']['stats']['stop_reason'] == 'timeout'
     store.db.close()
@@ -195,8 +198,10 @@ def test_hard_timeout_without_draft_returns_retryable_partial(tmp_path, gateway,
 
     asyncio.run(scenario())
     row = store.get('r-g', '7')
-    assert row['status'] == 'FAILED'
-    assert row['result']['plan']['plan_status'] == 'RETRYABLE_FAILURE'
+    assert row['status'] == 'COMPLETED'
+    assert row['result']['plan']['plan_status'] == 'CAPABILITY_GAP'
+    assert row['result']['outcome']['stats']['degraded']['level'] == 'L3'
+    assert row['result']['outcome']['gaps'][0]['nearest_tag_ids'] == [1]
     assert row['result']['plan']['tree']['clause_id'] == 'pending'
     assert row['result']['outcome']['outcome'] == 'PARTIAL'
     store.db.close()
@@ -216,10 +221,10 @@ def test_persistent_gateway_failure_degrades_without_hang(tmp_path, gateway, mon
     asyncio.run(scenario())
     row = store.get('r-h', '7')
     assert row['status'] == 'FAILED'
-    assert '运行资源或时间预算已耗尽' in row['error']
+    assert '模型服务暂不可用' in row['error']
     stats = row['result']['outcome']['stats']
     assert row['result']['plan']['plan_status'] == 'RETRYABLE_FAILURE'
-    assert stats['agent_failure'] is True and stats['stop_reason'] == 'timeout'
+    assert stats['agent_failure'] is True and stats['stop_reason'] == 'gateway'
     assert stats['llm_turns'] >= 1 and len(app.state.requests) >= 2
     store.db.close()
 
@@ -266,7 +271,9 @@ def test_memory_circuit_breaker_interrupts(tmp_path, gateway, monkeypatch):
 
     asyncio.run(scenario())
     row = store.get('r-i', '7')
-    assert row['status'] == 'FAILED'
+    assert row['status'] == 'COMPLETED'
+    assert row['result']['outcome']['stats']['degraded']['ops_alert'] is True
+    assert row['result']['outcome']['stats']['degraded']['resumable'] is False
     assert row['result']['outcome']['stats']['stop_reason'] == 'memory_limit'
     assert row['result']['outcome']['stats']['cli_peak_rss_mb'] > 1
     store.db.close()
@@ -346,5 +353,6 @@ def test_queue_timeout_fails_with_saved_progress(tmp_path, monkeypatch):
     assert store.get('r-l1', '7')['status'] == 'COMPLETED'
     row = store.get('r-l2', '7')
     assert row['status'] == 'FAILED'
-    assert row['error'] == '处理暂未完成，已保存进度供重试'
+    assert row['error'] == '当前使用人数较多，排队已超时，请稍后重试'
+    assert row['result']['outcome']['stats']['stop_reason'] == 'queue_timeout'
     store.db.close()

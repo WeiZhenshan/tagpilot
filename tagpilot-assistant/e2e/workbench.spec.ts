@@ -523,3 +523,47 @@ test('计算草案展示缺口且禁止执行',async({page})=>{
     if(process.env.CAPTURE_DIR)await page.screenshot({path:`${process.env.CAPTURE_DIR}/v3-gap-${width}.png`,fullPage:true});
   }
 });
+
+test('预算降级保留部分方案，补全使用新消息且不可执行', async ({page}) => {
+  t.plan.valid=false;t.plan.plan_status='DRAFT';
+  t.plan.tree.children[1].status='GAP';t.plan.tree.children[1].gap_reason='BUDGET_EXHAUSTED';
+  t.outcome={outcome:'PARTIAL',gaps:[],stats:{degraded:{level:'L2',reason:'timeout',kept_clauses:['a'],unresolved_clause_ids:['b'],resumable:true,resume_mode:'lean',attempt:1,user_message:'处理时间较长，已保留已确认的条件',ops_alert:false}}};
+  await page.setViewportSize({width:1440,height:960});
+  await page.goto('/agent-ui/?threadId=test-thread');
+  await expect(page.getByText('已保留 1/2 项条件')).toBeVisible();
+  await expect(page.locator('.run-error')).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'统计人数',exact:true})).toBeDisabled();
+  await expect(page.getByText('部分完成',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'手工编辑方案',exact:true}).click();
+  await expect(page.locator('#agent-plan-editor')).toBeFocused();
+  if(process.env.CAPTURE_DIR)await page.screenshot({path:`${process.env.CAPTURE_DIR}/degrade-desktop.png`,fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  await page.getByRole('tab',{name:/对话/}).click();
+  await expect(page.getByText('已保留 1/2 项条件')).toBeVisible();
+  if(process.env.CAPTURE_DIR)await page.screenshot({path:`${process.env.CAPTURE_DIR}/degrade-mobile.png`,fullPage:true});
+  const sent=page.waitForRequest(request=>request.url().endsWith('/runs')&&request.method()==='POST');
+  await page.getByRole('button',{name:'补全剩余条件',exact:true}).click();
+  expect((await sent).postDataJSON().message).toBe('请继续补全尚未确定的条件');
+});
+
+test('候选建议能选标签，超过续跑次数只提供编辑入口', async ({page})=>{
+  t.plan.valid=false;t.plan.plan_status='CAPABILITY_GAP';
+  t.plan.tree.children[0].gap_reason='BUDGET_EXHAUSTED';
+  t.outcome={outcome:'PARTIAL',gaps:[{requirement_id:'a',reason:'NO_PUBLISHED_TAG',nearest_tag_ids:[1]}],stats:{degraded:{level:'L3',reason:'max_turns',kept_clauses:[],unresolved_clause_ids:['a','b'],resumable:false,resume_mode:'lean',attempt:3,ops_alert:false}}};
+  await page.goto('/agent-ui/?threadId=test-thread');
+  await expect(page.getByRole('button',{name:'补全剩余条件',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'手工编辑方案',exact:true})).toBeVisible();
+  await expect(page.getByText('已找到可能相关的标签，请在方案中选择并核验。')).toBeVisible();
+  await expect(page.getByText('这项条件暂未确定，候选标签尚待核验')).toBeVisible();
+  await page.getByRole('button',{name:'关联标签',exact:true}).first().click();
+  await expect(page.getByRole('option',{name:'近30天异名跨行转入金额',exact:true})).toBeVisible();
+});
+
+test('排队超时显示对应错误及稍后重试',async({page})=>{
+  t.status='FAILED';t.plan.valid=false;t.plan.plan_status='RETRYABLE_FAILURE';
+  t.outcome={outcome:'PARTIAL',gaps:[],stats:{degraded:{level:'L4',reason:'queue_timeout',kept_clauses:[],unresolved_clause_ids:['a','b'],resumable:true,resume_mode:'retry',attempt:0,ops_alert:false}}};
+  await page.goto('/agent-ui/?threadId=test-thread');
+  await expect(page.locator('.run-error')).toContainText('当前使用人数较多，排队已超时');
+  await expect(page.getByRole('button',{name:'稍后重试',exact:true})).toBeVisible();
+  await expect(page.locator('.run-degraded')).toHaveCount(0);
+});

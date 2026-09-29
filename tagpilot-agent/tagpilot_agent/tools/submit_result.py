@@ -1,5 +1,6 @@
 from tagpilot_agent.guards.guard import check
 from tagpilot_agent.guards.plan_validator import leaves
+from tagpilot_agent.runtime.degrade import Reason, progress
 
 async def submit_result(ctx,args):
     plan=await check(args['plan'],ctx,strict=True)
@@ -20,7 +21,9 @@ async def submit_result(ctx,args):
             if q['requirement_id'] not in requirements:errors.append('问题必须对应需求：'+q['requirement_id']+'；可用ID：'+','.join(sorted(requirements)))
             if q['reason']!='GOAL_UNCLEAR' and not ctx.searches.get(q['requirement_id']):errors.append('请先查证该需求，再提出业务问题')
             if any(x in q['prompt'] for x in ('tag_id','SQL','caliber','eligible','build_id')):errors.append('问题中不能包含技术字段')
-    declared_refs={rid for n in nodes if n.get('gap_reason') for rid in n.get('requirement_ids',[])}
+    budget_partial=outcome=='PARTIAL' and (ctx.budget.converging(ctx) or ctx.lean or progress(ctx.request.get('previous_plan')))
+    declared_refs={rid for n in nodes if n.get('gap_reason') and not (budget_partial and n['gap_reason']=='BUDGET_EXHAUSTED')
+                   for rid in n.get('requirement_ids',[])}
     if outcome=='CAPABILITY_GAP':
         declared_refs.update(rid for n in nodes if n.get('status')=='GAP' for rid in n.get('requirement_ids',[]))
     if not declared_refs <= {g['requirement_id'] for g in args['gaps']}:
@@ -43,6 +46,8 @@ async def submit_result(ctx,args):
         for gap in args['gaps']:
             if gap['requirement_id'] in n.get('requirement_ids',[]):n.update(status='GAP',gap_reason=gap['reason'])
     ctx.accepted={**args,'outcome':outcome,'plan':plan,'questions':args['questions'] if outcome=='NEEDS_USER_INPUT' else []}
+    if budget_partial and any(n.get('gap_reason')=='BUDGET_EXHAUSTED' for n in nodes):
+        ctx.stats.setdefault('stop_reason',Reason.TIMEOUT if ctx.budget.elapsed(ctx)>=ctx.budget.soft else Reason.TOOL_BUDGET)
     ctx.best_plan=plan
     ctx.emit({'type':'plan.validated','message':'条件已核验' if plan['valid'] else '已保留待处理事项','plan':plan})
     for n in nodes:ctx.emit({'type':'clause.updated','clause_id':n['clause_id'],'message':n.get('name') or n.get('source_span')})

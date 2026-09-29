@@ -67,9 +67,14 @@ async def check(plan,ctx,strict=False,trusted=False):
                     plan['warnings']=warnings
                     ctx.emit({'type':'guard.warning','message':'请核对否定与条件连接关系','warnings':warnings})
             if not ctx.request.get('_manual_edit'):
+                # 预算续跑只授权补全未解决叶子；值、时间和业务逻辑仍由下方 Guard 核验。
+                previous=ctx.request.get('previous_plan') or {}
+                budget_clauses=[n['clause_id'] for n in leaves(previous['tree']) if n.get('gap_reason')=='BUDGET_EXHAUSTED'] if previous.get('tree') and any(
+                                 d.get('code')=='BUDGET_EXHAUSTED' for d in previous.get('diagnostics',[])) else []
                 errors.extend(frozen_errors(ctx.request.get('previous_plan') or {},plan,ctx.request.get('_utterance',ctx.request['requirement']),
                     ([q.get('requirement_id') or q.get('clause_id') for q in ctx.request.get('_questions',[])] if ctx.request.get('_answer') else []) +
-                    [rid for n in nodes if any(d.get('clause_id')==n['clause_id'] for d in ctx.request.get('_repair',[])) for rid in n.get('requirement_ids',[n['clause_id']])]))
+                    [rid for n in nodes if any(d.get('clause_id')==n['clause_id'] for d in ctx.request.get('_repair',[])) for rid in n.get('requirement_ids',[n['clause_id']])],
+                    budget_clause_ids=budget_clauses))
     except (ValidationError,ValueError,TypeError,KeyError,RecursionError) as exc:
         errors=[diagnostic('SCHEMA_INVALID','方案结构不符合契约，请检查字段、类型、深度及数量')]
         if isinstance(exc,ValidationError):errors[0]['hint']=[{'path':list(e['loc']),'type':e['type']} for e in exc.errors()[:8]]
