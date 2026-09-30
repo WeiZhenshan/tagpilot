@@ -6,7 +6,7 @@
 
 <p align="center">标签中台（DataBroker / TagLibrary / ObjectGroup）+ 自然语言圈选 + 洞察 Skill 工作台</p>
 
-**分支**：`tagpilot-release`  
+**分支**：`tagpilot-release` · **版本**：`competition-20260930`（commit 见 `git rev-parse HEAD`）  
 **演示剧本**：[docs/交付文档/演示脚本（客群资产结构透视）-v1.0.md](docs/交付文档/演示脚本（客群资产结构透视）-v1.0.md)  
 **语义索引**：`bge-m3-l107-20260919-002-r3`（LOCAL，随包位于 `tagpilot-semantic/out/full-20260919/`）  
 **BGE 权重**：不入 Git，需本机下载（约 4.3GB，见下文）

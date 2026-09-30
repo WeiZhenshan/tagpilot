@@ -69,6 +69,9 @@ skills-lock.json
 /.pptx-venv/
 /.pptx-build/
 
+# 竞赛交付 zip（bin/package-competition-zip.sh 生成）
+/tagpilot-release-*.zip
+
 # 项目参考文档（本地资料，不提交）
 docs/项目参考文档/
 
