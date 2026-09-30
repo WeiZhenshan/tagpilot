@@ -1,6 +1,11 @@
 import asyncio
 import importlib
-from types import SimpleNamespace
+
+from tagpilot_agent.runtime.run_context import RunContext
+
+
+def context(searches):
+    return RunContext(request={'pinned_only': False, 'pinned_tag_ids': []}, retriever=None, emit=lambda event: None, searches=searches)
 
 
 def test_pending_assumption_requires_question_before_freezing(monkeypatch):
@@ -12,8 +17,7 @@ def test_pending_assumption_requires_question_before_freezing(monkeypatch):
         'tree':{'logic':'AND','children':[
             {'clause_id':'a','requirement_ids':['asset'],'status':'ASSUMED','assumption_confirmed':False},
             {'clause_id':'b','requirement_ids':['app'],'status':'GAP'}]}}
-    ctx=SimpleNamespace(searches={'asset':{'quick'},'app':{'quick'}},stats={'submit_rejections':0},
-        tags={},emit=lambda event:None,submitted=asyncio.Event())
+    ctx=context({'asset':{'quick'},'app':{'quick'}})
     question=lambda rid:{'requirement_id':rid,'prompt':'请确定业务阈值','reason':'THRESHOLD_MISSING'}
     args={'plan':plan,'outcome':'NEEDS_USER_INPUT','questions':[question('app')],'gaps':[],'summary':''}
     result=asyncio.run(module.submit_result(ctx,args))
@@ -33,8 +37,7 @@ def test_unchanged_confirmed_assumption_does_not_need_repeat_question(monkeypatc
         'tree':{'logic':'AND','children':[
             {'clause_id':'a','requirement_ids':['asset'],'status':'BOUND','assumption_confirmed':True},
             {'clause_id':'b','requirement_ids':['app'],'status':'GAP'}]}}
-    ctx=SimpleNamespace(searches={'app':{'quick'}},stats={'submit_rejections':0},tags={},
-        emit=lambda event:None,submitted=asyncio.Event())
+    ctx=context({'app':{'quick'}})
     args={'plan':plan,'outcome':'NEEDS_USER_INPUT','questions':[{'requirement_id':'app','prompt':'多久未登录',
         'reason':'THRESHOLD_MISSING'}],'gaps':[],'summary':''}
     assert asyncio.run(module.submit_result(ctx,args))['accepted'] is True

@@ -17,7 +17,7 @@
 | 3 | 多路召回与重排技术方案 | 有素材 | [`design/标签语义层与检索索引建设方案.md`](../design/标签语义层与检索索引建设方案.md)（BM25 + 向量 + 标量过滤、别名切换）；[`architecture/标签语义引擎与Agent编排层.md`](../architecture/标签语义引擎与Agent编排层.md)（六通道检索）；`tagpilot-semantic/README.md` | 通道权重与融合公式、重排阶段的模型与阈值、消融/对比数据、失效与降级策略 |
 | 4 | 受控工作流设计文档 | 有素材 | [`development/Agent-V2实施说明.md`](../development/Agent-V2实施说明.md)、[`development/Agent-SDK重构实施记录.md`](../development/Agent-SDK重构实施记录.md)、[`development/标签上下文与客群编辑实施说明.md`](../development/标签上下文与客群编辑实施说明.md) | 一张端到端受控流程图 + 状态机（澄清/确认/回退/超时降级）+ 每步的准入准出条件与人工卡点，取代现在的三篇分散实施记录 |
 | 5 | 与原系统的接口清单 | 有素材（未汇总） | 各模块 Controller：`ruoyi-taglibrary`、`ruoyi-objectgroup`、`ruoyi-databroker`；Python 侧 `tagpilot-agent`（`:8092`）、`tagpilot-semantic`（`:8091`）的 `/lookup`、`/retrieve_batch`、`/evidence`、`/capabilities` | 一份汇总表：接口名、方向、方法/路径、请求响应示意、鉴权方式、调用方、失败语义。目前没有任何接口清单文档 |
-| 6 | 洞察 Skill 规范（含 Skill Manifest 与图表 Skill 规范） | 有素材 | [`development/洞察Skill体系实施记录.md`](../development/洞察Skill体系实施记录.md)；[`design/agent-v3/能力接入与验证.md`](../design/agent-v3/能力接入与验证.md)；`tagpilot-insight/schemas/`（`Manifest`、`MetricDefinition`、`MetricPlan`、`MetricQuery`、`InsightReport`） | 对外口径的 Skill 编写规范：Manifest 字段与语义、图表 Skill 的类型与入参、Guard 约束、如何新增一个 Skill；`tagpilot-insight/README.md` 偏运行说明，需另出规范正文 |
+| 6 | 洞察 Skill 规范（含 Skill Manifest 与图表 Skill 规范） | 有素材 | [`development/洞察Skill体系实施记录.md`](../development/洞察Skill体系实施记录.md)；[`design/agent-v3/能力接入与验证.md`](../design/agent-v3/能力接入与验证.md)；`tagpilot-agent/legacy-insight/schemas/`（`Manifest`、`MetricDefinition`、`MetricPlan`、`MetricQuery`、`InsightReport`） | 对外口径的 Skill 编写规范：Manifest 字段与语义、图表 Skill 的类型与入参、Guard 约束、如何新增一个 Skill；`tagpilot-insight/README.md` 偏运行说明，需另出规范正文 |
 | 7 | Benchmark 评测方案 | 有素材 | [`tagpilot-eval/README.md`](../../tagpilot-eval/README.md) 与 [`reports/`](../../tagpilot-eval/reports)；方案来源见 [`plans/TagPilot 合成评测数据生成与语义层持续完善方案.md`](../plans/TagPilot%20合成评测数据生成与语义层持续完善方案.md)；内部实测见 [`validation/语义索引层建设验收记录.md`](../validation/语义索引层建设验收记录.md) | 现有 README 是工程索引，需抽取成一份自洽的《评测方案》：指标定义（Recall@k / L1 / L2）、分区与污染控制、预算与稳定性口径；须如实保留 P2/P3 已知缺口（稳定性 `NOT_MEASURED` 等） |
 
 ## 二、可运行代码 / 视频
@@ -52,3 +52,5 @@
 - 交付文档一经发出即为存档件，修订**新增版本**，不要原地覆盖历史版本。
 - 本目录只放成品件；过程记录、调试数据留在 `plans/`、`development/`、`validation/`。
 - 目录索引见 [`../README.md`](../README.md)。
+
+> 2026-09-30 更新：独立洞察工程已并入 Agent，本文原体系描述作为历史记录保留。当前登记与运行架构见 [Agent 原生 Skill 接入](../development/Agent原生Skill接入.md)。

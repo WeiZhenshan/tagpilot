@@ -94,3 +94,9 @@ docs/项目参考文档/
 !/tagpilot-eval/tagpilot_eval/
 /tagpilot-eval/tagpilot_eval/*
 !/tagpilot-eval/tagpilot_eval/insight.py
+
+######################################################################
+# Python
+
+__pycache__/
+*.pyc

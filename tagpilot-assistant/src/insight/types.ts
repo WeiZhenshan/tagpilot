@@ -1,4 +1,4 @@
-// 与 tagpilot-insight 导出的 InsightReport.schema.json 对应；不接受原始 ECharts option。
+// 与 Agent 归档的 legacy-insight/schemas/InsightReport.schema.json 对应；不接受原始 ECharts option。
 export type Fact = {
   id: string;
   metric: string;
@@ -50,12 +50,14 @@ export type SkillResult = {
   skill_id: string;
   skill_version: string;
   pack_hash: string;
+  display_name?: string;
   status: "COMPLETE" | "PARTIAL" | "BLOCKED";
   level: "L2" | "L3" | "L4" | null;
   reasons: string[];
   facts: Fact[];
   cards: InsightCard[];
   charts: ChartSpec[];
+  followups?: string[];
 };
 export type InsightReport = {
   level?: "L2" | "L3" | "L4" | null;
@@ -68,7 +70,7 @@ export type InsightReport = {
     revision: number;
     plan_hash: string;
     snapshot_id: string;
-    count: number;
+    count: number | null;
     data_as_of: string;
     reference_date: string;
     binding_version: string;

@@ -13,6 +13,10 @@ class ClarificationState(BaseModel):
 
 class RunRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
+    profile: str = Field(default='audience',pattern=r'^(audience|skill)$')
+    skill_name: str | None = Field(default=None,pattern=r'^[a-z0-9]+(?:-[a-z0-9]+)*$',max_length=64)
+    skill_packages: list[dict] = Field(default_factory=list,max_length=60)
+    cohort_context: dict = Field(default_factory=dict)
     run_id: str = Field(pattern=r'^[a-zA-Z0-9-]{1,64}$')
     thread_id: str = Field(pattern=r'^[a-zA-Z0-9-]{1,64}$')
     owner_id: str = Field(min_length=1,max_length=64)
@@ -40,6 +44,11 @@ class RunRequest(BaseModel):
             raise ValueError('所选标签必须唯一且属于当前可用标签')
         if self.pinned_only and not self.pinned_tag_ids:
             raise ValueError('仅选标签入口必须提供标签')
+        if self.profile == 'skill':
+            if not self.skill_name or not self.cohort_context.get('plan',{}).get('valid') or self.edited_plan or self.pinned_tag_ids:
+                raise ValueError('技能运行需要当前已核验客群上下文')
+        elif self.skill_packages or self.skill_name or self.cohort_context:
+            raise ValueError('圈选运行不能注入技能上下文')
         return self
 
 class ResumeRequest(BaseModel):

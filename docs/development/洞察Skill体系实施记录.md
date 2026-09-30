@@ -88,7 +88,7 @@ cd tagpilot-insight
 .venv/bin/python -m tagpilot_insight.cli verify --output reports/p0-p1-verification.json
 ```
 
-证据：[SQL 独立结果](../../tagpilot-insight/reports/sql-reference-verification.json)、[包内合成验证](../../tagpilot-insight/reports/p0-p1-verification.json)、[库 README](../../tagpilot-insight/README.md)、[固定验证入口](../../bin/verify-insight.sh)。浏览器截图与导出材料在被忽略的 `.impeccable/review/`；不是产品数据。
+证据：[SQL 独立结果](../../tagpilot-agent/legacy-insight/reports/sql-reference-verification.json)、[包内合成验证](../../tagpilot-agent/legacy-insight/reports/p0-p1-verification.json)、[库 README](../../tagpilot-agent/legacy-insight/README.md)、[固定验证入口](../../bin/verify-insight.sh)。浏览器截图与导出材料在被忽略的 `.impeccable/review/`；不是产品数据。
 
 ## 接入真实数据前需要完成
 
@@ -99,3 +99,5 @@ cd tagpilot-insight
 5. 如启用模型，设置 `TAG_INSIGHT_LLM_ENABLED=true`，使用现有 Anthropic 连接配置，先验证一次 JSON 路由 / 叙述 / 改图及错误回退。本批没有付费模型请求。
 
 本批未启动或部署服务、操作真实客户数据、导出名单、运行营销写操作、扩量评测、提交或推送。
+
+> 2026-09-30 更新：本文是历史实施记录。原独立工程已并入 Agent，当前架构见 [Agent 原生 Skill 接入](Agent原生Skill接入.md)。

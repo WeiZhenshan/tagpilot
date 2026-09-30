@@ -53,9 +53,9 @@ function Chevron({ open }: { open: boolean }) {
   return <svg className="run-chevron" data-open={open} viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>;
 }
 
-export function RunTimeline({ events, runId, running, plan, questions, status, label, children, onReveal }: {
+export function RunTimeline({ events, runId, running, plan, questions, status, label, children, onReveal, skillMode = false }: {
   events: RunEvent[]; runId: string; running: boolean; plan?: Plan; questions?: Thread["questions"]; status?: string;
-  label?: string; children?: ReactNode; onReveal?: (ids: string[]) => void;
+  skillMode?: boolean; label?: string; children?: ReactNode; onReveal?: (ids: string[]) => void;
 }) {
   const reduced = useReducedMotion();
   const paced = useEventPacer(events, runId, running, reduced);
@@ -72,6 +72,17 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
     const timer = window.setInterval(() => setNow(Date.now() / 1000), 1000);
     return () => window.clearInterval(timer);
   }, [running]);
+  if (skillMode || events.some((event) => event.type.startsWith("skill."))) {
+    const summary = running ? "正在分析当前客群" : effectiveStatus === "CANCELLED" ? "技能运行已停止" : ["FAILED", "INTERRUPTED"].includes(effectiveStatus || "") ? "技能运行未完成" : "技能分析已完成";
+    const records = paced.events.filter((event) => event.message && (event.type.startsWith("skill.") || event.type.startsWith("run.")));
+    return <section className="run-timeline" aria-label={label || "技能处理记录"}>
+      <button type="button" className="run-heading" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <StatusIcon status={running ? "active" : effectiveStatus === "COMPLETED" ? "done" : "blocked"} /><span>{label ? `${label} · ` : ""}{summary}</span><Chevron open={open} />
+      </button>
+      <span className="sr-only" role="status" aria-live="polite">{summary}</span>
+      {open ? <div className="run-content"><ol className="skill-run-records">{records.map((event, index) => <li key={`${event.seq}:${index}`}>{event.message}</li>)}</ol>{!records.length ? <p>等待开始分析…</p> : null}</div> : null}
+    </section>;
+  }
   const view = buildRunView(paced.events, running ? initialPlan : plan, running, { runId, questions, status: effectiveStatus, now });
   const latest = view.items.at(-1)?.id;
   const narrationId = [...view.items].reverse().find((i) => i.kind === "narration")?.id;

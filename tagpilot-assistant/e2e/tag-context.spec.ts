@@ -60,7 +60,7 @@ test("目录批量上限、三态、多端浏览与补充说明", async ({ page 
   await expect(page.getByRole("checkbox", { name: `选择标签：${names[5]}`, exact: true })).not.toBeChecked();
   await capture(page, "desktop");
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("tab", { name: "会话 / 标签", exact: true }).click();
+  await page.getByRole("tab", { name: "侧栏", exact: true }).click();
   await expect(page.getByRole("button", { name: "确认并让智能体梳理" })).toBeVisible();
   await capture(page, "mobile");
   await page.getByRole("button", { name: "确认并让智能体梳理" }).click();

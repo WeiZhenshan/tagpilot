@@ -14,6 +14,7 @@ from tagpilot_agent.guards.guard import check
 from tagpilot_agent.guards.plan_validator import leaves
 from tagpilot_agent.domain.expressions import plan_tag_ids
 from tagpilot_agent.retrieval.semantic_client import SemanticRetrieveError
+from tagpilot_agent.skills.packages import extract_result
 from .claude_runner import ClaudeRunner
 from .budget import Budget
 from .degrade import Reason, BUDGET_REASONS, LEAN_REASONS, MESSAGES, classify, degraded_info, progress
@@ -73,7 +74,17 @@ class RunManager:
             ctx.lean=previous.get('reason') in LEAN_REASONS or loaded
             ctx.budget=Budget.from_env(lean=ctx.lean)
             ctx.stats['lean']=ctx.lean
-            ctx.emit({'type':'run.started','message':'正在理解圈选需求'})
+            ctx.emit({'type':'run.started','message':'正在运行客群技能' if request.get('profile')=='skill' else '正在理解圈选需求'})
+            if request.get('profile')=='skill':
+                async with asyncio.timeout(ctx.budget.hard+5):
+                    output=await self.runner.run_skill(ctx)
+                if not ctx.cancelled():
+                    result,text=extract_result(output)
+                    payload={'skill_output':text if result is not None else output}
+                    if result is not None:payload['skill_result']=result
+                    self.store.status(rid,'COMPLETED',payload)
+                    ctx.emit({'type':'run.completed','message':'技能分析已保存'})
+                return
             if ctx.lean:ctx.emit({'type':'run.lean','message':'当前使用人数较多，已启用快速模式' if loaded else '正在补全尚未确定的条件'})
             async with asyncio.timeout(ctx.budget.hard+5):
                 if request.get('edited_plan'):
@@ -101,7 +112,7 @@ class RunManager:
             if ctx.stats.get('fatal_status'):raise SemanticRetrieveError(ctx.stats['fatal_status'],'权限或发布版本发生变化')
             self.finish(ctx,classify(ctx))
         except asyncio.CancelledError:
-            self.store.status(rid,'INTERRUPTED',self.fallback(ctx,'服务重启，已保存进度'))
+            self.store.status(rid,'INTERRUPTED',{'skill_output':'技能运行中断，请重新选择技能后重试。'} if request.get('profile')=='skill' else self.fallback(ctx,'服务重启，已保存进度'))
             raise
         except SemanticRetrieveError as exc:
             if exc.status_code in {401,403,409}:
@@ -109,7 +120,13 @@ class RunManager:
                 ctx.emit({'type':'run.failed','message':'权限或发布版本发生变化，请重新核验'})
             else:self.finish(ctx,classify(ctx,exc,admitted))
         except Exception as exc:
-            self.finish(ctx,classify(ctx,exc,admitted))
+            if request.get('profile')=='skill':
+                if not ctx.cancelled():
+                    logger.exception('技能运行失败 run=%s stop_reason=%s stats=%s', rid, ctx.stats.get('stop_reason'),
+                                     {k: v for k, v in ctx.stats.items() if k in ('cli_peak_rss_mb', 'llm_turns', 'tools', 'stopped_at', 'sdk_error')})
+                    self.store.status(rid,'FAILED',error='技能运行未完成，请重新选择技能后重试')
+                    ctx.emit({'type':'run.failed','message':'技能运行未完成，请重新选择技能后重试'})
+            else:self.finish(ctx,classify(ctx,exc,admitted))
         finally:
             self.contexts.pop(rid,None)
             async with self.condition:

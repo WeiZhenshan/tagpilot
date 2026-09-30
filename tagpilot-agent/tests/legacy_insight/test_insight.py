@@ -281,8 +281,8 @@ def test_exported_frontend_fixture_and_schemas_do_not_drift(report):
     from pathlib import Path
     from tagpilot_insight.contracts import Manifest
     from tagpilot_insight.planning import MetricPlan
-    root = Path(__file__).resolve().parents[1]
-    frontend = json.loads((root.parent / "tagpilot-assistant/src/insight/synthetic-preview.json").read_text())
+    root = Path(__file__).resolve().parents[2] / "legacy-insight"
+    frontend = json.loads((root.parent.parent / "tagpilot-assistant/src/insight/synthetic-preview.json").read_text())
     assert frontend == report.model_dump(mode="json")
     for model in (InsightReport, Manifest, MetricBinding, MetricPlan):
         assert json.loads((root / "schemas" / (model.__name__ + ".schema.json")).read_text()) == model.model_json_schema()

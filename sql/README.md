@@ -59,6 +59,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `ind_tag_data.sql` | 客户标签宽表 `ind_tag_data` 建表 + `LOAD DATA` 导入说明 | 否 | 是 | 视需要 | `ry` 库已初始化 | taglibrary / objectgroup | 开发/测试 | 否 | 配套数据文件在仓库外（`ind_tag_data.csv`）；被 `docs/superpowers/plans/*` 引用 |
 | `tag_mapping_test_data.sql` | 标签库批量映射同步（阶段7）测试数据，幂等可重复执行 | 否 | 是 | 视需要 | `ry` + `indiv_cust` 库；建议先执行 `sql/seed/ind_tag_data.sql` | taglibrary | 测试 | 否 | 配套计划见 `docs/plans/标签库批量映射同步优化计划.md` |
 | `test_users_coverage.sql` | RuoYi 测试用户 qa_* 及 qa_scope_* 角色，覆盖账号状态 / 数据范围 / 组织属性场景，可重复导入 | 否 | 是 | 视需要 | 基线为 `sql/archive/ry_20260417.sql` | 全局（sys_*） | 测试 | 否 | 所有账号密码 `admin123`；不会改动 admin/ry 及业务数据 |
+| `agent-meta-skills.sql` | 洞察元 Skill（分析三件套 + 图表三件套）的已发布快照，由 `bin/build-agent-skill-seed.py` 从 `skills/` 源码生成，幂等可重复执行 | 否 | 是 | 视需要 | 已应用 `V20260930_01__agent_skill_registry.sql` | taglibrary（`ts_agent_skill`） | 开发/测试/演示 | 否 | 执行必须带 `--default-character-set=utf8mb4`，否则中文双重编码；技能内容修订走登记台发布流程 |
 
 ## 4. 维护 / 一次性修复（`sql/maintenance/`）
 
@@ -182,3 +183,5 @@ mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
 | `migration/V20260929_01__agent_group_lookup.sql` | 智能体客群回跳反查索引 `(group_id, user_id, create_time)`；幂等前向迁移，本次未执行 |
 
 两条迁移已在本地隔离库重复验证并应用本地 ry；详情见 `docs/validation/语义索引层建设验收记录.md`。其它环境仍由 `bin/db-migrate.sh` 读取迁移记录按序执行，不重跑初始化 SQL。
+
+- `migration/V20260930_01__agent_skill_registry.sql`：全局 Agent 原生 Skill 草稿与发布快照，不预置技能、不绑定标签库。

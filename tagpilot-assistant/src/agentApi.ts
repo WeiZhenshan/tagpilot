@@ -30,7 +30,8 @@ export const startRun = (
   plan?: Plan,
   requestId = crypto.randomUUID(),
   contextTagIds: number[] = [],
-  contextOnly = false
+  contextOnly = false,
+  skillName?: string
 ) =>
   data<Thread>(`${prefix}/${t.thread_id}/runs`, "POST", {
     client_request_id: requestId,
@@ -40,6 +41,8 @@ export const startRun = (
     confirmed_clause_ids: plan?.confirmed_clause_ids,
     context_tag_ids: contextTagIds,
     context_only: contextOnly,
+    skill_name: skillName,
+    plan_hash: skillName ? t.plan?.hash : undefined,
   });
 export const resumeRun = (t: Thread, answer?: unknown) =>
   data<Thread>(`${prefix}/${t.thread_id}/resume`, "POST", {

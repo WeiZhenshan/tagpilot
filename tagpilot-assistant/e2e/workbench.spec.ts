@@ -370,7 +370,7 @@ test("mobile errors remain visible and history is accessible", async ({
       animations: "disabled",
       path: process.env.CAPTURE_DIR + "/mobile-error.png",
     });
-  await page.getByRole("tab", { name: "会话 / 标签", exact: true }).click();
+  await page.getByRole("tab", { name: "侧栏", exact: true }).click();
   await expect(
     page.getByRole("navigation", { name: "圈选会话" })
   ).toBeVisible();
@@ -381,7 +381,7 @@ test("new draft keeps its identity while changing libraries", async ({ page }) =
   await page.getByRole("button", { name: "新建圈选" }).click();
   await expect(page.locator(".conversation-heading")).toHaveText("新的圈选");
 
-  const composer = page.getByPlaceholder("描述客户条件，或继续修改当前方案…");
+  const composer = page.getByPlaceholder("描述客户条件，输入 / 调用技能…");
   await composer.fill("圈选公司客户中的高价值客户");
   const libraryPicker = page.getByRole("button", { name: "当前标签库" });
   await libraryPicker.click();
@@ -719,7 +719,7 @@ test('待处理逐项确认，跳过不解除阻断，改写预填且不自动�
   const requests:string[]=[];
   page.on('request',r=>{if(r.method()==='POST')requests.push(r.url());});
   await page.getByRole('button',{name:'换个说法',exact:true}).click();
-  const composer=page.getByPlaceholder('描述客户条件，或继续修改当前方案…');
+  const composer=page.getByPlaceholder('描述客户条件，输入 / 调用技能…');
   await expect(composer).toBeFocused();
   await expect(composer).toHaveValue(/我可接受的范围是/);
   await expect(page.getByRole('tab',{name:'对话',exact:true})).toHaveAttribute('aria-selected','true');

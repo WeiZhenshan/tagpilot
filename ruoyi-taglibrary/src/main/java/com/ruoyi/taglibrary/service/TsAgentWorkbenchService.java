@@ -4,6 +4,8 @@ import java.util.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,7 @@ public class TsAgentWorkbenchService {
     @Autowired private ITlObjectGroupService groups;
     @Autowired private ITlTagService tags;
     @Autowired private TsInsightRegistryService insightRegistry;
+    @Autowired private TsAgentSkillService agentSkills;
 
     private Long uid() { return SecurityUtils.getUserId(); }
     private String id() { return UUID.randomUUID().toString(); }
@@ -144,6 +147,15 @@ public class TsAgentWorkbenchService {
         Map<String,Object> result=obj(remote.get("result"));
         String resultKey=run+":"+remote.get("status")+":"+TsSnapshotCanonicalizer.sha256(encode(result));
         if(!"RUNNING".equals(remote.get("status")) && !result.isEmpty() && !resultKey.equals(state.get("applied_result"))) {
+            if("skill".equals(obj(state.get("run_request")).get("profile"))) {
+                List<Map<String,Object>> messages=list(state.get("messages"));
+                String answer=String.valueOf(result.getOrDefault("skill_output","技能运行结束，请查看处理记录。"));
+                messages.add(map("id",id(),"role","assistant","text",answer,"revision",state.get("revision"),"run_id",run,"created_at",Instant.now().toString()));
+                state.put("messages",messages);
+                Map<String,Object> report=skillReport(row,state,result,run);
+                if(report!=null)state.put("skill_report",report);
+                state.put("applied_result",resultKey);save(row,state);return;
+            }
             Map<String,Object> plan=obj(result.get("plan"));
             if(plan.containsKey("tree")) {
                 try { if(Boolean.TRUE.equals(plan.get("valid"))) groups.buildRuleSql(row.getLibraryId(),compiler.compile(row.getLibraryId(),plan)); }
@@ -174,6 +186,86 @@ public class TsAgentWorkbenchService {
                 "revision",state.get("revision"),"run_id",run,"created_at",Instant.now().toString()));state.put("messages",messages);
         }
         save(row,state);
+    }
+    private static final List<String> SKILL_STATUSES=Arrays.asList("COMPLETE","PARTIAL","BLOCKED");
+    private static final List<String> SKILL_UNITS=Arrays.asList("人","元","%","pp","分");
+    private static final List<String> SKILL_KINDS=Arrays.asList("kpi","table","bar","stacked_bar","heatmap","funnel");
+    private static final List<String> SKILL_BASIS=Arrays.asList("RULE","STAT","HYPOTHESIS");
+    private static final List<String> SKILL_PRIORITIES=Arrays.asList("HIGH","MEDIUM","LOW","NONE");
+    private static final Pattern SKILL_FACT_ID=Pattern.compile("[a-z][a-z0-9_.-]{0,79}");
+    private static final Pattern SKILL_FACT_REF=Pattern.compile("\\{fact:([a-z][a-z0-9_.-]{0,79})\\}");
+
+    /** 技能结果块经服务端校验后组装为洞察面板可渲染的报告；校验不通过的部分按条丢弃。 */
+    private Map<String,Object> skillReport(TsAgentThread row,Map<String,Object> state,Map<String,Object> result,String run) {
+        if(!(result.get("skill_result") instanceof Map))return null;
+        Map<String,Object> skill=obj(result.get("skill_result"));
+        String status=String.valueOf(skill.get("status"));
+        if(!SKILL_STATUSES.contains(status) || encode(skill).length()>200000)return null;
+        Map<String,Object> request=obj(state.get("run_request")),cohort=obj(request.get("cohort_context")),plan=obj(cohort.get("plan")),count=obj(cohort.get("count"));
+        Map<String,Object> pack=null;
+        for(Map<String,Object> entry:list(request.get("skill_packages")))if(Objects.equals(entry.get("name"),request.get("skill_name")))pack=entry;
+        if(pack==null)return null;
+        List<Map<String,Object>> facts=new ArrayList<>();Map<String,Map<String,Object>> factIndex=new LinkedHashMap<>();
+        for(Map<String,Object> fact:list(skill.get("facts"))) {
+            String factId=String.valueOf(fact.get("id")),factStatus=String.valueOf(fact.get("status"));
+            if(facts.size()>=300 || !SKILL_FACT_ID.matcher(factId).matches() || factIndex.containsKey(factId))continue;
+            if(!Arrays.asList("AVAILABLE","SUPPRESSED","MISSING").contains(factStatus) || !SKILL_UNITS.contains(String.valueOf(fact.get("unit"))))continue;
+            Object value=fact.get("value");
+            if("AVAILABLE".equals(factStatus)) { if(!(value instanceof Number) || !Double.isFinite(((Number)value).doubleValue()))continue; }
+            else if(value!=null)continue;
+            facts.add(fact);factIndex.put(factId,fact);
+        }
+        List<Map<String,Object>> charts=new ArrayList<>();
+        for(Map<String,Object> chart:list(skill.get("charts")))if(charts.size()<30 && SKILL_KINDS.contains(String.valueOf(chart.get("kind"))))charts.add(chart);
+        String version=String.valueOf(pack.getOrDefault("version","")),dataAsOf=dataAsOf(count);
+        if(dataAsOf.isEmpty())dataAsOf=dataAsOf(obj(state.get("count")));
+        List<Map<String,Object>> cards=new ArrayList<>();
+        for(Map<String,Object> card:list(skill.get("cards"))) {
+            if(cards.size()>=30)break;
+            Map<String,Object> diagnosis=obj(card.get("diagnosis")),action=obj(card.get("action"));
+            if(!skillStatement(card.get("facts"),factIndex) || !skillStatement(card.get("comparison"),factIndex) || !skillStatement(diagnosis,factIndex) || !skillStatement(action,factIndex))continue;
+            if(!SKILL_BASIS.contains(String.valueOf(diagnosis.get("basis"))) || !SKILL_PRIORITIES.contains(String.valueOf(action.getOrDefault("priority","NONE"))))continue;
+            if(!(card.get("boundary") instanceof Map) || !(obj(card.get("boundary")).get("text") instanceof String))continue;
+            Map<String,Object> boundary=obj(card.get("boundary"));
+            boundary.put("skill_version",version);boundary.put("data_as_of",dataAsOf);
+            boundary.put("metric_definitions",strings(boundary.get("metric_definitions")));
+            cards.add(card);
+        }
+        if(facts.isEmpty() && cards.isEmpty() && charts.isEmpty())return null;
+        String level="COMPLETE".equals(status)?null:"BLOCKED".equals(status)?"L4":"L2";
+        Map<String,Object> entry=map("skill_id",request.get("skill_name"),"display_name",pack.getOrDefault("display_name",request.get("skill_name")),
+            "skill_version",version,"pack_hash",TsSnapshotCanonicalizer.sha256(encode(pack)),
+            "registry_version",null,"definition_hash",null,"level",level,"status",status,
+            "reasons",strings(skill.get("reasons")),"facts",facts,"cards",cards,"charts",charts,"followups",strings(skill.get("followups")));
+        return map("schema_version",1,"run_id",run,"level",level,
+            "cohort",map("audience_id",row.getThreadId(),"audience_name",cohort.get("name")!=null?cohort.get("name"):row.getTitle(),
+                "library_id",row.getLibraryId(),"revision",state.get("revision"),"plan_hash",plan.get("hash"),"snapshot_id",plan.get("snapshot_id"),
+                "count",count.get("value"),"data_as_of",dataAsOf,"reference_date",request.get("reference_date"),"binding_version","未接入指标绑定",
+                "declared_context",String.valueOf(request.getOrDefault("requirement","")),"synthetic",false),
+            "results",new ArrayList<>(Arrays.asList(entry)));
+    }
+    /** 陈述段引用的每个 {fact:} 都必须是已声明且可用的事实，否则该卡片会被前端拒绝渲染。 */
+    private boolean skillStatement(Object raw,Map<String,Map<String,Object>> facts) {
+        if(!(raw instanceof Map) || !(obj(raw).get("text") instanceof String))return false;
+        Map<String,Object> statement=obj(raw);Set<String> declared=new HashSet<>();
+        for(Object value:list(statement.get("fact_ids")))declared.add(String.valueOf(value));
+        Matcher matcher=SKILL_FACT_REF.matcher((String)statement.get("text"));
+        while(matcher.find()) {
+            Map<String,Object> fact=facts.get(matcher.group(1));
+            if(fact==null || !declared.contains(matcher.group(1)) || !"AVAILABLE".equals(fact.get("status")))return false;
+        }
+        return true;
+    }
+    private String dataAsOf(Map<String,Object> count) {
+        Object value=count.get("data_as_of");
+        if(value instanceof String && !((String)value).isEmpty())return (String)value;
+        Object executed=count.get("executed_at");
+        return executed instanceof String && ((String)executed).length()>=10?((String)executed).substring(0,10):"";
+    }
+    private List<String> strings(Object raw) {
+        List<String> out=new ArrayList<>();
+        if(raw instanceof List)for(Object value:(List<?>)raw)if(value instanceof String && out.size()<12)out.add((String)value);
+        return out;
     }
     @Transactional
     public Map<String,Object> rename(String thread,Map<String,Object> request) {
@@ -215,7 +307,8 @@ public class TsAgentWorkbenchService {
             Map<String,Object> original=obj(state.get("run_request"));
             if(!Objects.equals(original.get("requirement"),request.getOrDefault("message","编辑圈选条件")) || !Objects.equals(original.get("edited_plan"),request.get("plan"))
                 || !Objects.equals(contextIds(map("context_tag_ids",original.get("pinned_tag_ids"))),pinned)
-                || !Objects.equals(original.getOrDefault("pinned_only",false),Boolean.TRUE.equals(request.get("context_only"))))
+                || !Objects.equals(original.getOrDefault("pinned_only",false),Boolean.TRUE.equals(request.get("context_only")))
+                || !Objects.equals(original.get("skill_name"),request.get("skill_name")))
                 throw new ServiceException("重复请求内容不一致",409);
             return view(row,state);
         }
@@ -231,6 +324,19 @@ public class TsAgentWorkbenchService {
         }
         Map<String,Object> bundle=catalog.activeBundle(row.getLibraryId());
         List<Long> eligible=catalog.eligibleTagIds(row.getLibraryId(),String.valueOf(bundle.get("snapshot_id")));
+        String skillName=request.get("skill_name") instanceof String?(String)request.get("skill_name"):null;
+        Map<String,Object> cohort=null;List<Map<String,Object>> skillPackages=null;
+        if(skillName!=null) {
+            if(!permissions.hasPermi("taglibrary:insight:run"))throw new ServiceException("没有技能运行权限",403);
+            if(!pinned.isEmpty() || request.get("plan")!=null)throw new ServiceException("技能运行请使用当前已核验客群条件");
+            Map<String,Object> plan=currentPlan(state,request);
+            if(!Objects.equals(plan.get("build_id"),bundle.get("build_id")) || !Objects.equals(plan.get("snapshot_id"),bundle.get("snapshot_id")))throw new ServiceException("客群发布版本已变化，请重新核验",409);
+            skillPackages=agentSkills.published();boolean found=false;
+            for(Map<String,Object> skill:skillPackages)if(skillName.equals(skill.get("name")) && Boolean.TRUE.equals(skill.get("user_invocable")))found=true;
+            if(!found)throw new ServiceException("技能已下线或不允许手动调用，请刷新",409);
+            Map<String,Object> count=obj(state.get("count"));boolean counted=number(count.get("revision"))==number(state.get("revision")) && Objects.equals(count.get("plan_hash"),plan.get("hash"));
+            cohort=map("name",row.getTitle(),"revision",state.get("revision"),"plan_hash",plan.get("hash"),"plan",plan,"count",counted?count:null,"group_id",obj(state.get("execution")).get("group_id"),"status",counted?"COUNTED":"CONDITIONS_ONLY");
+        }
         List<Map<String,Object>> contextTags=new ArrayList<>();
         for(Long tagId:pinned) {
             TlTag tag=tags.selectTagById(tagId);
@@ -247,17 +353,20 @@ public class TsAgentWorkbenchService {
         // 客群保存的已核验条件是服务端来源，不能从浏览器请求伪造。
         if(state.containsKey("source_plan"))req.put("source_plan",state.get("source_plan"));
         req.put("timezone","Asia/Shanghai");
+        if(skillName!=null)req.putAll(map("profile","skill","skill_name",skillName,"skill_packages",skillPackages,"cohort_context",cohort));
         if(state.get("clarification_state") instanceof Map)req.put("clarification_state",state.get("clarification_state"));
         if(state.get("run_id")!=null)req.put("continuation_of",state.get("run_id"));
         List<Map<String,Object>> priorRuns=list(state.get("run_history"));
-        if(state.get("run_id")!=null)priorRuns.add(map("run_id",state.get("run_id"),"events",state.get("events")));
+        if(state.get("run_id")!=null)priorRuns.add(map("run_id",state.get("run_id"),"events",state.get("events"),"profile",state.get("run_profile")));
         state.put("run_history",priorRuns);
         List<Map<String,Object>> history=list(state.get("messages"));req.put("history",history.subList(Math.max(0,history.size()-12),history.size()));
         agent.post("/agent/v2/runs",req);
         List<Map<String,Object>> messages=new ArrayList<>(history);messages.add(map("id",id(),"role","user","text",text,"context_tags",contextTags,"run_id",client,"created_at",Instant.now().toString()));
         if("新的圈选".equals(row.getTitle()))row.setTitle(text.substring(0,Math.min(40,text.length())));
-        state.putAll(map("run_id",client,"run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
-        state.remove("error");state.remove("authority_repairs");state.remove("live_plan");state.remove("count");state.remove("execution");save(row,state);return view(row,state);
+        state.putAll(map("run_id",client,"run_profile",skillName==null?"audience":"skill","run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
+        state.remove("error");state.remove("authority_repairs");state.remove("live_plan");
+        if(skillName==null){state.remove("count");state.remove("execution");}else{state.remove("outcome");state.remove("interrupt_id");}
+        save(row,state);return view(row,state);
     }
     @Transactional
     public Map<String,Object> resume(String thread,Map<String,Object> request) {
@@ -265,6 +374,7 @@ public class TsAgentWorkbenchService {
         if(!Arrays.asList("WAITING","FAILED","INTERRUPTED").contains(state.get("status")))throw new ServiceException("当前运行不能恢复",409);
         if("WAITING".equals(state.get("status")) && !Objects.equals(state.get("interrupt_id"),request.get("interrupt_id")))throw new ServiceException("问题已失效",409);
         Map<String,Object> old=obj(state.get("run_request")), active=catalog.activeBundle(row.getLibraryId());
+        if("skill".equals(old.get("profile")))throw new ServiceException("技能运行请重新选择技能并发送，以重新核验发布版本与客群上下文",409);
         if(!Objects.equals(old.get("build_id"),active.get("build_id"))) {
             stopRun(row,state);
             state.put("error","发布版本已更新，当前运行已停止，请重新发送需求核验");

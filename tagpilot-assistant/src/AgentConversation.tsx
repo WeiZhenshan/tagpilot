@@ -10,6 +10,7 @@ import {
 import type { Thread, AgentMessage, ContextTag } from "./agentTypes";
 import { TagChips } from "./TagTree";
 import { busy, clauses, stateText, degradedOf, degradedMessage, degradedText, runNotice } from "./agentTypes";
+import { slashQuery, type AgentSkill } from "./skillApi";
 import { RunTimeline } from "./RunTimeline.tsx";
 import { stagedQuestions } from "./clarification";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
@@ -92,6 +93,7 @@ export function AgentConversation({
   disabled,
   pending,
   contextControl,
+  skills = [], skillsLoading = false, skillsError = "", onRefreshSkills, selectedSkill, onSelectSkill, onManageSkills, skillContext,
   skillChips,
   skillRunDisabled = false,
   insightSummary,
@@ -109,6 +111,14 @@ export function AgentConversation({
   disabled: boolean;
   pending: boolean;
   contextControl?: ReactNode;
+  skills?: AgentSkill[];
+  skillsLoading?: boolean;
+  skillsError?: string;
+  onRefreshSkills?: () => void;
+  selectedSkill?: AgentSkill | null;
+  onSelectSkill?: (skill: AgentSkill | null) => void;
+  onManageSkills?: () => void;
+  skillContext?: string;
   skillChips?: ReactNode;
   skillRunDisabled?: boolean;
   insightSummary?: ReactNode;
@@ -122,6 +132,12 @@ export function AgentConversation({
   onEdit: () => void;
   onReveal: (ids: string[]) => void;
 }) {
+  const [slash, setSlash] = useState<ReturnType<typeof slashQuery>>(null);
+  const [activeSkill, setActiveSkill] = useState(0);
+  const filteredSkills = skills.filter((s) => !slash?.query || `${s.name} ${s.display_name} ${s.description}`.toLowerCase().includes(slash.query));
+  useEffect(() => {
+    if (slash && filteredSkills.length) document.getElementById(`composer-skill-${Math.min(activeSkill, filteredSkills.length - 1)}`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [activeSkill, slash?.query, filteredSkills.length]);
   const degraded = degradedOf(thread);
   const composerInput = useRef<HTMLTextAreaElement>(null);
   const runtime = useExternalStoreRuntime<AgentMessage>({
@@ -135,6 +151,7 @@ export function AgentConversation({
         .filter((p) => p.type === "text")
         .map((p) => ("text" in p ? p.text : ""))
         .join("\n");
+      setSlash(null);
       const sent = await onSend(text);
       if (!sent) runtime.thread.composer.setText(text);
     },
@@ -146,10 +163,27 @@ export function AgentConversation({
       document.querySelector<HTMLElement>(".ask-card button:not(:disabled), .ask-card input:not(:disabled)")?.focus();
       return;
     }
-    if (!composerRequest.focusOnly) runtime.thread.composer.setText(composerRequest.text);
+    if (!composerRequest.focusOnly) {
+      runtime.thread.composer.setText(composerRequest.text);
+      const query = slashQuery(composerRequest.text, composerRequest.text.length);
+      setSlash(query);setActiveSkill(0);if(query) onRefreshSkills?.();
+    }
     composerInput.current?.focus();
     // 只响应右栏发起的一次预填请求，避免轮询刷新覆盖用户后续输入。
   }, [composerRequest]);
+  function pickSkill(skill: AgentSkill) {
+    if (!slash || !onSelectSkill) return;
+    const text = runtime.thread.composer.getState().text;
+    runtime.thread.composer.setText(text.slice(0, slash.start) + text.slice(slash.end));
+    onSelectSkill(skill);setSlash(null);
+    composerInput.current?.focus();
+  }
+  useEffect(() => { setSlash(null);setActiveSkill(0); }, [thread?.thread_id]);
+  useEffect(() => {
+    const dismiss = (event: PointerEvent) => { if (!(event.target as Element).closest(".composer-wrap")) setSlash(null); };
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, []);
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <ThreadPrimitive.Root className="thread">
@@ -196,11 +230,11 @@ export function AgentConversation({
             </ThreadPrimitive.Messages>
             {insightSummary}
             {thread?.run_history?.map((r, i) => (
-              <RunTimeline key={r.run_id} runId={r.run_id} events={r.events} running={false} label={`第 ${i + 1} 轮处理记录`} onReveal={onReveal} />
+              <RunTimeline key={r.run_id} runId={r.run_id} skillMode={r.profile === "skill"} events={r.events} running={false} label={`第 ${i + 1} 轮处理记录`} onReveal={onReveal} />
             ))}
             {thread && (thread.events.length || busy(thread) || thread.status === "WAITING") ? (
               <RunTimeline key={`${thread.thread_id}:${thread.run_id || "current"}`} runId={thread.run_id || thread.thread_id}
-                events={thread.events} running={busy(thread)} plan={thread.live_plan || thread.plan}
+                events={thread.events} skillMode={thread.run_profile === "skill"} running={busy(thread)} plan={thread.live_plan || thread.plan}
                 status={thread.status} questions={thread.questions} onReveal={onReveal}>
                 {thread.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} onCancel={onCancel} /> : null}
               </RunTimeline>
@@ -221,7 +255,7 @@ export function AgentConversation({
                 <strong>{stateText[thread.status]}</strong>
                 <p>{degraded?.user_message || thread.error || (degraded ? degradedText[degraded.reason] : "处理位置已保存，可以继续。")}</p>
                 {!degraded || degraded.resumable ? <button disabled={disabled || pending} onClick={onRetry}>
-                  {degraded ? "稍后重试" : "从保存位置继续"}
+                  {thread.run_profile === "skill" ? "重新选择技能" : degraded ? "稍后重试" : "从保存位置继续"}
                 </button> : null}
               </div>
             ) : null}
@@ -235,19 +269,53 @@ export function AgentConversation({
           </ThreadPrimitive.ScrollToBottom>
         </div>
         <div className="composer-wrap">
-          <ComposerPrimitive.Root className="composer">
+          {slash ? <div className="skill-menu" aria-label="选择技能">
+            <div className="skill-menu-heading"><strong>调用技能</strong><button type="button" className="text-button" onClick={onManageSkills}>管理技能</button></div>
+            <p className="skill-menu-context">{skillContext}</p>
+            {skillsLoading ? <p role="status" className="skill-menu-empty">正在加载技能…</p> : skillsError ? <div className="skill-menu-empty" role="alert">{skillsError}<button type="button" onClick={onRefreshSkills}>重新加载</button></div> : filteredSkills.length ? <div id="composer-skills" role="listbox" aria-label="已发布技能" className="skill-menu-list">
+              {filteredSkills.map((skill, index) => <button id={`composer-skill-${index}`} type="button" role="option" aria-selected={activeSkill === index} className="skill-menu-option" key={skill.name} onPointerMove={() => setActiveSkill(index)} onClick={() => pickSkill(skill)}>
+                <span><strong>{skill.display_name}</strong><small>/{skill.name}</small></span><p>{skill.description}</p>{skill.argument_hint ? <small>{skill.argument_hint}</small> : null}
+              </button>)}
+            </div> : <p className="skill-menu-empty">{skills.length ? "没有匹配的技能，请调整搜索词。" : thread?.capabilities.insight ? "暂无已发布的可调用技能，请先到洞察技能页面登记并发布。" : "请先进入客群会话，并确认技能运行权限。"}</p>}
+            <p className="skill-menu-hint">↑ ↓ 选择 · Enter 添加 · Esc 关闭</p>
+          </div> : null}
+          <ComposerPrimitive.Root className="composer" onKeyDownCapture={(event) => {
+            if (selectedSkill && !slash && event.target === composerInput.current && event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+              event.preventDefault();event.stopPropagation();
+              if (!disabled && !pending && !skillRunDisabled) void onSend(runtime.thread.composer.getState().text).then((sent) => { if(sent) runtime.thread.composer.setText(""); });
+            }
+          }}>
             {skillChips}
             {contextTags.length ? <div className="composer-tags"><TagChips tags={contextTags} onRemove={onRemoveContextTag} /></div> : null}
             <ComposerPrimitive.Input
               ref={composerInput}
               className="composer-input"
               rows={2}
+              aria-label="圈选需求或技能调用"
+              aria-haspopup="listbox"
+              aria-expanded={!!slash}
+              aria-controls={slash && filteredSkills.length ? "composer-skills" : undefined}
+              aria-activedescendant={slash && filteredSkills.length ? `composer-skill-${Math.min(activeSkill, filteredSkills.length - 1)}` : undefined}
+              onChange={(event) => {
+                const next = slashQuery(event.currentTarget.value, event.currentTarget.selectionStart);
+                if (next && !slash) onRefreshSkills?.();
+                setSlash(next);setActiveSkill(0);
+              }}
+              onKeyDownCapture={(event) => {
+                if (!slash || event.nativeEvent.isComposing) return;
+                if (event.key === "Escape") { event.preventDefault();event.stopPropagation();setSlash(null); }
+                else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                  event.preventDefault();event.stopPropagation();setActiveSkill((index) => (index + (event.key === "ArrowDown" ? 1 : -1) + Math.max(1,filteredSkills.length)) % Math.max(1,filteredSkills.length));
+                } else if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();event.stopPropagation();if (filteredSkills.length) pickSkill(filteredSkills[Math.min(activeSkill,filteredSkills.length-1)]);
+                }
+              }}
               placeholder={
                 thread?.archived ? "会话已归档，请先恢复"
                   : disabled ? "请先选择标签库"
                   : thread?.status === "WAITING"
                   ? "请先回答待补充的问题"
-                  : "描述客户条件，或继续修改当前方案…"
+                  : selectedSkill ? `补充${selectedSkill.display_name}的分析目标，或直接发送运行…` : "描述客户条件，输入 / 调用技能…"
               }
             />
             <div className="composer-footer">
@@ -256,7 +324,7 @@ export function AgentConversation({
               ) : null}
               {thread || !disabled ? (
                 <span className="composer-hint">
-                  {thread ? "会话自动保存" : "发送后自动保存会话"}
+                  {selectedSkill ? "携带当前客群上下文" : "输入 / 调用技能"}
                 </span>
               ) : null}
               {busy(thread) ? (
@@ -283,7 +351,7 @@ export function AgentConversation({
             </div>
           </ComposerPrimitive.Root>
           <p className="composer-note">
-            条件可随时核对和修改；创建客群前会请你确认。
+            条件可随时核对和修改；技能分析使用当前客群，创建前会请你确认。
           </p>
         </div>
       </ThreadPrimitive.Root>

@@ -16,8 +16,8 @@ import {
 import * as api from "./agentApi";
 import { AgentConversation } from "./AgentConversation";
 import { InsightSummary } from "./insight/InsightSummary";
-import { SkillPicker } from "./insight/SkillPicker";
-import { GOLDEN_SKILLS, runInsight, skillNames, routeInsight, editInsight, insightFeedback, insightParameterSummary } from "./insight/insightApi";
+import { availableSkills, type AgentSkill } from "./skillApi";
+import { runInsight, editInsight, insightFeedback } from "./insight/insightApi";
 import "./insight/workbench-insight.css";
 const InsightReportPanel = lazy(() => import("./insight/InsightReportPanel").then((m) => ({ default: m.InsightReportPanel })));
 import { PlanPanel } from "./PlanPanel";
@@ -61,13 +61,21 @@ export function App() {
   const [highlightedClauses, setHighlightedClauses] = useState<string[]>([]);
   useEffect(() => { setHighlightedClauses([]); }, [thread?.thread_id, thread?.run_id]);
   const [tab, setTab] = useState("chat");
-  const [railTab, setRailTab] = useState<"history" | "tags" | "skills">("history");
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [insightParameters,setInsightParameters] = useState<Record<string,unknown>>({});
-  const [insightNotice,setInsightNotice] = useState("");
+  const [railTab, setRailTab] = useState<"history" | "tags">("history");
+  const [skills, setSkills] = useState<AgentSkill[]>([]);
+  const [skillsLoading, setSkillsLoading] = useState(false);
+  const [skillsError, setSkillsError] = useState("");
+  const [selectedSkill, setSelectedSkill] = useState<AgentSkill | null>(null);
+  const refreshSkills = useCallback(async () => {
+    setSkillsLoading(true);setSkillsError("");
+    try { setSkills(await availableSkills()); }
+    catch (e) { setSkills([]);setSkillsError(e instanceof Error ? e.message : "技能加载失败，请重试"); }
+    finally { setSkillsLoading(false); }
+  }, []);
+  useEffect(() => { if (thread?.capabilities.insight) void refreshSkills(); else setSkills([]); }, [thread?.thread_id, thread?.capabilities.insight, refreshSkills]);
   const [rightTab, setRightTab] = useState<"plan" | "insight">("plan");
   const [insightWide, setInsightWide] = useState(false);
-  useEffect(() => { setSelectedSkills([]); setInsightParameters({}); setInsightNotice(""); setRightTab("plan"); }, [library, thread?.thread_id]);
+  useEffect(() => { setSelectedSkill(null); setRightTab("plan"); }, [library, thread?.thread_id]);
   const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
   const [contextTags, setContextTags] = useState<ContextTag[]>([]);
   const [tagConfirm, setTagConfirm] = useState(false);
@@ -131,6 +139,14 @@ export function App() {
   const generation = useRef(0);
   const inflight = useRef(false);
   const initialLoad = useRef<Promise<Thread> | null>(null);
+  const shownSkillReport = useRef<string | null>(null);
+  useEffect(() => {
+    const reportId = thread?.run_profile === "skill" ? thread?.skill_report?.run_id : undefined;
+    if (reportId && shownSkillReport.current !== reportId) {
+      shownSkillReport.current = reportId;
+      setRightTab("insight");
+    }
+  }, [thread?.run_profile, thread?.skill_report?.run_id]);
   const update = useCallback((value: Thread) => {
     current.current = value;
     setThread(value);
@@ -329,9 +345,6 @@ export function App() {
   }
   async function send(text: string, tags: ContextTag[] = [], contextOnly = false) {
     if (!library) return false;
-    if (thread && thread.count?.revision === thread.revision && /^(请|帮我)?(分析|洞察)/.test(text)) {
-      return operation(async () => { const proposed = await routeInsight(thread,text); setSelectedSkills(proposed.skills); setInsightParameters(proposed.parameters); setInsightNotice("已添加推荐技能，请确认后发送运行。" ); });
-    }
     let sent = false;
     await operation(async () => {
       let t = current.current;
@@ -453,19 +466,20 @@ export function App() {
     const latest = current.current;
     return latest?.thread_id === source.thread_id && latest.revision === source.revision && latest.plan?.hash === source.plan?.hash;
   }
-  async function analyze(ids = selectedSkills.length ? selectedSkills : GOLDEN_SKILLS) {
-    if (!thread || !thread.plan?.valid || thread.count?.revision !== thread.revision || !thread.capabilities.insight) { setError("请先完成圈选并统计人数，且需要洞察运行权限"); return false; }
-    const source = thread;
+  const skillReady = !!thread?.plan?.valid && !!thread?.capabilities.insight && !thread.archived && !busy(thread) && thread.status !== "WAITING";
+  const skillContext = !thread?.plan?.valid ? "请先核验圈选条件" : thread.count?.revision === thread.revision && thread.count.plan_hash === thread.plan.hash ? `当前客群 · ${thread.count.value.toLocaleString()} 人 · 方案 v${thread.revision}` : `当前客群 · 条件已核验，人数未统计 · 方案 v${thread.revision}`;
+  async function invokeSkill(text: string, skill = selectedSkill) {
+    const source = current.current;
+    if (!source || !skill || !skillReady) { setError("请先核验当前客群条件，并确认技能运行权限");return false; }
+    if (contextTags.length) { setError("技能使用右侧已核验的客群条件，请先移除输入框中尚未处理的标签。");return false; }
+    const chosen = skill;
     return operation(async () => {
-      const report = await runInsight(source, ids, insightParameters);
-      if (!sameInsightSource(source)) return;
-      const refreshed = await api.getThread(source.thread_id);
-      if (!sameInsightSource(source)) return;
-      if (refreshed.revision !== source.revision || refreshed.plan?.hash !== source.plan?.hash) { update(refreshed); return; }
-      update({ ...refreshed, insight_report: report }); setSelectedSkills([]); setRightTab("insight"); setTab("plan");
+      const value = await api.startRun(source, text.trim() || `运行${chosen.display_name}`, undefined, crypto.randomUUID(), [], false, chosen.name);
+      update(value);setSelectedSkill(null);setTab("chat");await reloadHistory();
     });
   }
-  const insightReady = !!thread?.capabilities.insight && thread.count?.revision === thread.revision && !!thread.plan?.valid && !busy(thread) && !thread.archived;
+  const skillReport = thread?.run_profile === "skill" ? thread?.skill_report : undefined;
+  const insightPanelReport = skillReport ?? thread?.insight_report;
   return (
     <div
       className={`workbench mobile-${tab} ${insightWide ? "insight-wide" : ""} ${
@@ -536,10 +550,8 @@ export function App() {
           </button>
           <div className="rail-tabs" role="tablist" aria-label="侧栏内容">
             <button role="tab" aria-selected={railTab === "history"} aria-controls="rail-history" onClick={() => setRailTab("history")}>会话</button>
-            <button role="tab" aria-selected={railTab === "skills"} aria-controls="rail-skills" onClick={() => setRailTab("skills")}>技能</button>
             <button role="tab" aria-selected={railTab === "tags"} aria-controls="rail-tags" onClick={() => setRailTab("tags")}>标签</button>
           </div>
-          <div id="rail-skills" role="tabpanel" aria-label="技能" hidden={railTab !== "skills"} className="rail-content"><SkillPicker library={library} selected={selectedSkills} onChange={(ids) => { setSelectedSkills(ids); setInsightParameters({}); setInsightNotice(""); }} /></div>
           <div id="rail-tags" role="tabpanel" aria-label="标签" hidden={railTab !== "tags"} className="rail-content rail-tag-content">
             <TagTree libraryId={library} selected={selectedTags} used={usedTags} blockedReason={tagBlocked} onChange={setSelectedTags}
               onConfirm={() => { tagTrigger.current = document.activeElement as HTMLElement; setTagNote(""); setTagConfirm(true); }} onAdd={addTagsToComposer} />
@@ -782,7 +794,6 @@ export function App() {
               </button>
             </div>
           ) : null}
-          {insightReady && !thread?.insight_report && <div className="insight-entry"><p>人数统计已完成，可继续核验资产结构、产品缺口和机会排序。</p><button type="button" disabled={pending} onClick={() => void analyze()}>运行推荐洞察包</button></div>}
           <AgentConversation
             thread={thread}
             disabled={!library || !!thread?.archived}
@@ -796,8 +807,16 @@ export function App() {
                 onChange={fresh}
               />
             }
-            insightSummary={thread?.insight_report ? <InsightSummary report={thread.insight_report} revision={thread.revision} hash={thread.plan?.hash || ""} onExpand={() => { setRightTab("insight"); setTab("plan"); }} /> : undefined}
-            skillChips={selectedSkills.length ? <div><p role="status" className="insight-route-notice">{insightNotice}</p><div className="insight-chips">{selectedSkills.map((id) => <span className="insight-chip" key={id}>{skillNames[id]}<button type="button" aria-label={`移除${skillNames[id]}技能`} onClick={() => setSelectedSkills((items) => items.filter((s) => s !== id))}>移除</button></span>)}</div>{Object.keys(insightParameters).length > 0 && <p className="insight-route-notice">{insightParameterSummary(insightParameters)}</p>}</div> : undefined}
+            insightSummary={insightPanelReport ? <InsightSummary report={insightPanelReport} revision={thread!.revision} hash={thread!.plan?.hash || ""} onExpand={() => { setRightTab("insight"); setTab("plan"); }} /> : undefined}
+            skills={skills}
+            skillsLoading={skillsLoading}
+            skillsError={skillsError}
+            onRefreshSkills={() => void refreshSkills()}
+            selectedSkill={selectedSkill}
+            onSelectSkill={setSelectedSkill}
+            onManageSkills={() => requestBackToWorkbench("/taglibrary/insight-skill")}
+            skillContext={skillContext}
+            skillChips={selectedSkill ? <div className="skill-selection"><span className="insight-chip">{selectedSkill.display_name}<button type="button" aria-label="移除技能" onClick={() => setSelectedSkill(null)}>移除</button></span><p>{skillContext}</p></div> : undefined}
             contextTags={contextTags}
             onRemoveContextTag={(id) => setContextTags((items) => items.filter((t) => t.id !== id))}
             onReveal={(ids) => {
@@ -805,11 +824,20 @@ export function App() {
               setTab("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
-            skillRunDisabled={!insightReady}
-            onSend={(text) => selectedSkills.length ? (text.trim() ? send(text) : analyze()) : send(text.trim() ? text : selectionMessage(contextTags), contextTags, !text.trim() && !!contextTags.length)}
+            skillRunDisabled={!skillReady || !!contextTags.length}
+            onSend={(text) => {
+              if(selectedSkill) return invokeSkill(text);
+              if(/^\s*\//.test(text)) {
+                const command = /^\s*\/([a-z0-9-]+)(?:\s+([\s\S]*))?$/.exec(text);
+                const skill = skills.find((item) => item.name === command?.[1]);
+                if(skill) return invokeSkill(command?.[2] || "", skill);
+                setError("未找到可调用的已发布技能，请输入 / 从列表选择。");return Promise.resolve(false);
+              }
+              return send(text.trim() ? text : selectionMessage(contextTags), contextTags, !text.trim() && !!contextTags.length);
+            }}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
-            onRetry={() => void act((t) => api.resumeRun(t))}
+            onRetry={() => { if(thread?.run_profile === "skill"){setTab("chat");setComposerRequest({text:"/",id:Date.now()});}else void act((t) => api.resumeRun(t)); }}
             onEdit={() => {
               setTab("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
@@ -837,7 +865,7 @@ export function App() {
             });
           }}
           onOpenGroup={openGroup}
-        /> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
+        /> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
             if (inflight.current) throw new Error("当前操作尚未完成，请稍后重试");
             const source = thread; let changed: Awaited<ReturnType<typeof editInsight>> | undefined;
             const ok = await operation(async () => {
@@ -855,7 +883,7 @@ export function App() {
               update({ ...current.current!, insight_report: report });
             });
             if (!ok) throw new Error("重跑未完成，请查看当前操作提示");
-          }} onReviewChange={(utterance) => { setRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : <div className="insight-empty"><p>先统计当前方案人数，再选择已发布技能。</p><button type="button" disabled={!insightReady || pending} onClick={() => void analyze()}>运行推荐洞察包</button></div>}
+          }} onReviewChange={(utterance) => { setRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button></div>}
         </aside>
       </div>
       {tagConfirm ? <dialog ref={tagDialog} className="confirm-overlay tag-confirm-overlay" aria-labelledby="tag-confirm-title" onCancel={() => setTagConfirm(false)} onKeyDown={(event) => {

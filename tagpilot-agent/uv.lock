@@ -873,7 +873,7 @@ dependencies = [
     { name = "mcp" },
     { name = "psutil" },
     { name = "pydantic" },
-    { name = "tagpilot-insight" },
+    { name = "pyyaml" },
     { name = "uvicorn" },
 ]
 
@@ -892,25 +892,8 @@ requires-dist = [
     { name = "psutil", specifier = ">=7,<8" },
     { name = "pydantic", specifier = ">=2.10,<3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
-    { name = "tagpilot-insight", editable = "../tagpilot-insight" },
-    { name = "uvicorn", specifier = ">=0.34,<1" },
-]
-provides-extras = ["dev"]
-
-[[package]]
-name = "tagpilot-insight"
-version = "0.1.0"
-source = { editable = "../tagpilot-insight" }
-dependencies = [
-    { name = "pydantic" },
-    { name = "pyyaml" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pydantic", specifier = ">=2.10,<3" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
     { name = "pyyaml", specifier = ">=6.0.3,<7" },
+    { name = "uvicorn", specifier = ">=0.34,<1" },
 ]
 provides-extras = ["dev"]
 

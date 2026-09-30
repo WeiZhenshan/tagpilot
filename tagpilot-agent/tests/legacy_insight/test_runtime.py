@@ -52,7 +52,7 @@ def test_java_shared_plans_match_current_pack_and_queries():
  from pathlib import Path
  import json
  from tagpilot_insight.registry import SkillRegistry
- reg=SkillRegistry();rows=json.loads((Path(__file__).resolve().parents[2]/'ruoyi-taglibrary/src/test/resources/insight/metric-plans.json').read_text())
+ reg=SkillRegistry();rows=json.loads((Path(__file__).resolve().parents[3]/'ruoyi-taglibrary/src/test/resources/insight/metric-plans.json').read_text())
  assert {r['skill_id'] for r in rows}==set(reg.manifests)
  for row in rows:
   assert row['pack_hash']==reg.hash(row['skill_id'])

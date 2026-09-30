@@ -67,7 +67,7 @@ SQLite 仍限定单个服务进程，文件锁阻止多进程共用。运行中�
 
 ## 洞察画像（P0–P7 本地实现）
 
-通过本地依赖 `tagpilot-insight` 增加独立 `profile=insight`，不进入圈选 SDK 的工具循环。Java 注入已发布 hash、客群、声明式计划与经隐私处理的聚合；Python 不回调 Java 或接收客户明细。复用现有并发 / 用户限额、排队、取消、事件和加密 SQLite；insight 运行不得 resume / repair，快照变化后新建运行。
+旧报告兼容代码已并入本工程的 `tagpilot_insight/`，保留旧 `profile=insight`，不进入圈选 SDK 的工具循环。Java 注入已发布 hash、客群、声明式计划与经隐私处理的聚合；Python 不回调 Java 或接收客户明细。复用现有并发 / 用户限额、排队、取消、事件和加密 SQLite；insight 运行不得 resume / repair，快照变化后新建运行。
 
 | 方法 | 内部路径 | 用途 |
 | --- | --- | --- |
@@ -85,3 +85,7 @@ SQLite 仍限定单个服务进程，文件锁阻止多进程共用。运行中�
 ```
 
 8项定向测试通过：服务认证、owner隔离、幂等与密文、洞察计算及恢复阻断、共享满额不调用模型、超时释放并发名额。部署前需同步本地依赖、应用Java迁移、业务复核绑定并通过真实MySQL/HTTP整链验证。详见 [洞察实施记录](../docs/development/洞察Skill体系实施记录.md)。
+
+## 原生 Skill
+
+新技能由若依登记发布，直接接入本 Agent 的 Claude Skill 调度，不再维护独立洞察工程。详见 [登记、发布、运行与边界](../docs/development/Agent原生Skill接入.md)。无需预置技能，现有 Skill 内容不会自动导入。
