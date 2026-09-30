@@ -27,6 +27,11 @@ class TsInsightRegistryServiceTest extends BaseServiceTest {
   config=map("skill_id",id,"version","0.1.0","binding_version","0.1.0","data_as_of",LocalDate.now().toString(),"benchmark_definition","业务复核总体","benchmark_version","0.1.0","bindings",Collections.singletonList(map("metric","aum","tag_ids",Collections.singletonList(1L),"unit","元")));
   row=map("skill_id",id,"version","0.1.0","status","DRAFT","pack_hash",hash,"definition_json",json.writeValueAsString(config));
  }
+ @Test void builtInCountIsNotRequiredForReview()throws Exception{
+  when(agent.get("/agent/insight/catalog")).thenReturn(map("skills",Collections.singletonList(map("manifest",map("id",id,"metrics",Arrays.asList("customer_count","aum")),"pack_hash",hash)),"metrics",Collections.singletonList(map("id","aum","unit","元"))));
+  when(mapper.version(107L,id,"0.1.0")).thenReturn(row);when(agent.post(eq("/agent/insight/evaluate"),any())).thenReturn(map("passed",true,"pack_hash",hash));when(mapper.review(107L,id,"0.1.0",json.writeValueAsString(map("passed",true,"pack_hash",hash)),USERNAME)).thenReturn(1);
+  service.review(107L,id,"0.1.0");verify(mapper).review(any(),any(),any(),any(),any());
+ }
  @Test void browserCannotForgePublicationOrSql(){config.put("passed",true);assertThrows(ServiceException.class,()->service.save(107L,config));verify(mapper,never()).insert(any(),any(),any(),any(),any(),any());config.remove("passed");((Map<String,Object>)((List<?>)config.get("bindings")).get(0)).put("sql","select *");assertThrows(ServiceException.class,()->service.save(107L,config));}
  @Test void wrongSemanticUnitCannotBeRegistered(){((Map<String,Object>)((List<?>)config.get("bindings")).get(0)).put("unit","人");assertThrows(ServiceException.class,()->service.save(107L,config));verify(mapper,never()).insert(any(),any(),any(),any(),any(),any());}
  @Test void unboundVersionCannotPassReview()throws Exception{config.put("bindings",Collections.singletonList(map("metric","org_scope","tag_ids",Collections.singletonList(1L),"unit","人")));row.put("definition_json",json.writeValueAsString(config));when(mapper.version(107L,id,"0.1.0")).thenReturn(row);assertThrows(ServiceException.class,()->service.review(107L,id,"0.1.0"));verify(agent,never()).post(eq("/agent/insight/evaluate"),any());}

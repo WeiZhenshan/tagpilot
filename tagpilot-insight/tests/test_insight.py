@@ -223,9 +223,26 @@ def test_binding_permission_and_version_gate(report):
     plan = plan_skill("asset_structure_profile", report.cohort, bindings, eligible, {"min_deviation_pp": 20})
     assert plan.status == "READY" and plan.queries
     assert plan.parameters["min_deviation_pp"] == 20 and plan.cohort.plan_hash == report.cohort.plan_hash
-    assert plan_skill("asset_structure_profile", report.cohort, bindings, eligible - {1}).status == "BLOCKED"
-    bindings[0].snapshot_id = "different"
+    assert plan_skill("asset_structure_profile", report.cohort, bindings, eligible - {next(b.tag_id for b in bindings if b.metric == "aum")}).status == "BLOCKED"
+    next(b for b in bindings if b.metric == "aum").snapshot_id = "different"
     assert plan_skill("asset_structure_profile", report.cohort, bindings, eligible).status == "BLOCKED"
+
+
+def test_customer_count_uses_cohort_without_tag_binding(report):
+    registry = SkillRegistry()
+    bindings = [MetricBinding(metric=m, tag_id=i+1, version=report.cohort.binding_version,
+                              snapshot_id=report.cohort.snapshot_id,
+                              unit=__import__("tagpilot_insight.metrics", fromlist=["METRICS"]).METRICS[m].unit,
+                              status="PUBLISHED")
+                for i, m in enumerate(registry.get("asset_structure_profile").metrics)
+                if m not in {"customer_count", "asset_holder"}]
+    bindings += [MetricBinding(metric="asset_holder", category=c, tag_id=100+i,
+                              version=report.cohort.binding_version, snapshot_id=report.cohort.snapshot_id,
+                              unit="人", status="PUBLISHED")
+                 for i, c in enumerate(("liquid", "fixed", "investment"))]
+    plan = plan_skill("asset_structure_profile", report.cohort, bindings, {b.tag_id for b in bindings})
+    assert plan.status == "READY"
+    assert plan.cohort.count == report.cohort.count
 
 
 def test_raw_number_type_coercion_rejected(report):

@@ -52,6 +52,7 @@ public class TsInsightRegistryService {
   for(JsonNode b:n.path("bindings")) {
    b.fieldNames().forEachRemaining(k->{if(!Arrays.asList("metric","category","tag_ids","unit","kind","threshold","enum_map").contains(k))throw new ServiceException("指标绑定不能含SQL或物理字段");});
    String name=b.path("metric").asText(),category=b.path("category").asText("");
+   if("customer_count".equals(name))continue; // 兼容旧版本，人数来源已内置且不再执行旧标签绑定。
    JsonNode pack=codePack;boolean declared="org_scope".equals(name);for(JsonNode m:pack.path("manifest").path("metrics"))if(name.equals(m.asText()))declared=true;if(!declared)throw new ServiceException("指标未在技能声明");
    if("product_holding".equals(name)&&!Arrays.asList("wealth","fund","insurance").contains(category)||"asset_holder".equals(name)&&!Arrays.asList("liquid","fixed","investment").contains(category))throw new ServiceException("指标品类非法");
    if(!name.matches("[a-z][a-z0-9_.-]{0,79}")||(!category.isEmpty()&&!category.matches("[a-z][a-z0-9_]{0,23}"))||!keys.add(name+":"+category))throw new ServiceException("指标标识重复或非法");
@@ -60,7 +61,8 @@ public class TsInsightRegistryService {
     if(semantic==null||!b.path("unit").asText().equals(semantic.path("unit").asText()))throw new ServiceException("绑定单位与语义指标不一致");}
    if(Arrays.asList("aum","liquid_aum","fixed_aum","investment_aum","value_score").contains(name)&&(!"DIRECT".equals(b.path("kind").asText("DIRECT"))||b.has("enum_map")))throw new ServiceException("金额指标须直接绑定同单位数值来源");
    if(Arrays.asList("product_holding","product_gap").contains(name)&&!"DIRECT".equals(b.path("kind").asText("DIRECT")))throw new ServiceException("产品持有与缺口须绑定同一持有标志映射");
-   if(!Arrays.asList("DIRECT","IS_NULL","GT","RATIO_GT","RECENT_CONTACT").contains(b.path("kind").asText("DIRECT")))throw new ServiceException("绑定转换不受支持");
+   if(!Arrays.asList("DIRECT","IS_NULL","GT","RATIO_GT","RECENT_CONTACT","AUM_TIER").contains(b.path("kind").asText("DIRECT")))throw new ServiceException("绑定转换不受支持");
+   if("AUM_TIER".equals(b.path("kind").asText())&&!"aum_tier".equals(name))throw new ServiceException("AUM分层只适用于当前AUM层级");
    if(!b.path("tag_ids").isArray()||b.path("tag_ids").size()<1||b.path("tag_ids").size()>2)throw new ServiceException("来源标签数量非法");
    if("RATIO_GT".equals(b.path("kind").asText())?b.path("tag_ids").size()!=2:b.path("tag_ids").size()!=1)throw new ServiceException("绑定来源数量与转换口径不一致");
    if(Arrays.asList("GT","RATIO_GT").contains(b.path("kind").asText())&&(!b.path("threshold").isNumber()||b.path("threshold").decimalValue().abs().compareTo(new java.math.BigDecimal("1000000000000000"))>0))throw new ServiceException("治理阈值非法");
@@ -74,7 +76,7 @@ public class TsInsightRegistryService {
  private void completeDefinition(JsonNode n,JsonNode pack){
   Set<String> bound=new HashSet<>();for(JsonNode b:n.path("bindings"))bound.add(b.path("metric").asText()+":"+b.path("category").asText(""));
   for(JsonNode metric:pack.path("manifest").path("metrics")){
-   String m=metric.asText();if("suitability".equals(m))continue;
+   String m=metric.asText();if(Arrays.asList("suitability","customer_count").contains(m))continue;
    if("product_holding".equals(m)){if(Collections.disjoint(bound,Arrays.asList("product_holding:wealth","product_holding:fund","product_holding:insurance")))throw new ServiceException("至少绑定一个有效产品品类");continue;}
    List<String> categories="asset_holder".equals(m)?Arrays.asList("liquid","fixed","investment"):"product_holding".equals(m)?Arrays.asList("wealth","fund","insurance"):Collections.singletonList("");
    for(String category:categories)if(!bound.contains(m+":"+category))throw new ServiceException("指标待绑定："+m+(category.isEmpty()?"":":"+category));

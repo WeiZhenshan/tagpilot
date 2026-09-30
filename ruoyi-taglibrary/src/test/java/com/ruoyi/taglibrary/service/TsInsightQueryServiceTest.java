@@ -52,7 +52,7 @@ class TsInsightQueryServiceTest extends com.ruoyi.taglibrary.service.impl.BaseSe
   ObjectNode d=json.createObjectNode();d.put("benchmark_definition","同数据日已复核合成总体");d.put("benchmark_version","0.1.0");d.put("scope_hash",String.join("",Collections.nCopies(64,"b")));d.put("_g2_gap",45);
   ObjectNode suitability=d.putObject("suitability");for(String c:Arrays.asList("wealth","fund","insurance"))suitability.put(c,3);
   ArrayNode bindings=d.putArray("bindings");
-  for(String name:sourceIds.keySet())if(!"holding".equals(name)){ObjectNode b=bindings.addObject();b.put("metric",name);b.putArray("tag_ids").add(sourceIds.get(name));}
+  for(String name:sourceIds.keySet())if(!Arrays.asList("holding","customer_count").contains(name)){ObjectNode b=bindings.addObject();b.put("metric",name);b.putArray("tag_ids").add(sourceIds.get(name));}
   for(String c:Arrays.asList("wealth","fund","insurance")){ObjectNode b=bindings.addObject();b.put("metric","product_holding");b.put("category",c);b.putArray("tag_ids").add(sourceIds.get("holding"));}
   for(String c:Arrays.asList("liquid","fixed","investment")){ObjectNode b=bindings.addObject();b.put("metric","asset_holder");b.put("category",c);b.put("kind","GT");b.put("threshold",0);b.putArray("tag_ids").add(sourceIds.get(c+"_aum"));}
   ObjectNode missing=bindings.addObject();missing.put("metric","aum_missing");missing.put("kind","IS_NULL");missing.putArray("tag_ids").add(sourceIds.get("aum"));
@@ -62,6 +62,25 @@ class TsInsightQueryServiceTest extends com.ruoyi.taglibrary.service.impl.BaseSe
  @Test void javaAggregateOutputsCrossLanguageReference()throws Exception{
   ArrayNode outputs=json.createArrayNode();for(JsonNode plan:plans){Map<String,Object> batch=service.execute(107L,new RulePayload(),plan,definition(plan),eligible);JsonNode q=json.valueToTree(batch);assertTrue(q.path("queries").size()>0);for(JsonNode row:q.path("queries"))assertEquals("AVAILABLE",row.path("status").asText());outputs.addObject().set("plan",plan);((ObjectNode)outputs.get(outputs.size()-1)).set("batch",q);}
   String output=System.getProperty("insight.test.output");if(output!=null)Files.write(Paths.get(output),json.writerWithDefaultPrettyPrinter().writeValueAsBytes(outputs));
+ }
+ @Test void realCustomerCountDoesNotNeedTagBinding()throws Exception{
+  eligible.remove(sourceIds.get("customer_count"));
+  JsonNode result=json.valueToTree(service.execute(107L,new RulePayload(),plans.get(0),definition(plans.get(0)),eligible));
+  JsonNode count=null;for(JsonNode q:result.path("queries"))if("customers".equals(q.path("query_id").asText()))count=q;
+  assertNotNull(count);assertEquals(240,count.path("rows").get(0).path("value").asInt());
+  verify(tags,never()).selectTagById(sourceIds.get("customer_count"));
+ }
+ @Test void populationChangeAfterRefreshDiscardsOldCount()throws Exception{
+  keeper.createStatement().execute("delete from customer where customer_count=240");
+  ServiceException error=assertThrows(ServiceException.class,()->service.execute(107L,new RulePayload(),plans.get(0),definition(plans.get(0)),eligible));
+  assertEquals(409,error.getCode());
+ }
+ @Test void currentAumTierUsesAmountBands()throws Exception{
+  ObjectNode def=definition(plans.get(0));for(JsonNode b:def.path("bindings"))if("aum_tier".equals(b.path("metric").asText())){((ObjectNode)b).put("kind","AUM_TIER");((ObjectNode)b).set("tag_ids",json.createArrayNode().add(sourceIds.get("aum")));}
+  keeper.createStatement().execute("update customer set aum=1000000 where customer_count>700");
+  ObjectNode plan=plans.get(0).deepCopy();((ObjectNode)plan.path("parameters")).put("benchmark_type","all_customers");
+  JsonNode out=json.valueToTree(service.execute(107L,new RulePayload(),plan,def,eligible));
+  for(JsonNode q:out.path("queries"))if("benchmark_assets".equals(q.path("query_id").asText()))assertEquals(3,q.path("rows").size());
  }
  @Test void sparseCellsCollapseInsideJavaBeforePrivacySuppression()throws Exception{
   keeper.createStatement().execute("update customer set risk_level=2 where customer_count<=20");JsonNode plan=null;for(JsonNode p:plans)if("product_holding_gap".equals(p.path("skill_id").asText()))plan=p;

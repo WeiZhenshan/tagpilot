@@ -15,8 +15,8 @@
 | 1 | 标签元数据设计规范 | 有素材 | [`design/标签语义层与检索索引建设方案.md`](../design/标签语义层与检索索引建设方案.md)（`ts_*` 概念/族/结构化口径/别名/码值语义/易混淆/词典）；`sql/migration/V*.sql` 表结构；[`design/agent-v3/expression-contract.json`](../design/agent-v3/expression-contract.json)（字段级算子契约样本） | 独立成文的「元数据设计规范」：字段字典、枚举取值、必填与校验规则、示例数据、版本演进 |
 | 2 | AudienceQueryDSL 设计文档 | 有素材 | [`architecture/标签语义引擎与Agent编排层.md`](../architecture/标签语义引擎与Agent编排层.md)（DSL 定位、合法 DSL 也不得自动执行）；`tagpilot-semantic/tag_semantic/eval/offline_selector.py` 的 `AudienceQueryDSL` 与 `validate_dsl`；`ruoyi-objectgroup` 的 `RuleSqlBuilder` 与 `IRuleSqlBuilder` | 独立成文的 DSL 规范：EBNF/JSON Schema 语法、算子与类型系统、非法用例、与对象群表达式契约的对应关系、版本兼容策略 |
 | 3 | 多路召回与重排技术方案 | 有素材 | [`design/标签语义层与检索索引建设方案.md`](../design/标签语义层与检索索引建设方案.md)（BM25 + 向量 + 标量过滤、别名切换）；[`architecture/标签语义引擎与Agent编排层.md`](../architecture/标签语义引擎与Agent编排层.md)（六通道检索）；`tagpilot-semantic/README.md` | 通道权重与融合公式、重排阶段的模型与阈值、消融/对比数据、失效与降级策略 |
-| 4 | 受控工作流设计文档 | **已成稿 v1.0** | [`受控工作流设计文档-v1.0.md`](受控工作流设计文档-v1.0.md)（2026-09-29 按当前代码重写：八条不变量、决策权分配、五工具闭集、双层状态机、S0–S10 主流程、Guard 细则、L1–L4 降级、人在回路三卡点；§11 列出与实施文档的 6 处不一致） | v1.0 已覆盖端到端流程与状态机；三篇实施记录的对应章节可由本文替代，残留 6 项边界见文内 §12 |
-| 5 | 与原系统的接口清单 | **已成稿 v1.0** | [`与原系统的接口清单-v1.0.md`](与原系统的接口清单-v1.0.md)（2026-09-29 逐文件核对 Controller 映射、权限串、Python 路由与服务间调用点编成） | v1.0 已覆盖拓扑、鉴权、四类接口、服务间调用矩阵、请求契约、错误语义、数据落点与 6 项已知缺口；后续接口变更须升版本 |
+| 4 | 受控工作流设计文档 | 有素材 | [`development/Agent-V2实施说明.md`](../development/Agent-V2实施说明.md)、[`development/Agent-SDK重构实施记录.md`](../development/Agent-SDK重构实施记录.md)、[`development/标签上下文与客群编辑实施说明.md`](../development/标签上下文与客群编辑实施说明.md) | 一张端到端受控流程图 + 状态机（澄清/确认/回退/超时降级）+ 每步的准入准出条件与人工卡点，取代现在的三篇分散实施记录 |
+| 5 | 与原系统的接口清单 | 有素材（未汇总） | 各模块 Controller：`ruoyi-taglibrary`、`ruoyi-objectgroup`、`ruoyi-databroker`；Python 侧 `tagpilot-agent`（`:8092`）、`tagpilot-semantic`（`:8091`）的 `/lookup`、`/retrieve_batch`、`/evidence`、`/capabilities` | 一份汇总表：接口名、方向、方法/路径、请求响应示意、鉴权方式、调用方、失败语义。目前没有任何接口清单文档 |
 | 6 | 洞察 Skill 规范（含 Skill Manifest 与图表 Skill 规范） | 有素材 | [`development/洞察Skill体系实施记录.md`](../development/洞察Skill体系实施记录.md)；[`design/agent-v3/能力接入与验证.md`](../design/agent-v3/能力接入与验证.md)；`tagpilot-insight/schemas/`（`Manifest`、`MetricDefinition`、`MetricPlan`、`MetricQuery`、`InsightReport`） | 对外口径的 Skill 编写规范：Manifest 字段与语义、图表 Skill 的类型与入参、Guard 约束、如何新增一个 Skill；`tagpilot-insight/README.md` 偏运行说明，需另出规范正文 |
 | 7 | Benchmark 评测方案 | 有素材 | [`tagpilot-eval/README.md`](../../tagpilot-eval/README.md) 与 [`reports/`](../../tagpilot-eval/reports)；方案来源见 [`plans/TagPilot 合成评测数据生成与语义层持续完善方案.md`](../plans/TagPilot%20合成评测数据生成与语义层持续完善方案.md)；内部实测见 [`validation/语义索引层建设验收记录.md`](../validation/语义索引层建设验收记录.md) | 现有 README 是工程索引，需抽取成一份自洽的《评测方案》：指标定义（Recall@k / L1 / L2）、分区与污染控制、预算与稳定性口径；须如实保留 P2/P3 已知缺口（稳定性 `NOT_MEASURED` 等） |
 
@@ -37,24 +37,13 @@
 | 13 | 亮点③：评测与反馈数据飞轮 | 有素材 | `tagpilot-eval` 的 P0→P1→P2→P3 版本链条与根因/覆盖报告 | 画清「线上反馈 → 样本 → 回归集 → 指标」的闭环图；须标注尚未自动化的环节 |
 | 14 | 5 分钟典型业务场景演示 | 缺失 | 可复用条目 8 的 MVP | 演示剧本（含时间轴）、备用录屏（现场失败时切换）、讲稿 |
 
----
-
-## 本目录文件清单
-
-| 文件 | 版本 | 交付日期 | 对应代码版本 |
-| :--- | :--- | :--- | :--- |
-| [与原系统的接口清单-v1.0.md](与原系统的接口清单-v1.0.md) | v1.0 | 2026-09-29 | `merge/v4.0-merge-skill-engine` @ `7f3bd6f8` + 未提交工作区改动 |
-| [受控工作流设计文档-v1.0.md](受控工作流设计文档-v1.0.md) | v1.0 | 2026-09-29 | 同上（按当前代码编写，实施文档仅作对照） |
-
----
-
 ## 缺口汇总（需新产出）
 
-1. **独立成篇的设计文档 5 篇**（条目 1–3、6、7）：现有素材是实施记录与代码注释，需按「规范」体例重写，补上字段字典、语法定义、流程图与示例。
-2. **端到端闭环验收记录 + 演示视频**（条目 8、10、14）。
-3. **路演 PPT 全篇**（条目 11–14）：素材齐但未成稿，需统一视觉与口径。
-4. 所有引用数据的**版本冻结**：交付文档里出现的指标必须附代码版本（分支/commit/tag）与评测版本哈希，否则不可复核。
-5. 两份已成稿文档记录在案的未接入/缺口需在交付冻结前逐项确认或明确标注为已知边界：接口清单 §12 的 6 项；受控工作流 §12 的 6 项（单机单进程、洞察真实取数、反馈未闭环、模型回退不可区分、叙述默认关闭、元数据完备度），以及 §11 的 6 处实施文档与代码不一致（文档侧待修正）。
+1. **独立成篇的设计文档 6 篇**（条目 1–6）：现有素材是实施记录与代码注释，需按「规范」体例重写，补上字段字典、语法定义、流程图与示例。
+2. **与原系统的接口清单**（条目 5）：目前完全空白，需从各 Controller 与 Python 服务反推汇总。
+3. **端到端闭环验收记录 + 演示视频**（条目 8、10、14）。
+4. **路演 PPT 全篇**（条目 11–14）：素材齐但未成稿，需统一视觉与口径。
+5. 所有引用数据的**版本冻结**：交付文档里出现的指标必须附代码版本（分支/commit/tag）与评测版本哈希，否则不可复核。
 
 ## 命名与版本约定
 

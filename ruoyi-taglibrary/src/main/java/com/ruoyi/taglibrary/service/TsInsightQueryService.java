@@ -67,7 +67,7 @@ public class TsInsightQueryService {
         }
         if(columns.size()<1||columns.size()>2)throw new ServiceException("绑定须含一或两个来源标签");
         String column=columns.get(0);
-        if(Arrays.asList("GT","RATIO_GT").contains(kind)&&numeric.contains(false))throw new ServiceException("数值比较来源须为已发布数值字段");
+        if(Arrays.asList("GT","RATIO_GT","AUM_TIER").contains(kind)&&numeric.contains(false))throw new ServiceException("数值比较来源须为已发布数值字段");
         if("DIRECT".equals(kind)&&Arrays.asList("aum","liquid_aum","fixed_aum","investment_aum","value_score").contains(binding.path("metric").asText())&&!numeric.get(0))throw new ServiceException("资产或价值指标来源须为已发布数值字段");
         if("DIRECT".equals(kind)) {
             String metric=binding.path("metric").asText();
@@ -76,6 +76,11 @@ public class TsInsightQueryService {
             if(Arrays.asList("risk_level","aum_tier").contains(metric)){if(!numeric.get(0))throw new ServiceException("等级文本须登记治理码值映射");return "case when "+column+">=0 and "+column+"<=12 and "+column+"=floor("+column+") then cast("+column+" as signed) else null end";}
             if(metric.startsWith("product_holding")||"product_gap".equals(metric)||Arrays.asList("risk_mismatch","marketing_excluded","do_not_disturb","no_channel","channel_reach","demand_event","historical_response","disturbance_penalty").contains(metric))return numeric.get(0)?"case when "+column+"=0 then 0 when "+column+"=1 then 1 else null end":"case when cast("+column+" as char)='0' then 0 when cast("+column+" as char)='1' then 1 else null end";
             return column;
+        }
+        if("AUM_TIER".equals(kind)) {
+            if(!"aum_tier".equals(binding.path("metric").asText()))throw new ServiceException("AUM分层指标非法");
+            // 与资产画像包的aum_bands保持相同边界，未知或负余额不参加比较。
+            return "case when "+column+" is null or "+column+"<0 then null when "+column+"<300000 then 0 when "+column+"<1000000 then 1 else 2 end";
         }
         if("RECENT_CONTACT".equals(kind))return column;
         if("IS_NULL".equals(kind))return "case when "+column+" is null then 1 else 0 end";
@@ -101,7 +106,10 @@ public class TsInsightQueryService {
         try {versionDefinition=json.readTree(ext.selectVersionDefinitionJson(version));}catch(Exception e){throw new ServiceException("数据集定义格式错误");}
         String table=quote(ext.selectTableObjectName(versionDefinition.path("tableId").asLong()));
         Set<String> available=new LinkedHashSet<>();List<String> projections=new ArrayList<>();
+        // 内置人数投影与业务指标共用当前客群SQL，不依赖任何人数标签。
+        available.add("customer_count");projections.add("1 as `customer_count`");
         for(JsonNode binding:definition.path("bindings")) {
+            if("customer_count".equals(binding.path("metric").asText()))continue;
             String name=binding.path("metric").asText();String category=binding.path("category").asText("");
             if(!category.isEmpty())name+="_"+category;
             if(!available.add(name))throw new ServiceException("指标绑定重复");
@@ -114,7 +122,7 @@ public class TsInsightQueryService {
             }
             projections.add(expression+" as "+TsInsightSqlCompiler.id(name));
         }
-        if(projections.isEmpty()||projections.size()>60)throw new ServiceException("洞察绑定数量非法");
+        if(projections.size()<2||projections.size()>61)throw new ServiceException("洞察绑定数量非法");
         String base="select "+String.join(",",projections)+" from "+table;
         String cohort=base+" where "+quote(key)+" in ("+cohortIds+")";
         String benchmark=base;
@@ -139,6 +147,13 @@ public class TsInsightQueryService {
                 st.setQueryTimeout(30);
                 try(ResultSet rs=st.executeQuery("select count(*) as n,count(distinct "+quote(key)+") as keys_n from "+table)) {
                     if(!rs.next()||rs.getLong("n")!=rs.getLong("keys_n"))throw new ServiceException("客户键非唯一或存在空值，不能聚合");
+                }
+            }
+            // COUNT刷新与聚合之间若数据已变化，丢弃旧人数，避免分母与图表不一致。
+            try(Statement st=connection.createStatement()) {
+                st.setQueryTimeout(30);
+                try(ResultSet rs=st.executeQuery("select count(*) as n from ("+cohort+") _live")) {
+                    if(!rs.next()||rs.getLong("n")!=plan.path("cohort").path("count").asLong(-1))throw new ServiceException("客群人数在运行期间发生变化，请重新运行洞察",409);
                 }
             }
             if("same_org".equals(benchmarkType))try(Statement st=connection.createStatement()){

@@ -43,7 +43,8 @@ public class TsInsightRunService {
   for(JsonNode id:req.path("skill_ids")){if(!Arrays.asList("asset_structure_profile","product_holding_gap","opportunity_priority").contains(id.asText())||ids.contains(id.asText()))throw new ServiceException("技能标识重复或未登记");ids.add(id.asText());}
   if(ids.contains("opportunity_priority")&&!ids.contains("product_holding_gap"))ids.add("product_holding_gap");
   ids.sort(Comparator.comparingInt(id->Arrays.asList("asset_structure_profile","product_holding_gap","opportunity_priority").indexOf(id)));
-  long started=System.nanoTime();Map<String,Object> ctx=workbench.insightContext(thread,request);Long library=((Number)ctx.get("library_id")).longValue();
+  // 每次使用技能时刷新当前已确认方案人数，禁止沿用上次统计值。
+  long started=System.nanoTime();workbench.count(thread,request);Map<String,Object> ctx=workbench.insightContext(thread,request);Long library=((Number)ctx.get("library_id")).longValue();
   Map<String,Object> audience=(Map<String,Object>)ctx.get("plan"),count=(Map<String,Object>)ctx.get("count");
   String run=UUID.randomUUID().toString(),dataDate=null,bindingVersion=null;List<Object> results=new ArrayList<>();Map<String,Object> cohort=null,g2=null;JsonNode g2Config=null;
   try {
@@ -55,6 +56,7 @@ public class TsInsightRunService {
    cohort=map("audience_id",thread,"audience_name",ctx.get("name"),"library_id",library,"revision",ctx.get("revision"),"plan_hash",audience.get("hash"),"snapshot_id",audience.get("snapshot_id"),"count",count.get("value"),"data_as_of",dataDate,"reference_date",LocalDate.now(ZoneId.of("Asia/Shanghai")).toString(),"binding_version",bindingVersion,"declared_context",String.valueOf(audience.getOrDefault("original_request",json.valueToTree(audience).path("intent_plan").path("original_request").asText(""))),"synthetic",false);
    Set<Long> eligible=new HashSet<>(catalog.eligibleTagIds(library,String.valueOf(audience.get("snapshot_id"))));List<Object> bindings=new ArrayList<>();
    for(JsonNode b:config.path("bindings")) {
+    if("customer_count".equals(b.path("metric").asText()))continue;
     Map<String,Object> binding=map("metric",b.path("metric").asText(),"version",bindingVersion,"tag_id",b.path("tag_ids").get(0).asLong(),"snapshot_id",audience.get("snapshot_id"),"unit",b.path("unit").asText(),"status","PUBLISHED");
     if(b.hasNonNull("category"))binding.put("category",b.path("category").asText());bindings.add(binding);
    }

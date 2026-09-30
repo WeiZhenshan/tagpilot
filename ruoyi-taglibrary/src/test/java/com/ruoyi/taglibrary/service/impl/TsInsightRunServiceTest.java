@@ -35,6 +35,10 @@ class TsInsightRunServiceTest extends BaseServiceTest {
   lenient().when(agent.post(eq("/agent/insight/plan"),anyMap())).thenAnswer(inv->map("status","BLOCKED","skill_id",((Map<?,?>)inv.getArgument(1)).get("skill_id")));
   lenient().when(agent.get(startsWith("/agent/v2/runs/"))).thenAnswer(inv->map("status","COMPLETED","result",map("results",Collections.singletonList(map("skill_id",g1,"status","COMPLETE","facts",Collections.emptyList(),"cards",Collections.emptyList(),"charts",Collections.emptyList())))));
  }
+ @Test void everyRunRefreshesCountBeforeReadingContext(){
+  service.run("thread",request);
+  InOrder order=inOrder(workbench);order.verify(workbench).count("thread",request);order.verify(workbench,atLeastOnce()).insightContext("thread",request);
+ }
  @Test void retiredDuringWorkerCannotLeakCompletedResult(){
   when(registry.published(107L,g1)).thenReturn(row).thenThrow(new ServiceException("技能尚未发布"));
   ServiceException error=assertThrows(ServiceException.class,()->service.run("thread",request));assertEquals(409,error.getCode());

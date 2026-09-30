@@ -459,7 +459,10 @@ export function App() {
     return operation(async () => {
       const report = await runInsight(source, ids, insightParameters);
       if (!sameInsightSource(source)) return;
-      update({ ...current.current!, insight_report: report }); setSelectedSkills([]); setRightTab("insight"); setTab("plan");
+      const refreshed = await api.getThread(source.thread_id);
+      if (!sameInsightSource(source)) return;
+      if (refreshed.revision !== source.revision || refreshed.plan?.hash !== source.plan?.hash) { update(refreshed); return; }
+      update({ ...refreshed, insight_report: report }); setSelectedSkills([]); setRightTab("insight"); setTab("plan");
     });
   }
   const insightReady = !!thread?.capabilities.insight && thread.count?.revision === thread.revision && !!thread.plan?.valid && !busy(thread) && !thread.archived;

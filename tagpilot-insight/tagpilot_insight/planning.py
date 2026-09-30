@@ -42,8 +42,8 @@ def plan_skill(skill_id: str, cohort: CohortSnapshot, bindings: list[MetricBindi
     partial = []
     categories = resolved.get("categories", [])
     for metric in manifest.metrics:
-        # 适当性来自治理配置；缺配置时保留覆盖率，机会计算由Java返回MISSING。
-        if metric == "suitability":
+        # 客户数由Java按当前方案实时统计；适当性缺配置时机会计算返回MISSING。
+        if metric in {"suitability", "customer_count"}:
             continue
         keys = [(metric, c) for c in categories] if metric == "product_holding" else [(metric, None)]
         if metric == "asset_holder":
