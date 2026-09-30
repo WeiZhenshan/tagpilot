@@ -1,0 +1,12 @@
+-- Agent 原生技能登记：全局技能，不绑定标签库；不预置技能或授予权限。
+CREATE TABLE IF NOT EXISTS ts_agent_skill (
+ name VARCHAR(64) NOT NULL PRIMARY KEY,
+ draft_json LONGTEXT NOT NULL,
+ published_json LONGTEXT NULL,
+ row_version BIGINT NOT NULL DEFAULT 1,
+ create_by VARCHAR(64) NOT NULL,
+ update_by VARCHAR(64) NOT NULL,
+ create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ publish_time DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

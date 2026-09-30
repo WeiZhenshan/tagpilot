@@ -1,0 +1,69 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "same_aum",
+        "all_customers",
+        "same_org",
+        "standardized"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "definition": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Definition",
+      "type": "string"
+    },
+    "dimensions": {
+      "items": {
+        "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+        "type": "string"
+      },
+      "maxItems": 2,
+      "title": "Dimensions",
+      "type": "array"
+    },
+    "sparse_fallback": {
+      "const": "aum_then_risk_then_suppress",
+      "default": "aum_then_risk_then_suppress",
+      "title": "Sparse Fallback",
+      "type": "string"
+    },
+    "version": {
+      "default": "0.1.0",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "cache_fields": {
+      "default": [
+        "data_as_of",
+        "definition",
+        "version",
+        "binding_version",
+        "snapshot_id",
+        "scope_hash"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Cache Fields",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "definition"
+  ],
+  "title": "BenchmarkDefinition",
+  "type": "object"
+}

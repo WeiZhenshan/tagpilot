@@ -14,6 +14,7 @@ from tagpilot_agent.guards.guard import check
 from tagpilot_agent.guards.plan_validator import leaves
 from tagpilot_agent.domain.expressions import plan_tag_ids
 from tagpilot_agent.retrieval.semantic_client import SemanticRetrieveError
+from tagpilot_agent.skills.packages import extract_result
 from .claude_runner import ClaudeRunner
 from .budget import Budget
 from .degrade import Reason, BUDGET_REASONS, LEAN_REASONS, MESSAGES, classify, degraded_info, progress
@@ -46,6 +47,9 @@ class RunManager:
         await asyncio.gather(*list(self.tasks.values()),return_exceptions=True)
 
     async def execute(self,rid,request):
+        if request.get("profile") == "insight":
+            from tagpilot_agent.api.insight import execute_insight
+            return await execute_insight(self,rid,request)
         owner=request['owner_id'];admitted=False
         ctx=RunContext(request,self.retriever_for(request['library_id'],request['build_id']),
                        lambda e:self.store.emit(rid,e),lambda:self.store.get(rid,owner)['status']=='CANCELLED')
@@ -68,9 +72,19 @@ class RunManager:
             previous=progress(request.get('previous_plan'))
             loaded=len(self.waiters)>=max(1,int(os.getenv('TAG_AGENT_LEAN_QUEUE_DEPTH',str(self.limit))))
             ctx.lean=previous.get('reason') in LEAN_REASONS or loaded
-            ctx.budget=Budget.from_env(lean=ctx.lean)
+            ctx.budget=Budget.from_env(lean=ctx.lean,skill=request.get('profile')=='skill')
             ctx.stats['lean']=ctx.lean
-            ctx.emit({'type':'run.started','message':'正在理解圈选需求'})
+            ctx.emit({'type':'run.started','message':'正在运行客群技能' if request.get('profile')=='skill' else '正在理解圈选需求'})
+            if request.get('profile')=='skill':
+                async with asyncio.timeout(ctx.budget.hard+5):
+                    output=await self.runner.run_skill(ctx)
+                if not ctx.cancelled():
+                    result,text=extract_result(output)
+                    payload={'skill_output':text if result is not None else output}
+                    if result is not None:payload['skill_result']=result
+                    self.store.status(rid,'COMPLETED',payload)
+                    ctx.emit({'type':'run.completed','message':'技能分析已保存'})
+                return
             if ctx.lean:ctx.emit({'type':'run.lean','message':'当前使用人数较多，已启用快速模式' if loaded else '正在补全尚未确定的条件'})
             async with asyncio.timeout(ctx.budget.hard+5):
                 if request.get('edited_plan'):
@@ -98,7 +112,7 @@ class RunManager:
             if ctx.stats.get('fatal_status'):raise SemanticRetrieveError(ctx.stats['fatal_status'],'权限或发布版本发生变化')
             self.finish(ctx,classify(ctx))
         except asyncio.CancelledError:
-            self.store.status(rid,'INTERRUPTED',self.fallback(ctx,'服务重启，已保存进度'))
+            self.store.status(rid,'INTERRUPTED',{'skill_output':'技能运行中断，请重新选择技能后重试。'} if request.get('profile')=='skill' else self.fallback(ctx,'服务重启，已保存进度'))
             raise
         except SemanticRetrieveError as exc:
             if exc.status_code in {401,403,409}:
@@ -106,7 +120,13 @@ class RunManager:
                 ctx.emit({'type':'run.failed','message':'权限或发布版本发生变化，请重新核验'})
             else:self.finish(ctx,classify(ctx,exc,admitted))
         except Exception as exc:
-            self.finish(ctx,classify(ctx,exc,admitted))
+            if request.get('profile')=='skill':
+                if not ctx.cancelled():
+                    logger.exception('技能运行失败 run=%s stop_reason=%s stats=%s', rid, ctx.stats.get('stop_reason'),
+                                     {k: v for k, v in ctx.stats.items() if k in ('cli_peak_rss_mb', 'llm_turns', 'tools', 'stopped_at', 'sdk_error')})
+                    self.store.status(rid,'FAILED',error='技能运行未完成，请重新选择技能后重试')
+                    ctx.emit({'type':'run.failed','message':'技能运行未完成，请重新选择技能后重试'})
+            else:self.finish(ctx,classify(ctx,exc,admitted))
         finally:
             self.contexts.pop(rid,None)
             async with self.condition:
@@ -138,11 +158,14 @@ class RunManager:
         else:
             diagnostics=plan.get('diagnostics',[])
             blocked={d['clause_id'] for d in diagnostics if d.get('clause_id')}
-            global_error=any(not d.get('clause_id') and d.get('code')!='BUDGET_EXHAUSTED' for d in diagnostics)
             same_version=all(plan.get(k)==ctx.request[k] for k in ('build_id','snapshot_id','artifact_hash'))
             for node in leaves(plan['tree']):
                 cid=node['clause_id']
-                ok=same_version and not global_error and not ({cid,*node.get('requirement_ids',[])} & blocked) and node.get('status')=='BOUND' and plan_tag_ids([node])<=ctx.eligible
+                pre_status=node.get('status')
+                refs={cid,*node.get('requirement_ids',[])}
+                blocked_hit=bool(refs & blocked)
+                # 方案级诊断（无 clause_id）只说明整方案未 READY，不能把已 BOUND 的存量条件误标为预算耗尽。
+                ok=same_version and not blocked_hit and pre_status=='BOUND' and plan_tag_ids([node])<=ctx.eligible
                 (kept if ok else unresolved).append(cid)
                 if not ok:
                     node.update(status='GAP',gap_reason='BUDGET_EXHAUSTED')

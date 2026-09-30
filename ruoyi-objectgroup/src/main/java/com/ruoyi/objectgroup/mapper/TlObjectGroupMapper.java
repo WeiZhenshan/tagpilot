@@ -9,6 +9,7 @@ public interface TlObjectGroupMapper {
     List<TlObjectGroup> selectObjectGroupList(TlObjectGroup query);
 
     TlObjectGroup selectObjectGroupById(Long groupId);
+    TlObjectGroup selectObjectGroupByIdForUpdate(Long groupId);
 
     int insertObjectGroup(TlObjectGroup group);
 

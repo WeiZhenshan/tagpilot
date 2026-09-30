@@ -1,0 +1,1630 @@
+{
+ "cohort_context": {
+  "name": "当前AUM月日均余额50万以上客户",
+  "revision": 4,
+  "plan_hash": "rehearsal-plan-hash",
+  "plan": {
+   "schema_version": 3,
+   "plan_status": "READY",
+   "valid": true,
+   "revision": 4,
+   "hash": "rehearsal-plan-hash",
+   "summary": "当前AUM月日均余额 ≥ 50 万元的客户",
+   "intent_plan": {
+    "original_request": "当前AUM月日均余额大于等于50万的客户",
+    "requirements": [
+     {
+      "requirement_id": "R1",
+      "source_spans": [
+       "当前AUM月日均余额大于等于50万的客户"
+      ],
+      "business_meaning": "当前AUM月日均余额 ≥ 50 万元",
+      "origin": "USER"
+     }
+    ],
+    "logic_tree": {
+     "logic": "AND",
+     "children": [
+      {
+       "requirement_id": "R1"
+      }
+     ]
+    },
+    "assumptions": []
+   },
+   "tree": {
+    "logic": "AND",
+    "children": [
+     {
+      "kind": "TAG_PREDICATE",
+      "clause_id": "C1",
+      "requirement_ids": [
+       "R1"
+      ],
+      "status": "BOUND",
+      "tag_id": 722,
+      "name": "当前AUM月日均余额",
+      "operator": ">=",
+      "values": [
+       "500000"
+      ],
+      "value_unit": "CNY",
+      "value_scale": "1.0000",
+      "expected_caliber": {
+       "time_anchor_label": "当前"
+      }
+     }
+    ]
+   },
+   "build_id": "bge-m3-l107-20260928-006-p3g",
+   "snapshot_id": "L107-20260928-006",
+   "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+  },
+  "count": {
+   "value": 287,
+   "revision": 4,
+   "plan_hash": "rehearsal-plan-hash",
+   "executed_at": "2026-09-30T08:10:00Z",
+   "data_as_of": null
+  },
+  "status": "COUNTED",
+  "tag_stats": [
+   {
+    "tag_id": 721,
+    "label": "当前时点AUM",
+    "tag_type": "数值型",
+    "unit": "元",
+    "unit_source": "ts_tag_semantic",
+    "plan_tag": false,
+    "status": "AVAILABLE",
+    "reason": "",
+    "sample_size": 287,
+    "numeric": {
+     "n": 287,
+     "missing": 0,
+     "min": 500374.23,
+     "max": 16733578.02,
+     "sum": 1071681920.02,
+     "avg": 3734083.35,
+     "median": 2111968.13
+    },
+    "categories": [],
+    "truncated": false
+   },
+   {
+    "tag_id": 719,
+    "label": "当前固收类AUM占比",
+    "tag_type": "数值型",
+    "unit": "%",
+    "unit_source": "ts_tag_semantic",
+    "plan_tag": false,
+    "status": "AVAILABLE",
+    "reason": "",
+    "sample_size": 287,
+    "numeric": {
+     "n": 287,
+     "missing": 0,
+     "min": 13.38,
+     "max": 80.64,
+     "avg": 49.03,
+     "median": 49.8
+    },
+    "categories": [],
+    "truncated": false
+   },
+   {
+    "tag_id": 724,
+    "label": "当前权益类AUM占比",
+    "tag_type": "数值型",
+    "unit": "%",
+    "unit_source": "ts_tag_semantic",
+    "plan_tag": false,
+    "status": "AVAILABLE",
+    "reason": "",
+    "sample_size": 287,
+    "numeric": {
+     "n": 287,
+     "missing": 0,
+     "min": 0.0,
+     "max": 37.85,
+     "avg": 2.67,
+     "median": 0.0
+    },
+    "categories": [],
+    "truncated": false
+   },
+   {
+    "tag_id": 731,
+    "label": "当前现金类AUM占比",
+    "tag_type": "数值型",
+    "unit": "%",
+    "unit_source": "ts_tag_semantic",
+    "plan_tag": false,
+    "status": "AVAILABLE",
+    "reason": "",
+    "sample_size": 287,
+    "numeric": {
+     "n": 287,
+     "missing": 0,
+     "min": 18.15,
+     "max": 86.62,
+     "avg": 48.3,
+     "median": 46.69
+    },
+    "categories": [],
+    "truncated": false
+   },
+   {
+    "tag_id": 673,
+    "label": "当前潜力资产等级（规则预测）",
+    "tag_type": "选项型",
+    "unit": null,
+    "unit_source": "none",
+    "plan_tag": false,
+    "status": "AVAILABLE",
+    "reason": "",
+    "sample_size": 287,
+    "numeric": null,
+    "categories": [
+     {
+      "code": "03",
+      "label": "100万(含)-300万",
+      "count": 102,
+      "share": 35.5
+     },
+     {
+      "code": "02",
+      "label": "50万(含)-100万",
+      "count": 73,
+      "share": 25.4
+     },
+     {
+      "code": "04",
+      "label": "300万(含)-600万",
+      "count": 45,
+      "share": 15.7
+     },
+     {
+      "code": "06",
+      "label": "1000万及以上",
+      "count": 35,
+      "share": 12.2
+     },
+     {
+      "code": "05",
+      "label": "600万(含)-1000万",
+      "count": 32,
+      "share": 11.1
+     }
+    ],
+    "truncated": false
+   }
+  ],
+  "sample_rows": {
+   "columns": [
+    "当前时点AUM",
+    "当前固收类AUM占比",
+    "当前权益类AUM占比",
+    "当前现金类AUM占比",
+    "当前潜力资产等级（规则预测）"
+   ],
+   "rows": [
+    [
+     "8****1234",
+     1200000.0,
+     60.0,
+     2.0,
+     38.0,
+     "03"
+    ]
+   ],
+   "limit": 100,
+   "masked": true,
+   "note": "客户号已脱敏；仅含所选标签列，最多 100 行"
+  },
+  "stats_note": "",
+  "baseline": {
+   "group_id": 999,
+   "name": "全量客户",
+   "count": 2000,
+   "tag_stats": [
+    {
+     "tag_id": 721,
+     "label": "当前时点AUM",
+     "tag_type": "数值型",
+     "unit": "元",
+     "unit_source": "ts_tag_semantic",
+     "plan_tag": false,
+     "status": "AVAILABLE",
+     "reason": "",
+     "sample_size": 2000,
+     "numeric": {
+      "n": 2000,
+      "missing": 0,
+      "min": 428.97,
+      "max": 16733578.02,
+      "sum": 1205304173.8,
+      "avg": 602652.09,
+      "median": 36217.82
+     },
+     "categories": [],
+     "truncated": false
+    },
+    {
+     "tag_id": 719,
+     "label": "当前固收类AUM占比",
+     "tag_type": "数值型",
+     "unit": "%",
+     "unit_source": "ts_tag_semantic",
+     "plan_tag": false,
+     "status": "AVAILABLE",
+     "reason": "",
+     "sample_size": 2000,
+     "numeric": {
+      "n": 2000,
+      "missing": 0,
+      "min": 0.0,
+      "max": 80.64,
+      "avg": 40.66,
+      "median": 43.82
+     },
+     "categories": [],
+     "truncated": false
+    },
+    {
+     "tag_id": 724,
+     "label": "当前权益类AUM占比",
+     "tag_type": "数值型",
+     "unit": "%",
+     "unit_source": "ts_tag_semantic",
+     "plan_tag": false,
+     "status": "AVAILABLE",
+     "reason": "",
+     "sample_size": 2000,
+     "numeric": {
+      "n": 2000,
+      "missing": 0,
+      "min": 0.0,
+      "max": 57.56,
+      "avg": 1.72,
+      "median": 0.0
+     },
+     "categories": [],
+     "truncated": false
+    },
+    {
+     "tag_id": 731,
+     "label": "当前现金类AUM占比",
+     "tag_type": "数值型",
+     "unit": "%",
+     "unit_source": "ts_tag_semantic",
+     "plan_tag": false,
+     "status": "AVAILABLE",
+     "reason": "",
+     "sample_size": 2000,
+     "numeric": {
+      "n": 2000,
+      "missing": 0,
+      "min": 18.15,
+      "max": 100.0,
+      "avg": 57.62,
+      "median": 53.96
+     },
+     "categories": [],
+     "truncated": false
+    },
+    {
+     "tag_id": 673,
+     "label": "当前潜力资产等级（规则预测）",
+     "tag_type": "选项型",
+     "unit": null,
+     "unit_source": "none",
+     "plan_tag": false,
+     "status": "AVAILABLE",
+     "reason": "",
+     "sample_size": 2000,
+     "numeric": null,
+     "categories": [
+      {
+       "code": "01",
+       "label": "50万以下",
+       "count": 1626,
+       "share": 81.3
+      },
+      {
+       "code": "02",
+       "label": "50万(含)-100万",
+       "count": 160,
+       "share": 8.0
+      },
+      {
+       "code": "03",
+       "label": "100万(含)-300万",
+       "count": 102,
+       "share": 5.1
+      },
+      {
+       "code": "04",
+       "label": "300万(含)-600万",
+       "count": 45,
+       "share": 2.3
+      },
+      {
+       "code": "06",
+       "label": "1000万及以上",
+       "count": 35,
+       "share": 1.8
+      },
+      {
+       "code": "05",
+       "label": "600万(含)-1000万",
+       "count": 32,
+       "share": 1.6
+      }
+     ],
+     "truncated": false
+    }
+   ],
+   "stats_note": ""
+  }
+ },
+ "skill_result": {
+  "status": "COMPLETE",
+  "reasons": [
+   "条件、人数与所选标签统计均由服务端核验，客群与对照客群口径一致，可做差",
+   "未接入风险等级、机构、客户分层与产品持有数据，未能下钻定位差异集中方向",
+   "权益与现金的检视规则为个体级口径，本轮以客群均值近似核对，未做统计检验"
+  ],
+  "facts": [
+   {
+    "id": "f-count",
+    "metric": "customer_count",
+    "label": "客群规模",
+    "value": 287,
+    "unit": "人",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "cohort.count",
+    "evidence": [
+     "服务端按当前已核验方案统计的有效人数"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-count",
+    "metric": "customer_count",
+    "label": "对照客群规模",
+    "value": 2000,
+    "unit": "人",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.count",
+    "evidence": [
+     "对照客群「全量客户」由服务端核验的人数"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-aum-sum",
+    "metric": "aum",
+    "label": "当前时点AUM合计",
+    "value": 1071681920.02,
+    "unit": "元",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.721.sum",
+    "evidence": [
+     "服务端注入的当前时点AUM标签统计（sum）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-aum-avg",
+    "metric": "aum",
+    "label": "当前时点AUM均值",
+    "value": 3734083.35,
+    "unit": "元",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.721.avg",
+    "evidence": [
+     "服务端注入的当前时点AUM标签统计（avg）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-aum-median",
+    "metric": "aum",
+    "label": "当前时点AUM中位数",
+    "value": 2111968.13,
+    "unit": "元",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.721.median",
+    "evidence": [
+     "服务端注入的当前时点AUM标签统计（median）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-aum-avg",
+    "metric": "aum",
+    "label": "全量客户AUM均值",
+    "value": 602652.09,
+    "unit": "元",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.721.avg",
+    "evidence": [
+     "对照客群「全量客户」的服务端AUM统计（avg）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-aum-median",
+    "metric": "aum",
+    "label": "全量客户AUM中位数",
+    "value": 36217.82,
+    "unit": "元",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.721.median",
+    "evidence": [
+     "对照客群「全量客户」的服务端AUM统计（median）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-aum-avg",
+    "metric": "aum",
+    "label": "AUM均值差（客群-全量）",
+    "value": 3131431.26,
+    "unit": "元",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.721.avg",
+    "evidence": [
+     "客群AUM均值减对照客群AUM均值，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-aum-avg",
+     "f-bm-aum-avg"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-aum-median",
+    "metric": "aum",
+    "label": "AUM中位数差（客群-全量）",
+    "value": 2075750.31,
+    "unit": "元",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.721.median",
+    "evidence": [
+     "客群AUM中位数减对照客群AUM中位数，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-aum-median",
+     "f-bm-aum-median"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-fixed-avg",
+    "metric": "fixed_income_aum_share",
+    "label": "固收类AUM占比均值",
+    "value": 49.03,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.719.avg",
+    "evidence": [
+     "服务端注入的当前固收类AUM占比统计（avg）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-fixed-median",
+    "metric": "fixed_income_aum_share",
+    "label": "固收类AUM占比中位数",
+    "value": 49.8,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.719.median",
+    "evidence": [
+     "服务端注入的当前固收类AUM占比统计（median）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-equity-avg",
+    "metric": "equity_aum_share",
+    "label": "权益类AUM占比均值",
+    "value": 2.67,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.724.avg",
+    "evidence": [
+     "服务端注入的当前权益类AUM占比统计（avg）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-equity-median",
+    "metric": "equity_aum_share",
+    "label": "权益类AUM占比中位数",
+    "value": 0,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.724.median",
+    "evidence": [
+     "服务端注入的当前权益类AUM占比统计（median）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-cash-avg",
+    "metric": "cash_aum_share",
+    "label": "现金类AUM占比均值",
+    "value": 48.3,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.731.avg",
+    "evidence": [
+     "服务端注入的当前现金类AUM占比统计（avg）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-cash-median",
+    "metric": "cash_aum_share",
+    "label": "现金类AUM占比中位数",
+    "value": 46.69,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.731.median",
+    "evidence": [
+     "服务端注入的当前现金类AUM占比统计（median）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-fixed-avg",
+    "metric": "fixed_income_aum_share",
+    "label": "全量客户固收类AUM占比均值",
+    "value": 40.66,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.719.avg",
+    "evidence": [
+     "对照客群「全量客户」的固收类AUM占比统计（avg）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-equity-avg",
+    "metric": "equity_aum_share",
+    "label": "全量客户权益类AUM占比均值",
+    "value": 1.72,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.724.avg",
+    "evidence": [
+     "对照客群「全量客户」的权益类AUM占比统计（avg）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-cash-avg",
+    "metric": "cash_aum_share",
+    "label": "全量客户现金类AUM占比均值",
+    "value": 57.62,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.731.avg",
+    "evidence": [
+     "对照客群「全量客户」的现金类AUM占比统计（avg）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-fixed-avg",
+    "metric": "fixed_income_aum_share",
+    "label": "固收占比均值差（客群-全量）",
+    "value": 8.37,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.719.avg",
+    "evidence": [
+     "客群固收占比均值减对照客群固收占比均值，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-fixed-avg",
+     "f-bm-fixed-avg"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-equity-avg",
+    "metric": "equity_aum_share",
+    "label": "权益占比均值差（客群-全量）",
+    "value": 0.95,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.724.avg",
+    "evidence": [
+     "客群权益占比均值减对照客群权益占比均值，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-equity-avg",
+     "f-bm-equity-avg"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-cash-avg",
+    "metric": "cash_aum_share",
+    "label": "现金占比均值差（客群-全量）",
+    "value": -9.32,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.731.avg",
+    "evidence": [
+     "客群现金占比均值减对照客群现金占比均值，负数表示低于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-cash-avg",
+     "f-bm-cash-avg"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-02",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级50万(含)-100万人",
+    "value": 73,
+    "unit": "人",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.cat.02",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类计数）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-03",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级100万(含)-300万人",
+    "value": 102,
+    "unit": "人",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.cat.03",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类计数）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-04",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级300万(含)-600万人",
+    "value": 45,
+    "unit": "人",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.cat.04",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类计数）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-05",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级600万(含)-1000万人",
+    "value": 32,
+    "unit": "人",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.cat.05",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类计数）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-06",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级1000万及以上人数",
+    "value": 35,
+    "unit": "人",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.cat.06",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类计数）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-02-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级50万(含)-100万占比",
+    "value": 25.4,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.share.02",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类占比）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-03-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级100万(含)-300万占比",
+    "value": 35.5,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.share.03",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类占比）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-04-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级300万(含)-600万占比",
+    "value": 15.7,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.share.04",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类占比）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-05-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级600万(含)-1000万占比",
+    "value": 11.1,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.share.05",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类占比）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-tier-06-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级1000万及以上占比",
+    "value": 12.2,
+    "unit": "%",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "tagstat.673.share.06",
+    "evidence": [
+     "服务端注入的当前潜力资产等级分布（分类占比）"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": "f-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-tier-01-share",
+    "metric": "potential_asset_tier",
+    "label": "全量客户潜力等级50万以下占比",
+    "value": 81.3,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.673.share.01",
+    "evidence": [
+     "对照客群「全量客户」的潜力资产等级分布（分类占比）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-tier-02-share",
+    "metric": "potential_asset_tier",
+    "label": "全量客户潜力等级50万(含)-100万占比",
+    "value": 8,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.673.share.02",
+    "evidence": [
+     "对照客群「全量客户」的潜力资产等级分布（分类占比）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-tier-03-share",
+    "metric": "potential_asset_tier",
+    "label": "全量客户潜力等级100万(含)-300万占比",
+    "value": 5.1,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.673.share.03",
+    "evidence": [
+     "对照客群「全量客户」的潜力资产等级分布（分类占比）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-tier-04-share",
+    "metric": "potential_asset_tier",
+    "label": "全量客户潜力等级300万(含)-600万占比",
+    "value": 2.3,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.673.share.04",
+    "evidence": [
+     "对照客群「全量客户」的潜力资产等级分布（分类占比）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-tier-05-share",
+    "metric": "potential_asset_tier",
+    "label": "全量客户潜力等级600万(含)-1000万占比",
+    "value": 1.6,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.673.share.05",
+    "evidence": [
+     "对照客群「全量客户」的潜力资产等级分布（分类占比）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-bm-tier-06-share",
+    "metric": "potential_asset_tier",
+    "label": "全量客户潜力等级1000万及以上占比",
+    "value": 1.8,
+    "unit": "%",
+    "sample_size": 2000,
+    "status": "AVAILABLE",
+    "query_id": "benchmark.673.share.06",
+    "evidence": [
+     "对照客群「全量客户」的潜力资产等级分布（分类占比）"
+    ],
+    "role": "BENCHMARK",
+    "denominator_id": "f-bm-count",
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-tier-02-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级50万(含)-100万占比差",
+    "value": 17.4,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.673.share.02",
+    "evidence": [
+     "客群该档占比减对照客群该档占比，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-tier-02-share",
+     "f-bm-tier-02-share"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-tier-03-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级100万(含)-300万占比差",
+    "value": 30.4,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.673.share.03",
+    "evidence": [
+     "客群该档占比减对照客群该档占比，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-tier-03-share",
+     "f-bm-tier-03-share"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-tier-04-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级300万(含)-600万占比差",
+    "value": 13.4,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.673.share.04",
+    "evidence": [
+     "客群该档占比减对照客群该档占比，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-tier-04-share",
+     "f-bm-tier-04-share"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-tier-05-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级600万(含)-1000万占比差",
+    "value": 9.5,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.673.share.05",
+    "evidence": [
+     "客群该档占比减对照客群该档占比，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-tier-05-share",
+     "f-bm-tier-05-share"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-diff-tier-06-share",
+    "metric": "potential_asset_tier",
+    "label": "潜力等级1000万及以上占比差",
+    "value": 10.4,
+    "unit": "pp",
+    "sample_size": 287,
+    "status": "AVAILABLE",
+    "query_id": "diff.673.share.06",
+    "evidence": [
+     "客群该档占比减对照客群该档占比，正数表示高于对照"
+    ],
+    "role": "DERIVED",
+    "denominator_id": null,
+    "derived_from": [
+     "f-tier-06-share",
+     "f-bm-tier-06-share"
+    ],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-risk-missing",
+    "metric": "risk_level_distribution",
+    "label": "风险等级分布",
+    "value": null,
+    "unit": "%",
+    "sample_size": null,
+    "status": "MISSING",
+    "query_id": "catalog.risk_level_distribution",
+    "evidence": [
+     "本轮未选择风险等级标签，无法按风险层下钻定位配置差异"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-holding-missing",
+    "metric": "product_holding_rate",
+    "label": "产品持有结构",
+    "value": null,
+    "unit": "%",
+    "sample_size": null,
+    "status": "MISSING",
+    "query_id": "catalog.product_holding_rate",
+    "evidence": [
+     "本轮未接入产品持有明细，无法判断权益低配与产品选择的关系"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   },
+   {
+    "id": "f-percentile-missing",
+    "metric": "aum_share_percentile",
+    "label": "现金类占比分位分布",
+    "value": null,
+    "unit": "%",
+    "sample_size": null,
+    "status": "MISSING",
+    "query_id": "catalog.aum_share_percentile",
+    "evidence": [
+     "本轮仅有均值与中位数，无法给出现金类占比高于阈值的个体比例"
+    ],
+    "role": "OBSERVED",
+    "denominator_id": null,
+    "derived_from": [],
+    "exclusions_applied": []
+   }
+  ],
+  "cards": [
+   {
+    "id": "card-scale",
+    "title": "AUM规模与分布",
+    "facts": {
+     "text": "本客群由「当前AUM月日均余额 ≥ 50 万元」条件圈定，服务端核验有效人数 {fact:f-count}；当前时点AUM合计 {fact:f-aum-sum} 元，均值 {fact:f-aum-avg} 元、中位数 {fact:f-aum-median} 元。因圈选条件限制，分布被截断在 50 万元以上区间。",
+     "fact_ids": [
+      "f-count",
+      "f-aum-sum",
+      "f-aum-avg",
+      "f-aum-median"
+     ]
+    },
+    "comparison": {
+     "text": "与对照客群「全量客户」（{fact:f-bm-count} 人）相比，本客群当前时点AUM均值高 {fact:f-diff-aum-avg} 元、中位数高 {fact:f-diff-aum-median} 元，整体资产水平明显更高；方向为高于对照。",
+     "fact_ids": [
+      "f-bm-count",
+      "f-diff-aum-avg",
+      "f-diff-aum-median"
+     ],
+     "benchmark_fact_ids": [
+      "f-bm-count"
+     ],
+     "difference_fact_ids": [
+      "f-diff-aum-avg",
+      "f-diff-aum-median"
+     ]
+    },
+    "diagnosis": {
+     "text": "AUM中位数与均值的量级差说明本客群内部资产分布长尾明显，均值受高资产客户拉动；该水平差异由圈选条件（月日均余额 ≥ 50 万元）直接决定，属规则性结构差异，不能解读为客群更优质或增长更快。差异本身不等于原因，本轮不做统计检验。",
+     "fact_ids": [
+      "f-diff-aum-avg",
+      "f-diff-aum-median"
+     ],
+     "basis": "RULE",
+     "statistical_evidence": null
+    },
+    "action": {
+     "text": "本轮不产出行动对象。值得考虑的检验方向：接入AUM分档与风险等级的交叉表后重跑诊断，判断资产水平差异是否掩盖了配置差异。",
+     "fact_ids": [],
+     "population_fact_id": null,
+     "priority": "NONE"
+    },
+    "boundary": {
+     "text": "结论仅覆盖服务端核验的条件与标签统计；当前时点AUM分布被圈选条件截断，均值与中位数只代表该条件内的分布，不能外推到全行客户。未接入风险等级、机构、客户分层与产品持有数据。",
+     "data_as_of": "",
+     "skill_version": "",
+     "sample_fact_id": "f-count",
+     "metric_definitions": [
+      "customer_count：按当前已核验方案服务端统计的客户数",
+      "当前时点AUM：客户当前时点名下资产总额，单位元",
+      "截断影响：客群条件为当前AUM月日均余额 ≥ 50 万元，AUM 统计分布被该条件限制在下限之上"
+     ]
+    }
+   },
+   {
+    "id": "card-allocation",
+    "title": "三类资产占比结构与规则核对",
+    "facts": {
+     "text": "三类资产占比（均值口径）：固收 {fact:f-fixed-avg}、权益 {fact:f-equity-avg}、现金 {fact:f-cash-avg}；中位数分别为固收 {fact:f-fixed-median}、权益 {fact:f-equity-median}、现金 {fact:f-cash-median}。权益占比中位数为零，说明分布高度偏斜。",
+     "fact_ids": [
+      "f-fixed-avg",
+      "f-equity-avg",
+      "f-cash-avg",
+      "f-fixed-median",
+      "f-equity-median",
+      "f-cash-median"
+     ]
+    },
+    "comparison": {
+     "text": "与对照客群「全量客户」（{fact:f-bm-count} 人）相比：固收占比均值高 {fact:f-diff-fixed-avg} pp（对照 {fact:f-bm-fixed-avg}），权益占比均值高 {fact:f-diff-equity-avg} pp（对照 {fact:f-bm-equity-avg}），现金占比均值低 {fact:f-diff-cash-avg} pp（对照 {fact:f-bm-cash-avg}）。方向：固收与权益高于对照，现金低于对照。",
+     "fact_ids": [
+      "f-bm-count",
+      "f-diff-fixed-avg",
+      "f-bm-fixed-avg",
+      "f-diff-equity-avg",
+      "f-bm-equity-avg",
+      "f-diff-cash-avg",
+      "f-bm-cash-avg"
+     ],
+     "benchmark_fact_ids": [
+      "f-bm-count",
+      "f-bm-fixed-avg",
+      "f-bm-equity-avg",
+      "f-bm-cash-avg"
+     ],
+     "difference_fact_ids": [
+      "f-diff-fixed-avg",
+      "f-diff-equity-avg",
+      "f-diff-cash-avg"
+     ]
+    },
+    "diagnosis": {
+     "text": "按行内资产配置检视口径：权益类资产占比低于 10% 视为权益配置不足——本客群权益类占比均值 {fact:f-equity-avg}，低于该阈值，中位数 {fact:f-equity-median}，在客群均值口径上属规则意义上的权益配置不足；现金类资产占比高于 50% 视为流动性超配——本客群现金类占比均值 {fact:f-cash-avg}，未达阈值，但高于阈值的个体比例因缺少分位分布无法给出。与全量客户相比现金更低、固收更高的方向，只是可复算的观察，未做统计检验，不构成显著性结论，也不解释成因。",
+     "fact_ids": [
+      "f-equity-avg",
+      "f-equity-median",
+      "f-cash-avg",
+      "f-diff-fixed-avg",
+      "f-diff-cash-avg"
+     ],
+     "basis": "RULE",
+     "statistical_evidence": null
+    },
+    "action": {
+     "text": "本轮不产出行动对象。值得考虑的检验方向：接入风险等级与客户分层维度，检验权益配置不足是否集中于特定风险偏好子群；并补充占比分位统计，核对现金类占比高于阈值的个体比例。",
+     "fact_ids": [],
+     "population_fact_id": null,
+     "priority": "NONE"
+    },
+    "boundary": {
+     "text": "行内检视口径为个体级规则，本轮仅有客群均值与中位数，以均值近似核对，不等于「全体客户权益配置不足」；比例类指标未做分母以外的子群拆分，且未做统计检验。未接入风险等级、产品持有与占比分位数据。",
+     "data_as_of": "",
+     "skill_version": "",
+     "sample_fact_id": "f-count",
+     "metric_definitions": [
+      "当前固收类AUM占比：固收类资产占当前AUM的百分比",
+      "当前权益类AUM占比：权益类资产占当前AUM的百分比",
+      "当前现金类AUM占比：现金类资产占当前AUM的百分比",
+      "权益配置不足口径（行内资产配置检视口径）：权益类资产占比低于 10% 视为权益配置不足",
+      "流动性超配口径（行内资产配置检视口径）：现金类资产占比高于 50% 视为流动性超配",
+      "均值近似：上述两条规则为客户级口径，本轮以客群均值代替，属近似核对"
+     ]
+    }
+   },
+   {
+    "id": "card-potential",
+    "title": "潜力资产等级分布",
+    "facts": {
+     "text": "当前潜力资产等级（规则预测）分布：最大档为 100万(含)-300万 {fact:f-tier-03-share}（{fact:f-tier-03} 人），其后为 50万(含)-100万 {fact:f-tier-02-share}、300万(含)-600万 {fact:f-tier-04-share}、1000万及以上 {fact:f-tier-06-share}、600万(含)-1000万 {fact:f-tier-05-share}。",
+     "fact_ids": [
+      "f-tier-03-share",
+      "f-tier-03",
+      "f-tier-02-share",
+      "f-tier-04-share",
+      "f-tier-06-share",
+      "f-tier-05-share"
+     ]
+    },
+    "comparison": {
+     "text": "与对照客群「全量客户」（{fact:f-bm-count} 人）相比，本客群在各中高等级档位占比更高：100万-300万高 {fact:f-diff-tier-03-share} pp、50万-100万高 {fact:f-diff-tier-02-share} pp、300万-600万高 {fact:f-diff-tier-04-share} pp、1000万及以上高 {fact:f-diff-tier-06-share} pp、600万-1000万高 {fact:f-diff-tier-05-share} pp。对照客群「50万以下」档占比 {fact:f-bm-tier-01-share} 在本客群中无对应档，两侧分母口径不同。",
+     "fact_ids": [
+      "f-bm-count",
+      "f-diff-tier-03-share",
+      "f-diff-tier-02-share",
+      "f-diff-tier-04-share",
+      "f-diff-tier-06-share",
+      "f-diff-tier-05-share",
+      "f-bm-tier-01-share"
+     ],
+     "benchmark_fact_ids": [
+      "f-bm-count",
+      "f-bm-tier-01-share"
+     ],
+     "difference_fact_ids": [
+      "f-diff-tier-03-share",
+      "f-diff-tier-02-share",
+      "f-diff-tier-04-share",
+      "f-diff-tier-06-share",
+      "f-diff-tier-05-share"
+     ]
+    },
+    "diagnosis": {
+     "text": "潜力资产等级整体上移是圈选条件（月日均余额 ≥ 50 万元）的直接结果，属规则性构成差异；两侧分母口径不同（对照含 50万以下档，占其 {fact:f-bm-tier-01-share}），占比差只表示构成方向，不能视为同一人群内的迁移。本轮未形成关于「为什么高」的诊断，需接入实际AUM分档与产品持有数据才能提出可验证假设。",
+     "fact_ids": [
+      "f-bm-tier-01-share",
+      "f-diff-tier-03-share"
+     ],
+     "basis": "RULE",
+     "statistical_evidence": null
+    },
+    "action": {
+     "text": "本轮不产出行动对象。值得考虑的检验方向：将潜力资产等级与当前时点AUM分档交叉，识别潜力等级高而当前配置偏低的子群（需交叉表数据）。",
+     "fact_ids": [],
+     "population_fact_id": null,
+     "priority": "NONE"
+    },
+    "boundary": {
+     "text": "潜力资产等级为规则预测值，不是已实现资产规模；客群由AUM条件筛选，其等级分布天然高于全量客户，两侧分母口径不同，占比差不可直接解释为同人群内的变化。未接入实际AUM分档与产品持有数据，无法下钻。",
+     "data_as_of": "",
+     "skill_version": "",
+     "sample_fact_id": "f-count",
+     "metric_definitions": [
+      "当前潜力资产等级（规则预测）：以规则预测的客户潜力资产等级分档，取值为分档区间标签",
+      "占比：各档客户数除以该客群总人数",
+      "口径不可比提示：对照客群含 50万以下档，本客群因圈选条件不含该档"
+     ]
+    }
+   }
+  ],
+  "charts": [
+   {
+    "schema_version": 1,
+    "id": "chart-cohort-size",
+    "title": "客群规模",
+    "kind": "kpi",
+    "intent": "single_value",
+    "unit": "人",
+    "metric_label": "客户数",
+    "series": [
+     {
+      "name": "客群规模",
+      "fact_ids": [
+       "f-count"
+      ],
+      "points": [
+       {
+        "category": "客户数",
+        "column": null,
+        "fact_id": "f-count",
+        "value": 287
+       }
+      ]
+     }
+    ],
+    "annotations": [],
+    "reconcile": [],
+    "zero_baseline": true,
+    "orientation": "vertical"
+   },
+   {
+    "schema_version": 1,
+    "id": "chart-aum-level",
+    "title": "当前时点AUM：本客群与全量客户",
+    "kind": "bar",
+    "intent": "compare_categories",
+    "unit": "元",
+    "metric_label": "当前时点AUM",
+    "series": [
+     {
+      "name": "本客群",
+      "fact_ids": [
+       "f-aum-avg",
+       "f-aum-median"
+      ],
+      "points": [
+       {
+        "category": "AUM均值",
+        "column": null,
+        "fact_id": "f-aum-avg",
+        "value": 3734083.35
+       },
+       {
+        "category": "AUM中位数",
+        "column": null,
+        "fact_id": "f-aum-median",
+        "value": 2111968.13
+       }
+      ]
+     },
+     {
+      "name": "全量客户",
+      "fact_ids": [
+       "f-bm-aum-avg",
+       "f-bm-aum-median"
+      ],
+      "points": [
+       {
+        "category": "AUM均值",
+        "column": null,
+        "fact_id": "f-bm-aum-avg",
+        "value": 602652.09
+       },
+       {
+        "category": "AUM中位数",
+        "column": null,
+        "fact_id": "f-bm-aum-median",
+        "value": 36217.82
+       }
+      ]
+     }
+    ],
+    "annotations": [],
+    "reconcile": [],
+    "zero_baseline": true,
+    "orientation": "vertical"
+   },
+   {
+    "schema_version": 1,
+    "id": "chart-allocation-share",
+    "title": "三类资产占比均值：本客群与全量客户",
+    "kind": "bar",
+    "intent": "compare_categories",
+    "unit": "%",
+    "metric_label": "AUM占比",
+    "series": [
+     {
+      "name": "本客群",
+      "fact_ids": [
+       "f-fixed-avg",
+       "f-equity-avg",
+       "f-cash-avg"
+      ],
+      "points": [
+       {
+        "category": "固收类AUM占比",
+        "column": null,
+        "fact_id": "f-fixed-avg",
+        "value": 49.03
+       },
+       {
+        "category": "权益类AUM占比",
+        "column": null,
+        "fact_id": "f-equity-avg",
+        "value": 2.67
+       },
+       {
+        "category": "现金类AUM占比",
+        "column": null,
+        "fact_id": "f-cash-avg",
+        "value": 48.3
+       }
+      ]
+     },
+     {
+      "name": "全量客户",
+      "fact_ids": [
+       "f-bm-fixed-avg",
+       "f-bm-equity-avg",
+       "f-bm-cash-avg"
+      ],
+      "points": [
+       {
+        "category": "固收类AUM占比",
+        "column": null,
+        "fact_id": "f-bm-fixed-avg",
+        "value": 40.66
+       },
+       {
+        "category": "权益类AUM占比",
+        "column": null,
+        "fact_id": "f-bm-equity-avg",
+        "value": 1.72
+       },
+       {
+        "category": "现金类AUM占比",
+        "column": null,
+        "fact_id": "f-bm-cash-avg",
+        "value": 57.62
+       }
+      ]
+     }
+    ],
+    "annotations": [],
+    "reconcile": [],
+    "zero_baseline": true,
+    "orientation": "vertical"
+   },
+   {
+    "schema_version": 1,
+    "id": "chart-potential-tier",
+    "title": "潜力资产等级分布：本客群与全量客户",
+    "kind": "bar",
+    "intent": "compare_categories",
+    "unit": "%",
+    "metric_label": "档位占比",
+    "series": [
+     {
+      "name": "本客群",
+      "fact_ids": [
+       "f-tier-02-share",
+       "f-tier-03-share",
+       "f-tier-04-share",
+       "f-tier-05-share",
+       "f-tier-06-share"
+      ],
+      "points": [
+       {
+        "category": "50万(含)-100万",
+        "column": null,
+        "fact_id": "f-tier-02-share",
+        "value": 25.4
+       },
+       {
+        "category": "100万(含)-300万",
+        "column": null,
+        "fact_id": "f-tier-03-share",
+        "value": 35.5
+       },
+       {
+        "category": "300万(含)-600万",
+        "column": null,
+        "fact_id": "f-tier-04-share",
+        "value": 15.7
+       },
+       {
+        "category": "600万(含)-1000万",
+        "column": null,
+        "fact_id": "f-tier-05-share",
+        "value": 11.1
+       },
+       {
+        "category": "1000万及以上",
+        "column": null,
+        "fact_id": "f-tier-06-share",
+        "value": 12.2
+       }
+      ]
+     },
+     {
+      "name": "全量客户",
+      "fact_ids": [
+       "f-bm-tier-02-share",
+       "f-bm-tier-03-share",
+       "f-bm-tier-04-share",
+       "f-bm-tier-05-share",
+       "f-bm-tier-06-share"
+      ],
+      "points": [
+       {
+        "category": "50万(含)-100万",
+        "column": null,
+        "fact_id": "f-bm-tier-02-share",
+        "value": 8
+       },
+       {
+        "category": "100万(含)-300万",
+        "column": null,
+        "fact_id": "f-bm-tier-03-share",
+        "value": 5.1
+       },
+       {
+        "category": "300万(含)-600万",
+        "column": null,
+        "fact_id": "f-bm-tier-04-share",
+        "value": 2.3
+       },
+       {
+        "category": "600万(含)-1000万",
+        "column": null,
+        "fact_id": "f-bm-tier-05-share",
+        "value": 1.6
+       },
+       {
+        "category": "1000万及以上",
+        "column": null,
+        "fact_id": "f-bm-tier-06-share",
+        "value": 1.8
+       }
+      ]
+     }
+    ],
+    "annotations": [],
+    "reconcile": [],
+    "zero_baseline": true,
+    "orientation": "horizontal"
+   }
+  ],
+  "followups": [
+   "接入风险等级、客户分层与AUM分档交叉表后重跑 diagnostic-analysis，下钻定位配置差异集中的子群",
+   "补充产品持有与交易行为标签，检验权益配置不足与客户行为的关联（需以 HYPOTHESIS 方式提出并验证）",
+   "补充占比的分位或个体分布统计，核对现金类占比高于阈值的个体比例",
+   "如关注资产规模口径，可补充AUM月日均余额分布标签，替代被条件截断的时点AUM口径"
+  ]
+ }
+}

@@ -5,6 +5,7 @@ export const DEFAULT_FROM = "/taglibrary/list";
 export type WorkbenchContext = {
   libraryId?: number;
   libraryName?: string;
+  groupId?: number;
   from: string;
 };
 
@@ -16,20 +17,26 @@ export function parseWorkbenchQuery(search: string): WorkbenchContext {
   const params = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
   const rawId = params.get("libraryId");
   const libraryId = rawId ? Number(rawId) : undefined;
+  const groupId = Number(params.get("groupId"));
   return {
     libraryId: Number.isFinite(libraryId) && libraryId! > 0 ? libraryId : undefined,
     libraryName: params.get("libraryName") || undefined,
-    from: isSafeInternalPath(params.get("from")) ? params.get("from")! : DEFAULT_FROM,
+    groupId: Number.isSafeInteger(groupId) && groupId > 0 ? groupId : undefined,
+    from: normalizeBackPath(params.get("from")),
   };
 }
 
 export function requestBackToWorkbench(from: string): void {
-  const target = isSafeInternalPath(from) ? from : DEFAULT_FROM;
+  const target = normalizeBackPath(from);
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ type: AGENT_BACK_MESSAGE, from: target }, window.location.origin);
     return;
   }
   window.location.assign(target);
+}
+
+export function normalizeBackPath(from: string | null | undefined): string {
+  return isSafeInternalPath(from) ? from.replace(/^\/objectgroup\/list(?=[?#]|$)/, "/objectgroup/group") : DEFAULT_FROM;
 }
 
 export function requestLogout(): void {

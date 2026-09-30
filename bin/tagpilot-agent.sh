@@ -16,12 +16,13 @@ if [[ -z "${TAG_LLM_BASE_URL:-}" || -z "${TAG_LLM_MODEL:-}" ]]; then
   fi
 fi
 
-# 仅对官方 DeepSeek 地址作确定映射；第三方网关必须显式给出 Anthropic 协议地址。
-if [[ -z "${ANTHROPIC_BASE_URL:-}" && "${TAG_LLM_BASE_URL:-}" == "https://api.deepseek.com" ]]; then
+# 模型配置：TAG_LLM_* 是权威配置，DeepSeek 官方地址必须覆盖宿主环境可能残留的 ANTHROPIC_*（如桌面会话的中转地址），
+# 否则模型请求会带着错误的端点返回 401。第三方网关不走映射，仍须显式提供 Anthropic 协议地址（ANTHROPIC_BASE_URL）。
+if [[ -n "${TAG_LLM_BASE_URL:-}" && "${TAG_LLM_BASE_URL}" == "https://api.deepseek.com" ]]; then
   export ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"
 fi
-export ANTHROPIC_MODEL="${ANTHROPIC_MODEL:-${TAG_LLM_MODEL:-deepseek-flash}}"
-export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-${TAG_LLM_API_KEY:-}}"
+export ANTHROPIC_MODEL="${TAG_LLM_MODEL:-${ANTHROPIC_MODEL:-deepseek-flash}}"
+export ANTHROPIC_API_KEY="${TAG_LLM_API_KEY:-${ANTHROPIC_API_KEY:-}}"
 export TAG_AGENT_RUNTIME="${TAG_AGENT_RUNTIME:-claude_sdk}"
 export TAG_AGENT_MAX_CONCURRENCY="${TAG_AGENT_MAX_CONCURRENCY:-2}"
 

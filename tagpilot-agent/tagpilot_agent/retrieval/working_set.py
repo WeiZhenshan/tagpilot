@@ -15,7 +15,7 @@ def merge(ctx,data,details=False):
     if any(int(t['tag_id']) not in ctx.eligible for t in tags):raise SemanticRetrieveError(403,'返回了资格外标签')
     codes=context.get('code_values',[])
     if any(int(c['tag_id']) not in ctx.eligible for c in codes):raise SemanticRetrieveError(403,'返回了资格外码值')
-    ctx.tags.update({int(t['tag_id']):deepcopy(t) for t in tags})
+    ctx.tags.update({int(t['tag_id']):deepcopy(t) for t in tags if details or int(t['tag_id']) not in ctx.details_loaded})
     index={(int(c['tag_id']),str(c['code'])):c for c in ctx.codes}
     index.update({(int(c['tag_id']),str(c['code'])):deepcopy(c) for c in codes})
     ctx.codes=list(index.values())

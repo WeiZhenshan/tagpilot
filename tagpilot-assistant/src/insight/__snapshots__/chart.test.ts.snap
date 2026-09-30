@@ -1,0 +1,1081 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ECharts 适配器稳定输出 > asset_structure_profile/asset_mix snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        60,
+        39,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "流动资产",
+      "stack": "composition",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        20,
+        31,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "定期",
+      "stack": "composition",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        20,
+        30,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "投资资产",
+      "stack": "composition",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "max": 100,
+    "min": 0,
+    "name": "资产金额占比（%）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "客群",
+      "同层级基准",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > asset_structure_profile/aum_bands snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        80,
+        100,
+        60,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "客群",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        200,
+        400,
+        200,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "基准",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "min": 0,
+    "name": "客户数（人）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "普通层级",
+      "中等层级",
+      "高资产层级",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > asset_structure_profile/holder_mix snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        75,
+        50,
+        37.5,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "客群",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "max": 100,
+    "min": 0,
+    "name": "持有客户占比（%）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "流动资产",
+      "定期",
+      "投资资产",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > opportunity_priority/channels snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        50,
+        40,
+        20,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "电话",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        30,
+        20,
+        20,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "手机银行",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "min": 0,
+    "name": "客户数（人）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "高",
+      "中",
+      "低",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > opportunity_priority/contributions snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        25,
+        15,
+        5,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "价值",
+      "stack": "composition",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        20,
+        10,
+        0,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "需求事件",
+      "stack": "composition",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        20,
+        15,
+        10,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "产品缺口",
+      "stack": "composition",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        15,
+        5,
+        0,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "历史响应",
+      "stack": "composition",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        10,
+        10,
+        10,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "渠道可达",
+      "stack": "composition",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        0,
+        -5,
+        -10,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "打扰惩罚",
+      "stack": "composition",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "min": -10,
+    "name": "平均贡献（分）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "高",
+      "中",
+      "低",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > opportunity_priority/exclusions snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        20,
+        20,
+        20,
+        0,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "客户",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "min": 0,
+    "name": "排除客户数（人）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "风险不适配",
+      "勿扰",
+      "近期已触达",
+      "无有效渠道",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > opportunity_priority/priority_funnel snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#44617c",
+    "#526979",
+    "#596577",
+    "#606a73",
+    "#626d62",
+  ],
+  "legend": {
+    "show": false,
+  },
+  "series": [
+    {
+      "bottom": 24,
+      "data": [
+        {
+          "name": "客群",
+          "value": 240,
+        },
+        {
+          "name": "可营销",
+          "value": 180,
+        },
+      ],
+      "label": {
+        "color": "#fff",
+        "formatter": "{b}: {c}人",
+        "position": "inside",
+      },
+      "left": "12%",
+      "max": 240,
+      "min": 0,
+      "sort": "none",
+      "top": 15,
+      "type": "funnel",
+      "width": "72%",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "item",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > opportunity_priority/tier_counts snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        80,
+        60,
+        40,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "客户",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "min": 0,
+    "name": "分档人数（人）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "高",
+      "中",
+      "低",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > product_holding_gap/coverage snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 66,
+    "containLabel": true,
+    "left": 12,
+    "right": 28,
+    "top": 24,
+  },
+  "legend": {
+    "bottom": 0,
+    "type": "scroll",
+  },
+  "series": [
+    {
+      "barMaxWidth": 32,
+      "data": [
+        25,
+        50,
+        37.5,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "客群",
+      "type": "bar",
+    },
+    {
+      "barMaxWidth": 32,
+      "data": [
+        75,
+        62.5,
+        35,
+      ],
+      "emphasis": {
+        "focus": "series",
+      },
+      "name": "标准化基准",
+      "type": "bar",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "axis",
+  },
+  "xAxis": {
+    "max": 100,
+    "min": 0,
+    "name": "覆盖率（%）",
+    "nameGap": 28,
+    "nameLocation": "middle",
+    "splitLine": {
+      "lineStyle": {
+        "color": "#e7e9ed",
+      },
+    },
+    "type": "value",
+  },
+  "yAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 90,
+    },
+    "axisTick": {
+      "show": false,
+    },
+    "data": [
+      "理财",
+      "基金",
+      "保险",
+    ],
+    "inverse": true,
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > product_holding_gap/gap_matrix snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#738ca6",
+    "#a3b6c9",
+    "#677861",
+    "#b4bdb0",
+    "#7c7185",
+  ],
+  "grid": {
+    "bottom": 65,
+    "containLabel": true,
+    "left": 12,
+    "right": 24,
+    "top": 45,
+  },
+  "legend": {
+    "show": false,
+  },
+  "series": [
+    {
+      "data": [
+        [
+          0,
+          0,
+          50,
+        ],
+        [
+          0,
+          1,
+          12.5,
+        ],
+        [
+          0,
+          2,
+          -2.5,
+        ],
+      ],
+      "emphasis": {
+        "itemStyle": {
+          "borderColor": "#24272c",
+          "borderWidth": 1,
+        },
+      },
+      "label": {
+        "formatter": "{@[2]}pp",
+        "show": true,
+      },
+      "name": "覆盖缺口（pp）",
+      "type": "heatmap",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "title": {
+    "left": 8,
+    "text": "覆盖缺口（pp）",
+    "textStyle": {
+      "fontSize": 12,
+      "fontWeight": "normal",
+    },
+    "top": 0,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "item",
+  },
+  "visualMap": {
+    "bottom": 0,
+    "calculable": false,
+    "inRange": {
+      "color": [
+        "#edf0f4",
+        "#9fb3c7",
+        "#365e85",
+      ],
+    },
+    "left": "center",
+    "max": 50,
+    "min": -2.5,
+    "orient": "horizontal",
+    "text": [
+      "50pp",
+      "-2.5pp",
+    ],
+  },
+  "xAxis": {
+    "axisLabel": {
+      "interval": 0,
+      "overflow": "break",
+      "width": 100,
+    },
+    "data": [
+      "中高资产",
+      "普通层级",
+    ],
+    "type": "category",
+  },
+  "yAxis": {
+    "data": [
+      "理财",
+      "基金",
+      "保险",
+    ],
+    "type": "category",
+  },
+}
+`;
+
+exports[`ECharts 适配器稳定输出 > product_holding_gap/opportunity_funnel snapshot 1`] = `
+{
+  "animation": false,
+  "animationDuration": 180,
+  "aria": {
+    "decal": {
+      "show": true,
+    },
+    "enabled": true,
+  },
+  "color": [
+    "#365e85",
+    "#44617c",
+    "#526979",
+    "#596577",
+    "#606a73",
+    "#626d62",
+  ],
+  "legend": {
+    "show": false,
+  },
+  "series": [
+    {
+      "bottom": 24,
+      "data": [
+        {
+          "name": "客群",
+          "value": 240,
+        },
+        {
+          "name": "未持有",
+          "value": 180,
+        },
+        {
+          "name": "风险适配",
+          "value": 150,
+        },
+        {
+          "name": "扣除营销排除",
+          "value": 120,
+        },
+      ],
+      "label": {
+        "color": "#fff",
+        "formatter": "{b}: {c}人",
+        "position": "inside",
+      },
+      "left": "12%",
+      "max": 240,
+      "min": 0,
+      "sort": "none",
+      "top": 15,
+      "type": "funnel",
+      "width": "72%",
+    },
+  ],
+  "textStyle": {
+    "color": "#24272c",
+    "fontFamily": "-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif",
+    "fontSize": 12,
+  },
+  "tooltip": {
+    "confine": true,
+    "renderMode": "richText",
+    "trigger": "item",
+  },
+}
+`;

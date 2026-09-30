@@ -100,7 +100,10 @@ export type AgentMessage = {
   revision?: number;
   run_id?: string;
   created_at: string;
+  context_tags?: ContextTag[];
 };
+export type ContextTag = { id: number; name: string };
+export type TagTreeNode = { id: string; label: string; tagId?: number; tagType?: string; dirPath?: string; children?: TagTreeNode[] };
 export type Thread = {
   thread_id: string;
   library_id: number;
@@ -114,15 +117,22 @@ export type Thread = {
   live_plan?: Plan;
   versions: Plan[];
   events: RunEvent[];
-  run_history?: { run_id: string; events: RunEvent[] }[];
+  run_profile?: "audience" | "skill";
+  run_history?: { profile?: string; run_id: string; events: RunEvent[] }[];
   run_id?: string;
   questions?: { clause_id?: string; requirement_id?: string; prompt: string; options?: string[]; reason?: string }[];
   interrupt_id?: string;
   error?: string;
   outcome?: { outcome: string; gaps: { requirement_id: string; reason: string; nearest_tag_ids: number[] }[]; stats?: Record<string, unknown> };
   confirmed_clause_ids?: string[];
-  capabilities: { count: boolean; create: boolean; preview: boolean };
-  count?: {
+  insight_report?: import("./insight/types").InsightReport;
+  skill_report?: import("./insight/types").InsightReport;
+  capabilities: { insight?: boolean; count: boolean; create: boolean; update?: boolean; preview: boolean };
+  source_group_id?: number;
+  source_group_name?: string;
+  source_thread_reused?: boolean;
+  source_requires_validation?: boolean;
+  count?: { plan_hash?: string;
     value: number;
     revision: number;
     executed_at: string;

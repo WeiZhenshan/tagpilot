@@ -89,6 +89,22 @@ def test_salvage_preserves_bound_and_never_valid(tmp_path,reason):
     store.db.close()
 
 
+def test_salvage_preserves_bound_despite_global_diagnostic(tmp_path):
+    store,manager=manager_for(tmp_path)
+    ctx=RunContext(REQ,Evidence())
+    asyncio.run(check(PLAN,ctx))
+    original=deepcopy(ctx.best_plan)
+    ctx.best_plan['tree']={'logic':'AND','children':[ctx.best_plan['tree'],
+        {'kind':'TAG_PREDICATE','clause_id':'b','source_span':'未知条件','requirement_ids':['R2'],'status':'GAP'}]}
+    ctx.best_plan.setdefault('diagnostics',[]).append({'code':'LITERAL_DRIFT','message':'方案遗漏原始需求中的数值'})
+    result=manager.salvage(ctx,Reason.TOOL_BUDGET)
+    assert result['outcome']['stats']['degraded']['kept_clauses']==['a']
+    assert result['outcome']['stats']['degraded']['unresolved_clause_ids']==['b']
+    assert leaves(result['plan']['tree'])[0]==original['tree']
+    assert leaves(result['plan']['tree'])[1]['gap_reason']=='BUDGET_EXHAUSTED'
+    store.db.close()
+
+
 def test_salvage_no_network_and_does_not_trust_stale_previous(tmp_path):
     store,manager=manager_for(tmp_path)
     ctx=RunContext(REQ,Evidence());asyncio.run(check(PLAN,ctx))

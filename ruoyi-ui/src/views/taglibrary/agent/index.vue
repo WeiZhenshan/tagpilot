@@ -23,6 +23,7 @@ export default {
       const params = new URLSearchParams()
       if (query.libraryId) params.set('libraryId', String(query.libraryId))
       if (query.libraryName) params.set('libraryName', String(query.libraryName))
+      if (query.groupId) params.set('groupId', String(query.groupId))
       params.set('from', query.from || AGENT_WORKBENCH_DEFAULT_FROM)
       const qs = params.toString()
       return '/agent-ui/' + (qs ? '?' + qs : '')

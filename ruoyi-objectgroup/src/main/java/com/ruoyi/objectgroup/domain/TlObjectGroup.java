@@ -41,6 +41,10 @@ public class TlObjectGroup extends BaseEntity {
 
     /** 使用标签（列表展示，rule_json 解析） */
     private String tagNames;
+    /** 有保存的智能体方案，可回到圈选工作台编辑。 */
+    private boolean agentEditable;
+    public boolean isAgentEditable() { return agentEditable; }
+    public void setAgentEditable(boolean value) { agentEditable = value; }
 
     public Long getGroupId() { return groupId; }
     public void setGroupId(Long groupId) { this.groupId = groupId; }

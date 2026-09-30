@@ -49,6 +49,8 @@
         <el-alert title="此客群包含经过核验的智能体方案" type="info" :closable="false"
           description="可在此统计人数和查看样例。请回到智能体会话修改条件，避免高级计算规则被简化。" show-icon />
         <p>{{ advancedRule && advancedRule.audiencePlan && advancedRule.audiencePlan.summary }}</p>
+        <el-button size="small" type="primary" v-if="canEditWithAgent"
+          @click="$router.push({ path: '/agent', query: { groupId, libraryId, from: '/objectgroup/group' } })">回到智能体修改条件</el-button>
         <ol><li v-for="cond in conditions" :key="cond.conditionId">{{ cond.tagName || '已发布条件' }}</li></ol>
       </div>
       <div v-if="ruleSchemaVersion < 4" class="preview-col-area">
@@ -237,6 +239,7 @@ import draggable from 'vuedraggable'
 import { listLibrary } from '@/api/taglibrary/library'
 import { tagTree } from '@/api/taglibrary/tag'
 import { getGroup, addGroup, updateGroup, runGroup, previewSql, previewGroup, getCodeOptions } from '@/api/objectgroup/group'
+import { checkPermi } from '@/utils/permission'
 
 let uuidSeq = 0
 
@@ -296,6 +299,9 @@ export default {
     }
   },
   computed: {
+    canEditWithAgent() {
+      return checkPermi(['objectgroup:group:edit']) && checkPermi(['taglibrary:semantic:list'])
+    },
     dragGroup() {
       return { name: 'ruleGroup', pull: 'clone', put: false }
     },

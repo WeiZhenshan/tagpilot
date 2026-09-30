@@ -1,0 +1,998 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Fact Ids",
+          "type": "array"
+        },
+        "population_fact_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Population Fact Id"
+        },
+        "priority": {
+          "default": "NONE",
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "NONE"
+          ],
+          "title": "Priority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "Annotation": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Fact Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "text",
+        "fact_ids"
+      ],
+      "title": "Annotation",
+      "type": "object"
+    },
+    "ChartPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "maxLength": 24,
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "fact_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "column": {
+          "anyOf": [
+            {
+              "maxLength": 24,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Column"
+        }
+      },
+      "required": [
+        "category",
+        "fact_id",
+        "value"
+      ],
+      "title": "ChartPoint",
+      "type": "object"
+    },
+    "ChartSeries": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 24,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Fact Ids",
+          "type": "array"
+        },
+        "points": {
+          "items": {
+            "$ref": "#/$defs/ChartPoint"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Points",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "fact_ids",
+        "points"
+      ],
+      "title": "ChartSeries",
+      "type": "object"
+    },
+    "CohortSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "audience_id": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Audience Id",
+          "type": "string"
+        },
+        "audience_name": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Audience Name",
+          "type": "string"
+        },
+        "library_id": {
+          "exclusiveMinimum": 0,
+          "title": "Library Id",
+          "type": "integer"
+        },
+        "revision": {
+          "minimum": 1,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "plan_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Plan Hash",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "count": {
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "data_as_of": {
+          "format": "date",
+          "title": "Data As Of",
+          "type": "string"
+        },
+        "reference_date": {
+          "format": "date",
+          "title": "Reference Date",
+          "type": "string"
+        },
+        "binding_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Binding Version",
+          "type": "string"
+        },
+        "declared_context": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Declared Context",
+          "type": "string"
+        },
+        "synthetic": {
+          "default": false,
+          "title": "Synthetic",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "audience_id",
+        "audience_name",
+        "library_id",
+        "revision",
+        "plan_hash",
+        "snapshot_id",
+        "count",
+        "data_as_of",
+        "reference_date",
+        "binding_version"
+      ],
+      "title": "CohortSnapshot",
+      "type": "object"
+    },
+    "Comparison": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Fact Ids",
+          "type": "array"
+        },
+        "benchmark_fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Benchmark Fact Ids",
+          "type": "array"
+        },
+        "difference_fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Difference Fact Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "Comparison",
+      "type": "object"
+    },
+    "Diagnosis": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Fact Ids",
+          "type": "array"
+        },
+        "basis": {
+          "enum": [
+            "RULE",
+            "STAT",
+            "HYPOTHESIS"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "statistical_evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StatisticalEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "text",
+        "basis"
+      ],
+      "title": "Diagnosis",
+      "type": "object"
+    },
+    "EvidenceBoundary": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "data_as_of": {
+          "format": "date",
+          "title": "Data As Of",
+          "type": "string"
+        },
+        "skill_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Skill Version",
+          "type": "string"
+        },
+        "sample_fact_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Sample Fact Id",
+          "type": "string"
+        },
+        "metric_definitions": {
+          "items": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Metric Definitions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "text",
+        "data_as_of",
+        "skill_version",
+        "sample_fact_id",
+        "metric_definitions"
+      ],
+      "title": "EvidenceBoundary",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "enum": [
+            "人",
+            "元",
+            "%",
+            "pp",
+            "分"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "sample_size": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Size"
+        },
+        "status": {
+          "default": "AVAILABLE",
+          "enum": [
+            "AVAILABLE",
+            "SUPPRESSED",
+            "MISSING"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "query_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Query Id",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "denominator_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Denominator Id"
+        },
+        "derived_from": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Derived From",
+          "type": "array"
+        },
+        "role": {
+          "default": "OBSERVED",
+          "enum": [
+            "OBSERVED",
+            "BENCHMARK",
+            "POST_EXCLUSION",
+            "DERIVED"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "exclusions_applied": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Exclusions Applied",
+          "type": "array"
+        },
+        "calculation": {
+          "default": "DIRECT",
+          "enum": [
+            "DIRECT",
+            "RATIO",
+            "WEIGHTED"
+          ],
+          "title": "Calculation",
+          "type": "string"
+        },
+        "weights": {
+          "maxProperties": 144,
+          "patternProperties": {
+            "^[a-z][a-z0-9_.-]{0,79}$": {
+              "type": "number"
+            }
+          },
+          "title": "Weights",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "metric",
+        "label",
+        "value",
+        "unit",
+        "query_id",
+        "evidence"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "InsightCard": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "facts": {
+          "$ref": "#/$defs/Statement"
+        },
+        "comparison": {
+          "$ref": "#/$defs/Comparison"
+        },
+        "diagnosis": {
+          "$ref": "#/$defs/Diagnosis"
+        },
+        "action": {
+          "$ref": "#/$defs/Action"
+        },
+        "boundary": {
+          "$ref": "#/$defs/EvidenceBoundary"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "facts",
+        "comparison",
+        "diagnosis",
+        "action",
+        "boundary"
+      ],
+      "title": "InsightCard",
+      "type": "object"
+    },
+    "InsightChartSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "kpi",
+            "table",
+            "bar",
+            "stacked_bar",
+            "heatmap",
+            "funnel"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "intent": {
+          "enum": [
+            "single_value",
+            "compare_categories",
+            "show_composition",
+            "show_distribution",
+            "show_matrix",
+            "show_conversion"
+          ],
+          "title": "Intent",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "人",
+            "元",
+            "%",
+            "pp",
+            "分"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "metric_label": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Metric Label",
+          "type": "string"
+        },
+        "series": {
+          "items": {
+            "$ref": "#/$defs/ChartSeries"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Series",
+          "type": "array"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/Annotation"
+          },
+          "maxItems": 8,
+          "title": "Annotations",
+          "type": "array"
+        },
+        "reconcile": {
+          "items": {
+            "$ref": "#/$defs/Reconcile"
+          },
+          "maxItems": 12,
+          "title": "Reconcile",
+          "type": "array"
+        },
+        "zero_baseline": {
+          "const": true,
+          "default": true,
+          "title": "Zero Baseline",
+          "type": "boolean"
+        },
+        "orientation": {
+          "default": "horizontal",
+          "enum": [
+            "horizontal",
+            "vertical"
+          ],
+          "title": "Orientation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "kind",
+        "intent",
+        "unit",
+        "metric_label",
+        "series"
+      ],
+      "title": "InsightChartSpec",
+      "type": "object"
+    },
+    "Reconcile": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "sum",
+            "percentage",
+            "funnel"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Fact Ids",
+          "type": "array"
+        },
+        "total_fact_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Fact Id"
+        },
+        "tolerance": {
+          "default": 0.01,
+          "maximum": 0.05,
+          "minimum": 0,
+          "title": "Tolerance",
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "fact_ids"
+      ],
+      "title": "Reconcile",
+      "type": "object"
+    },
+    "SkillResult": {
+      "additionalProperties": false,
+      "properties": {
+        "registry_version": {
+          "anyOf": [
+            {
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registry Version"
+        },
+        "definition_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Definition Hash"
+        },
+        "skill_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Skill Id",
+          "type": "string"
+        },
+        "skill_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "title": "Skill Version",
+          "type": "string"
+        },
+        "pack_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Pack Hash",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "COMPLETE",
+            "PARTIAL",
+            "BLOCKED"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "level": {
+          "anyOf": [
+            {
+              "enum": [
+                "L2",
+                "L3",
+                "L4"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Level"
+        },
+        "reasons": {
+          "items": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Reasons",
+          "type": "array"
+        },
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "maxItems": 300,
+          "title": "Facts",
+          "type": "array"
+        },
+        "cards": {
+          "items": {
+            "$ref": "#/$defs/InsightCard"
+          },
+          "maxItems": 20,
+          "title": "Cards",
+          "type": "array"
+        },
+        "charts": {
+          "items": {
+            "$ref": "#/$defs/InsightChartSpec"
+          },
+          "maxItems": 30,
+          "title": "Charts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "skill_id",
+        "skill_version",
+        "pack_hash",
+        "status"
+      ],
+      "title": "SkillResult",
+      "type": "object"
+    },
+    "Statement": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Fact Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "Statement",
+      "type": "object"
+    },
+    "StatisticalEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "wilson_bonferroni",
+          "default": "wilson_bonferroni",
+          "title": "Method",
+          "type": "string"
+        },
+        "cohort_rate_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Cohort Rate Id",
+          "type": "string"
+        },
+        "benchmark_rate_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Benchmark Rate Id",
+          "type": "string"
+        },
+        "cohort_interval": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Cohort Interval",
+          "type": "array"
+        },
+        "benchmark_interval": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Benchmark Interval",
+          "type": "array"
+        },
+        "threshold_pp": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Threshold Pp",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cohort_rate_id",
+        "benchmark_rate_id",
+        "cohort_interval",
+        "benchmark_interval",
+        "threshold_pp"
+      ],
+      "title": "StatisticalEvidence",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "level": {
+      "anyOf": [
+        {
+          "enum": [
+            "L2",
+            "L3",
+            "L4"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Level"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "run_id": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "cohort": {
+      "$ref": "#/$defs/CohortSnapshot"
+    },
+    "results": {
+      "items": {
+        "$ref": "#/$defs/SkillResult"
+      },
+      "maxItems": 3,
+      "minItems": 1,
+      "title": "Results",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "cohort",
+    "results"
+  ],
+  "title": "InsightReport",
+  "type": "object"
+}

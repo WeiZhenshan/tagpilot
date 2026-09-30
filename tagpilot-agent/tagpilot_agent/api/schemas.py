@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 from tagpilot_agent.agent.outcome import Question
 
 class ClarificationRecord(BaseModel):
@@ -13,6 +13,10 @@ class ClarificationState(BaseModel):
 
 class RunRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
+    profile: str = Field(default='audience',pattern=r'^(audience|skill)$')
+    skill_name: str | None = Field(default=None,pattern=r'^[a-z0-9]+(?:-[a-z0-9]+)*$',max_length=64)
+    skill_packages: list[dict] = Field(default_factory=list,max_length=60)
+    cohort_context: dict = Field(default_factory=dict)
     run_id: str = Field(pattern=r'^[a-zA-Z0-9-]{1,64}$')
     thread_id: str = Field(pattern=r'^[a-zA-Z0-9-]{1,64}$')
     owner_id: str = Field(min_length=1,max_length=64)
@@ -21,15 +25,31 @@ class RunRequest(BaseModel):
     snapshot_id: str
     artifact_hash: str
     eligible_tag_ids: list[int] = Field(max_length=100000)
+    pinned_tag_ids: list[PositiveInt] = Field(default_factory=list,max_length=5)
+    pinned_only: bool = False
     requirement: str = Field(min_length=1,max_length=2000)
     reference_date: str | None = Field(default=None,pattern=r'^\d{4}-\d{2}-\d{2}$')
     timezone: str = Field(default='Asia/Shanghai',max_length=64)
     previous_plan: dict = Field(default_factory=dict)
+    source_plan: dict = Field(default_factory=dict)
     edited_plan: dict | None = None
     history: list[dict] = Field(default_factory=list,max_length=20)
     confirmed_clause_ids: list[str] = Field(default_factory=list,max_length=30)
     clarification_state: ClarificationState = Field(default_factory=ClarificationState)
     continuation_of: str | None = Field(default=None,pattern=r'^[a-zA-Z0-9-]{1,64}$')
+
+    @model_validator(mode='after')
+    def validate_pinned(self):
+        if len(set(self.pinned_tag_ids))!=len(self.pinned_tag_ids) or not set(self.pinned_tag_ids)<=set(self.eligible_tag_ids):
+            raise ValueError('所选标签必须唯一且属于当前可用标签')
+        if self.pinned_only and not self.pinned_tag_ids:
+            raise ValueError('仅选标签入口必须提供标签')
+        if self.profile == 'skill':
+            if not self.skill_name or not self.cohort_context.get('plan',{}).get('valid') or self.edited_plan or self.pinned_only:
+                raise ValueError('技能运行需要当前已核验客群上下文')
+        elif self.skill_packages or self.skill_name or self.cohort_context:
+            raise ValueError('圈选运行不能注入技能上下文')
+        return self
 
 class ResumeRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')

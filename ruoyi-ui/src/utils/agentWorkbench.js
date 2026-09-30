@@ -21,5 +21,7 @@ export function agentWorkbenchLocation(options) {
 
 export function parseAgentBackPath(payload) {
   var from = payload && payload.from
-  return isSafeInternalPath(from) ? from : AGENT_WORKBENCH_DEFAULT_FROM
+  if (!isSafeInternalPath(from)) return AGENT_WORKBENCH_DEFAULT_FROM
+  // 兼容已经打开的旧工作台链接；菜单的真实路由是 /objectgroup/group。
+  return from.replace(/^\/objectgroup\/list(?=[?#]|$)/, '/objectgroup/group')
 }

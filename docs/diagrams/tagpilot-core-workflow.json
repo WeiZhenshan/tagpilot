@@ -1,0 +1,285 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "TagPilot 标签智能体 · 核心工作流",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/tagpilot-core-workflow.html"
+  },
+  "lanes": [
+    {
+      "id": "ui",
+      "label": "工作台界面 · ruoyi-ui / Assistant"
+    },
+    {
+      "id": "java",
+      "label": "若依 Java 后端 · 身份 / 编译 / 统计 / 建群"
+    },
+    {
+      "id": "agent",
+      "label": "Agent 编排层 · tagpilot-agent :8092"
+    },
+    {
+      "id": "infra",
+      "label": "语义检索服务 · 条件分支"
+    }
+  ],
+  "phases": [
+    {
+      "id": "intake",
+      "label": "接入与授权",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "reason",
+      "label": "检索与推理",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "settle",
+      "label": "校验与交付",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "groups": [
+    {
+      "id": "supervised_loop",
+      "label": "受预算约束的单 Agent 循环",
+      "lane": "agent",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "deterministic",
+      "label": "确定性复核（不依赖模型）",
+      "lane": "agent",
+      "fromCol": 4,
+      "toCol": 4,
+      "variant": "security"
+    }
+  ],
+  "mainPath": [
+    "submit",
+    "authority",
+    "context",
+    "loop",
+    "guard",
+    "terminal",
+    "deliver"
+  ],
+  "nodes": [
+    {
+      "id": "submit",
+      "lane": "ui",
+      "col": 0,
+      "type": "frontend",
+      "label": "提交一句话需求",
+      "sublabel": "所选标签 + 方案版本",
+      "tag": "base_revision / plan_hash",
+      "width": 150
+    },
+    {
+      "id": "authority",
+      "lane": "java",
+      "col": 1,
+      "type": "security",
+      "label": "权威校验并注入上下文",
+      "sublabel": "归属 · 运行权限 · 发布快照",
+      "tag": "TsAgentWorkbenchService",
+      "width": 158
+    },
+    {
+      "id": "deliver",
+      "lane": "java",
+      "col": 5,
+      "type": "database",
+      "label": "编译 SQL · 统计 · 建群",
+      "sublabel": "最终交付：可用客群",
+      "tag": "Java 持有编译与建群权限",
+      "width": 158
+    },
+    {
+      "id": "context",
+      "lane": "agent",
+      "col": 2,
+      "type": "backend",
+      "label": "装配 WorkingSet 与码值",
+      "sublabel": "发布详情 + 服务端基准日",
+      "width": 150
+    },
+    {
+      "id": "loop",
+      "lane": "agent",
+      "col": 3,
+      "type": "backend",
+      "label": "Claude Agent SDK 工具循环",
+      "sublabel": "五领域工具 · 最多 16 轮",
+      "tag": "TAG_AGENT_RUNTIME=claude_sdk",
+      "width": 178
+    },
+    {
+      "id": "guard",
+      "lane": "agent",
+      "col": 4,
+      "type": "security",
+      "label": "确定性 Guard",
+      "sublabel": "来源 · 数值 · 时间 · 覆盖",
+      "tag": "version + eligibility",
+      "width": 148
+    },
+    {
+      "id": "terminal",
+      "lane": "agent",
+      "col": 5,
+      "type": "backend",
+      "label": "终态 submit_result",
+      "sublabel": "READY / NEEDS_USER_INPUT / …",
+      "tag": "schema_version=3",
+      "width": 156
+    },
+    {
+      "id": "semantic",
+      "lane": "infra",
+      "col": 2,
+      "type": "cloud",
+      "label": "语义检索",
+      "sublabel": "lookup / retrieve_batch",
+      "tag": "tagpilot-semantic :8091",
+      "width": 140
+    },
+    {
+      "id": "revise",
+      "lane": "infra",
+      "col": 5,
+      "type": "messagebus",
+      "label": "回灌与追问分支",
+      "sublabel": "repair ≤2 次 · resume 补全",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "submit-authority",
+      "from": "submit",
+      "to": "authority",
+      "variant": "default",
+      "role": "main",
+      "fromSide": "bottom"
+    },
+    {
+      "id": "authority-context",
+      "from": "authority",
+      "to": "context",
+      "label": "POST /agent/v2/runs",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "context-loop",
+      "from": "context",
+      "to": "loop",
+      "variant": "default",
+      "role": "main"
+    },
+    {
+      "id": "loop-guard",
+      "from": "loop",
+      "to": "guard",
+      "label": "提交终态 · 预算达阈值则收敛收尾",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "guard-terminal",
+      "from": "guard",
+      "to": "terminal",
+      "label": "通过",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "terminal-deliver",
+      "from": "terminal",
+      "to": "deliver",
+      "label": "READY 方案",
+      "variant": "emphasis",
+      "role": "main"
+    },
+    {
+      "id": "loop-semantic",
+      "from": "loop",
+      "to": "semantic",
+      "label": "find_tags deep",
+      "variant": "default",
+      "role": "branch"
+    },
+    {
+      "id": "semantic-loop",
+      "from": "semantic",
+      "to": "loop",
+      "label": "候选标签与证据",
+      "variant": "default",
+      "role": "return",
+      "fromSide": "top"
+    },
+    {
+      "id": "guard-revise",
+      "from": "guard",
+      "to": "revise",
+      "label": "不通过",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "terminal-revise",
+      "from": "terminal",
+      "to": "revise",
+      "label": "NEEDS_USER_INPUT",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "revise-loop",
+      "from": "revise",
+      "to": "loop",
+      "label": "结构化诊断回灌 · resume 补全",
+      "variant": "dashed",
+      "role": "return",
+      "fromSide": "left"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "权威边界",
+      "items": [
+        "Java 独占身份、当前标签资格、发布版本、编译、统计与建群权限",
+        "Agent 不生成 SQL、不查询客户明细、不自动执行圈选"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "确定性 Guard",
+      "items": [
+        "纯 Python 校验来源、数值、时间、冻结条件与需求覆盖，不依赖 SDK",
+        "预算耗尽返回 L2/L3 草案，不宣称业务能力缺失"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "三条条件分支",
+      "items": [
+        "Guard 不通过 → repair 结构化诊断回灌，最多 2 次",
+        "预算达阈值 → 收敛收尾，冻结已确认叶子",
+        "NEEDS_USER_INPUT → 每轮最多 3 题，追问后经 resume 补全"
+      ]
+    }
+  ]
+}

@@ -12,6 +12,7 @@ dependencies = ["pydantic>=2.10,<3"]
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "jsonschema>=4,<5"]
 live = ["PyYAML>=6,<7"]
+insight = ["tagpilot-agent>=0.1.0"]
 
 [project.scripts]
 tagpilot-eval = "tagpilot_eval.cli:main"
@@ -22,3 +23,6 @@ include = ["tagpilot_eval*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.uv.sources]
+tagpilot-agent = { path = "../tagpilot-agent", editable = true }

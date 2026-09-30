@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "ruoyi-ui/src/views/objectgroup/edit/index.vue"
+        ],
+        "createdAt": "2026-09-29T06:59:04.249Z",
+        "reason": "Codex 审查：HEAD 已有 .rule-row.is-invalid 的 3px 红边，模板仅在 !isConditionValid(cond) 时启用，用于标示校验失败条件，不是装饰性卡片强调；本次未修改该样式。"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "tagpilot-assistant/src/insight/chart.test.ts"
+        ],
+        "createdAt": "2026-09-29T13:44:42.324Z",
+        "reason": "Agent 判定：HTML 注入对抗测试的字符串，已由图表 Guard 拒绝，不是页面图片。"
+      }
+    ]
+  }
+}

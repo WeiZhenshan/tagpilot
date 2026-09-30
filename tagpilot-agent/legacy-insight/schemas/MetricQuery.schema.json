@@ -1,0 +1,368 @@
+{
+  "$defs": {
+    "AggregateQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "aggregate",
+          "title": "Node",
+          "type": "string"
+        },
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "count",
+            "sum",
+            "avg",
+            "median",
+            "percentile"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "percentile": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Percentile"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "metric",
+        "operation"
+      ],
+      "title": "AggregateQuery",
+      "type": "object"
+    },
+    "BandQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "band",
+          "title": "Node",
+          "type": "string"
+        },
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "cuts": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Cuts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "metric",
+        "cuts"
+      ],
+      "title": "BandQuery",
+      "type": "object"
+    },
+    "FlagRateQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "flag_rate",
+          "title": "Node",
+          "type": "string"
+        },
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "exclusions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "suitability_category": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Suitability Category"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "metric"
+      ],
+      "title": "FlagRateQuery",
+      "type": "object"
+    },
+    "ScoreBand": {
+      "additionalProperties": false,
+      "properties": {
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Upper"
+        },
+        "points": {
+          "maximum": 100,
+          "minimum": -100,
+          "title": "Points",
+          "type": "number"
+        }
+      },
+      "required": [
+        "upper",
+        "points"
+      ],
+      "title": "ScoreBand",
+      "type": "object"
+    },
+    "ScoreComponent": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Metric",
+          "type": "string"
+        },
+        "weight": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Weight",
+          "type": "number"
+        },
+        "bands": {
+          "items": {
+            "$ref": "#/$defs/ScoreBand"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Bands",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metric",
+        "weight",
+        "bands"
+      ],
+      "title": "ScoreComponent",
+      "type": "object"
+    },
+    "ScoreQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "population": {
+          "default": "cohort",
+          "enum": [
+            "cohort",
+            "benchmark"
+          ],
+          "title": "Population",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 2,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "node": {
+          "const": "score",
+          "title": "Node",
+          "type": "string"
+        },
+        "profile": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+          "title": "Profile",
+          "type": "string"
+        },
+        "assumption": {
+          "const": true,
+          "title": "Assumption",
+          "type": "boolean"
+        },
+        "exclusions": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,79}$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 4,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/ScoreComponent"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Components",
+          "type": "array"
+        },
+        "tier_cuts": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Tier Cuts",
+          "type": "array"
+        },
+        "reason_top_k": {
+          "const": 2,
+          "default": 2,
+          "title": "Reason Top K",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "node",
+        "profile",
+        "assumption",
+        "exclusions",
+        "components",
+        "tier_cuts"
+      ],
+      "title": "ScoreQuery",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "aggregate": "#/$defs/AggregateQuery",
+      "band": "#/$defs/BandQuery",
+      "flag_rate": "#/$defs/FlagRateQuery",
+      "score": "#/$defs/ScoreQuery"
+    },
+    "propertyName": "node"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/AggregateQuery"
+    },
+    {
+      "$ref": "#/$defs/BandQuery"
+    },
+    {
+      "$ref": "#/$defs/FlagRateQuery"
+    },
+    {
+      "$ref": "#/$defs/ScoreQuery"
+    }
+  ]
+}

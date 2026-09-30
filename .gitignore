@@ -65,6 +65,10 @@ skills-lock.json
 # Windows 上传路径误建目录（RuoYi 默认 uploadPath）
 /D:/
 
+# PPT 构建的本机 Python 虚拟环境与中间产物
+/.pptx-venv/
+/.pptx-build/
+
 # 项目参考文档（本地资料，不提交）
 docs/项目参考文档/
 
@@ -83,3 +87,16 @@ docs/项目参考文档/
 
 # 标签评测工程（独立 Python 项目，不参与运行时、CI 与构建）
 /tagpilot-eval/
+
+# 洞察评测新增入口纳入交付，保留其他本地评测产物忽略规则
+!/tagpilot-eval/
+/tagpilot-eval/*
+!/tagpilot-eval/tagpilot_eval/
+/tagpilot-eval/tagpilot_eval/*
+!/tagpilot-eval/tagpilot_eval/insight.py
+
+######################################################################
+# Python
+
+__pycache__/
+*.pyc

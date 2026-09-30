@@ -27,6 +27,7 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | 标签系统核心功能模块详解 | 架构 / 模块说明 | 全局 | [`architecture/标签系统核心功能模块详解.md`](architecture/标签系统核心功能模块详解.md) | 统一标签管理系统的定位与四大核心模块（数据代理 / 标签库 / 对象群 / 审批流程）的功能定义与机制 | 现行 |
 | 标签语义引擎与 Agent 编排层 | 架构 / 使用指南 | taglibrary + tagpilot-semantic + tagpilot-agent + tagpilot-assistant | [`architecture/标签语义引擎与Agent编排层.md`](architecture/标签语义引擎与Agent编排层.md) | 对照代码整理：`ts_*` 语义层、快照/索引、六通道检索、历史 LangGraph 圈选工作台（threads/runs）、智能体工作台；含本机启动与运营使用指南 | 语义层参考；Agent runtime 以 SDK 实施记录为准 |
 | Agent V2 圈选工作台 | 实施说明 / 验证 | taglibrary + objectgroup + agent + assistant | [`development/Agent-V2实施说明.md`](development/Agent-V2实施说明.md) | 持久会话、条件树、工具循环、Ask、版本统计与确认创建；含开发计划和验证边界 | 现行（2026-09-21） |
+| 标签上下文与客群编辑 | 实施说明 / 验证 | taglibrary + objectgroup + agent + assistant | [`development/标签上下文与客群编辑实施说明.md`](development/标签上下文与客群编辑实施说明.md) | 左栏最多5项多选、补充说明、标签chip全链路及原客群回灌/更新；含权限与迁移边界 | 现行（2026-09-29） |
 
 ### 设计 `docs/design/`
 
@@ -48,7 +49,20 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | 文档 | 类别 | 所属模块 | 路径 | 用途 | 状态 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | Agent SDK 重构实施记录 | 实施 / 验证边界 | tagpilot-agent + semantic + Java + assistant | [`development/Agent-SDK重构实施记录.md`](development/Agent-SDK重构实施记录.md) | SDK 替换、渐进检索、诊断、金标冒烟与 2026-09-24 完整验证（测试、封存 A/B、61×3 评测、容量、人数对齐、缺陷） | 本地实施与完整验证完成；生产观察待部署 |
+| Agent 原生 Skill 登记与调用 | 实施 / 验证边界 | agent + Java + 两套前端 | [`development/Agent原生Skill接入.md`](development/Agent原生Skill接入.md) | 全局草稿/发布、标准 SKILL.md、工作台 / 调用、服务端客群上下文 | 2026-09-30 本地实现；数据库迁移与服务发布待执行 |
+| 洞察元 Skill 底座 | 实施 / 验证边界 | skills 源码 + agent + Java + assistant | [`development/元Skill底座实施记录.md`](development/元Skill底座实施记录.md) | 分析三件套（事实/诊断/行动）+ 图表三件套、insight-result 结果契约与工作台渲染闭环、种子与登记、真实模型对照评测 | 2026-09-30 本地实现与端到端验证完成；指标取数通道由《标签 Chip 取数与 Skill 分析上下文接入》补齐 |
+| 标签 Chip 取数与 Skill 分析上下文 | 实施 / 验证边界 | skills 源码 + agent + Java + assistant | [`development/标签Chip取数与Skill上下文.md`](development/标签Chip取数与Skill上下文.md) | 技能运行可携带左栏标签 chip；按已核验客群取列级统计与脱敏明细注入 `cohort_context`；服务端复核 `tagstat.*` 数值 | 2026-09-30 本地实现、自动化验证与 1,422 人真实全栈对账完成；大客群聚合性能压测待做 |
+| 对照客群基准接入 | 实施 / 验证边界 | skills 源码 + agent + Java + assistant | [`development/对照客群基准接入.md`](development/对照客群基准接入.md) | 技能运行可选「对照客群」，服务端同口径取数注入 `baseline`；`benchmark.*`/`diff.*` 白名单复核；技能墙钟预算独立 | 2026-09-30 本地实现与真实模型彩排完成；演示脚本见 [`交付文档/演示脚本（客群资产结构透视）-v1.0.md`](交付文档/演示脚本（客群资产结构透视）-v1.0.md) |
+| 洞察 Skill 体系实施记录（历史） | 实施 / 验证边界 | Agent 内旧报告兼容代码 + Java + assistant | [`development/洞察Skill体系实施记录.md`](development/洞察Skill体系实施记录.md) | 亮点二对齐、G1/G2/G3 聚合计算 / 统计、治理、工作台、受控模型与独立 SQL 验证 | P0–P7 本地实现及固定合成验证完成（2026-09-29）；真实绑定、MySQL / HTTP 整链与业务验收待完成 |
 | 若依环境使用手册 | 开发环境 / 部署指南 | 全局 | [`development/若依环境使用手册.docx`](development/若依环境使用手册.docx) | 若依系统开发环境搭建（Maven、Eclipse、数据库与日志配置）、启动验证、war/jar 部署 | 现行（注意：文内指向的初始化脚本名为旧版 `sql/ry_20180423.sql`/`quartz.sql`，当前初始化脚本为 `sql/init/ry_init.sql`） |
+
+### 交付 `docs/交付文档/`
+
+面向甲方/验收方的正式交付材料。当前是一份对齐竞赛「四、预期交付物」的**交付清单**：7 篇设计文档 + 黄金闭环 MVP/代码库/演示视频 + 路演 PPT，逐项标注现状、可复用素材与缺口。收录与命名约定见 [`交付文档/README.md`](交付文档/README.md)。
+
+| 文档 | 类别 | 所属模块 | 路径 | 用途 | 状态 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 交付清单（对齐预期交付物） | 交付清单 / 目录约定 | 全局 | [`交付文档/README.md`](交付文档/README.md) | 三大类 14 项交付物逐项现状与缺口：设计文档 6 项待成稿、接口清单缺失、PPT 与视频待产出 | 目录与清单已建立（2026-09-29）；正式交付件尚未放入 |
 
 ### 工作流固定路径（保留在 `docs/superpowers/specs/`）
 
@@ -125,6 +139,7 @@ superpowers 工作流按约定把计划与规格写入 `docs/superpowers/{plans,
 | `design/` | 详细设计、模块设计、功能设计、技术方案、数据模型设计、接口设计 |
 | `plans/` | 项目计划、实施计划、Roadmap、迁移/重构计划 |
 | `development/` | 本地开发环境、开发指南、编码规范、工程规范、模块开发说明 |
+| `交付文档/` | 面向甲方/验收方的正式交付材料：交付说明书、部署运维手册、验收报告、交付清单、演示材料 |
 | `superpowers/` | superpowers 工作流固定产物目录，**不要手工往里放东西** |
 
 只创建有实际文档的目录；某个分类暂时没有文档就不要创建空目录。跨模块、项目级的文档放 `docs/`；模块自身的运行说明留在模块根目录。

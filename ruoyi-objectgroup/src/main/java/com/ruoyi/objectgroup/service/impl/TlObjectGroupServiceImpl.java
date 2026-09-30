@@ -92,13 +92,27 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         List<TlObjectGroup> list = groupMapper.selectObjectGroupList(query);
         for (TlObjectGroup g : list) {
             g.setTagNames(extractTagNames(g.getRuleJson()));
+            g.setAgentEditable(hasAudiencePlan(g.getRuleJson()));
         }
         return list;
     }
 
     @Override
     public TlObjectGroup selectObjectGroupById(Long groupId) {
-        return groupMapper.selectObjectGroupById(groupId);
+        TlObjectGroup group=groupMapper.selectObjectGroupById(groupId);
+        if(group!=null)group.setAgentEditable(hasAudiencePlan(group.getRuleJson()));
+        return group;
+    }
+    @Override
+    public TlObjectGroup selectObjectGroupByIdForUpdate(Long groupId) {
+        return groupMapper.selectObjectGroupByIdForUpdate(groupId);
+    }
+    private boolean hasAudiencePlan(String ruleJson) {
+        if(ruleJson==null)return false;
+        try {
+            RulePayload rule=objectMapper.readValue(ruleJson,RulePayload.class);
+            return rule.getSchemaVersion()!=null && rule.getSchemaVersion()>=4 && rule.getAudiencePlan()!=null && rule.getAudiencePlan().containsKey("tree");
+        } catch(Exception e) {return false;}
     }
 
     @Override

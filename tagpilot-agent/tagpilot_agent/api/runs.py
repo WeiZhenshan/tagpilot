@@ -37,6 +37,9 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
                     resources['store'].db.close();resources['lease'].close();resources.clear()
     app.router.lifespan_context=lifespan
 
+    from .insight import register_insight
+    register_insight(app,authenticate,runtime)
+
     def lookup(rid,owner):
         try:return runtime()['store'].get(rid,owner)
         except KeyError:raise HTTPException(404,'运行不存在')
@@ -48,7 +51,7 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
             try:
                 row=res['store'].get(request.run_id,request.owner_id)
             except KeyError:row=None
-            if row is None and request.continuation_of:
+            if row is None and request.continuation_of and request.profile!='skill':
                 previous=lookup(request.continuation_of,request.owner_id)
                 if previous['thread']!=request.thread_id:raise HTTPException(409,'续跑来源不属于当前会话')
                 if not payload['clarification_state']['records']:
@@ -70,6 +73,7 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
         return {'thread_id':thread_id,'deleted_runs':len(ids)}
 
     def claim(rid,row,request,repair=False):
+        if row['payload'].get('profile') in {'insight','skill'}:raise HTTPException(409,'技能必须复核当前快照后重新运行')
         res=runtime();res['manager'].capacity()
         if rid in res['manager'].tasks:raise HTTPException(409,'运行尚未释放，请稍后重试')
         if not res['store'].claim(rid,request.owner_id,completed=repair):raise HTTPException(409,'当前运行不能恢复')
@@ -115,7 +119,7 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
     async def cancel(rid:str,request:ResumeRequest):
         lookup(rid,request.owner_id);res=runtime()
         ctx=res['manager'].contexts.get(rid)
-        if ctx and ctx.best_plan:res['store'].status(rid,'RUNNING',{'plan':ctx.best_plan,'questions':[],'interrupt_id':None})
+        if ctx and getattr(ctx,"best_plan",None):res['store'].status(rid,'RUNNING',{'plan':ctx.best_plan,'questions':[],'interrupt_id':None})
         res['store'].cancel(rid,request.owner_id);await res['manager'].cancel(rid)
         res['store'].emit(rid,{'type':'run.cancelled','message':'已停止；已完成条件保留'})
         return {'run_id':rid,'status':'CANCELLED'}

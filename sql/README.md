@@ -46,6 +46,8 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 
 | `V20260921_03__agent_workbench_v2.sql` | 用户会话密文与按方案版本的幂等执行记录 | **是**（CI Deploy） | 否 | 按文件名排序 | 现有若依用户、标签库与对象群模块 | taglibrary | 全部 | 自研迁移器 | 无历史数据覆盖；运行和检查点另存 Python 加密 SQLite |
 
+| `V20260929_02__insight_skill_registry.sql` | 洞察不可变版本、加密运行审计、反馈三表及五项权限 / 管理菜单 | **是**（CI Deploy） | 否 | 按文件名排序 | 现有标签库 / 用户与工作台模块 | taglibrary | 全部 | 自研迁移器 | 本批仅新增脚本，未应用；不自动分配业务角色 |
+
 **新增迁移脚本规范**：命名 `V<yyyymmdd>_<序号>__<描述>.sql`；幂等、只向前、不得包含 `drop table`。已应用的迁移文件**内容不可再修改**（因此其中标注的"来源"路径保留移动前的历史写法，实际文件见 `sql/archive/`）。
 
 ## 3. 种子 / 测试数据（`sql/seed/`）
@@ -57,6 +59,7 @@ mysql -h<host> -P3306 -uroot -p < sql/init/ry_init.sql
 | `ind_tag_data.sql` | 客户标签宽表 `ind_tag_data` 建表 + `LOAD DATA` 导入说明 | 否 | 是 | 视需要 | `ry` 库已初始化 | taglibrary / objectgroup | 开发/测试 | 否 | 配套数据文件在仓库外（`ind_tag_data.csv`）；被 `docs/superpowers/plans/*` 引用 |
 | `tag_mapping_test_data.sql` | 标签库批量映射同步（阶段7）测试数据，幂等可重复执行 | 否 | 是 | 视需要 | `ry` + `indiv_cust` 库；建议先执行 `sql/seed/ind_tag_data.sql` | taglibrary | 测试 | 否 | 配套计划见 `docs/plans/标签库批量映射同步优化计划.md` |
 | `test_users_coverage.sql` | RuoYi 测试用户 qa_* 及 qa_scope_* 角色，覆盖账号状态 / 数据范围 / 组织属性场景，可重复导入 | 否 | 是 | 视需要 | 基线为 `sql/archive/ry_20260417.sql` | 全局（sys_*） | 测试 | 否 | 所有账号密码 `admin123`；不会改动 admin/ry 及业务数据 |
+| `agent-meta-skills.sql` | 洞察元 Skill（分析三件套 + 图表三件套）的已发布快照，由 `bin/build-agent-skill-seed.py` 从 `skills/` 源码生成，幂等可重复执行 | 否 | 是 | 视需要 | 已应用 `V20260930_01__agent_skill_registry.sql` | taglibrary（`ts_agent_skill`） | 开发/测试/演示 | 否 | 执行必须带 `--default-character-set=utf8mb4`，否则中文双重编码；技能内容修订走登记台发布流程 |
 
 ## 4. 维护 / 一次性修复（`sql/maintenance/`）
 
@@ -177,5 +180,8 @@ mysql --default-character-set=utf8mb4 -h127.0.0.1 -P3306 -uroot -p \
 | `migration/V20260921_02__agent_workbench_menu.sql` | 改用 `menu_id` 2300 补齐「智能体工作台」；已有 `path=agent` 顶级菜单则只补角色授权 |
 | `migration/V20260922_02__agent_thread_pinned.sql` | 会话新增持久置顶状态与归属/归档/置顶排序索引；幂等前向迁移 |
 | `migration/V20260928_01__semantic_p3_changeset_relation.sql` | P3 候选概念关联与受控语义变更审计表；只前向、幂等，不改客户数据 |
+| `migration/V20260929_01__agent_group_lookup.sql` | 智能体客群回跳反查索引 `(group_id, user_id, create_time)`；幂等前向迁移，本次未执行 |
 
 两条迁移已在本地隔离库重复验证并应用本地 ry；详情见 `docs/validation/语义索引层建设验收记录.md`。其它环境仍由 `bin/db-migrate.sh` 读取迁移记录按序执行，不重跑初始化 SQL。
+
+- `migration/V20260930_01__agent_skill_registry.sql`：全局 Agent 原生 Skill 草稿与发布快照，不预置技能、不绑定标签库。

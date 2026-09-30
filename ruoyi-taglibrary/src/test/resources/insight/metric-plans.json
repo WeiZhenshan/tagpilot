@@ -1,0 +1,432 @@
+[
+  {
+    "skill_id": "asset_structure_profile",
+    "skill_version": "0.1.0",
+    "pack_hash": "f6a7f79eaff5e306883d821e63c126ede39f11129527223e8271f3dfe8850258",
+    "snapshot_id": "sql-snapshot",
+    "binding_version": "0.1.0",
+    "cohort": {
+      "audience_id": "sql-reference",
+      "audience_name": "合成SQL参考客群",
+      "library_id": 107,
+      "revision": 1,
+      "plan_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "snapshot_id": "sql-snapshot",
+      "count": 240,
+      "data_as_of": "2026-09-28",
+      "reference_date": "2026-09-29",
+      "binding_version": "0.1.0",
+      "declared_context": "",
+      "synthetic": true
+    },
+    "parameters": {
+      "benchmark_type": "same_aum",
+      "min_deviation_pp": 10
+    },
+    "partial_reasons": [],
+    "status": "READY",
+    "reasons": [],
+    "queries": [
+      {
+        "id": "customers",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "customer_count",
+        "operation": "count",
+        "percentile": null
+      },
+      {
+        "id": "total_aum",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "average_aum",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "aum",
+        "operation": "avg",
+        "percentile": null
+      },
+      {
+        "id": "median_aum",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "aum",
+        "operation": "median",
+        "percentile": null
+      },
+      {
+        "id": "aum_bands",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "band",
+        "metric": "aum",
+        "cuts": [
+          300000.0,
+          1000000.0
+        ]
+      },
+      {
+        "id": "liquid",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "liquid_aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "fixed",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "fixed_aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "investment",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "investment_aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "benchmark_assets",
+        "population": "benchmark",
+        "dimensions": [
+          "aum_tier"
+        ],
+        "node": "aggregate",
+        "metric": "aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "holders",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "flag_rate",
+        "metric": "asset_holder",
+        "exclusions": [],
+        "suitability_category": null
+      },
+      {
+        "id": "missing",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "flag_rate",
+        "metric": "aum_missing",
+        "exclusions": [],
+        "suitability_category": null
+      },
+      {
+        "id": "high_liquid",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "flag_rate",
+        "metric": "liquid_share",
+        "exclusions": [
+          "missing_aum"
+        ],
+        "suitability_category": null
+      },
+      {
+        "id": "benchmark_liquid",
+        "population": "benchmark",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "liquid_aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "benchmark_fixed",
+        "population": "benchmark",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "fixed_aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "benchmark_investment",
+        "population": "benchmark",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "investment_aum",
+        "operation": "sum",
+        "percentile": null
+      },
+      {
+        "id": "benchmark_count",
+        "population": "benchmark",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "customer_count",
+        "operation": "count",
+        "percentile": null
+      },
+      {
+        "id": "benchmark_bands",
+        "population": "benchmark",
+        "dimensions": [],
+        "node": "band",
+        "metric": "aum",
+        "cuts": [
+          300000.0,
+          1000000.0
+        ]
+      }
+    ]
+  },
+  {
+    "skill_id": "opportunity_priority",
+    "skill_version": "0.1.0",
+    "pack_hash": "93377a7d758d37b125d435fa3232784762ab9aef16ddac28dcaa23f58e40ea16",
+    "snapshot_id": "sql-snapshot",
+    "binding_version": "0.1.0",
+    "cohort": {
+      "audience_id": "sql-reference",
+      "audience_name": "合成SQL参考客群",
+      "library_id": 107,
+      "revision": 1,
+      "plan_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "snapshot_id": "sql-snapshot",
+      "count": 240,
+      "data_as_of": "2026-09-28",
+      "reference_date": "2026-09-29",
+      "binding_version": "0.1.0",
+      "declared_context": "",
+      "synthetic": true
+    },
+    "parameters": {
+      "profile": "default_v1",
+      "recent_contact_days": 7
+    },
+    "partial_reasons": [],
+    "status": "READY",
+    "reasons": [],
+    "queries": [
+      {
+        "id": "customers",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "customer_count",
+        "operation": "count",
+        "percentile": null
+      },
+      {
+        "id": "priority",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "score",
+        "profile": "default_v1",
+        "assumption": true,
+        "exclusions": [
+          "risk_mismatch",
+          "do_not_disturb",
+          "recent_contact",
+          "no_channel"
+        ],
+        "components": [
+          {
+            "metric": "value_score",
+            "weight": 1.0,
+            "bands": [
+              {
+                "upper": 300000.0,
+                "points": 5.0
+              },
+              {
+                "upper": 1000000.0,
+                "points": 15.0
+              },
+              {
+                "upper": null,
+                "points": 25.0
+              }
+            ]
+          },
+          {
+            "metric": "demand_event",
+            "weight": 1.0,
+            "bands": [
+              {
+                "upper": 1.0,
+                "points": 0.0
+              },
+              {
+                "upper": null,
+                "points": 20.0
+              }
+            ]
+          },
+          {
+            "metric": "product_gap",
+            "weight": 1.0,
+            "bands": [
+              {
+                "upper": 10.0,
+                "points": 0.0
+              },
+              {
+                "upper": null,
+                "points": 20.0
+              }
+            ]
+          },
+          {
+            "metric": "historical_response",
+            "weight": 1.0,
+            "bands": [
+              {
+                "upper": 1.0,
+                "points": 0.0
+              },
+              {
+                "upper": null,
+                "points": 15.0
+              }
+            ]
+          },
+          {
+            "metric": "channel_reach",
+            "weight": 1.0,
+            "bands": [
+              {
+                "upper": 1.0,
+                "points": 0.0
+              },
+              {
+                "upper": null,
+                "points": 10.0
+              }
+            ]
+          },
+          {
+            "metric": "disturbance_penalty",
+            "weight": 1.0,
+            "bands": [
+              {
+                "upper": 1.0,
+                "points": 0.0
+              },
+              {
+                "upper": null,
+                "points": -20.0
+              }
+            ]
+          }
+        ],
+        "tier_cuts": [
+          40.0,
+          70.0
+        ],
+        "reason_top_k": 2
+      }
+    ]
+  },
+  {
+    "skill_id": "product_holding_gap",
+    "skill_version": "0.1.0",
+    "pack_hash": "78f20de9294348828c038ae39cd265656b2e632061125f493fd11a14a01e7849",
+    "snapshot_id": "sql-snapshot",
+    "binding_version": "0.1.0",
+    "cohort": {
+      "audience_id": "sql-reference",
+      "audience_name": "合成SQL参考客群",
+      "library_id": 107,
+      "revision": 1,
+      "plan_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "snapshot_id": "sql-snapshot",
+      "count": 240,
+      "data_as_of": "2026-09-28",
+      "reference_date": "2026-09-29",
+      "binding_version": "0.1.0",
+      "declared_context": "",
+      "synthetic": true
+    },
+    "parameters": {
+      "categories": [
+        "wealth",
+        "fund",
+        "insurance"
+      ],
+      "min_gap_pp": 10,
+      "benchmark_type": "standardized"
+    },
+    "partial_reasons": [],
+    "status": "READY",
+    "reasons": [],
+    "queries": [
+      {
+        "id": "customers",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "aggregate",
+        "metric": "customer_count",
+        "operation": "count",
+        "percentile": null
+      },
+      {
+        "id": "coverage",
+        "population": "cohort",
+        "dimensions": [
+          "aum_tier",
+          "risk_level"
+        ],
+        "node": "flag_rate",
+        "metric": "product_holding",
+        "exclusions": [],
+        "suitability_category": null
+      },
+      {
+        "id": "benchmark_coverage",
+        "population": "benchmark",
+        "dimensions": [
+          "aum_tier",
+          "risk_level"
+        ],
+        "node": "flag_rate",
+        "metric": "product_holding",
+        "exclusions": [],
+        "suitability_category": null
+      },
+      {
+        "id": "suitable",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "flag_rate",
+        "metric": "suitability",
+        "exclusions": [
+          "risk_mismatch"
+        ],
+        "suitability_category": "wealth"
+      },
+      {
+        "id": "opportunity",
+        "population": "cohort",
+        "dimensions": [],
+        "node": "flag_rate",
+        "metric": "product_holding",
+        "exclusions": [
+          "risk_mismatch",
+          "marketing_excluded"
+        ],
+        "suitability_category": "wealth"
+      }
+    ]
+  }
+]

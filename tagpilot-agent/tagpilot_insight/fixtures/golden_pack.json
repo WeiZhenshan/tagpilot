@@ -1,0 +1,2355 @@
+{
+  "schema_version": 1,
+  "run_id": "synthetic-golden-pack",
+  "cohort": {
+    "audience_id": "synthetic-audience",
+    "audience_name": "大额入金转化 · 合成客群",
+    "library_id": 107,
+    "revision": 1,
+    "plan_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "snapshot_id": "synthetic-only",
+    "count": 240,
+    "data_as_of": "2026-09-28",
+    "reference_date": "2026-09-29",
+    "binding_version": "0.0.0",
+    "declared_context": "近三十天大额转入是已声明背景，不推断入金导致产品缺口。",
+    "synthetic": true
+  },
+  "results": [
+    {
+      "skill_id": "asset_structure_profile",
+      "skill_version": "0.1.0",
+      "pack_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "status": "COMPLETE",
+      "facts": [
+        {
+          "id": "customers",
+          "metric": "customer_count",
+          "label": "客户数",
+          "value": 240,
+          "unit": "人",
+          "query_id": "customers",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "total_aum",
+          "metric": "aum",
+          "label": "总 AUM",
+          "value": 120000000,
+          "unit": "元",
+          "query_id": "total_aum",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "average_aum",
+          "metric": "aum",
+          "label": "平均 AUM",
+          "value": 500000,
+          "unit": "元",
+          "query_id": "average_aum",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "median_aum",
+          "metric": "aum",
+          "label": "中位 AUM",
+          "value": 480000,
+          "unit": "元",
+          "query_id": "median_aum",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low",
+          "metric": "aum_tier",
+          "label": "普通层级",
+          "value": 80,
+          "unit": "人",
+          "query_id": "aum_bands",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "mid",
+          "metric": "aum_tier",
+          "label": "中等层级",
+          "value": 100,
+          "unit": "人",
+          "query_id": "aum_bands",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high",
+          "metric": "aum_tier",
+          "label": "高资产层级",
+          "value": 60,
+          "unit": "人",
+          "query_id": "aum_bands",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "benchmark_customers",
+          "metric": "customer_count",
+          "label": "基准客户数",
+          "value": 800,
+          "unit": "人",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "benchmark_low",
+          "metric": "aum_tier",
+          "label": "普通层级",
+          "value": 200,
+          "unit": "人",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "benchmark_mid",
+          "metric": "aum_tier",
+          "label": "中等层级",
+          "value": 400,
+          "unit": "人",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "benchmark_high",
+          "metric": "aum_tier",
+          "label": "高资产层级",
+          "value": 200,
+          "unit": "人",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "benchmark_total",
+          "metric": "aum",
+          "label": "基准总资产",
+          "value": 400000000,
+          "unit": "元",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "liquid_amount",
+          "metric": "liquid_aum",
+          "label": "资产金额",
+          "value": 72000000,
+          "unit": "元",
+          "query_id": "liquid",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "liquid_share",
+          "metric": "liquid_aum",
+          "label": "金额加权占比",
+          "value": 60,
+          "unit": "%",
+          "query_id": "liquid",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "total_aum",
+          "derived_from": [
+            "liquid_amount"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "benchmark_liquid_amount",
+          "metric": "liquid_aum",
+          "label": "基准资产金额",
+          "value": 156000000,
+          "unit": "元",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "benchmark_liquid_share",
+          "metric": "liquid_aum",
+          "label": "基准金额占比",
+          "value": 39,
+          "unit": "%",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "benchmark_total",
+          "derived_from": [
+            "benchmark_liquid_amount"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "fixed_amount",
+          "metric": "fixed_aum",
+          "label": "资产金额",
+          "value": 24000000,
+          "unit": "元",
+          "query_id": "fixed",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "fixed_share",
+          "metric": "fixed_aum",
+          "label": "金额加权占比",
+          "value": 20,
+          "unit": "%",
+          "query_id": "fixed",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "total_aum",
+          "derived_from": [
+            "fixed_amount"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "benchmark_fixed_amount",
+          "metric": "fixed_aum",
+          "label": "基准资产金额",
+          "value": 124000000,
+          "unit": "元",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "benchmark_fixed_share",
+          "metric": "fixed_aum",
+          "label": "基准金额占比",
+          "value": 31,
+          "unit": "%",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "benchmark_total",
+          "derived_from": [
+            "benchmark_fixed_amount"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "investment_amount",
+          "metric": "investment_aum",
+          "label": "资产金额",
+          "value": 24000000,
+          "unit": "元",
+          "query_id": "investment",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "investment_share",
+          "metric": "investment_aum",
+          "label": "金额加权占比",
+          "value": 20,
+          "unit": "%",
+          "query_id": "investment",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "total_aum",
+          "derived_from": [
+            "investment_amount"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "benchmark_investment_amount",
+          "metric": "investment_aum",
+          "label": "基准资产金额",
+          "value": 120000000,
+          "unit": "元",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "benchmark_investment_share",
+          "metric": "investment_aum",
+          "label": "基准金额占比",
+          "value": 30,
+          "unit": "%",
+          "query_id": "benchmark_assets",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "benchmark_total",
+          "derived_from": [
+            "benchmark_investment_amount"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "liquid_gap",
+          "metric": "liquid_aum",
+          "label": "流动资产占比偏离",
+          "value": 21,
+          "unit": "pp",
+          "query_id": "liquid",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "derived_from": [
+            "liquid_share",
+            "benchmark_liquid_share"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "high_liquid",
+          "metric": "liquid_share",
+          "label": "流动资产占比超过阈值且 AUM 有效",
+          "value": 120,
+          "unit": "人",
+          "query_id": "high_liquid",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "POST_EXCLUSION",
+          "exclusions_applied": [
+            "missing_aum"
+          ]
+        },
+        {
+          "id": "liquid_holders",
+          "metric": "asset_holder",
+          "label": "持有客户数",
+          "value": 180,
+          "unit": "人",
+          "query_id": "holders",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "liquid_holder_share",
+          "metric": "asset_holder",
+          "label": "持有客户占比",
+          "value": 75.0,
+          "unit": "%",
+          "query_id": "holders",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "customers",
+          "derived_from": [
+            "liquid_holders"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "fixed_holders",
+          "metric": "asset_holder",
+          "label": "持有客户数",
+          "value": 120,
+          "unit": "人",
+          "query_id": "holders",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "fixed_holder_share",
+          "metric": "asset_holder",
+          "label": "持有客户占比",
+          "value": 50.0,
+          "unit": "%",
+          "query_id": "holders",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "customers",
+          "derived_from": [
+            "fixed_holders"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "investment_holders",
+          "metric": "asset_holder",
+          "label": "持有客户数",
+          "value": 90,
+          "unit": "人",
+          "query_id": "holders",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "investment_holder_share",
+          "metric": "asset_holder",
+          "label": "持有客户占比",
+          "value": 37.5,
+          "unit": "%",
+          "query_id": "holders",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "customers",
+          "derived_from": [
+            "investment_holders"
+          ],
+          "role": "DERIVED"
+        }
+      ],
+      "cards": [
+        {
+          "id": "asset_findings",
+          "title": "资产结构偏离",
+          "facts": {
+            "text": "客群 {fact:customers}，总 AUM {fact:total_aum}。",
+            "fact_ids": [
+              "customers",
+              "total_aum"
+            ]
+          },
+          "comparison": {
+            "text": "流动资产占比高于同层级基准 {fact:liquid_gap}。",
+            "fact_ids": [
+              "liquid_share",
+              "benchmark_liquid_share",
+              "liquid_gap"
+            ],
+            "benchmark_fact_ids": [
+              "benchmark_liquid_share"
+            ],
+            "difference_fact_ids": [
+              "liquid_gap"
+            ]
+          },
+          "diagnosis": {
+            "text": "规则提示流动资产配置占比较高，需要进一步核验持仓深度。",
+            "fact_ids": [],
+            "basis": "RULE"
+          },
+          "action": {
+            "text": "对 AUM 有效且流动资产占比较高的 {fact:high_liquid} 进入产品持仓缺口诊断。",
+            "fact_ids": [
+              "high_liquid"
+            ],
+            "population_fact_id": "high_liquid",
+            "priority": "MEDIUM"
+          },
+          "boundary": {
+            "text": "合成聚合数据；金额占比与客户占比不同，客户可持有多个品类；不构成产品推荐。",
+            "data_as_of": "2026-09-28",
+            "skill_version": "0.1.0",
+            "sample_fact_id": "customers",
+            "metric_definitions": [
+              "AUM 为当前时点资产总额。",
+              "金额占比分母为客群总资产；持有占比分母为客群人数。"
+            ]
+          }
+        }
+      ],
+      "charts": [
+        {
+          "id": "kpi_customers",
+          "title": "客户数",
+          "kind": "kpi",
+          "intent": "single_value",
+          "unit": "人",
+          "metric_label": "客户数",
+          "series": [
+            {
+              "name": "客户数",
+              "fact_ids": [
+                "customers"
+              ],
+              "points": [
+                {
+                  "category": "客户数",
+                  "fact_id": "customers",
+                  "value": 240
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "kpi_total_aum",
+          "title": "总 AUM",
+          "kind": "kpi",
+          "intent": "single_value",
+          "unit": "元",
+          "metric_label": "总 AUM",
+          "series": [
+            {
+              "name": "总 AUM",
+              "fact_ids": [
+                "total_aum"
+              ],
+              "points": [
+                {
+                  "category": "总 AUM",
+                  "fact_id": "total_aum",
+                  "value": 120000000
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "kpi_average_aum",
+          "title": "平均 AUM",
+          "kind": "kpi",
+          "intent": "single_value",
+          "unit": "元",
+          "metric_label": "平均 AUM",
+          "series": [
+            {
+              "name": "平均 AUM",
+              "fact_ids": [
+                "average_aum"
+              ],
+              "points": [
+                {
+                  "category": "平均 AUM",
+                  "fact_id": "average_aum",
+                  "value": 500000
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "kpi_median_aum",
+          "title": "中位 AUM",
+          "kind": "kpi",
+          "intent": "single_value",
+          "unit": "元",
+          "metric_label": "中位 AUM",
+          "series": [
+            {
+              "name": "中位 AUM",
+              "fact_ids": [
+                "median_aum"
+              ],
+              "points": [
+                {
+                  "category": "中位 AUM",
+                  "fact_id": "median_aum",
+                  "value": 480000
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "aum_bands",
+          "title": "AUM 分层人数对比",
+          "kind": "bar",
+          "intent": "show_distribution",
+          "unit": "人",
+          "metric_label": "客户数",
+          "series": [
+            {
+              "name": "客群",
+              "fact_ids": [
+                "low",
+                "mid",
+                "high"
+              ],
+              "points": [
+                {
+                  "category": "普通层级",
+                  "fact_id": "low",
+                  "value": 80
+                },
+                {
+                  "category": "中等层级",
+                  "fact_id": "mid",
+                  "value": 100
+                },
+                {
+                  "category": "高资产层级",
+                  "fact_id": "high",
+                  "value": 60
+                }
+              ]
+            },
+            {
+              "name": "基准",
+              "fact_ids": [
+                "benchmark_low",
+                "benchmark_mid",
+                "benchmark_high"
+              ],
+              "points": [
+                {
+                  "category": "普通层级",
+                  "fact_id": "benchmark_low",
+                  "value": 200
+                },
+                {
+                  "category": "中等层级",
+                  "fact_id": "benchmark_mid",
+                  "value": 400
+                },
+                {
+                  "category": "高资产层级",
+                  "fact_id": "benchmark_high",
+                  "value": 200
+                }
+              ]
+            }
+          ],
+          "reconcile": [
+            {
+              "kind": "sum",
+              "fact_ids": [
+                "low",
+                "mid",
+                "high"
+              ],
+              "total_fact_id": "customers"
+            },
+            {
+              "kind": "sum",
+              "fact_ids": [
+                "benchmark_low",
+                "benchmark_mid",
+                "benchmark_high"
+              ],
+              "total_fact_id": "benchmark_customers"
+            }
+          ]
+        },
+        {
+          "id": "asset_mix",
+          "title": "资产结构 · 金额加权占比",
+          "kind": "stacked_bar",
+          "intent": "show_composition",
+          "unit": "%",
+          "metric_label": "资产金额占比",
+          "series": [
+            {
+              "name": "流动资产",
+              "fact_ids": [
+                "liquid_share",
+                "benchmark_liquid_share"
+              ],
+              "points": [
+                {
+                  "category": "客群",
+                  "fact_id": "liquid_share",
+                  "value": 60
+                },
+                {
+                  "category": "同层级基准",
+                  "fact_id": "benchmark_liquid_share",
+                  "value": 39
+                }
+              ]
+            },
+            {
+              "name": "定期",
+              "fact_ids": [
+                "fixed_share",
+                "benchmark_fixed_share"
+              ],
+              "points": [
+                {
+                  "category": "客群",
+                  "fact_id": "fixed_share",
+                  "value": 20
+                },
+                {
+                  "category": "同层级基准",
+                  "fact_id": "benchmark_fixed_share",
+                  "value": 31
+                }
+              ]
+            },
+            {
+              "name": "投资资产",
+              "fact_ids": [
+                "investment_share",
+                "benchmark_investment_share"
+              ],
+              "points": [
+                {
+                  "category": "客群",
+                  "fact_id": "investment_share",
+                  "value": 20
+                },
+                {
+                  "category": "同层级基准",
+                  "fact_id": "benchmark_investment_share",
+                  "value": 30
+                }
+              ]
+            }
+          ],
+          "reconcile": [
+            {
+              "kind": "percentage",
+              "fact_ids": [
+                "liquid_share",
+                "fixed_share",
+                "investment_share"
+              ]
+            },
+            {
+              "kind": "percentage",
+              "fact_ids": [
+                "benchmark_liquid_share",
+                "benchmark_fixed_share",
+                "benchmark_investment_share"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "holder_mix",
+          "title": "持有客户占比 · 客户可持有多个品类",
+          "kind": "bar",
+          "intent": "compare_categories",
+          "unit": "%",
+          "metric_label": "持有客户占比",
+          "series": [
+            {
+              "name": "客群",
+              "fact_ids": [
+                "liquid_holder_share",
+                "fixed_holder_share",
+                "investment_holder_share"
+              ],
+              "points": [
+                {
+                  "category": "流动资产",
+                  "fact_id": "liquid_holder_share",
+                  "value": 75.0
+                },
+                {
+                  "category": "定期",
+                  "fact_id": "fixed_holder_share",
+                  "value": 50.0
+                },
+                {
+                  "category": "投资资产",
+                  "fact_id": "investment_holder_share",
+                  "value": 37.5
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        }
+      ]
+    },
+    {
+      "skill_id": "product_holding_gap",
+      "skill_version": "0.1.0",
+      "pack_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "status": "COMPLETE",
+      "facts": [
+        {
+          "id": "customers",
+          "metric": "customer_count",
+          "label": "客户数",
+          "value": 240,
+          "unit": "人",
+          "query_id": "customers",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "benchmark_customers",
+          "metric": "customer_count",
+          "label": "基准样本",
+          "value": 800,
+          "unit": "人",
+          "query_id": "benchmark_coverage",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "wealth_holders",
+          "metric": "product_holding",
+          "label": "理财持有客户",
+          "value": 60,
+          "unit": "人",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "wealth_rate",
+          "metric": "product_holding",
+          "label": "理财覆盖率",
+          "value": 25.0,
+          "unit": "%",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "customers",
+          "derived_from": [
+            "wealth_holders"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "wealth_benchmark_holders",
+          "metric": "product_holding",
+          "label": "理财基准持有",
+          "value": 600,
+          "unit": "人",
+          "query_id": "benchmark_coverage",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "wealth_benchmark_rate",
+          "metric": "product_holding",
+          "label": "理财标准化基准",
+          "value": 75,
+          "unit": "%",
+          "query_id": "benchmark_coverage",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "benchmark_customers",
+          "derived_from": [
+            "wealth_benchmark_holders"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "wealth_gap",
+          "metric": "product_holding",
+          "label": "理财缺口",
+          "value": 50.0,
+          "unit": "pp",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "derived_from": [
+            "wealth_benchmark_rate",
+            "wealth_rate"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "fund_holders",
+          "metric": "product_holding",
+          "label": "基金持有客户",
+          "value": 120,
+          "unit": "人",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "fund_rate",
+          "metric": "product_holding",
+          "label": "基金覆盖率",
+          "value": 50.0,
+          "unit": "%",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "customers",
+          "derived_from": [
+            "fund_holders"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "fund_benchmark_holders",
+          "metric": "product_holding",
+          "label": "基金基准持有",
+          "value": 500.0,
+          "unit": "人",
+          "query_id": "benchmark_coverage",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "fund_benchmark_rate",
+          "metric": "product_holding",
+          "label": "基金标准化基准",
+          "value": 62.5,
+          "unit": "%",
+          "query_id": "benchmark_coverage",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "benchmark_customers",
+          "derived_from": [
+            "fund_benchmark_holders"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "fund_gap",
+          "metric": "product_holding",
+          "label": "基金缺口",
+          "value": 12.5,
+          "unit": "pp",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "derived_from": [
+            "fund_benchmark_rate",
+            "fund_rate"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "insurance_holders",
+          "metric": "product_holding",
+          "label": "保险持有客户",
+          "value": 90,
+          "unit": "人",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "insurance_rate",
+          "metric": "product_holding",
+          "label": "保险覆盖率",
+          "value": 37.5,
+          "unit": "%",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "customers",
+          "derived_from": [
+            "insurance_holders"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "insurance_benchmark_holders",
+          "metric": "product_holding",
+          "label": "保险基准持有",
+          "value": 280,
+          "unit": "人",
+          "query_id": "benchmark_coverage",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "insurance_benchmark_rate",
+          "metric": "product_holding",
+          "label": "保险标准化基准",
+          "value": 35,
+          "unit": "%",
+          "query_id": "benchmark_coverage",
+          "sample_size": 800,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "denominator_id": "benchmark_customers",
+          "derived_from": [
+            "insurance_benchmark_holders"
+          ],
+          "role": "BENCHMARK"
+        },
+        {
+          "id": "insurance_gap",
+          "metric": "product_holding",
+          "label": "保险缺口",
+          "value": -2.5,
+          "unit": "pp",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "derived_from": [
+            "insurance_benchmark_rate",
+            "insurance_rate"
+          ],
+          "role": "DERIVED"
+        },
+        {
+          "id": "wealth_unheld",
+          "metric": "product_holding",
+          "label": "理财未持有",
+          "value": 180,
+          "unit": "人",
+          "query_id": "coverage",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "wealth_suitable",
+          "metric": "suitability",
+          "label": "风险适配",
+          "value": 150,
+          "unit": "人",
+          "query_id": "suitable",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "wealth_opportunity",
+          "metric": "product_holding",
+          "label": "扣除营销排除后的机会",
+          "value": 120,
+          "unit": "人",
+          "query_id": "opportunity",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "POST_EXCLUSION",
+          "exclusions_applied": [
+            "risk_mismatch",
+            "marketing_excluded"
+          ]
+        },
+        {
+          "id": "sparse_cell",
+          "metric": "product_holding",
+          "label": "稀疏格已抑制",
+          "value": null,
+          "unit": "pp",
+          "sample_size": null,
+          "status": "SUPPRESSED",
+          "query_id": "coverage",
+          "evidence": [
+            "小样本格已抑制"
+          ]
+        }
+      ],
+      "cards": [
+        {
+          "id": "holding_findings",
+          "title": "理财持仓缺口",
+          "facts": {
+            "text": "理财持有客户 {fact:wealth_holders}，覆盖率 {fact:wealth_rate}。",
+            "fact_ids": [
+              "wealth_holders",
+              "wealth_rate"
+            ]
+          },
+          "comparison": {
+            "text": "理财覆盖率低于结构标准化基准，缺口 {fact:wealth_gap}。",
+            "fact_ids": [
+              "wealth_gap",
+              "wealth_benchmark_rate",
+              "wealth_rate"
+            ],
+            "benchmark_fact_ids": [
+              "wealth_benchmark_rate"
+            ],
+            "difference_fact_ids": [
+              "wealth_gap"
+            ]
+          },
+          "diagnosis": {
+            "text": "统计参考发现理财覆盖不足；已声明圈选背景不作为因果诊断。",
+            "fact_ids": [],
+            "basis": "RULE"
+          },
+          "action": {
+            "text": "对扣除风险不适配及营销排除后的 {fact:wealth_opportunity} 核验触达意愿。",
+            "fact_ids": [
+              "wealth_opportunity"
+            ],
+            "population_fact_id": "wealth_opportunity",
+            "priority": "HIGH"
+          },
+          "boundary": {
+            "text": "合成参考结果；此阶段未实现结构标准化与置信区间业务计算。适当性映射待业务确认，真实数据不得使用合成映射。",
+            "data_as_of": "2026-09-28",
+            "skill_version": "0.1.0",
+            "sample_fact_id": "customers",
+            "metric_definitions": [
+              "覆盖率分母为当前客群人数；基准在本 fixture 的各格覆盖率相同，加权后保持原值。",
+              "漏斗每一步为独立登记的手工聚合参考值。"
+            ]
+          }
+        }
+      ],
+      "charts": [
+        {
+          "id": "coverage",
+          "title": "产品覆盖率与标准化基准",
+          "kind": "bar",
+          "intent": "compare_categories",
+          "unit": "%",
+          "metric_label": "覆盖率",
+          "series": [
+            {
+              "name": "客群",
+              "fact_ids": [
+                "wealth_rate",
+                "fund_rate",
+                "insurance_rate"
+              ],
+              "points": [
+                {
+                  "category": "理财",
+                  "fact_id": "wealth_rate",
+                  "value": 25.0
+                },
+                {
+                  "category": "基金",
+                  "fact_id": "fund_rate",
+                  "value": 50.0
+                },
+                {
+                  "category": "保险",
+                  "fact_id": "insurance_rate",
+                  "value": 37.5
+                }
+              ]
+            },
+            {
+              "name": "标准化基准",
+              "fact_ids": [
+                "wealth_benchmark_rate",
+                "fund_benchmark_rate",
+                "insurance_benchmark_rate"
+              ],
+              "points": [
+                {
+                  "category": "理财",
+                  "fact_id": "wealth_benchmark_rate",
+                  "value": 75
+                },
+                {
+                  "category": "基金",
+                  "fact_id": "fund_benchmark_rate",
+                  "value": 62.5
+                },
+                {
+                  "category": "保险",
+                  "fact_id": "insurance_benchmark_rate",
+                  "value": 35
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "gap_matrix",
+          "title": "品类与 AUM 层级缺口 · 稀疏格隐藏",
+          "kind": "heatmap",
+          "intent": "show_matrix",
+          "unit": "pp",
+          "metric_label": "覆盖缺口",
+          "series": [
+            {
+              "name": "缺口",
+              "fact_ids": [
+                "wealth_gap",
+                "sparse_cell",
+                "fund_gap",
+                "insurance_gap"
+              ],
+              "points": [
+                {
+                  "category": "理财",
+                  "fact_id": "wealth_gap",
+                  "value": 50.0,
+                  "column": "中高资产"
+                },
+                {
+                  "category": "理财",
+                  "fact_id": "sparse_cell",
+                  "value": null,
+                  "column": "普通层级"
+                },
+                {
+                  "category": "基金",
+                  "fact_id": "fund_gap",
+                  "value": 12.5,
+                  "column": "中高资产"
+                },
+                {
+                  "category": "保险",
+                  "fact_id": "insurance_gap",
+                  "value": -2.5,
+                  "column": "中高资产"
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "opportunity_funnel",
+          "title": "理财机会漏斗",
+          "kind": "funnel",
+          "intent": "show_conversion",
+          "unit": "人",
+          "metric_label": "客户数",
+          "series": [
+            {
+              "name": "客户",
+              "fact_ids": [
+                "customers",
+                "wealth_unheld",
+                "wealth_suitable",
+                "wealth_opportunity"
+              ],
+              "points": [
+                {
+                  "category": "客群",
+                  "fact_id": "customers",
+                  "value": 240
+                },
+                {
+                  "category": "未持有",
+                  "fact_id": "wealth_unheld",
+                  "value": 180
+                },
+                {
+                  "category": "风险适配",
+                  "fact_id": "wealth_suitable",
+                  "value": 150
+                },
+                {
+                  "category": "扣除营销排除",
+                  "fact_id": "wealth_opportunity",
+                  "value": 120
+                }
+              ]
+            }
+          ],
+          "reconcile": [
+            {
+              "kind": "funnel",
+              "fact_ids": [
+                "customers",
+                "wealth_unheld",
+                "wealth_suitable",
+                "wealth_opportunity"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gap_table",
+          "title": "品类缺口汇总",
+          "kind": "table",
+          "intent": "compare_categories",
+          "unit": "pp",
+          "metric_label": "覆盖缺口",
+          "series": [
+            {
+              "name": "缺口",
+              "fact_ids": [
+                "wealth_gap",
+                "fund_gap",
+                "insurance_gap"
+              ],
+              "points": [
+                {
+                  "category": "理财",
+                  "fact_id": "wealth_gap",
+                  "value": 50.0
+                },
+                {
+                  "category": "基金",
+                  "fact_id": "fund_gap",
+                  "value": 12.5
+                },
+                {
+                  "category": "保险",
+                  "fact_id": "insurance_gap",
+                  "value": -2.5
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        }
+      ]
+    },
+    {
+      "skill_id": "opportunity_priority",
+      "skill_version": "0.1.0",
+      "pack_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "status": "COMPLETE",
+      "facts": [
+        {
+          "id": "customers",
+          "metric": "customer_count",
+          "label": "客户数",
+          "value": 240,
+          "unit": "人",
+          "query_id": "customers",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "marketable",
+          "metric": "customer_count",
+          "label": "硬排除后可营销",
+          "value": 180,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "POST_EXCLUSION",
+          "exclusions_applied": [
+            "risk_mismatch",
+            "do_not_disturb",
+            "recent_contact",
+            "no_channel"
+          ]
+        },
+        {
+          "id": "high",
+          "metric": "customer_count",
+          "label": "高优先级",
+          "value": 80,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "POST_EXCLUSION",
+          "exclusions_applied": [
+            "risk_mismatch",
+            "do_not_disturb",
+            "recent_contact",
+            "no_channel"
+          ]
+        },
+        {
+          "id": "medium",
+          "metric": "customer_count",
+          "label": "中优先级",
+          "value": 60,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "POST_EXCLUSION",
+          "exclusions_applied": [
+            "risk_mismatch",
+            "do_not_disturb",
+            "recent_contact",
+            "no_channel"
+          ]
+        },
+        {
+          "id": "low",
+          "metric": "customer_count",
+          "label": "低优先级",
+          "value": 40,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ],
+          "role": "POST_EXCLUSION",
+          "exclusions_applied": [
+            "risk_mismatch",
+            "do_not_disturb",
+            "recent_contact",
+            "no_channel"
+          ]
+        },
+        {
+          "id": "risk_mismatch",
+          "metric": "customer_count",
+          "label": "risk_mismatch",
+          "value": 20,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "do_not_disturb",
+          "metric": "customer_count",
+          "label": "do_not_disturb",
+          "value": 20,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "recent_contact",
+          "metric": "customer_count",
+          "label": "recent_contact",
+          "value": 20,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "no_channel",
+          "metric": "customer_count",
+          "label": "no_channel",
+          "value": 0,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 240,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_value_score",
+          "metric": "value_score",
+          "label": "价值平均贡献",
+          "value": 25,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_value_score",
+          "metric": "value_score",
+          "label": "价值平均贡献",
+          "value": 15,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_value_score",
+          "metric": "value_score",
+          "label": "价值平均贡献",
+          "value": 5,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_demand_event",
+          "metric": "demand_event",
+          "label": "需求事件平均贡献",
+          "value": 20,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_demand_event",
+          "metric": "demand_event",
+          "label": "需求事件平均贡献",
+          "value": 10,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_demand_event",
+          "metric": "demand_event",
+          "label": "需求事件平均贡献",
+          "value": 0,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_product_gap",
+          "metric": "product_gap",
+          "label": "产品缺口平均贡献",
+          "value": 20,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_product_gap",
+          "metric": "product_gap",
+          "label": "产品缺口平均贡献",
+          "value": 15,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_product_gap",
+          "metric": "product_gap",
+          "label": "产品缺口平均贡献",
+          "value": 10,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_historical_response",
+          "metric": "historical_response",
+          "label": "历史响应平均贡献",
+          "value": 15,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_historical_response",
+          "metric": "historical_response",
+          "label": "历史响应平均贡献",
+          "value": 5,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_historical_response",
+          "metric": "historical_response",
+          "label": "历史响应平均贡献",
+          "value": 0,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_channel_reach",
+          "metric": "channel_reach",
+          "label": "渠道可达平均贡献",
+          "value": 10,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_channel_reach",
+          "metric": "channel_reach",
+          "label": "渠道可达平均贡献",
+          "value": 10,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_channel_reach",
+          "metric": "channel_reach",
+          "label": "渠道可达平均贡献",
+          "value": 10,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_disturbance_penalty",
+          "metric": "disturbance_penalty",
+          "label": "打扰惩罚平均贡献",
+          "value": 0,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_disturbance_penalty",
+          "metric": "disturbance_penalty",
+          "label": "打扰惩罚平均贡献",
+          "value": -5,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_disturbance_penalty",
+          "metric": "disturbance_penalty",
+          "label": "打扰惩罚平均贡献",
+          "value": -10,
+          "unit": "分",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_phone",
+          "metric": "channel",
+          "label": "电话可达",
+          "value": 50,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_phone",
+          "metric": "channel",
+          "label": "电话可达",
+          "value": 40,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_phone",
+          "metric": "channel",
+          "label": "电话可达",
+          "value": 20,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "high_app",
+          "metric": "channel",
+          "label": "手机银行可达",
+          "value": 30,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 80,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "medium_app",
+          "metric": "channel",
+          "label": "手机银行可达",
+          "value": 20,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 60,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        },
+        {
+          "id": "low_app",
+          "metric": "channel",
+          "label": "手机银行可达",
+          "value": 20,
+          "unit": "人",
+          "query_id": "priority",
+          "sample_size": 40,
+          "status": "AVAILABLE",
+          "evidence": [
+            "固定手工聚合参考，合成数据"
+          ]
+        }
+      ],
+      "cards": [
+        {
+          "id": "priority_findings",
+          "title": "规则画像排序",
+          "facts": {
+            "text": "可营销客户 {fact:marketable}，高优先级客户 {fact:high}。",
+            "fact_ids": [
+              "marketable",
+              "high"
+            ]
+          },
+          "comparison": {
+            "text": "各档使用同一规则画像，本次不进行响应效果比较。",
+            "fact_ids": [],
+            "benchmark_fact_ids": [],
+            "difference_fact_ids": []
+          },
+          "diagnosis": {
+            "text": "假设：价值与产品缺口共同构成优先级信号。",
+            "fact_ids": [],
+            "basis": "HYPOTHESIS"
+          },
+          "action": {
+            "text": "优先对 {fact:high} 按已核验渠道人工触达。",
+            "fact_ids": [
+              "high"
+            ],
+            "population_fact_id": "high",
+            "priority": "HIGH"
+          },
+          "boundary": {
+            "text": "合成聚合参考；权重是规则假设，未经响应数据校准；仅供排序参考，不做任务下发。",
+            "data_as_of": "2026-09-28",
+            "skill_version": "0.1.0",
+            "sample_fact_id": "customers",
+            "metric_definitions": [
+              "所有分档在硬排除后评分；高、中、低为并列分组，不是逐步漏斗。",
+              "排除原因采用顺序互斥归因，渠道每人仅计主要有效渠道。"
+            ]
+          }
+        }
+      ],
+      "charts": [
+        {
+          "id": "priority_funnel",
+          "title": "可营销机会漏斗",
+          "kind": "funnel",
+          "intent": "show_conversion",
+          "unit": "人",
+          "metric_label": "客户数",
+          "series": [
+            {
+              "name": "客户",
+              "fact_ids": [
+                "customers",
+                "marketable"
+              ],
+              "points": [
+                {
+                  "category": "客群",
+                  "fact_id": "customers",
+                  "value": 240
+                },
+                {
+                  "category": "可营销",
+                  "fact_id": "marketable",
+                  "value": 180
+                }
+              ]
+            }
+          ],
+          "reconcile": [
+            {
+              "kind": "funnel",
+              "fact_ids": [
+                "customers",
+                "marketable"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "tier_counts",
+          "title": "可营销客户优先级分档",
+          "kind": "bar",
+          "intent": "show_distribution",
+          "unit": "人",
+          "metric_label": "分档人数",
+          "series": [
+            {
+              "name": "客户",
+              "fact_ids": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high",
+                  "value": 80
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium",
+                  "value": 60
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low",
+                  "value": 40
+                }
+              ]
+            }
+          ],
+          "reconcile": [
+            {
+              "kind": "sum",
+              "fact_ids": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "total_fact_id": "marketable"
+            }
+          ]
+        },
+        {
+          "id": "contributions",
+          "title": "各档平均分项贡献 · 规则假设",
+          "kind": "stacked_bar",
+          "intent": "show_composition",
+          "unit": "分",
+          "metric_label": "平均贡献",
+          "series": [
+            {
+              "name": "价值",
+              "fact_ids": [
+                "high_value_score",
+                "medium_value_score",
+                "low_value_score"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_value_score",
+                  "value": 25
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_value_score",
+                  "value": 15
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_value_score",
+                  "value": 5
+                }
+              ]
+            },
+            {
+              "name": "需求事件",
+              "fact_ids": [
+                "high_demand_event",
+                "medium_demand_event",
+                "low_demand_event"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_demand_event",
+                  "value": 20
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_demand_event",
+                  "value": 10
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_demand_event",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "产品缺口",
+              "fact_ids": [
+                "high_product_gap",
+                "medium_product_gap",
+                "low_product_gap"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_product_gap",
+                  "value": 20
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_product_gap",
+                  "value": 15
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_product_gap",
+                  "value": 10
+                }
+              ]
+            },
+            {
+              "name": "历史响应",
+              "fact_ids": [
+                "high_historical_response",
+                "medium_historical_response",
+                "low_historical_response"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_historical_response",
+                  "value": 15
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_historical_response",
+                  "value": 5
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_historical_response",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "渠道可达",
+              "fact_ids": [
+                "high_channel_reach",
+                "medium_channel_reach",
+                "low_channel_reach"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_channel_reach",
+                  "value": 10
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_channel_reach",
+                  "value": 10
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_channel_reach",
+                  "value": 10
+                }
+              ]
+            },
+            {
+              "name": "打扰惩罚",
+              "fact_ids": [
+                "high_disturbance_penalty",
+                "medium_disturbance_penalty",
+                "low_disturbance_penalty"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_disturbance_penalty",
+                  "value": 0
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_disturbance_penalty",
+                  "value": -5
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_disturbance_penalty",
+                  "value": -10
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "channels",
+          "title": "各档主要有效渠道 · 每人仅计主渠道",
+          "kind": "bar",
+          "intent": "compare_categories",
+          "unit": "人",
+          "metric_label": "客户数",
+          "series": [
+            {
+              "name": "电话",
+              "fact_ids": [
+                "high_phone",
+                "medium_phone",
+                "low_phone"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_phone",
+                  "value": 50
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_phone",
+                  "value": 40
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_phone",
+                  "value": 20
+                }
+              ]
+            },
+            {
+              "name": "手机银行",
+              "fact_ids": [
+                "high_app",
+                "medium_app",
+                "low_app"
+              ],
+              "points": [
+                {
+                  "category": "高",
+                  "fact_id": "high_app",
+                  "value": 30
+                },
+                {
+                  "category": "中",
+                  "fact_id": "medium_app",
+                  "value": 20
+                },
+                {
+                  "category": "低",
+                  "fact_id": "low_app",
+                  "value": 20
+                }
+              ]
+            }
+          ],
+          "reconcile": [
+            {
+              "kind": "sum",
+              "fact_ids": [
+                "high_phone",
+                "high_app"
+              ],
+              "total_fact_id": "high"
+            },
+            {
+              "kind": "sum",
+              "fact_ids": [
+                "medium_phone",
+                "medium_app"
+              ],
+              "total_fact_id": "medium"
+            },
+            {
+              "kind": "sum",
+              "fact_ids": [
+                "low_phone",
+                "low_app"
+              ],
+              "total_fact_id": "low"
+            }
+          ]
+        },
+        {
+          "id": "reason_table",
+          "title": "优先级原因组合参考",
+          "kind": "table",
+          "intent": "compare_categories",
+          "unit": "人",
+          "metric_label": "客户数",
+          "series": [
+            {
+              "name": "人数",
+              "fact_ids": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "points": [
+                {
+                  "category": "价值与需求事件",
+                  "fact_id": "high",
+                  "value": 80
+                },
+                {
+                  "category": "价值与产品缺口",
+                  "fact_id": "medium",
+                  "value": 60
+                },
+                {
+                  "category": "产品缺口与渠道",
+                  "fact_id": "low",
+                  "value": 40
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        },
+        {
+          "id": "exclusions",
+          "title": "硬排除原因 · 互斥归因",
+          "kind": "bar",
+          "intent": "compare_categories",
+          "unit": "人",
+          "metric_label": "排除客户数",
+          "series": [
+            {
+              "name": "客户",
+              "fact_ids": [
+                "risk_mismatch",
+                "do_not_disturb",
+                "recent_contact",
+                "no_channel"
+              ],
+              "points": [
+                {
+                  "category": "风险不适配",
+                  "fact_id": "risk_mismatch",
+                  "value": 20
+                },
+                {
+                  "category": "勿扰",
+                  "fact_id": "do_not_disturb",
+                  "value": 20
+                },
+                {
+                  "category": "近期已触达",
+                  "fact_id": "recent_contact",
+                  "value": 20
+                },
+                {
+                  "category": "无有效渠道",
+                  "fact_id": "no_channel",
+                  "value": 0
+                }
+              ]
+            }
+          ],
+          "reconcile": []
+        }
+      ]
+    }
+  ]
+}

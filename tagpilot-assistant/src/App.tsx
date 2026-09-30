@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -13,7 +15,14 @@ import {
 } from "./api";
 import * as api from "./agentApi";
 import { AgentConversation } from "./AgentConversation";
+import { InsightSummary } from "./insight/InsightSummary";
+import { availableSkills, type AgentSkill } from "./skillApi";
+import { runInsight, editInsight, insightFeedback } from "./insight/insightApi";
+import "./insight/workbench-insight.css";
+const InsightReportPanel = lazy(() => import("./insight/InsightReportPanel").then((m) => ({ default: m.InsightReportPanel })));
 import { PlanPanel } from "./PlanPanel";
+import { TagTree, TagChips } from "./TagTree";
+import { MAX_CONTEXT_TAGS, selectionMessage, usedTagIds } from "./tagSelection";
 import { ChevronIcon, ListboxSelect } from "./ListboxSelect";
 import {
   busy,
@@ -23,6 +32,7 @@ import {
   type Thread,
   type ThreadRow,
   type Plan,
+  type ContextTag,
 } from "./agentTypes";
 import {
   parseWorkbenchQuery,
@@ -51,7 +61,49 @@ export function App() {
   const [highlightedClauses, setHighlightedClauses] = useState<string[]>([]);
   useEffect(() => { setHighlightedClauses([]); }, [thread?.thread_id, thread?.run_id]);
   const [tab, setTab] = useState("chat");
-  const [composerRequest, setComposerRequest] = useState<{ text: string; id: number }>();
+  const [railTab, setRailTab] = useState<"history" | "tags">("history");
+  const [skills, setSkills] = useState<AgentSkill[]>([]);
+  const [skillsLoading, setSkillsLoading] = useState(false);
+  const [skillsError, setSkillsError] = useState("");
+  const [selectedSkill, setSelectedSkill] = useState<AgentSkill | null>(null);
+  const [baselineGroups, setBaselineGroups] = useState<api.BaselineGroup[]>([]);
+  const [baselineGroupId, setBaselineGroupId] = useState<number | null>(null);
+  useEffect(() => {
+    if (!selectedSkill || !library) { setBaselineGroups([]); return; }
+    let dead = false;
+    void api.listBaselines(library)
+      .then((groups) => { if (!dead) setBaselineGroups(groups); })
+      .catch(() => { if (!dead) setBaselineGroups([]); });
+    return () => { dead = true; };
+  }, [selectedSkill, library]);
+  const refreshSkills = useCallback(async () => {
+    setSkillsLoading(true);setSkillsError("");
+    try { setSkills(await availableSkills()); }
+    catch (e) { setSkills([]);setSkillsError(e instanceof Error ? e.message : "技能加载失败，请重试"); }
+    finally { setSkillsLoading(false); }
+  }, []);
+  useEffect(() => { if (thread?.capabilities.insight) void refreshSkills(); else setSkills([]); }, [thread?.thread_id, thread?.capabilities.insight, refreshSkills]);
+  const [rightTab, setRightTab] = useState<"plan" | "insight">("plan");
+  const [insightWide, setInsightWide] = useState(false);
+  useEffect(() => { setSelectedSkill(null); setBaselineGroupId(null); setRightTab("plan"); }, [library, thread?.thread_id]);
+  const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
+  const [contextTags, setContextTags] = useState<ContextTag[]>([]);
+  const [tagConfirm, setTagConfirm] = useState(false);
+  const [tagNote, setTagNote] = useState("");
+  const tagDialog = useRef<HTMLDialogElement>(null);
+  const tagTrigger = useRef<HTMLElement | null>(null);
+  const usedTags = useMemo(() => selectedSkill ? new Set<number>() : usedTagIds(thread?.live_plan?.tree || thread?.plan?.tree), [selectedSkill, thread?.live_plan, thread?.plan]);
+  useEffect(() => { setSelectedTags([]); setContextTags([]); setTagConfirm(false); }, [library]);
+  useEffect(() => {
+    setSelectedTags((items) => items.filter((t) => !usedTags.has(t.id)));
+    setContextTags((items) => items.filter((t) => !usedTags.has(t.id)));
+  }, [usedTags]);
+  useEffect(() => {
+    if (!tagConfirm) return;
+    tagDialog.current?.showModal();
+    return () => { tagTrigger.current?.focus(); };
+  }, [tagConfirm]);
+  const [composerRequest, setComposerRequest] = useState<{ text: string; id: number; focusOnly?: boolean }>();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem("tagpilot:history-collapsed") === "1"
   );
@@ -96,12 +148,22 @@ export function App() {
   }, [sample]);
   const generation = useRef(0);
   const inflight = useRef(false);
+  const initialLoad = useRef<Promise<Thread> | null>(null);
+  const shownSkillReport = useRef<string | null>(null);
+  useEffect(() => {
+    const reportId = thread?.run_profile === "skill" ? thread?.skill_report?.run_id : undefined;
+    if (reportId && shownSkillReport.current !== reportId) {
+      shownSkillReport.current = reportId;
+      setRightTab("insight");
+    }
+  }, [thread?.run_profile, thread?.skill_report?.run_id]);
   const update = useCallback((value: Thread) => {
     current.current = value;
     setThread(value);
     setLibrary(value.library_id);
     const url = new URL(location.href);
     url.searchParams.set("threadId", value.thread_id);
+    url.searchParams.delete("groupId");
     historyReplace(url);
   }, []);
   function historyReplace(url: URL) {
@@ -162,11 +224,21 @@ export function App() {
   }, [reloadHistory]);
   useEffect(() => {
     const id = new URLSearchParams(location.search).get("threadId");
-    if (id)
-      void api
-        .getThread(id)
-        .then(update)
-        .catch((e) => setError(e.message));
+    let dead = false;
+    const seq = generation.current;
+    if (initial.groupId || id) {
+      setPending(true); inflight.current = true;
+      // StrictMode 会重放 effect；建编辑会话的请求只发一次，重放仅重新订阅结果。
+      initialLoad.current ||= initial.groupId ? api.fromGroup(initial.groupId) : api.getThread(id!);
+      void initialLoad.current
+        .then((value) => {
+          if (dead || seq !== generation.current) return;
+          update(value);
+          if (initial.groupId) { setRailTab("tags"); setSidebarCollapsed(false); void reloadHistory(); }
+        }).catch((e) => { if (!dead) setError(e.message); })
+        .finally(() => { if (!dead) { setPending(false); inflight.current = false; } });
+    }
+    return () => { dead = true; };
   }, [update]);
   useEffect(() => {
     if (!thread || !busy(thread)) return;
@@ -239,14 +311,16 @@ export function App() {
     };
   }, []);
   async function operation(fn: () => Promise<void>) {
-    if (inflight.current) return;
+    if (inflight.current) return false;
     inflight.current = true;
     setPending(true);
     setError("");
     try {
       await fn();
+      return true;
     } catch (e) {
       setError(e instanceof Error ? e.message : "操作失败，请重试");
+      return false;
     } finally {
       inflight.current = false;
       setPending(false);
@@ -260,6 +334,7 @@ export function App() {
         update(t);
         setSample(null);
         setTab("chat");
+        setSelectedTags([]); setContextTags([]); setTagConfirm(false);
       }
     });
   }
@@ -268,23 +343,38 @@ export function App() {
     generation.current++;
     current.current = null;
     setThread(null);
+    setSelectedTags([]); setContextTags([]); setTagConfirm(false);
     setLibrary(next);
     setSample(null);
     setEditingThreadId(null);
     setTab("chat");
     const url = new URL(location.href);
     url.searchParams.delete("threadId");
+    url.searchParams.delete("groupId");
     historyReplace(url);
   }
-  async function send(text: string) {
+  async function send(text: string, tags: ContextTag[] = [], contextOnly = false) {
+    if (!library) return false;
+    let sent = false;
     await operation(async () => {
-      if (!library) return;
       let t = current.current;
       if (!t) t = await api.createThread(library);
       update(t);
-      update(await api.startRun(t, text));
+      update(await api.startRun(t, text, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), contextOnly));
+      sent = true;
+      setContextTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
+      setSelectedTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
+      setTab("chat");
       await reloadHistory();
     });
+    return sent;
+  }
+  const tagBlocked = !library ? "请先选择标签库" : pending ? "正在保存，请稍候" : thread?.archived ? "会话已归档，恢复后可发送" : busy(thread) ? "正在处理，可先浏览并选择标签" : thread?.status === "WAITING" ? "请先回答当前待补充问题" : "";
+  function addTagsToComposer() {
+    const merged = [...new Map([...contextTags, ...selectedTags].map((t) => [t.id, t])).values()];
+    if (merged.length > MAX_CONTEXT_TAGS) { setError("输入框每轮最多加入5个标签，请先移除部分标签。"); return; }
+    setContextTags(merged); setSelectedTags([]); setTab("chat");
+    setComposerRequest({ text: "", id: Date.now(), focusOnly: true });
   }
   const act = (fn: (t: Thread) => Promise<Thread>) =>
     operation(async () => {
@@ -338,6 +428,7 @@ export function App() {
     generation.current++;
     current.current = null;
     setThread(null);
+    setSelectedTags([]); setContextTags([]); setTagConfirm(false);
     setSample(null);
     const url = new URL(location.href);
     url.searchParams.delete("threadId");
@@ -381,9 +472,33 @@ export function App() {
       }
     });
   }
+  function sameInsightSource(source: Thread) {
+    const latest = current.current;
+    return latest?.thread_id === source.thread_id && latest.revision === source.revision && latest.plan?.hash === source.plan?.hash;
+  }
+  const skillReady = !!thread?.plan?.valid && !!thread?.capabilities.insight && !thread.archived && !busy(thread) && thread.status !== "WAITING";
+  const skillContext = !thread?.plan?.valid ? "请先核验圈选条件" : thread.count?.revision === thread.revision && thread.count.plan_hash === thread.plan.hash ? `当前客群 · ${thread.count.value.toLocaleString()} 人 · 方案 v${thread.revision}` : `当前客群 · 条件已核验，人数未统计 · 方案 v${thread.revision}`;
+  async function invokeSkill(text: string, skill = selectedSkill) {
+    const source = current.current;
+    if (!source || !skill || !skillReady) { setError("请先核验当前客群条件，并确认技能运行权限");return false; }
+    const chosen = skill;
+    const tags = contextTags;
+    const baseline = baselineGroupId ?? undefined;
+    let sent = false;
+    await operation(async () => {
+      const value = await api.startRun(source, text.trim() || `运行${chosen.display_name}`, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), false, chosen.name, baseline);
+      sent = true;
+      update(value);setSelectedSkill(null);setBaselineGroupId(null);setTab("chat");await reloadHistory();
+      setContextTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
+      setSelectedTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
+    });
+    return sent;
+  }
+  const skillReport = thread?.run_profile === "skill" ? thread?.skill_report : undefined;
+  const insightPanelReport = skillReport ?? thread?.insight_report;
   return (
     <div
-      className={`workbench mobile-${tab} ${
+      className={`workbench mobile-${tab} ${insightWide ? "insight-wide" : ""} ${
         sidebarCollapsed ? "sidebar-collapsed" : ""
       }`}
     >
@@ -449,6 +564,17 @@ export function App() {
           >
             新建圈选
           </button>
+          <div className="rail-tabs" role="tablist" aria-label="侧栏内容">
+            <button role="tab" aria-selected={railTab === "history"} aria-controls="rail-history" onClick={() => setRailTab("history")}>会话</button>
+            <button role="tab" aria-selected={railTab === "tags"} aria-controls="rail-tags" onClick={() => setRailTab("tags")}>标签</button>
+          </div>
+          <div id="rail-tags" role="tabpanel" aria-label="标签" hidden={railTab !== "tags"} className="rail-content rail-tag-content">
+            <TagTree libraryId={library} selected={selectedTags} used={usedTags} blockedReason={tagBlocked}
+              hint={selectedSkill ? `所选标签将作为「${selectedSkill.display_name}」的分析列，从当前客群取数` : undefined}
+              onChange={setSelectedTags}
+              onConfirm={() => { tagTrigger.current = document.activeElement as HTMLElement; setTagNote(""); setTagConfirm(true); }} onAdd={addTagsToComposer} />
+          </div>
+          <div id="rail-history" role="tabpanel" aria-label="会话" hidden={railTab !== "history"} className="rail-content">
           <input
             className="history-search"
             aria-label="搜索会话"
@@ -589,6 +715,7 @@ export function App() {
                 : "你的圈选任务会保存在这里"}
             </p>
           ) : null}
+          </div>
           <div className="account" ref={account}>
             {accountOpen ? (
               <div className="account-menu" role="menu" aria-label="个人菜单">
@@ -603,6 +730,7 @@ export function App() {
                   role="menuitem"
                   onClick={() => {
                     setArchived((value) => !value);
+                    setRailTab("history");
                     setAccountOpen(false);
                     if (mobile) setTab("history");
                   }}
@@ -653,7 +781,7 @@ export function App() {
               aria-selected={tab === "history"}
               onClick={() => setTab("history")}
             >
-              历史
+              侧栏
             </button>
             <button
               role="tab"
@@ -664,11 +792,12 @@ export function App() {
             </button>
             <button
               role="tab"
-              aria-selected={tab === "plan"}
-              onClick={() => setTab("plan")}
+              aria-selected={tab === "plan" && rightTab === "plan"}
+              onClick={() => { setTab("plan"); setRightTab("plan"); }}
             >
               圈选方案
             </button>
+            <button role="tab" aria-selected={tab === "plan" && rightTab === "insight"} onClick={() => { setTab("plan"); setRightTab("insight"); }}>洞察</button>
           </div>
           {error || (thread && ["CANCELLED", "FAILED", "INTERRUPTED"].includes(thread.status) && thread.error) ? (
             <div className="banner error" role="alert">
@@ -696,22 +825,50 @@ export function App() {
                 onChange={fresh}
               />
             }
+            insightSummary={insightPanelReport ? <InsightSummary report={insightPanelReport} revision={thread!.revision} hash={thread!.plan?.hash || ""} onExpand={() => { setRightTab("insight"); setTab("plan"); }} /> : undefined}
+            skills={skills}
+            skillsLoading={skillsLoading}
+            skillsError={skillsError}
+            onRefreshSkills={() => void refreshSkills()}
+            selectedSkill={selectedSkill}
+            onSelectSkill={setSelectedSkill}
+            onManageSkills={() => requestBackToWorkbench("/taglibrary/insight-skill")}
+            skillContext={skillContext}
+            skillChips={selectedSkill ? <div className="skill-selection"><span className="insight-chip">{selectedSkill.display_name}<button type="button" aria-label="移除技能" onClick={() => { setSelectedSkill(null); setBaselineGroupId(null); }}>移除</button></span>{baselineGroups.length ? <label className="baseline-picker">对照客群
+              <select aria-label="对照客群" value={baselineGroupId ?? ""} onChange={(event) => setBaselineGroupId(event.target.value ? Number(event.target.value) : null)}>
+                <option value="">不使用对照</option>
+                {baselineGroups.map((group) => <option key={group.group_id} value={group.group_id}>{group.group_name}{group.user_count ? `（${group.user_count} 人）` : ""}</option>)}
+              </select>
+            </label> : null}<p>{skillContext}</p></div> : undefined}
+            contextTags={contextTags}
+            onRemoveContextTag={(id) => setContextTags((items) => items.filter((t) => t.id !== id))}
             onReveal={(ids) => {
               setHighlightedClauses(ids);
               setTab("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
-            onSend={send}
+            skillRunDisabled={!skillReady}
+            onSend={(text) => {
+              if(selectedSkill) return invokeSkill(text);
+              if(/^\s*\//.test(text)) {
+                const command = /^\s*\/([a-z0-9-]+)(?:\s+([\s\S]*))?$/.exec(text);
+                const skill = skills.find((item) => item.name === command?.[1]);
+                if(skill) return invokeSkill(command?.[2] || "", skill);
+                setError("未找到可调用的已发布技能，请输入 / 从列表选择。");return Promise.resolve(false);
+              }
+              return send(text.trim() ? text : selectionMessage(contextTags), contextTags, !text.trim() && !!contextTags.length);
+            }}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
-            onRetry={() => void act((t) => api.resumeRun(t))}
+            onRetry={() => { if(thread?.run_profile === "skill"){setTab("chat");setComposerRequest({text:"/",id:Date.now()});}else void act((t) => api.resumeRun(t)); }}
             onEdit={() => {
               setTab("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
           />
         </main>
-        <PlanPanel
+        <aside className="insight-right"><div className="insight-sidebar-heading"><button type="button" aria-pressed={rightTab === "plan"} onClick={() => setRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} onClick={() => setRightTab("insight")}>洞察</button>{rightTab === "insight" && <button type="button" aria-pressed={insightWide} onClick={() => setInsightWide(!insightWide)}>{insightWide ? "收起宽模式" : "宽模式"}</button>}</div>
+        {rightTab === "plan" ? <PlanPanel
           highlightedClauses={highlightedClauses}
           thread={thread}
           pending={pending}
@@ -731,8 +888,46 @@ export function App() {
             });
           }}
           onOpenGroup={openGroup}
-        />
+        /> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
+            if (inflight.current) throw new Error("当前操作尚未完成，请稍后重试");
+            const source = thread; let changed: Awaited<ReturnType<typeof editInsight>> | undefined;
+            const ok = await operation(async () => {
+              changed = await editInsight(source,skill,chart,utterance);
+              if (!sameInsightSource(source)) throw new Error("当前方案已变化，请重新打开报告");
+              if (changed.report) update({ ...current.current!, insight_report: changed.report });
+            });
+            if (!ok || !changed) throw new Error("图表核验未完成，请查看当前操作提示");
+            return changed;
+          }} onConfirmRerun={async (skill, parameters) => {
+            const source = current.current; if (!source) return;
+            const ok = await operation(async () => {
+              const report = await runInsight(source,[skill],{[skill]:parameters});
+              if (!sameInsightSource(source)) throw new Error("当前方案已变化，请重新运行");
+              update({ ...current.current!, insight_report: report });
+            });
+            if (!ok) throw new Error("重跑未完成，请查看当前操作提示");
+          }} onReviewChange={(utterance) => { setRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button></div>}
+        </aside>
       </div>
+      {tagConfirm ? <dialog ref={tagDialog} className="confirm-overlay tag-confirm-overlay" aria-labelledby="tag-confirm-title" onCancel={() => setTagConfirm(false)} onKeyDown={(event) => {
+        if (event.key !== "Tab") return;
+        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("textarea, button:not(:disabled)"));
+        const first = controls[0], last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }}>
+        <form className="confirm-dialog" onSubmit={(event) => {
+          event.preventDefault();
+          void send(selectionMessage(selectedTags, tagNote), selectedTags, !tagNote.trim()).then((sent) => { if (sent) setTagConfirm(false); });
+        }}>
+          <h2 id="tag-confirm-title">让智能体梳理所选标签</h2>
+          <TagChips tags={selectedTags} />
+          <label className="field-label">补充说明（可选）<textarea autoFocus rows={3} maxLength={Math.max(0, 2000 - selectionMessage(selectedTags).length - 8)} value={tagNote} onChange={(event) => setTagNote(event.target.value)} placeholder="例如：这些条件需要同时满足；具体阈值请逐项和我确认" /></label>
+          <p>标签作为优先候选；未说明的筛选值和组合关系会继续向你确认。</p>
+          {error ? <p className="tag-selection-notice" role="alert">{error}</p> : null}
+          <div className="confirm-actions"><button type="button" disabled={pending} onClick={() => setTagConfirm(false)}>取消</button><button className="primary" disabled={!selectedTags.length || !!tagBlocked}>确认并梳理</button></div>
+        </form>
+      </dialog> : null}
       {deleteAllConfirm ? (
         <dialog
           ref={deleteAllDialog}

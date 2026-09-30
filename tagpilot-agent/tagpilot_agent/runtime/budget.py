@@ -16,7 +16,7 @@ class Budget:
     salvage_margin: float = 12.
 
     @classmethod
-    def from_env(cls, lean=False):
+    def from_env(cls, lean=False, skill=False):
         hard=max(.1,float(os.getenv('TAG_AGENT_HARD_TIMEOUT','90')))
         soft=max(0.,float(os.getenv('TAG_AGENT_SOFT_TIMEOUT','40')))
         turns=max(1,int(os.getenv('TAG_AGENT_MAX_TURNS','16')))
@@ -24,6 +24,10 @@ class Budget:
             hard=min(hard,max(.1,float(os.getenv('TAG_AGENT_LEAN_HARD','60'))))
             soft=min(soft,max(0.,float(os.getenv('TAG_AGENT_LEAN_SOFT','25'))))
             turns=max(1,turns//2)
+        # 技能运行是单次分析：读技能资料、按需配图需要更多墙钟时间，且没有圈选的收敛语义；
+        # 圈选流程的 hard/soft 保持不变。
+        if skill:
+            hard=max(hard,max(.1,float(os.getenv('TAG_AGENT_SKILL_HARD_TIMEOUT','150'))))
         return cls(min(soft,hard),hard,turns,max(1,int(os.getenv('TAG_AGENT_MAX_TOOLS','16'))),
                    0 if lean else max(0,int(os.getenv('TAG_AGENT_MAX_DEEP','4'))),
                    max(1,int(os.getenv('TAG_AGENT_MAX_DETAILS','6'))),
