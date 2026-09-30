@@ -1,0 +1,8 @@
+{
+  "exported_at": "2026-09-30T13:10Z",
+  "git_commit": "b8312c7f9f7dcfc98b581eb5adfcbb44ec6aafd4",
+  "databases": ["ry", "indiv_cust"],
+  "artifact": "tagpilot-competition-20260930.sql.gz",
+  "import": "gunzip -c tagpilot-competition-20260930.sql.gz | mysql -h127.0.0.1 -uroot -p --default-character-set=utf8mb4",
+  "notes": "含标签库107、已发布元Skill、语义快照ACTIVE、演示对照客群等；导入后勿再执行 ry_init 或 db-migrate（除非空库失败重试）。DataBroker 密码依赖本机 .databroker-crypto-secret，见 README。"
+}

@@ -8,7 +8,8 @@
 
 **分支**：`tagpilot-release` · **版本**：`competition-20260930`（commit 见 `git rev-parse HEAD`）  
 **演示剧本**：[docs/交付文档/演示脚本（客群资产结构透视）-v1.0.md](docs/交付文档/演示脚本（客群资产结构透视）-v1.0.md)  
-**语义索引**：`bge-m3-l107-20260919-002-r3`（LOCAL，随包位于 `tagpilot-semantic/out/full-20260919/`）  
+**数据库（推荐）**：[`sql/seed/competition/tagpilot-competition-20260930.sql.gz`](sql/seed/competition/tagpilot-competition-20260930.sql.gz) — 彩排全库 `ry` + `indiv_cust`  
+**语义索引**：`bge-m3-l107-20260928-006-p3g`（与库内 ACTIVE 一致；目录 `tagpilot-semantic/out/full-20260919/`，随 zip 脚本打包）  
 **BGE 权重**：不入 Git，需本机下载（约 4.3GB，见下文）
 
 ---
@@ -39,14 +40,27 @@
 
 ## 一次性准备（按顺序）
 
-### 1. 数据库
+### 1. 数据库（推荐：竞赛全库快照）
+
+```bash
+# 与 application-druid.yml 默认一致时示例：
+DB_PASSWORD=123456 bash bin/import-competition-db.sh
+```
+
+说明见 [`sql/seed/competition/README.md`](sql/seed/competition/README.md)。快照已含：标签库 **107**、已发布 **元 Skill**、语义 **ACTIVE 快照**、演示对照客群 **「全量客户（资产结构基准）」**、`schema_migration` 全记录等；**无需**再跑 `ry_init.sql`、`db-migrate.sh`、`agent-meta-skills.sql`。
+
+**DataBroker 数据源密码**：库内密文与导出机的 [`.databroker-crypto-secret`](.databroker-crypto-secret) 绑定。评委需向交付方索取同一份密钥文件放到仓库根目录，或在「数据源管理」里重新录入密码。
+
+<details>
+<summary>备选：从空库按脚本初始化（无竞赛快照时）</summary>
 
 ```bash
 mysql -h127.0.0.1 -P3306 -uroot -p < sql/init/ry_init.sql
 DB_USER=root DB_PASSWORD=你的密码 bash bin/db-migrate.sh
+mysql --default-character-set=utf8mb4 -uroot -p ry < sql/seed/agent-meta-skills.sql
 ```
 
-脚本索引见 [sql/README.md](sql/README.md)。演示数据在 `ry_init.sql` 的 `indiv_cust` 宽表（标签库 107，2000 人样本）。
+</details>
 
 ### 2. 下载 BGE 模型（必需）
 
@@ -111,7 +125,24 @@ mvn clean package -DskipTests
 | tagpilot-agent | 8092 | 圈选 / Skill 编排 |
 | tagpilot-assistant | 5174 | React 工作台 UI |
 
-首次启动时 `dev.sh` 会生成本机 `.tag-runtime-token`、`.databroker-crypto-secret`（不入 Git，请勿删除否则需重导库或重配数据源）。
+首次启动时 `dev.sh` 会生成本机 `.tag-runtime-token`；若尚无 `.databroker-crypto-secret` 也会随机生成（**与竞赛库快照不匹配时 JDBC 数据源会解密失败**，见上文）。
+
+---
+
+## 评委复现清单（非代码、易遗漏）
+
+| 项 | 是否随仓库/快照 | 说明 |
+| :--- | :--- | :--- |
+| MySQL `ry` + `indiv_cust` | **是**（`sql/seed/competition/*.sql.gz`） | 业务、Skill 登记、语义元数据、部分历史会话（若有） |
+| `.databroker-crypto-secret` | **否**（单独交付） | 与快照内 `dp_datasource` 密文配对；缺失则重配数据源密码 |
+| BGE `bge-m3` + reranker | **否** | `bin/download-bge-models.sh` |
+| `tagpilot-semantic/out/full-*` | zip 脚本附带 | 与库内 `ts_catalog_snapshot` 的 ACTIVE 版本应对齐；若检索报 503，联系交付方更新索引包 |
+| `.tag-llm-config` | **否** | 评委自备 API Key；圈选与 Skill 必需 |
+| `.tag-runtime-token` | 启动时自动生成 | Java/Python 共用，删后 `dev.sh restart` 即可 |
+| `tagpilot-agent/out/workbench.sqlite` | **否** | Agent 运行事件；新机为空，**不**影响按演示脚本重新圈选 |
+| Redis | 空即可 | 仅登录 Token/缓存 |
+| 上传头像等 `ruoyi.profile` 文件 | **否** | 缺则头像 404，不影响演示 |
+| PPT / 设计说明 | 另交 | 不在代码 zip |
 
 **演示**：登录 `admin` / `admin123`（若与初始化脚本一致）→ 智能圈选 → 跟随 [演示脚本](docs/交付文档/演示脚本（客群资产结构透视）-v1.0.md)。
 
