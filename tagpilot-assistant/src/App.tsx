@@ -66,6 +66,16 @@ export function App() {
   const [skillsLoading, setSkillsLoading] = useState(false);
   const [skillsError, setSkillsError] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<AgentSkill | null>(null);
+  const [baselineGroups, setBaselineGroups] = useState<api.BaselineGroup[]>([]);
+  const [baselineGroupId, setBaselineGroupId] = useState<number | null>(null);
+  useEffect(() => {
+    if (!selectedSkill || !library) { setBaselineGroups([]); return; }
+    let dead = false;
+    void api.listBaselines(library)
+      .then((groups) => { if (!dead) setBaselineGroups(groups); })
+      .catch(() => { if (!dead) setBaselineGroups([]); });
+    return () => { dead = true; };
+  }, [selectedSkill, library]);
   const refreshSkills = useCallback(async () => {
     setSkillsLoading(true);setSkillsError("");
     try { setSkills(await availableSkills()); }
@@ -75,14 +85,14 @@ export function App() {
   useEffect(() => { if (thread?.capabilities.insight) void refreshSkills(); else setSkills([]); }, [thread?.thread_id, thread?.capabilities.insight, refreshSkills]);
   const [rightTab, setRightTab] = useState<"plan" | "insight">("plan");
   const [insightWide, setInsightWide] = useState(false);
-  useEffect(() => { setSelectedSkill(null); setRightTab("plan"); }, [library, thread?.thread_id]);
+  useEffect(() => { setSelectedSkill(null); setBaselineGroupId(null); setRightTab("plan"); }, [library, thread?.thread_id]);
   const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
   const [contextTags, setContextTags] = useState<ContextTag[]>([]);
   const [tagConfirm, setTagConfirm] = useState(false);
   const [tagNote, setTagNote] = useState("");
   const tagDialog = useRef<HTMLDialogElement>(null);
   const tagTrigger = useRef<HTMLElement | null>(null);
-  const usedTags = useMemo(() => usedTagIds(thread?.live_plan?.tree || thread?.plan?.tree), [thread?.live_plan, thread?.plan]);
+  const usedTags = useMemo(() => selectedSkill ? new Set<number>() : usedTagIds(thread?.live_plan?.tree || thread?.plan?.tree), [selectedSkill, thread?.live_plan, thread?.plan]);
   useEffect(() => { setSelectedTags([]); setContextTags([]); setTagConfirm(false); }, [library]);
   useEffect(() => {
     setSelectedTags((items) => items.filter((t) => !usedTags.has(t.id)));
@@ -471,12 +481,18 @@ export function App() {
   async function invokeSkill(text: string, skill = selectedSkill) {
     const source = current.current;
     if (!source || !skill || !skillReady) { setError("请先核验当前客群条件，并确认技能运行权限");return false; }
-    if (contextTags.length) { setError("技能使用右侧已核验的客群条件，请先移除输入框中尚未处理的标签。");return false; }
     const chosen = skill;
-    return operation(async () => {
-      const value = await api.startRun(source, text.trim() || `运行${chosen.display_name}`, undefined, crypto.randomUUID(), [], false, chosen.name);
-      update(value);setSelectedSkill(null);setTab("chat");await reloadHistory();
+    const tags = contextTags;
+    const baseline = baselineGroupId ?? undefined;
+    let sent = false;
+    await operation(async () => {
+      const value = await api.startRun(source, text.trim() || `运行${chosen.display_name}`, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), false, chosen.name, baseline);
+      sent = true;
+      update(value);setSelectedSkill(null);setBaselineGroupId(null);setTab("chat");await reloadHistory();
+      setContextTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
+      setSelectedTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
     });
+    return sent;
   }
   const skillReport = thread?.run_profile === "skill" ? thread?.skill_report : undefined;
   const insightPanelReport = skillReport ?? thread?.insight_report;
@@ -553,7 +569,9 @@ export function App() {
             <button role="tab" aria-selected={railTab === "tags"} aria-controls="rail-tags" onClick={() => setRailTab("tags")}>标签</button>
           </div>
           <div id="rail-tags" role="tabpanel" aria-label="标签" hidden={railTab !== "tags"} className="rail-content rail-tag-content">
-            <TagTree libraryId={library} selected={selectedTags} used={usedTags} blockedReason={tagBlocked} onChange={setSelectedTags}
+            <TagTree libraryId={library} selected={selectedTags} used={usedTags} blockedReason={tagBlocked}
+              hint={selectedSkill ? `所选标签将作为「${selectedSkill.display_name}」的分析列，从当前客群取数` : undefined}
+              onChange={setSelectedTags}
               onConfirm={() => { tagTrigger.current = document.activeElement as HTMLElement; setTagNote(""); setTagConfirm(true); }} onAdd={addTagsToComposer} />
           </div>
           <div id="rail-history" role="tabpanel" aria-label="会话" hidden={railTab !== "history"} className="rail-content">
@@ -816,7 +834,12 @@ export function App() {
             onSelectSkill={setSelectedSkill}
             onManageSkills={() => requestBackToWorkbench("/taglibrary/insight-skill")}
             skillContext={skillContext}
-            skillChips={selectedSkill ? <div className="skill-selection"><span className="insight-chip">{selectedSkill.display_name}<button type="button" aria-label="移除技能" onClick={() => setSelectedSkill(null)}>移除</button></span><p>{skillContext}</p></div> : undefined}
+            skillChips={selectedSkill ? <div className="skill-selection"><span className="insight-chip">{selectedSkill.display_name}<button type="button" aria-label="移除技能" onClick={() => { setSelectedSkill(null); setBaselineGroupId(null); }}>移除</button></span>{baselineGroups.length ? <label className="baseline-picker">对照客群
+              <select aria-label="对照客群" value={baselineGroupId ?? ""} onChange={(event) => setBaselineGroupId(event.target.value ? Number(event.target.value) : null)}>
+                <option value="">不使用对照</option>
+                {baselineGroups.map((group) => <option key={group.group_id} value={group.group_id}>{group.group_name}{group.user_count ? `（${group.user_count} 人）` : ""}</option>)}
+              </select>
+            </label> : null}<p>{skillContext}</p></div> : undefined}
             contextTags={contextTags}
             onRemoveContextTag={(id) => setContextTags((items) => items.filter((t) => t.id !== id))}
             onReveal={(ids) => {
@@ -824,7 +847,7 @@ export function App() {
               setTab("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
-            skillRunDisabled={!skillReady || !!contextTags.length}
+            skillRunDisabled={!skillReady}
             onSend={(text) => {
               if(selectedSkill) return invokeSkill(text);
               if(/^\s*\//.test(text)) {

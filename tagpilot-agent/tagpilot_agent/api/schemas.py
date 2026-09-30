@@ -45,7 +45,7 @@ class RunRequest(BaseModel):
         if self.pinned_only and not self.pinned_tag_ids:
             raise ValueError('仅选标签入口必须提供标签')
         if self.profile == 'skill':
-            if not self.skill_name or not self.cohort_context.get('plan',{}).get('valid') or self.edited_plan or self.pinned_tag_ids:
+            if not self.skill_name or not self.cohort_context.get('plan',{}).get('valid') or self.edited_plan or self.pinned_only:
                 raise ValueError('技能运行需要当前已核验客群上下文')
         elif self.skill_packages or self.skill_name or self.cohort_context:
             raise ValueError('圈选运行不能注入技能上下文')

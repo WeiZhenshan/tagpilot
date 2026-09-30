@@ -38,7 +38,7 @@ def test_six_meta_skills_are_valid(packs):
         assert pack['user_invocable'] is invocable
         assert pack['disable_model_invocation'] is False
         assert pack['allowed_tools'] == ['Read', 'Skill']
-        assert pack['version'] == '1.0.0'
+        assert re.fullmatch(r'\d+\.\d+\.\d+', pack['version']), f'{name} 版本号须为三段数字'
         assert pack['resources'], f'{name} 缺少参考资料'
         for resource in pack['resources']:
             assert resource['path'].startswith('references/')

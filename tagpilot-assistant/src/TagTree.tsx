@@ -17,8 +17,8 @@ function Check({ mixed, ...props }: React.InputHTMLAttributes<HTMLInputElement> 
   return <input {...props} ref={ref} type="checkbox" />;
 }
 
-export function TagTree({ libraryId, selected, used, blockedReason, onChange, onConfirm, onAdd }: {
-  libraryId?: number; selected: ContextTag[]; used: Set<number>; blockedReason: string;
+export function TagTree({ libraryId, selected, used, blockedReason, hint, onChange, onConfirm, onAdd }: {
+  libraryId?: number; selected: ContextTag[]; used: Set<number>; blockedReason: string; hint?: string;
   onChange: (tags: ContextTag[]) => void; onConfirm: () => void; onAdd: () => void;
 }) {
   const [nodes, setNodes] = useState<TagTreeNode[]>([]);
@@ -77,7 +77,7 @@ export function TagTree({ libraryId, selected, used, blockedReason, onChange, on
   }
   return <section className="tag-browser" aria-label="选择标签上下文">
     <input className="history-search" aria-label="搜索标签或目录" placeholder="搜索标签或目录" value={query} onChange={(e) => setQuery(e.target.value)} />
-    <p className="tag-browser-hint">选择标签，逐步确认筛选条件</p>
+    <p className="tag-browser-hint">{hint || "选择标签，逐步确认筛选条件"}</p>
     <div className="tag-tree-scroll">
       {loading ? <p className="history-empty" role="status">正在加载可用标签…</p> : error ? <div className="tag-tree-error" role="alert"><p>{error}</p><button onClick={() => setRetry((v) => v + 1)}>重新加载</button></div>
         : !libraryId ? <p className="history-empty">请先选择标签库</p> : filtered.length ? render(filtered) : <p className="history-empty">{query ? "没有匹配的标签" : "当前库暂无已发布且可执行的标签"}</p>}

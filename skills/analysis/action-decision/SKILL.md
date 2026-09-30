@@ -2,7 +2,7 @@
 name: "action-decision"
 display-name: "客群行动决策"
 category: "decision"
-version: "1.0.0"
+version: "1.1.2"
 description: "回答“接下来可以做什么、优先做谁”：基于已形成的诊断，提出行动对象与优先级建议，并逐条经过适当性、营销排除与权限规则的过滤说明。用户问“怎么经营、先营销谁、下一步做什么”时使用；规则服务未接入时必须如实说明行动对象无法确定，绝不直接指定客户或替代规则判断；只做事实描述请用 fact-analysis。"
 argument-hint: "期望的经营方向或约束（可留空）"
 user-invocable: true
@@ -16,7 +16,7 @@ allowed-tools: ["Read", "Skill"]
 
 ## 前置链条
 
-行动建立在诊断之上。检查上下文里是否已有本轮诊断结论；没有就先调用 **diagnostic-analysis**（它会按需先调用 fact-analysis）。没有诊断证据时，不要凭条件描述直接跳到行动。
+行动建立在诊断之上。检查上下文里是否已有本轮诊断结论；没有就先调用 **diagnostic-analysis**（它会按需先调用 fact-analysis）。没有诊断证据时，不要凭条件描述直接跳到行动。`tag_stats` 里服务端注入的标签统计是可用的规模与结构事实，可以支撑"做谁"的判断；但适当性、营销排除与触达规则仍无取数通道，不能据此产出最终名单或优先级分数。
 
 ## 行动框架
 

@@ -34,6 +34,19 @@ def test_request_keeps_old_clients_compatible():
     assert RunRequest.model_validate(REQ).pinned_tag_ids==[]
     assert RunRequest.model_validate(request()).pinned_tag_ids==[1]
 
+def skill_request(**extra):
+    return {**REQ,'profile':'skill','skill_name':'fact-analysis','pinned_tag_ids':[1],
+            'cohort_context':{'plan':{'valid':True},'count':{'value':240}},**extra}
+
+def test_skill_run_carries_pinned_tags_as_analysis_context():
+    assert RunRequest.model_validate(skill_request()).pinned_tag_ids==[1]
+    assert RunRequest.model_validate(skill_request(pinned_tag_ids=[])).pinned_tag_ids==[]
+
+@pytest.mark.parametrize('override',[{'pinned_only':True},{'edited_plan':{'tree':{}}},
+    {'cohort_context':{'plan':{'valid':False}}},{'skill_name':None},{'pinned_tag_ids':[2]}])
+def test_skill_run_still_requires_verified_cohort_context(override):
+    with pytest.raises(ValidationError):RunRequest.model_validate(skill_request(**override))
+
 def test_context_loads_pinned_details_and_preserves_them_after_lookup():
     ctx=RunContext(request(),Evidence())
     prompt=json.loads(asyncio.run(build_context(ctx)))

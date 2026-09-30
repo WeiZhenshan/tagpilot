@@ -50,7 +50,9 @@ architecture/ design/ plans/ development/ ……   各类详细文档
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | Agent SDK 重构实施记录 | 实施 / 验证边界 | tagpilot-agent + semantic + Java + assistant | [`development/Agent-SDK重构实施记录.md`](development/Agent-SDK重构实施记录.md) | SDK 替换、渐进检索、诊断、金标冒烟与 2026-09-24 完整验证（测试、封存 A/B、61×3 评测、容量、人数对齐、缺陷） | 本地实施与完整验证完成；生产观察待部署 |
 | Agent 原生 Skill 登记与调用 | 实施 / 验证边界 | agent + Java + 两套前端 | [`development/Agent原生Skill接入.md`](development/Agent原生Skill接入.md) | 全局草稿/发布、标准 SKILL.md、工作台 / 调用、服务端客群上下文 | 2026-09-30 本地实现；数据库迁移与服务发布待执行 |
-| 洞察元 Skill 底座 | 实施 / 验证边界 | skills 源码 + agent + Java + assistant | [`development/元Skill底座实施记录.md`](development/元Skill底座实施记录.md) | 分析三件套（事实/诊断/行动）+ 图表三件套、insight-result 结果契约与工作台渲染闭环、种子与登记、真实模型对照评测 | 2026-09-30 本地实现与端到端验证完成；指标取数通道待接入 |
+| 洞察元 Skill 底座 | 实施 / 验证边界 | skills 源码 + agent + Java + assistant | [`development/元Skill底座实施记录.md`](development/元Skill底座实施记录.md) | 分析三件套（事实/诊断/行动）+ 图表三件套、insight-result 结果契约与工作台渲染闭环、种子与登记、真实模型对照评测 | 2026-09-30 本地实现与端到端验证完成；指标取数通道由《标签 Chip 取数与 Skill 分析上下文接入》补齐 |
+| 标签 Chip 取数与 Skill 分析上下文 | 实施 / 验证边界 | skills 源码 + agent + Java + assistant | [`development/标签Chip取数与Skill上下文.md`](development/标签Chip取数与Skill上下文.md) | 技能运行可携带左栏标签 chip；按已核验客群取列级统计与脱敏明细注入 `cohort_context`；服务端复核 `tagstat.*` 数值 | 2026-09-30 本地实现、自动化验证与 1,422 人真实全栈对账完成；大客群聚合性能压测待做 |
+| 对照客群基准接入 | 实施 / 验证边界 | skills 源码 + agent + Java + assistant | [`development/对照客群基准接入.md`](development/对照客群基准接入.md) | 技能运行可选「对照客群」，服务端同口径取数注入 `baseline`；`benchmark.*`/`diff.*` 白名单复核；技能墙钟预算独立 | 2026-09-30 本地实现与真实模型彩排完成；演示脚本见 [`交付文档/演示脚本（客群资产结构透视）-v1.0.md`](交付文档/演示脚本（客群资产结构透视）-v1.0.md) |
 | 洞察 Skill 体系实施记录（历史） | 实施 / 验证边界 | Agent 内旧报告兼容代码 + Java + assistant | [`development/洞察Skill体系实施记录.md`](development/洞察Skill体系实施记录.md) | 亮点二对齐、G1/G2/G3 聚合计算 / 统计、治理、工作台、受控模型与独立 SQL 验证 | P0–P7 本地实现及固定合成验证完成（2026-09-29）；真实绑定、MySQL / HTTP 整链与业务验收待完成 |
 | 若依环境使用手册 | 开发环境 / 部署指南 | 全局 | [`development/若依环境使用手册.docx`](development/若依环境使用手册.docx) | 若依系统开发环境搭建（Maven、Eclipse、数据库与日志配置）、启动验证、war/jar 部署 | 现行（注意：文内指向的初始化脚本名为旧版 `sql/ry_20180423.sql`/`quartz.sql`，当前初始化脚本为 `sql/init/ry_init.sql`） |
 

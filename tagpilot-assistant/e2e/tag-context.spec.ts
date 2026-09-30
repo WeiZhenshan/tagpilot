@@ -5,6 +5,7 @@ import fs from "node:fs";
 const names = ["活期存款余额", "客户等级", "是否持有信用卡", "近30天借记卡消费金额", "理财风险等级", "客户年龄", "开户日期", "职业分类"];
 const tree = [{ id: "lib-107", label: "个人客户经营标签库", children: [{ id: "dir-1", label: "客户经营", children: names.map((label, i) => ({ id: `tag-${i + 1}`, tagId: i + 1, label, tagType: i === 2 ? "布尔型" : i === 1 ? "选项型" : "数值型", dirPath: "客户经营" })) }] }];
 const savedPlan = { revision: 1, valid: true, hash: "saved", schema_version: 3, plan_status: "READY", tree: { kind: "TAG_PREDICATE", clause_id: "a", name: names[0], source_span: "活期存款余额至少50万元", tag_id: 1, operator: ">=", values: ["50"], value_unit: "CNY", value_scale: "10000", status: "BOUND" } };
+const skills = [{ name: "fact-analysis", display_name: "客群基础事实分析", user_invocable: true }];
 let t: any;
 let failNext: boolean;
 let requests: any[];
@@ -17,6 +18,8 @@ test.beforeEach(async ({ page }) => {
     if (url.pathname.endsWith("/getInfo")) return route.fulfill({ json: { code: 200, user: { userId: 2, nickName: "测试用户" } } });
     if (url.pathname.endsWith("/library/list")) return route.fulfill({ json: { code: 200, rows: [{ libraryId: 107, libraryName: "个人客户经营标签库" }, { libraryId: 108, libraryName: "公司客户经营标签库" }] } });
     if (url.pathname.endsWith("/tags/tree")) return route.fulfill({ json: { code: 200, data: url.searchParams.get("libraryId") === "107" ? tree : [] } });
+    if (url.pathname.endsWith("/skills/available")) return route.fulfill({ json: { code: 200, data: skills } });
+    if (url.pathname.endsWith("/baselines")) return route.fulfill({ json: { code: 200, data: [{ group_id: 128, group_name: "全量客户（资产结构基准）", user_count: 2000 }] } });
     if (url.pathname.endsWith("/from-group")) {
       groupRequests++;
       t = { ...t, title: "编辑：测试客群", plan: { ...structuredClone(savedPlan), valid: false }, revision: 1, versions: [structuredClone(savedPlan)], source_group_id: 90, source_group_name: "测试客群", source_requires_validation: true, source_thread_reused: false };
@@ -110,8 +113,7 @@ test("加入输入框保留草稿、失败保留chip、成功记录历史", asyn
   await expect(page.locator(".user-message .tag-chip")).toHaveCount(1);
   await page.reload(); await expect(page.locator(".user-message .tag-chip")).toHaveCount(1);
 });
-test("空白草稿加标签使用默认梳理话术", async ({ page }) => {
-  await page.goto("/agent-ui/");
+test("空白草稿加标签使用默认梳理话术", async ({ page }) => {  await page.goto("/agent-ui/");
   await page.locator(".composer-input").fill("   ");
   await showTags(page); await page.getByRole("button", { name: "展开目录：客户经营" }).click();
   await page.getByRole("checkbox", { name: `选择标签：${names[0]}`, exact: true }).check();
@@ -194,4 +196,72 @@ test("新增条件的数值错误仍须处理，不能借确认绕过", async ({
   await page.goto("/agent-ui/?threadId=tag-thread");
   await expect(page.getByText("原话中的数值未被条件或时间口径保留")).toBeVisible();
   await expect(page.getByRole("button", { name: "确认新增条件" })).toHaveCount(0);
+});
+test("选中技能后左栏标签作为分析列随技能运行发出", async ({ page }) => {
+  t.revision = 2; t.status = "COMPLETED";
+  t.plan = { ...structuredClone(savedPlan), revision: 2, hash: "h" };
+  t.count = { value: 1268, revision: 2, plan_hash: "h" };
+  t.capabilities = { ...t.capabilities, insight: true };
+  await page.goto("/agent-ui/?libraryId=107&threadId=tag-thread");
+  // 会话载入会重置斜杠菜单，先等会话到位再唤起技能列表
+  await expect(page.locator(".topbar-status")).not.toHaveText("准备就绪");
+  await page.locator(".composer-input").fill("/");
+  const option = page.getByRole("option", { name: /客群基础事实分析/ });
+  await expect(option).toBeVisible();
+  await option.click();
+  await showTags(page);
+  await page.getByRole("button", { name: "展开目录：客户经营" }).click();
+  // 技能模式下方案内标签可再选为分析列，不再显示「已在方案中」
+  await expect(page.getByText("已在方案中")).toHaveCount(0);
+  await page.getByRole("checkbox", { name: `选择标签：${names[0]}`, exact: true }).check();
+  await page.getByRole("button", { name: "加入输入框" }).click();
+  await expect(page.locator(".composer-tags .tag-chip")).toHaveCount(1);
+  await page.locator(".composer-input").fill("看看这批客户的资产结构");
+  await page.getByRole("button", { name: "发送需求" }).click();
+  await expect.poll(() => requests.length).toBeGreaterThan(0);
+  expect(requests.at(-1).skill_name).toBe("fact-analysis");
+  expect(requests.at(-1).context_tag_ids).toEqual([1]);
+  expect(requests.at(-1).context_only).toBe(false);
+});
+test("技能运行可选择对照客群并随请求发出，未选择时不携带", async ({ page }) => {
+  t.revision = 2; t.status = "COMPLETED";
+  t.plan = { ...structuredClone(savedPlan), revision: 2, hash: "h" };
+  t.count = { value: 1268, revision: 2, plan_hash: "h" };
+  t.capabilities = { ...t.capabilities, insight: true };
+  await page.goto("/agent-ui/?libraryId=107&threadId=tag-thread");
+  await expect(page.locator(".topbar-status")).not.toHaveText("准备就绪");
+  await page.locator(".composer-input").fill("/");
+  const option = page.getByRole("option", { name: /客群基础事实分析/ });
+  await expect(option).toBeVisible();
+  await option.click();
+  // 选中技能后出现对照客群选择器，默认不使用对照
+  const picker = page.getByLabel("对照客群");
+  await expect(picker).toBeVisible();
+  await expect(picker).toHaveValue("");
+  await picker.selectOption("128");
+  await page.locator(".composer-input").fill("和全量客户比一比资产结构");
+  await page.getByRole("button", { name: "发送需求" }).click();
+  await expect.poll(() => requests.length).toBeGreaterThan(0);
+  expect(requests.at(-1).skill_name).toBe("fact-analysis");
+  expect(requests.at(-1).baseline_group_id).toBe(128);
+  // 运行成功后技能与对照选择一起清空
+  await expect(page.getByLabel("对照客群")).toHaveCount(0);
+});
+test("技能运行不带对照客群时不发送 baseline_group_id", async ({ page }) => {
+  t.revision = 2; t.status = "COMPLETED";
+  t.plan = { ...structuredClone(savedPlan), revision: 2, hash: "h" };
+  t.count = { value: 1268, revision: 2, plan_hash: "h" };
+  t.capabilities = { ...t.capabilities, insight: true };
+  await page.goto("/agent-ui/?libraryId=107&threadId=tag-thread");
+  await expect(page.locator(".topbar-status")).not.toHaveText("准备就绪");
+  await page.locator(".composer-input").fill("/");
+  const option = page.getByRole("option", { name: /客群基础事实分析/ });
+  await expect(option).toBeVisible();
+  await option.click();
+  await expect(page.getByLabel("对照客群")).toHaveValue("");
+  await page.locator(".composer-input").fill("只看当前客群的结构");
+  await page.getByRole("button", { name: "发送需求" }).click();
+  await expect.poll(() => requests.length).toBeGreaterThan(0);
+  expect(requests.at(-1).skill_name).toBe("fact-analysis");
+  expect(requests.at(-1).baseline_group_id).toBeUndefined();
 });

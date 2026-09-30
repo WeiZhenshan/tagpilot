@@ -72,6 +72,17 @@ class TsAudiencePlanCompilerTest {
         assertThrows(ServiceException.class,()->compiler.compile(107L,p));
     }
 
+    @Test void scopeAllPlanCompilesWithModernIntent() {
+        Map<String,Object> tree=map("kind","SCOPE_ALL","clause_id","R1","requirement_ids",Arrays.asList("R1"),"status","BOUND","source_span","当前授权范围内的全部客户");
+        Map<String,Object> p=plan(tree);p.put("schema_version",3);
+        p.put("intent_plan",map("requirements",Arrays.asList(map("requirement_id","R1")),"logic_tree",map("requirement_id","R1")));
+        RulePayload rule=compiler.compile(107L,p);
+        assertEquals(4,rule.getSchemaVersion());
+        assertEquals(1,rule.getConditions().size());
+        assertTrue(rule.getConditions().get(0).isScopeAll());
+        assertEquals(p,rule.getAudiencePlan());
+    }
+
     @Test void structuredDiagnosticsCarryCodeAndClause() {
         Map<String,Object> scaled=leaf("a");scaled.put("value_scale","10000");
         TsPlanValidationException unit=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,plan(scaled)));

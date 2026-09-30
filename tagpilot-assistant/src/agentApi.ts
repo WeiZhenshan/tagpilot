@@ -19,6 +19,9 @@ export const createThread = (library_id: number) =>
 export const getThread = (id: string) => data<Thread>(`${prefix}/${id}`);
 export const fromGroup = (groupId: number) => data<Thread>(`${prefix}/from-group`, "POST", { groupId });
 export const tagTree = (libraryId: number) => data<TagTreeNode[]>(`/taglibrary/agent/tags/tree?libraryId=${libraryId}`);
+export type BaselineGroup = { group_id: number; group_name: string; user_count?: number | null };
+export const listBaselines = (libraryId: number) =>
+  data<BaselineGroup[]>(`/taglibrary/agent/baselines?libraryId=${libraryId}`);
 export const changeThread = (id: string, body: unknown) =>
   data<Thread>(`${prefix}/${id}`, "PATCH", body);
 export const deleteThread = async (id: string) => {
@@ -31,7 +34,8 @@ export const startRun = (
   requestId = crypto.randomUUID(),
   contextTagIds: number[] = [],
   contextOnly = false,
-  skillName?: string
+  skillName?: string,
+  baselineGroupId?: number
 ) =>
   data<Thread>(`${prefix}/${t.thread_id}/runs`, "POST", {
     client_request_id: requestId,
@@ -42,6 +46,7 @@ export const startRun = (
     context_tag_ids: contextTagIds,
     context_only: contextOnly,
     skill_name: skillName,
+    baseline_group_id: skillName ? baselineGroupId : undefined,
     plan_hash: skillName ? t.plan?.hash : undefined,
   });
 export const resumeRun = (t: Thread, answer?: unknown) =>

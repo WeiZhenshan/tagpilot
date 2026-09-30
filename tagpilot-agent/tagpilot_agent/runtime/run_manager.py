@@ -72,7 +72,7 @@ class RunManager:
             previous=progress(request.get('previous_plan'))
             loaded=len(self.waiters)>=max(1,int(os.getenv('TAG_AGENT_LEAN_QUEUE_DEPTH',str(self.limit))))
             ctx.lean=previous.get('reason') in LEAN_REASONS or loaded
-            ctx.budget=Budget.from_env(lean=ctx.lean)
+            ctx.budget=Budget.from_env(lean=ctx.lean,skill=request.get('profile')=='skill')
             ctx.stats['lean']=ctx.lean
             ctx.emit({'type':'run.started','message':'正在运行客群技能' if request.get('profile')=='skill' else '正在理解圈选需求'})
             if request.get('profile')=='skill':

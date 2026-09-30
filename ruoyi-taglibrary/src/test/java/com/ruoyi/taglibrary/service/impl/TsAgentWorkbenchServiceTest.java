@@ -36,6 +36,7 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     @Mock ITlObjectGroupService groups;
     @Mock ITlTagService tags;
     @Mock TsAgentSkillService agentSkills;
+    @Mock TsTagStatsService tagStats;
     @InjectMocks TsAgentWorkbenchService service;
     TsAgentThread row;
     @BeforeEach void setup() throws Exception {
@@ -95,8 +96,191 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         Map cohort=(Map)req.getValue().get("cohort_context");assertEquals(240,((Map)cohort.get("count")).get("value"));
         assertEquals("skill",req.getValue().get("profile"));assertEquals(2,result.get("revision"));assertNotNull(result.get("count"));assertNotNull(result.get("execution"));
     }
-    @Test void skillRunOmitsStaleCountsAndRejectsRetiredSkills() throws Exception {
+    Map<String,Object> skillReadyState() throws Exception {
+        Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot","tree",map("clause_id","all","status","BOUND"));
+        state(map("revision",2,"status","COMPLETED","plan",plan,"count",map("value",240,"revision",2,"plan_hash","h"),"messages",new ArrayList<>()));
+        when(agentSkills.published()).thenReturn(Arrays.asList(map("name","test-analysis","user_invocable",true,"version","1.0.0")));
+        return plan;
+    }
+    @Test void skillRunAcceptsSelectedTagsAndInjectsServerStatistics() throws Exception {
+        activeTags();when(tags.selectTagById(1L)).thenReturn(tag(1L,107L,"余额"));skillReadyState();
+        when(compiler.compile(eq(107L),any())).thenReturn(new RulePayload());
+        when(tagStats.collect(eq(107L),any(),eq(240L),eq(Arrays.asList(1L)),any(),any())).thenReturn(
+            map("tag_stats",Arrays.asList(map("tag_id",1L,"label","余额","unit","元","status","AVAILABLE")),"sample_rows",null,"stats_note",""));
+        service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-010","message","合成分析",
+            "skill_name","test-analysis","context_tag_ids",Arrays.asList(1)));
+        ArgumentCaptor<Map> req=ArgumentCaptor.forClass(Map.class);verify(agent).post(eq("/agent/v2/runs"),req.capture());
+        assertEquals(Arrays.asList(1L),req.getValue().get("pinned_tag_ids"));
+        Map cohort=(Map)req.getValue().get("cohort_context");
+        assertEquals("AVAILABLE",((Map)((List)cohort.get("tag_stats")).get(0)).get("status"));
+    }
+    @Test void skillRunRejectsOnlySelectionAndEditedPlans() throws Exception {
         activeTags();
+        Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot","tree",map("clause_id","all","status","BOUND"));
+        state(map("revision",2,"status","COMPLETED","plan",plan,"count",map("value",240,"revision",2,"plan_hash","h"),"messages",new ArrayList<>()));
+        assertThrows(ServiceException.class,()->service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-011",
+            "message","合成分析","skill_name","test-analysis","context_tag_ids",Arrays.asList(1),"context_only",true)));
+        assertThrows(ServiceException.class,()->service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-012",
+            "message","合成分析","skill_name","test-analysis","plan",map("tree",map()))));
+        verifyNoInteractions(tagStats);verifyNoInteractions(agent);
+    }
+    TlObjectGroup baselineGroup(Long groupId, Long library, String name, Long userCount) throws Exception {
+        TlObjectGroup group=new TlObjectGroup();group.setGroupId(groupId);group.setLibraryId(library);group.setGroupName(name);group.setUserCount(userCount);
+        group.setRuleJson(json.writeValueAsString(map("schemaVersion",4,"audiencePlan",map("hash","bh","valid",true,"build_id","build","snapshot_id","snapshot","tree",map("clause_id","b","tag_id",1)))));
+        return group;
+    }
+    @Test void skillRunInjectsBaselineCohortStatisticsForSelectedChips() throws Exception {
+        activeTags();when(tags.selectTagById(1L)).thenReturn(tag(1L,107L,"余额"));skillReadyState();
+        when(compiler.compile(eq(107L),any())).thenReturn(new RulePayload());
+        when(tagStats.collect(eq(107L),any(),eq(240L),eq(Arrays.asList(1L)),any(),any())).thenReturn(
+            map("tag_stats",Arrays.asList(map("tag_id",1L,"label","余额","unit","元","status","AVAILABLE","categories",new ArrayList<>())),"sample_rows",null,"stats_note",""));
+        when(tagStats.collect(eq(107L),any(),eq(2000L),eq(Arrays.asList(1L)),any(),any())).thenReturn(
+            map("tag_stats",Arrays.asList(map("tag_id",1L,"label","余额","unit","元","status","AVAILABLE","categories",new ArrayList<>())),"sample_rows",null,"stats_note",""));
+        TlObjectGroup baselineGroupRow=baselineGroup(90L,107L,"全量客户",2000L);
+        when(groups.selectObjectGroupById(90L)).thenReturn(baselineGroupRow);
+        when(groups.runRule(isNull(),eq(107L),any())).thenReturn(new RuleRunResultVO(2000,null));
+        service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-020","message","合成分析",
+            "skill_name","test-analysis","context_tag_ids",Arrays.asList(1),"baseline_group_id",90));
+        ArgumentCaptor<Map> req=ArgumentCaptor.forClass(Map.class);verify(agent).post(eq("/agent/v2/runs"),req.capture());
+        Map cohort=(Map)req.getValue().get("cohort_context");
+        Map baseline=(Map)cohort.get("baseline");
+        assertNotNull(baseline);assertEquals(90L,((Number)baseline.get("group_id")).longValue());
+        assertEquals("全量客户",baseline.get("name"));assertEquals(2000L,((Number)baseline.get("count")).longValue());
+        assertEquals(1,((List<?>)baseline.get("tag_stats")).size());
+    }
+    @Test void skillRunRejectsUnusableBaselineSelections() throws Exception {
+        activeTags();skillReadyState();
+        when(groups.selectObjectGroupById(90L)).thenReturn(null);
+        assertThrows(ServiceException.class,()->service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-021",
+            "message","合成分析","skill_name","test-analysis","baseline_group_id",90)));
+        TlObjectGroup other=baselineGroup(90L,108L,"其他库",1L);
+        when(groups.selectObjectGroupById(90L)).thenReturn(other);
+        assertThrows(ServiceException.class,()->service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-022",
+            "message","合成分析","skill_name","test-analysis","baseline_group_id",90)));
+        TlObjectGroup manual=new TlObjectGroup();manual.setGroupId(90L);manual.setLibraryId(107L);manual.setGroupName("手工规则");
+        manual.setRuleJson("{\"schemaVersion\":3,\"conditions\":[]}");
+        when(groups.selectObjectGroupById(90L)).thenReturn(manual);
+        assertThrows(ServiceException.class,()->service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-023",
+            "message","合成分析","skill_name","test-analysis","baseline_group_id",90)));
+        TlObjectGroup stale=baselineGroup(90L,107L,"旧版本",1L);
+        when(groups.selectObjectGroupById(90L)).thenReturn(stale);
+        when(compiler.compile(eq(107L),any())).thenThrow(new TsPlanValidationException("VERSION_MISMATCH",null,"发布版本已变化，请重新核验方案"));
+        assertThrows(ServiceException.class,()->service.start("owned",map("base_revision",2,"plan_hash","h","client_request_id","skill-request-024",
+            "message","合成分析","skill_name","test-analysis","baseline_group_id",90)));
+        verify(agent,never()).post(anyString(),any());
+    }
+    @Test void baselineListKeepsOnlyGroupsMatchingCurrentRelease() throws Exception {
+        when(catalog.activeBundle(107L)).thenReturn(map("build_id","build","snapshot_id","snapshot","artifact_hash","hash"));
+        TlObjectGroup current=baselineGroup(90L,107L,"全量客户",2000L);
+        TlObjectGroup stale=baselineGroup(91L,107L,"旧快照客群",10L);
+        stale.setRuleJson(json.writeValueAsString(map("schemaVersion",4,"audiencePlan",map("build_id","old","snapshot_id","old","tree",map("clause_id","b")))));
+        TlObjectGroup manual=new TlObjectGroup();manual.setGroupId(92L);manual.setLibraryId(107L);manual.setGroupName("手工规则");
+        manual.setRuleJson("{\"schemaVersion\":3}");
+        when(groups.selectObjectGroupList(any())).thenReturn(Arrays.asList(current,stale,manual));
+        List<Map<String,Object>> result=service.baselineGroups(107L);
+        assertEquals(1,result.size());assertEquals(90L,result.get(0).get("group_id"));assertEquals("全量客户",result.get(0).get("group_name"));
+    }
+    @Test void skillReportDropsTagStatFactsThatDoNotMatchInjectedNumbers() throws Exception {
+        Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot","tree",map("clause_id","all","status","BOUND"));
+        state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>(),"plan",plan,
+            "count",map("value",240,"revision",2,"plan_hash","h","executed_at","2026-09-30T10:00:00Z"),
+            "run_request",map("profile","skill","skill_name","test-analysis","requirement","分析这批客户","reference_date","2026-09-30",
+                "skill_packages",Arrays.asList(map("name","test-analysis","display_name","测试分析","version","1.2.0","instructions","x")),
+                "cohort_context",map("name","测试客群","plan",plan,"count",map("value",240),
+                    "tag_stats",Arrays.asList(map("tag_id",812L,"label","总资产","unit","元","unit_source","ts_tag_semantic","status","AVAILABLE",
+                        "reason","","sample_size",240,"plan_tag",false,"numeric",map("n",240,"sum",120000000,"avg",500000),
+                        "categories",new ArrayList<>(),"truncated",false))))));
+        Map<String,Object> honest=tagStatFact("f-aum",500000,"tagstat.812.avg");
+        Map<String,Object> invented=tagStatFact("f-fake",999999,"tagstat.812.avg");
+        Map<String,Object> unknown=tagStatFact("f-unknown",7,"tagstat.999.max");
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("skill_output","正文。",
+            "skill_result",map("status","PARTIAL","reasons",Arrays.asList("部分接入"),"facts",Arrays.asList(honest,invented,unknown),
+                "cards",Arrays.asList(),"charts",Arrays.asList(),"followups",Arrays.asList()))));
+        Map<String,Object> report=(Map<String,Object>)service.get("owned").get("skill_report");
+        assertNotNull(report);
+        List<?> facts=(List<?>)((Map<String,Object>)((List<?>)report.get("results")).get(0)).get("facts");
+        assertEquals(1,facts.size());assertEquals("f-aum",((Map<String,Object>)facts.get(0)).get("id"));
+    }
+    Map<String,Object> tagStatFact(String id,Number value,String queryId) {
+        return tagStatFact(id,value,queryId,"元");
+    }
+    Map<String,Object> tagStatFact(String id,Number value,String queryId,String unit) {
+        return map("id",id,"metric","aum","label","总资产","value",value,"unit",unit,"sample_size",240,"status","AVAILABLE",
+            "query_id",queryId,"evidence",Arrays.asList("服务端标签统计"),"role","OBSERVED","denominator_id",null,
+            "derived_from",Arrays.asList(),"exclusions_applied",Arrays.asList());
+    }
+    @Test void skillReportKeepsDistributionFactsWithoutTagUnit() throws Exception {
+        Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot","tree",map("clause_id","all","status","BOUND"));
+        state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>(),"plan",plan,
+            "count",map("value",240,"revision",2,"plan_hash","h","executed_at","2026-09-30T10:00:00Z"),
+            "run_request",map("profile","skill","skill_name","test-analysis","requirement","分析这批客户","reference_date","2026-09-30",
+                "skill_packages",Arrays.asList(map("name","test-analysis","display_name","测试分析","version","1.2.0","instructions","x")),
+                "cohort_context",map("name","测试客群","plan",plan,"count",map("value",240),
+                    "tag_stats",Arrays.asList(map("tag_id",673L,"label","资产等级","unit",null,"unit_source","none","status","AVAILABLE",
+                        "reason","","sample_size",240,"plan_tag",false,"numeric",null,
+                        "categories",Arrays.asList(map("code","A","label","高","count",120,"share",50d)),"truncated",false))))));
+        // 分布计数与占比的单位是天然的「人」「%」，不依赖标签量纲；同一条目的数值统计没有登记单位，仍然不可用。
+        Map<String,Object> category=tagStatFact("f-cat",120,"tagstat.673.cat.A","人");
+        Map<String,Object> noUnit=tagStatFact("f-numeric",7,"tagstat.673.avg","分");
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("skill_output","正文。",
+            "skill_result",map("status","PARTIAL","reasons",Arrays.asList("部分接入"),"facts",Arrays.asList(category,noUnit),
+                "cards",Arrays.asList(),"charts",Arrays.asList(),"followups",Arrays.asList()))));
+        Map<String,Object> report=(Map<String,Object>)service.get("owned").get("skill_report");
+        assertNotNull(report);
+        List<?> facts=(List<?>)((Map<String,Object>)((List<?>)report.get("results")).get(0)).get("facts");
+        assertEquals(1,facts.size());assertEquals("f-cat",((Map<String,Object>)facts.get(0)).get("id"));
+    }
+    @Test void skillReportKeepsOnlyBenchmarkAndDifferenceFactsMatchingInjectedBaseline() throws Exception {
+        Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot","tree",map("clause_id","all","status","BOUND"));
+        Map<String,Object> targetTag=map("tag_id",812L,"label","总资产","unit","元","unit_source","ts_tag_semantic","status","AVAILABLE",
+            "reason","","sample_size",240,"plan_tag",false,"numeric",map("n",240,"sum",120000000,"avg",500000),"categories",new ArrayList<>(),"truncated",false);
+        Map<String,Object> baselineTag=map("tag_id",812L,"label","总资产","unit","元","unit_source","ts_tag_semantic","status","AVAILABLE",
+            "reason","","sample_size",2000,"plan_tag",false,"numeric",map("n",2000,"sum",800000000,"avg",400000),"categories",new ArrayList<>(),"truncated",false);
+        Map<String,Object> baseline=map("group_id",90L,"name","全量客户","count",2000,"tag_stats",Arrays.asList(baselineTag),"stats_note","");
+        state(map("revision",2,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>(),"plan",plan,
+            "count",map("value",240,"revision",2,"plan_hash","h","executed_at","2026-09-30T10:00:00Z"),
+            "run_request",map("profile","skill","skill_name","test-analysis","requirement","分析这批客户","reference_date","2026-09-30",
+                "skill_packages",Arrays.asList(map("name","test-analysis","display_name","测试分析","version","1.2.0","instructions","x")),
+                "cohort_context",map("name","测试客群","plan",plan,"count",map("value",240),"baseline",baseline,"tag_stats",Arrays.asList(targetTag)))));
+        Map<String,Object> honestBenchmark=tagStatFact("f-base",400000,"benchmark.812.avg");
+        honestBenchmark.put("role","BENCHMARK");
+        Map<String,Object> inventedBenchmark=tagStatFact("f-base-fake",123456,"benchmark.812.avg");
+        inventedBenchmark.put("role","BENCHMARK");
+        Map<String,Object> honestDiff=tagStatFact("f-diff",100000,"diff.812.avg");
+        honestDiff.put("role","DERIVED");
+        Map<String,Object> wrongDiff=tagStatFact("f-diff-wrong",999999,"diff.812.avg");
+        wrongDiff.put("role","DERIVED");
+        Map<String,Object> unknownDiff=tagStatFact("f-diff-unknown",1,"diff.812.max");
+        unknownDiff.put("role","DERIVED");
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("skill_output","正文。",
+            "skill_result",map("status","COMPLETE","reasons",Arrays.asList(),"facts",Arrays.asList(honestBenchmark,inventedBenchmark,honestDiff,wrongDiff,unknownDiff),
+                "cards",Arrays.asList(),"charts",Arrays.asList(),"followups",Arrays.asList()))));
+        Map<String,Object> report=(Map<String,Object>)service.get("owned").get("skill_report");
+        assertNotNull(report);
+        List<?> facts=(List<?>)((Map<String,Object>)((List<?>)report.get("results")).get(0)).get("facts");
+        assertEquals(2,facts.size());
+        assertEquals("f-base",((Map<String,Object>)facts.get(0)).get("id"));
+        assertEquals("f-diff",((Map<String,Object>)facts.get(1)).get("id"));
+    }
+    /** 真实模型输出回归：带对照客群的诊断报告必须整份通过服务端校验（事实/卡片/图表一条不丢）。 */
+    @Test void realModelDiagnosticResultWithBaselineSurvivesServerValidation() throws Exception {
+        Map<String,Object> fixture=json.readValue(new java.io.File("src/test/resources/agent/diagnostic-baseline-run.json"),Map.class);
+        Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot","tree",map("clause_id","all","status","BOUND"));
+        state(map("revision",4,"status","RUNNING","run_id","r","messages",new ArrayList<>(),"events",new ArrayList<>(),"plan",plan,
+            "count",map("value",287,"revision",4,"plan_hash","h","executed_at","2026-09-30T08:10:00Z"),
+            "run_request",map("profile","skill","skill_name","diagnostic-analysis","requirement","资产结构透视","reference_date","2026-09-30",
+                "skill_packages",Arrays.asList(map("name","diagnostic-analysis","display_name","客群诊断分析","version","1.2.0","instructions","x")),
+                "cohort_context",fixture.get("cohort_context"))));
+        when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),
+            "result",map("skill_output","正文。","skill_result",fixture.get("skill_result"))));
+        Map<String,Object> report=(Map<String,Object>)service.get("owned").get("skill_report");
+        assertNotNull(report);
+        Map<String,Object> entry=(Map<String,Object>)((List<?>)report.get("results")).get(0);
+        assertEquals(45,((List<?>)entry.get("facts")).size());
+        assertEquals(3,((List<?>)entry.get("cards")).size());
+        assertEquals(4,((List<?>)entry.get("charts")).size());
+    }
+    @Test void skillRunOmitsStaleCountsAndRejectsRetiredSkills() throws Exception {        activeTags();
         Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot","tree",map("clause_id","all","status","BOUND"));
         state(map("revision",2,"status","COMPLETED","plan",plan,"count",map("value",240,"revision",1,"plan_hash","old"),"messages",new ArrayList<>()));
         when(agentSkills.published()).thenReturn(new ArrayList<>());
@@ -150,15 +334,18 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     @Test void skillRunDropsCardsChartsAndResultsThatBreakRendering() throws Exception {
         skillSyncState();
         Map<String,Object> badCard=validCard();((Map<String,Object>)badCard.get("facts")).put("text","共 {fact:f-missing}。");
+        Map<String,Object> unknown=validCard();((Map<String,Object>)unknown.get("comparison")).put("text","对比 {fact:f-nope}。");
         Map<String,Object> undeclared=validCard();((Map<String,Object>)undeclared.get("comparison")).put("text","对比 {fact:f-count}。");
         when(agent.get(anyString())).thenReturn(map("status","COMPLETED","events",Collections.emptyList(),"result",map("skill_output","正文。",
             "skill_result",map("status","PARTIAL","reasons",Arrays.asList("指标未接入"),"facts",Arrays.asList(availableFact()),
-                "cards",Arrays.asList(badCard,undeclared,validCard()),
+                "cards",Arrays.asList(badCard,unknown,undeclared,validCard()),
                 "charts",Arrays.asList(map("id","no-kind"),map("kind","bar","id","chart-ok")),"followups",Arrays.asList()))));
         Map<String,Object> result=service.get("owned");
         Map<String,Object> entry=(Map<String,Object>)((List<?>)((Map<String,Object>)result.get("skill_report")).get("results")).get(0);
-        List<?> cards=(List<?>)entry.get("cards");assertEquals(1,cards.size());
+        List<?> cards=(List<?>)entry.get("cards");assertEquals(2,cards.size());
         assertEquals("card-1",((Map<?,?>)cards.get(0)).get("id"));
+        // 引用已核验可用事实但漏登记的，按引用补齐 fact_ids 后保留，不再整卡丢弃。
+        assertEquals(Arrays.asList("f-count"),((Map<?,?>)((Map<?,?>)cards.get(0)).get("comparison")).get("fact_ids"));
         List<?> charts=(List<?>)entry.get("charts");assertEquals(1,charts.size());
         assertEquals("chart-ok",((Map<?,?>)charts.get(0)).get("id"));
 

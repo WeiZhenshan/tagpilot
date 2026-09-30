@@ -59,3 +59,26 @@ def test_native_sdk_loads_skills_and_composes_chart_without_model_or_business_ca
     assert {t['name'] for t in app.state.requests[0]['tools']}=={'Read','Skill'}
     assert any(e['type']=='skill.invoked' for e in store.events(request['run_id']))
     store.db.close()
+
+
+def test_skill_run_receives_tag_stats_from_selected_tags(tmp_path,gateway):
+    app=gateway([{'text':'分析完成：已使用服务端标签统计。'}])
+    store,manager=manager_for(tmp_path)
+    request=request_for('skill-tag-stats',profile='skill',skill_name='test-analysis',skill_packages=[skill()],
+                        pinned_tag_ids=[812],
+                        cohort_context={'name':'合成测试客群','revision':2,'plan':{'valid':True,'tree':{'kind':'SCOPE_ALL'}},'count':{'value':240},
+                                        'tag_stats':[{'tag_id':812,'label':'总资产','unit':'元','unit_source':'ts_tag_semantic','status':'AVAILABLE',
+                                                      'reason':'','sample_size':240,'plan_tag':False,'numeric':{'n':240,'avg':500394},'categories':[],'truncated':False}],
+                                        'baseline':{'group_id':90,'name':'全量客户（对照）','count':2000,'stats_note':'',
+                                                    'tag_stats':[{'tag_id':812,'label':'总资产','unit':'元','unit_source':'ts_tag_semantic','status':'AVAILABLE',
+                                                                  'reason':'','sample_size':2000,'plan_tag':False,'numeric':{'n':2000,'avg':400000},'categories':[],'truncated':False}]},
+                                        'sample_rows':{'columns':['总资产'],'rows':[[500394]],'limit':100,'masked':True,'note':'客户号已脱敏'},
+                                        'stats_note':''})
+    store.create(request['run_id'],request)
+    asyncio.run(manager.execute(request['run_id'],request))
+    row=store.get(request['run_id'],'7')
+    assert row['status']=='COMPLETED',row
+    calls=json.dumps(app.state.requests,ensure_ascii=False)
+    assert 'tag_stats' in calls and '500394' in calls and '客户号已脱敏' in calls
+    assert '全量客户（对照）' in calls and '400000' in calls and 'baseline' in calls
+    store.db.close()

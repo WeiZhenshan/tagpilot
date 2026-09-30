@@ -27,6 +27,7 @@ import static com.ruoyi.taglibrary.service.TsSnapshotAssembler.map;
 @Service
 @SuppressWarnings("unchecked")
 public class TsAgentWorkbenchService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TsAgentWorkbenchService.class);
     @Autowired private TsAgentThreadMapper threads;
     @Autowired private ObjectMapper json;
     @Autowired private DataBrokerCryptoService crypto;
@@ -39,6 +40,7 @@ public class TsAgentWorkbenchService {
     @Autowired private ITlTagService tags;
     @Autowired private TsInsightRegistryService insightRegistry;
     @Autowired private TsAgentSkillService agentSkills;
+    @Autowired private TsTagStatsService tagStats;
 
     private Long uid() { return SecurityUtils.getUserId(); }
     private String id() { return UUID.randomUUID().toString(); }
@@ -118,6 +120,12 @@ public class TsAgentWorkbenchService {
             ids.add(number(value));
         }
         return new ArrayList<>(ids);
+    }
+    /** 请求里的 baseline_group_id 与已持久化请求里的 cohort_context.baseline.group_id 指向同一编号。 */
+    private String baselineOf(Map<String,Object> source) {
+        Object direct=source.get("baseline_group_id");
+        Object groupId=direct!=null?direct:obj(obj(source.get("cohort_context")).get("baseline")).get("group_id");
+        return groupId==null?null:String.valueOf(groupId);
     }
     public List<TsAgentThread> listThreads(boolean archived) {
         return threads.list(uid(),archived?"1":"0");
@@ -206,6 +214,7 @@ public class TsAgentWorkbenchService {
         for(Map<String,Object> entry:list(request.get("skill_packages")))if(Objects.equals(entry.get("name"),request.get("skill_name")))pack=entry;
         if(pack==null)return null;
         List<Map<String,Object>> facts=new ArrayList<>();Map<String,Map<String,Object>> factIndex=new LinkedHashMap<>();
+        Map<String,Double> allowedTagStats=allowedTagStats(cohort);
         for(Map<String,Object> fact:list(skill.get("facts"))) {
             String factId=String.valueOf(fact.get("id")),factStatus=String.valueOf(fact.get("status"));
             if(facts.size()>=300 || !SKILL_FACT_ID.matcher(factId).matches() || factIndex.containsKey(factId))continue;
@@ -213,6 +222,7 @@ public class TsAgentWorkbenchService {
             Object value=fact.get("value");
             if("AVAILABLE".equals(factStatus)) { if(!(value instanceof Number) || !Double.isFinite(((Number)value).doubleValue()))continue; }
             else if(value!=null)continue;
+            if(!tagStatMatches(fact,allowedTagStats))continue;
             facts.add(fact);factIndex.put(factId,fact);
         }
         List<Map<String,Object>> charts=new ArrayList<>();
@@ -244,16 +254,70 @@ public class TsAgentWorkbenchService {
                 "declared_context",String.valueOf(request.getOrDefault("requirement","")),"synthetic",false),
             "results",new ArrayList<>(Arrays.asList(entry)));
     }
-    /** 陈述段引用的每个 {fact:} 都必须是已声明且可用的事实，否则该卡片会被前端拒绝渲染。 */
+    /**
+     * 事实白名单：客群统计原样引用 tagstat.*；对照客群统计引用 benchmark.*；两侧同口径的差值引用 diff.*。
+     * 命中这些前缀的事实取值必须与白名单一致（挂名改数的整条丢弃）；其余 query_id 维持原有校验，不误杀派生值。
+     */
+    private Map<String,Double> allowedTagStats(Map<String,Object> cohort) {
+        Map<String,Double> target=statsValues(cohort.get("tag_stats"));
+        Map<String,Double> baseline=statsValues(obj(cohort.get("baseline")).get("tag_stats"));
+        Map<String,Double> allowed=new LinkedHashMap<>();
+        for(Map.Entry<String,Double> entry:target.entrySet())allowed.put("tagstat."+entry.getKey(),entry.getValue());
+        for(Map.Entry<String,Double> entry:baseline.entrySet())allowed.put("benchmark."+entry.getKey(),entry.getValue());
+        Object baselineCount=obj(cohort.get("baseline")).get("count");
+        if(baselineCount instanceof Number)allowed.put("benchmark.count",((Number)baselineCount).doubleValue());
+        for(Map.Entry<String,Double> entry:target.entrySet()) {
+            Double other=baseline.get(entry.getKey());
+            if(other==null)continue;
+            allowed.put("diff."+entry.getKey(),Math.round((entry.getValue()-other)*100d)/100d);
+        }
+        return allowed;
+    }
+    /**
+     * tag_stats 条目 → 「&lt;tag_id&gt;.&lt;统计名&gt;」值表：分布计数与占比的单位是天然的「人」「%」，
+     * 与标签量纲无关；数值统计则必须有已登记单位，未登记或已抑制的统计量不进入白名单。
+     */
+    private Map<String,Double> statsValues(Object rawStats) {
+        Map<String,Double> values=new LinkedHashMap<>();
+        for(Map<String,Object> entry:list(rawStats)) {
+            if(!"AVAILABLE".equals(entry.get("status")))continue;
+            String prefix=entry.get("tag_id")+".";
+            for(Map<String,Object> row:list(entry.get("categories"))) {
+                Object code=row.get("code");
+                if(row.get("count") instanceof Number)values.put(prefix+"cat."+code,((Number)row.get("count")).doubleValue());
+                if(row.get("share") instanceof Number)values.put(prefix+"share."+code,((Number)row.get("share")).doubleValue());
+            }
+            if(entry.get("unit")==null)continue;
+            Map<String,Object> numeric=obj(entry.get("numeric"));
+            for(String key:Arrays.asList("n","missing","min","max","sum","avg","median"))
+                if(numeric.get(key) instanceof Number)values.put(prefix+key,((Number)numeric.get(key)).doubleValue());
+        }
+        return values;
+    }
+    private static final List<String> STAT_QUERY_PREFIXES=Arrays.asList("tagstat.","benchmark.","diff.");
+    private boolean tagStatMatches(Map<String,Object> fact,Map<String,Double> allowed) {
+        String queryId=String.valueOf(fact.get("query_id"));
+        if(STAT_QUERY_PREFIXES.stream().noneMatch(queryId::startsWith))return true;
+        Double expected=allowed.get(queryId);
+        if(expected==null || !"AVAILABLE".equals(fact.get("status")))return false;
+        Object value=fact.get("value");
+        return value instanceof Number && Math.abs(((Number)value).doubleValue()-expected)<=Math.max(0.05,Math.abs(expected)*1e-9);
+    }
+    /**
+     * 陈述段引用的每个 {fact:} 都必须是可用事实，否则该卡片会被前端拒绝渲染；
+     * 引用了已通过校验的可用事实、只是漏登记进 fact_ids 的，按引用补齐——数值本身已在事实层逐条复核。
+     */
     private boolean skillStatement(Object raw,Map<String,Map<String,Object>> facts) {
         if(!(raw instanceof Map) || !(obj(raw).get("text") instanceof String))return false;
-        Map<String,Object> statement=obj(raw);Set<String> declared=new HashSet<>();
+        Map<String,Object> statement=obj(raw);Set<String> declared=new LinkedHashSet<>();
         for(Object value:list(statement.get("fact_ids")))declared.add(String.valueOf(value));
         Matcher matcher=SKILL_FACT_REF.matcher((String)statement.get("text"));
         while(matcher.find()) {
             Map<String,Object> fact=facts.get(matcher.group(1));
-            if(fact==null || !declared.contains(matcher.group(1)) || !"AVAILABLE".equals(fact.get("status")))return false;
+            if(fact==null || !"AVAILABLE".equals(fact.get("status")))return false;
+            declared.add(matcher.group(1));
         }
+        statement.put("fact_ids",new ArrayList<>(declared));
         return true;
     }
     private String dataAsOf(Map<String,Object> count) {
@@ -308,7 +372,8 @@ public class TsAgentWorkbenchService {
             if(!Objects.equals(original.get("requirement"),request.getOrDefault("message","编辑圈选条件")) || !Objects.equals(original.get("edited_plan"),request.get("plan"))
                 || !Objects.equals(contextIds(map("context_tag_ids",original.get("pinned_tag_ids"))),pinned)
                 || !Objects.equals(original.getOrDefault("pinned_only",false),Boolean.TRUE.equals(request.get("context_only")))
-                || !Objects.equals(original.get("skill_name"),request.get("skill_name")))
+                || !Objects.equals(original.get("skill_name"),request.get("skill_name"))
+                || !Objects.equals(baselineOf(original),baselineOf(request)))
                 throw new ServiceException("重复请求内容不一致",409);
             return view(row,state);
         }
@@ -328,7 +393,8 @@ public class TsAgentWorkbenchService {
         Map<String,Object> cohort=null;List<Map<String,Object>> skillPackages=null;
         if(skillName!=null) {
             if(!permissions.hasPermi("taglibrary:insight:run"))throw new ServiceException("没有技能运行权限",403);
-            if(!pinned.isEmpty() || request.get("plan")!=null)throw new ServiceException("技能运行请使用当前已核验客群条件");
+            if(request.get("plan")!=null)throw new ServiceException("技能运行请使用当前已核验客群条件");
+            if(Boolean.TRUE.equals(request.get("context_only")))throw new ServiceException("技能运行需要写明分析目标");
             Map<String,Object> plan=currentPlan(state,request);
             if(!Objects.equals(plan.get("build_id"),bundle.get("build_id")) || !Objects.equals(plan.get("snapshot_id"),bundle.get("snapshot_id")))throw new ServiceException("客群发布版本已变化，请重新核验",409);
             skillPackages=agentSkills.published();boolean found=false;
@@ -336,6 +402,18 @@ public class TsAgentWorkbenchService {
             if(!found)throw new ServiceException("技能已下线或不允许手动调用，请刷新",409);
             Map<String,Object> count=obj(state.get("count"));boolean counted=number(count.get("revision"))==number(state.get("revision")) && Objects.equals(count.get("plan_hash"),plan.get("hash"));
             cohort=map("name",row.getTitle(),"revision",state.get("revision"),"plan_hash",plan.get("hash"),"plan",plan,"count",counted?count:null,"group_id",obj(state.get("execution")).get("group_id"),"status",counted?"COUNTED":"CONDITIONS_ONLY");
+            // 标签 chip 的统计以已核验人数为分母与漂移基准；未统计人数时只说明原因，不取数。
+            if(!pinned.isEmpty()) {
+                try {
+                    cohort.putAll(tagStats.collect(row.getLibraryId(),compiler.compile(row.getLibraryId(),plan),
+                        counted?number(count.get("value")):null,pinned,new HashSet<>(eligible),planTagIds(plan)));
+                } catch(Exception e) {
+                    log.warn("技能标签取数失败 thread={}: {}",thread,e.getMessage());
+                    cohort.putAll(map("tag_stats",new ArrayList<>(),"sample_rows",null,"stats_note","标签统计取数失败，本轮不提供标签统计"));
+                }
+            }
+            Map<String,Object> baseline=baseline(request,row,pinned,eligible);
+            if(baseline!=null) cohort.put("baseline",baseline);
         }
         List<Map<String,Object>> contextTags=new ArrayList<>();
         for(Long tagId:pinned) {
@@ -409,8 +487,68 @@ public class TsAgentWorkbenchService {
         List<Map<String,Object>> events=list(state.get("events"));events.add(map("seq",-1,"type","run.cancelled","message","已停止；已完成条件保留"));state.put("events",events);
         state.put("status","CANCELLED");state.put("questions",new ArrayList<>());
     }
-    private void collectAssumed(Map<String,Object> node,Set<String> result) {
-        if(node.containsKey("children")){for(Map<String,Object> child:list(node.get("children")))collectAssumed(child,result);}
+    /** 方案中已作为条件使用的标签：这些列被条件截断，统计口径要在报告里声明。 */
+    private Set<Long> planTagIds(Map<String,Object> plan) {
+        Set<Long> ids=new LinkedHashSet<>();collectTagIds(plan.get("tree"),ids);return ids;
+    }
+    /**
+     * 对照客群（基准）：只接受同库、带已发布方案（schemaVersion≥4）的保存对象群；按其保存条件重新编译取数。
+     * 选择本身不合法（不存在、跨库、手工规则、发布版本不一致）直接拒绝；取数期故障按降级处理，随 stats_note 说明。
+     */
+    private Map<String,Object> baseline(Map<String,Object> request,TsAgentThread row,List<Long> pinned,List<Long> eligible) {
+        Object raw=request.get("baseline_group_id");
+        if(raw==null)return null;
+        if(!(raw instanceof Number) || !String.valueOf(raw).matches("[1-9][0-9]*"))throw new ServiceException("对照客群编号非法");
+        Long groupId=Long.valueOf(String.valueOf(raw));
+        TlObjectGroup group=groups.selectObjectGroupById(groupId);
+        if(group==null)throw new ServiceException("对照客群不存在",404);
+        if(!Objects.equals(group.getLibraryId(),row.getLibraryId()))throw new ServiceException("对照客群不属于当前标签库",403);
+        Map<String,Object> saved=null;
+        try {saved=obj(json.readValue(group.getRuleJson(),Map.class).get("audiencePlan"));}
+        catch(Exception e) {throw new ServiceException("对照客群规则无法读取");}
+        if(saved.isEmpty() || !saved.containsKey("tree"))throw new ServiceException("对照客群为手工规则，不能作为分析基准");
+        RulePayload rule;
+        try {rule=compiler.compile(row.getLibraryId(),saved);}
+        catch(TsPlanValidationException e) {throw new ServiceException("对照客群与当前发布版本不一致，请重新核验后再选择");}
+        Map<String,Object> out=map("group_id",groupId,"name",group.getGroupName());
+        try {
+            RuleRunResultVO counted=groups.runRule(null,row.getLibraryId(),rule);
+            long count=counted.getCount();
+            out.put("count",count);
+            Map<String,Object> stats=tagStats.collect(row.getLibraryId(),rule,count,pinned,new HashSet<>(eligible),planTagIds(saved));
+            out.put("tag_stats",stats.get("tag_stats"));out.put("stats_note",stats.get("stats_note"));
+        } catch(Exception e) {
+            log.warn("对照客群取数失败 group={}: {}",groupId,e.getMessage());
+            out.put("count",null);out.put("tag_stats",new ArrayList<>());out.put("stats_note","对照客群取数失败，本轮不提供基准");
+        }
+        return out;
+    }
+    /** 可作对照的已保存客群：同库、带已发布方案且方案与当前发布版本一致，选择后不会因版本漂移失败。 */
+    public List<Map<String,Object>> baselineGroups(Long library) {
+        visible(library);
+        Map<String,Object> bundle=catalog.activeBundle(library);
+        TlObjectGroup query=new TlObjectGroup();query.setLibraryId(library);
+        List<Map<String,Object>> out=new ArrayList<>();
+        for(TlObjectGroup group:groups.selectObjectGroupList(query)) {
+            Map<String,Object> saved=null;
+            try {saved=obj(json.readValue(group.getRuleJson(),Map.class).get("audiencePlan"));}
+            catch(Exception e) {continue;}
+            if(saved.isEmpty() || !saved.containsKey("tree"))continue;
+            if(!Objects.equals(saved.get("build_id"),bundle.get("build_id")) || !Objects.equals(saved.get("snapshot_id"),bundle.get("snapshot_id")))continue;
+            out.add(map("group_id",group.getGroupId(),"group_name",group.getGroupName(),"user_count",group.getUserCount()));
+        }
+        return out;
+    }
+    private void collectTagIds(Object node,Set<Long> result) {
+        if(node instanceof Map) {
+            Map<String,Object> map=obj(node);
+            if(map.get("tag_id")!=null)result.add(number(map.get("tag_id")));
+            for(Object value:map.values())collectTagIds(value,result);
+        } else if(node instanceof List) {
+            for(Object value:(List<?>)node)collectTagIds(value,result);
+        }
+    }
+    private void collectAssumed(Map<String,Object> node,Set<String> result) {        if(node.containsKey("children")){for(Map<String,Object> child:list(node.get("children")))collectAssumed(child,result);}
         else if("ASSUMED".equals(node.get("status")) || node.get("assumption") instanceof Map)result.add(String.valueOf(node.get("clause_id")));
     }
 
