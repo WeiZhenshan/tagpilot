@@ -1,6 +1,6 @@
 {
-  "exported_at": "2026-09-30T13:10Z",
-  "git_commit": "b8312c7f9f7dcfc98b581eb5adfcbb44ec6aafd4",
+  "exported_at": "2026-09-30T13:20Z",
+  "git_commit": "7530cb687511d03d6b7db423cbdd0477cf60d84f",
   "databases": ["ry", "indiv_cust"],
   "artifact": "tagpilot-competition-20260930.sql.gz",
   "import": "gunzip -c tagpilot-competition-20260930.sql.gz | mysql -h127.0.0.1 -uroot -p --default-character-set=utf8mb4",
