@@ -1,0 +1,84 @@
+{
+  "states": [
+    {
+      "run_id": "p3-063ec0a5295f-cal-8004",
+      "status": "FAILED",
+      "result": null,
+      "error": "权限或发布版本发生变化，请重新核验",
+      "events": [
+        {
+          "seq": 2496,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790594618.301445
+        },
+        {
+          "seq": 2497,
+          "type": "run.failed",
+          "message": "权限或发布版本发生变化，请重新核验",
+          "occurred_at": 1790594618.314695
+        },
+        {
+          "seq": 2500,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790594619.3168168
+        },
+        {
+          "seq": 2501,
+          "type": "run.failed",
+          "message": "权限或发布版本发生变化，请重新核验",
+          "occurred_at": 1790594619.3701482
+        }
+      ],
+      "cancelled_by_harness": false
+    },
+    {
+      "run_id": "p3-063ec0a5295f-cal-8004-t1",
+      "status": "FAILED",
+      "result": null,
+      "error": "权限或发布版本发生变化，请重新核验",
+      "events": [
+        {
+          "seq": 2500,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790594619.3168168
+        },
+        {
+          "seq": 2501,
+          "type": "run.failed",
+          "message": "权限或发布版本发生变化，请重新核验",
+          "occurred_at": 1790594619.3701482
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 2496,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790594618.301445
+    },
+    {
+      "seq": 2497,
+      "type": "run.failed",
+      "message": "权限或发布版本发生变化，请重新核验",
+      "occurred_at": 1790594618.314695
+    },
+    {
+      "seq": 2500,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790594619.3168168
+    },
+    {
+      "seq": 2501,
+      "type": "run.failed",
+      "message": "权限或发布版本发生变化，请重新核验",
+      "occurred_at": 1790594619.3701482
+    }
+  ]
+}

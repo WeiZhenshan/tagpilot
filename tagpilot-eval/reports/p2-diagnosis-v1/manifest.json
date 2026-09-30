@@ -1,0 +1,15 @@
+{
+  "schema_version": "p2-diagnosis.v1",
+  "phase": "P2",
+  "status": "DIAGNOSED",
+  "authorization": {
+    "authorized_by": "USER",
+    "authorized_at": "2026-09-28",
+    "basis": "P2 失败根因报告"
+  },
+  "runs_manifest_sha256": "ef5ff9b39f0f0e894b5414fbedc75915d6664e6238e1c3e4e212ae23afe5519f",
+  "files": {
+    "cluster-evidence.jsonl": "40f151191405e1841ee40c5597e3619d3b1ce11d05a574b46de09fb986ee3a57",
+    "diagnosis.json": "b2795a05dc397516f50e26168a80553fa883a6f1c7ed2db0cf55c781d9f8110b"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "build_id": "bge-m3-l107-20260928-005-p3e",
+  "snapshot_id": "L107-20260928-005",
+  "artifact_hash": "7a28998b606f4317be5853faeef201fb555c66cc93f9d567451d01740f61a07a",
+  "retrieval_config_hash": "c0e8234dba0d59f17ddc4f02b360178f342c1c13194b866652da5f9ee0a9da8f",
+  "content_hash": "309ae4c956a6ea9e002fadefe24fc9e617db60d13f18326c80f0dd623d7737f8",
+  "doc_count": 3382,
+  "id_reconciled": true,
+  "store_type": "MILVUS",
+  "embedding_model": "BAAI/bge-m3",
+  "reranker_model": "BAAI/bge-reranker-v2-m3",
+  "doc_template_version": "tpl1"
+}

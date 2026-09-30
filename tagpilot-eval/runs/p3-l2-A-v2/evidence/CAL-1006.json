@@ -1,0 +1,1690 @@
+{
+  "states": [
+    {
+      "run_id": "p3-7c261454a5b9-cal-1006",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "clause_id": "C1",
+            "source_span": "近7天保险购买金额至少10万元",
+            "requirement_ids": [
+              "R1"
+            ],
+            "operator": ">=",
+            "values": [
+              "100000"
+            ],
+            "value_unit": "CNY",
+            "value_scale": "1.0000",
+            "expected_caliber": {
+              "calendar_mode": "ROLLING",
+              "period_edge": "WHOLE",
+              "time_anchor_label": "近7天",
+              "time_anchor_type": "WINDOW",
+              "time_window_unit": "DAY",
+              "time_window_value": 7
+            },
+            "time_constraint": "近7天",
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "tag_id": 1014,
+            "name": "近7天保险购买金额",
+            "semantic_type": "NUM_AMOUNT",
+            "unit": "CNY",
+            "definition": "近7天保险购买金额",
+            "allowed_operators": [
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between"
+            ],
+            "code_options": [],
+            "status": "BOUND",
+            "caliber_struct": {
+              "boundary_semantics": null,
+              "calendar_mode": "ROLLING",
+              "denominator": null,
+              "numerator": null,
+              "period_edge": "WHOLE",
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "EOP",
+              "time_anchor_label": "近7天",
+              "time_anchor_type": "WINDOW",
+              "time_offset_months": null,
+              "time_offset_years": null,
+              "time_window_unit": "DAY",
+              "time_window_value": 7,
+              "unit": "CNY",
+              "unit_scale": 1
+            }
+          },
+          "summary": "近7天保险购买金额≥10万元的客户",
+          "intent_plan": {
+            "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "近7天保险购买金额至少10万元"
+                ],
+                "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "children": [
+                {
+                  "requirement_id": "R1"
+                }
+              ],
+              "logic": "AND"
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260919-002-r3",
+          "snapshot_id": "L107-20260919-002",
+          "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 5,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 6,
+            "model": "deepseek-flash",
+            "prompt_sha256": "232c6a94f80d6599e975c04c8038e18b0c7fca8093133815422e1c2e0c448c93",
+            "cli_start_ms": 291,
+            "cli_peak_rss_mb": 332.0,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.096549,
+            "usage": {
+              "input_tokens": 18092,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 53760,
+              "output_tokens": 1743,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 3329,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790595676.1444411
+        },
+        {
+          "seq": 3336,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790595677.904861
+        },
+        {
+          "seq": 3337,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 27,
+          "occurred_at": 1790595677.931926
+        },
+        {
+          "seq": 3338,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 27,
+          "occurred_at": 1790595677.93226
+        },
+        {
+          "seq": 3339,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790595677.938096
+        },
+        {
+          "seq": 3340,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 19,
+          "occurred_at": 1790595677.957356
+        },
+        {
+          "seq": 3341,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 19,
+          "occurred_at": 1790595677.95755
+        },
+        {
+          "seq": 3342,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790595680.091825
+        },
+        {
+          "seq": 3343,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790595680.092296
+        },
+        {
+          "seq": 3344,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "近7天保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1014,
+              "name": "近7天保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "近7天保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 7,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "近7天保险购买金额≥10万元的客户",
+            "intent_plan": {
+              "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "近7天保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "7",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790595680.0925272
+        },
+        {
+          "seq": 3345,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "近7天保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1014,
+              "name": "近7天保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "近7天保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 7,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "近7天保险购买金额≥10万元的客户",
+            "intent_plan": {
+              "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "近7天保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "7",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790595680.092767
+        },
+        {
+          "seq": 3346,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790595680.0929642
+        },
+        {
+          "seq": 3347,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 1,
+          "occurred_at": 1790595680.093042
+        },
+        {
+          "seq": 3353,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790595682.858442
+        },
+        {
+          "seq": 3354,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790595682.85906
+        },
+        {
+          "seq": 3355,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "近7天保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 7
+              },
+              "time_constraint": "近7天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1014,
+              "name": "近7天保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "近7天保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 7,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "近7天保险购买金额≥10万元的客户",
+            "intent_plan": {
+              "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "近7天保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790595682.8593469
+        },
+        {
+          "seq": 3356,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790595682.8596349
+        },
+        {
+          "seq": 3357,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 1,
+          "occurred_at": 1790595682.8597279
+        },
+        {
+          "seq": 3358,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790595684.64535
+        },
+        {
+          "seq": 3359,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790595684.64574
+        },
+        {
+          "seq": 3360,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "近7天保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 7
+              },
+              "time_constraint": "近7天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1014,
+              "name": "近7天保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "近7天保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 7,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "近7天保险购买金额≥10万元的客户",
+            "intent_plan": {
+              "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "近7天保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790595684.645975
+        },
+        {
+          "seq": 3361,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "近7天保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 7
+              },
+              "time_constraint": "近7天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1014,
+              "name": "近7天保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "近7天保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 7,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "近7天保险购买金额≥10万元的客户",
+            "intent_plan": {
+              "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "近7天保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790595684.646155
+        },
+        {
+          "seq": 3362,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "近7天保险购买金额",
+          "occurred_at": 1790595684.646302
+        },
+        {
+          "seq": 3363,
+          "type": "draft.ready",
+          "message": "近7天保险购买金额≥10万元的客户",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "近7天保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "ROLLING",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_window_unit": "DAY",
+                "time_window_value": 7
+              },
+              "time_constraint": "近7天",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1014,
+              "name": "近7天保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "近7天保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "ROLLING",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "近7天",
+                "time_anchor_type": "WINDOW",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": "DAY",
+                "time_window_value": 7,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "近7天保险购买金额≥10万元的客户",
+            "intent_plan": {
+              "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "近7天保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790595684.646415
+        },
+        {
+          "seq": 3364,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 1,
+          "occurred_at": 1790595684.646604
+        },
+        {
+          "seq": 3365,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 1,
+          "occurred_at": 1790595684.646674
+        },
+        {
+          "seq": 3366,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 5,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 6,
+            "model": "deepseek-flash",
+            "prompt_sha256": "232c6a94f80d6599e975c04c8038e18b0c7fca8093133815422e1c2e0c448c93",
+            "cli_start_ms": 291,
+            "cli_peak_rss_mb": 332.0,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.096549,
+            "usage": {
+              "input_tokens": 18092,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 53760,
+              "output_tokens": 1743,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790595684.664652
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 3329,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790595676.1444411
+    },
+    {
+      "seq": 3336,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790595677.904861
+    },
+    {
+      "seq": 3337,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 27,
+      "occurred_at": 1790595677.931926
+    },
+    {
+      "seq": 3338,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 27,
+      "occurred_at": 1790595677.93226
+    },
+    {
+      "seq": 3339,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790595677.938096
+    },
+    {
+      "seq": 3340,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 19,
+      "occurred_at": 1790595677.957356
+    },
+    {
+      "seq": 3341,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 19,
+      "occurred_at": 1790595677.95755
+    },
+    {
+      "seq": 3342,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790595680.091825
+    },
+    {
+      "seq": 3343,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790595680.092296
+    },
+    {
+      "seq": 3344,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "近7天保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1014,
+          "name": "近7天保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "近7天保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "ROLLING",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": "DAY",
+            "time_window_value": 7,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "近7天保险购买金额≥10万元的客户",
+        "intent_plan": {
+          "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "近7天保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "7",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790595680.0925272
+    },
+    {
+      "seq": 3345,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "近7天保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1014,
+          "name": "近7天保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "近7天保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "ROLLING",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": "DAY",
+            "time_window_value": 7,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "近7天保险购买金额≥10万元的客户",
+        "intent_plan": {
+          "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "近7天保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "7",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790595680.092767
+    },
+    {
+      "seq": 3346,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790595680.0929642
+    },
+    {
+      "seq": 3347,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 1,
+      "occurred_at": 1790595680.093042
+    },
+    {
+      "seq": 3353,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790595682.858442
+    },
+    {
+      "seq": 3354,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790595682.85906
+    },
+    {
+      "seq": 3355,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "近7天保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {
+            "calendar_mode": "ROLLING",
+            "period_edge": "WHOLE",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_window_unit": "DAY",
+            "time_window_value": 7
+          },
+          "time_constraint": "近7天",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1014,
+          "name": "近7天保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "近7天保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "ROLLING",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": "DAY",
+            "time_window_value": 7,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "近7天保险购买金额≥10万元的客户",
+        "intent_plan": {
+          "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "近7天保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790595682.8593469
+    },
+    {
+      "seq": 3356,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790595682.8596349
+    },
+    {
+      "seq": 3357,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 1,
+      "occurred_at": 1790595682.8597279
+    },
+    {
+      "seq": 3358,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790595684.64535
+    },
+    {
+      "seq": 3359,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790595684.64574
+    },
+    {
+      "seq": 3360,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "近7天保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {
+            "calendar_mode": "ROLLING",
+            "period_edge": "WHOLE",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_window_unit": "DAY",
+            "time_window_value": 7
+          },
+          "time_constraint": "近7天",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1014,
+          "name": "近7天保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "近7天保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "ROLLING",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": "DAY",
+            "time_window_value": 7,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "近7天保险购买金额≥10万元的客户",
+        "intent_plan": {
+          "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "近7天保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790595684.645975
+    },
+    {
+      "seq": 3361,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "近7天保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {
+            "calendar_mode": "ROLLING",
+            "period_edge": "WHOLE",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_window_unit": "DAY",
+            "time_window_value": 7
+          },
+          "time_constraint": "近7天",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1014,
+          "name": "近7天保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "近7天保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "ROLLING",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": "DAY",
+            "time_window_value": 7,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "近7天保险购买金额≥10万元的客户",
+        "intent_plan": {
+          "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "近7天保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790595684.646155
+    },
+    {
+      "seq": 3362,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "近7天保险购买金额",
+      "occurred_at": 1790595684.646302
+    },
+    {
+      "seq": 3363,
+      "type": "draft.ready",
+      "message": "近7天保险购买金额≥10万元的客户",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "近7天保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {
+            "calendar_mode": "ROLLING",
+            "period_edge": "WHOLE",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_window_unit": "DAY",
+            "time_window_value": 7
+          },
+          "time_constraint": "近7天",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1014,
+          "name": "近7天保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "近7天保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "ROLLING",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "近7天",
+            "time_anchor_type": "WINDOW",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": "DAY",
+            "time_window_value": 7,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "近7天保险购买金额≥10万元的客户",
+        "intent_plan": {
+          "original_request": "帮我找近7天保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "近7天保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户近7天（滚动窗口7天）保险购买金额至少10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790595684.646415
+    },
+    {
+      "seq": 3364,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 1,
+      "occurred_at": 1790595684.646604
+    },
+    {
+      "seq": 3365,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 1,
+      "occurred_at": 1790595684.646674
+    },
+    {
+      "seq": 3366,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 5,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 6,
+        "model": "deepseek-flash",
+        "prompt_sha256": "232c6a94f80d6599e975c04c8038e18b0c7fca8093133815422e1c2e0c448c93",
+        "cli_start_ms": 291,
+        "cli_peak_rss_mb": 332.0,
+        "evidence_requests": 1,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.096549,
+        "usage": {
+          "input_tokens": 18092,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 53760,
+          "output_tokens": 1743,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790595684.664652
+    }
+  ]
+}

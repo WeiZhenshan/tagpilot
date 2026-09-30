@@ -1,0 +1,72 @@
+{
+  "schema_version": "p1-acceptance.v1",
+  "p0": "data/p0-v2",
+  "calibration": "data/calibration-v2",
+  "cases": 200,
+  "review_verdicts": {
+    "ACCEPT": 192,
+    "REVISE": 8
+  },
+  "l1_atomic_recall_at_k": 0.9861,
+  "l2_verdicts": {
+    "FAIL": 43,
+    "PASS": 157
+  },
+  "demo_metrics": {
+    "unnecessary_clarification": {
+      "numerator": 7,
+      "denominator": 146,
+      "rate": 0.0479,
+      "cases": [
+        "CAL-006",
+        "CAL-080",
+        "CAL-142",
+        "CAL-148",
+        "CAL-149",
+        "CAL-161",
+        "CAL-169"
+      ]
+    },
+    "ready_precision": {
+      "numerator": 121,
+      "denominator": 126,
+      "rate": 0.9603
+    },
+    "capability_gap_cases": 20,
+    "missed_cases": 43,
+    "draft_semantics_correct": {
+      "numerator": 20,
+      "denominator": 26,
+      "cases": [
+        "CAL-001",
+        "CAL-006",
+        "CAL-038",
+        "CAL-043",
+        "CAL-044",
+        "CAL-045",
+        "CAL-046",
+        "CAL-047",
+        "CAL-048",
+        "CAL-049",
+        "CAL-050",
+        "CAL-051",
+        "CAL-080",
+        "CAL-087",
+        "CAL-108",
+        "CAL-142",
+        "CAL-146",
+        "CAL-148",
+        "CAL-149",
+        "CAL-155"
+      ]
+    },
+    "failure_causes": {
+      "error_max_turns": 14,
+      "success": 22,
+      "error_during_execution": 7
+    }
+  },
+  "human_review": "RECORDED",
+  "l3": "NOT_APPLICABLE",
+  "p2_authorized": false
+}

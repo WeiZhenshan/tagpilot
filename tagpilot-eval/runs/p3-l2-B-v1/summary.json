@@ -1,0 +1,42 @@
+{
+  "phase": "P3",
+  "runs": 15,
+  "verdicts": {
+    "RUN_INVALID": 15
+  },
+  "failed_case_ids": [
+    "CAL-1001",
+    "CAL-1006",
+    "CAL-1010",
+    "CAL-1022",
+    "CAL-1028",
+    "CAL-1029",
+    "CAL-1036",
+    "CAL-1037",
+    "CAL-1052",
+    "CAL-1067",
+    "CAL-1073",
+    "CAL-1076",
+    "CAL-3891",
+    "CAL-3970",
+    "CAL-4005"
+  ],
+  "p50_ms": 1016,
+  "p95_ms": 4085,
+  "cost_sdk_estimate_usd": 0.0,
+  "bundle": {
+    "build_id": "bge-m3-l107-20260928-004-p3v1",
+    "snapshot_id": "L107-20260928-004",
+    "artifact_hash": "53a5642f7dae4cf317f43a439451da0369e23c3401c12a4ed5b102b0882d28e9",
+    "retrieval_config_hash": "96fec00554b48abc2379d93375cc9f55694626f52a9c61fb1debd5e81e9f1adb",
+    "content_hash": "b5ec1d1f735a8727ca67e96076ba62c7c1da4830423b122b1ad080a0ae53d9a1",
+    "doc_count": 3382,
+    "id_reconciled": true,
+    "store_type": "MILVUS",
+    "embedding_model": "BAAI/bge-m3",
+    "reranker_model": "BAAI/bge-reranker-v2-m3",
+    "doc_template_version": "tpl1"
+  },
+  "dataset_sha256": "7ca997e5c7f3d0a3f67fd59ae905b50254def4d6f98f1dba21bdacc3b1a65d48",
+  "reclassified_after_environment_diagnosis": true
+}

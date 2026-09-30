@@ -1,0 +1,2647 @@
+{
+  "states": [
+    {
+      "run_id": "p3-71e7276997bb-cal-1001",
+      "status": "FAILED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "clause_id": "C1",
+            "source_span": "上年12月保险购买金额至少10万元",
+            "requirement_ids": [
+              "R1"
+            ],
+            "operator": ">=",
+            "values": [
+              "10"
+            ],
+            "value_unit": "CNY",
+            "value_scale": 10000,
+            "expected_caliber": {
+              "calendar_mode": "CALENDAR",
+              "time_anchor_label": "上年",
+              "time_anchor_type": "YEAR_OFFSET",
+              "time_offset_years": 1,
+              "month_of_year": 12
+            },
+            "time_constraint": "上年12月",
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "tag_id": 1009,
+            "name": "上年12月保险购买金额",
+            "semantic_type": "NUM_AMOUNT",
+            "unit": "CNY",
+            "definition": "上年12月保险购买金额",
+            "allowed_operators": [
+              ">",
+              ">=",
+              "<",
+              "<=",
+              "between"
+            ],
+            "code_options": [],
+            "status": "GAP",
+            "caliber_struct": {
+              "boundary_semantics": null,
+              "calendar_mode": "CALENDAR",
+              "denominator": null,
+              "numerator": null,
+              "period_edge": "WHOLE",
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "EOP",
+              "time_anchor_label": "上年",
+              "time_anchor_type": "YEAR_OFFSET",
+              "time_offset_months": null,
+              "time_offset_years": 1,
+              "time_window_unit": null,
+              "time_window_value": null,
+              "unit": "CNY",
+              "unit_scale": 1
+            }
+          },
+          "summary": "上年12月保险购买金额>=10万元",
+          "intent_plan": {
+            "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "上年12月保险购买金额至少10万元"
+                ],
+                "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "children": [
+                {
+                  "requirement_id": "R1"
+                }
+              ],
+              "logic": "AND"
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [
+            {
+              "code": "METADATA_INCOMPLETE",
+              "category": "METADATA_INCOMPLETE",
+              "resolution": "CAPABILITY_GAP",
+              "clause_id": "C1",
+              "requirement_id": "C1",
+              "message": "候选指标缺少可核验的口径信息",
+              "user_message": "候选指标缺少可核验的口径信息",
+              "expected": {
+                "month_of_year": 12
+              },
+              "actual": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              },
+              "repair_actions": [
+                "get_tag_details",
+                "search_capabilities"
+              ],
+              "user_decision_required": false,
+              "retryable": false
+            },
+            {
+              "code": "TRANSIENT_FAILURE",
+              "message": "运行资源或时间预算已耗尽，已保存进度",
+              "retryable": true
+            }
+          ],
+          "plan_status": "RETRYABLE_FAILURE",
+          "valid": false,
+          "build_id": "bge-m3-l107-20260919-002-r3",
+          "snapshot_id": "L107-20260919-002",
+          "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "PARTIAL",
+          "gaps": [],
+          "stats": {
+            "tools": 11,
+            "deep": 1,
+            "details": 1,
+            "submit_rejections": 3,
+            "llm_turns": 13,
+            "model": "deepseek-flash",
+            "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+            "max_turns": 16,
+            "cli_start_ms": 556,
+            "cli_peak_rss_mb": 349.31,
+            "evidence_requests": 1,
+            "stop_reason": "timeout",
+            "sdk_result": "error_during_execution",
+            "sdk_cost_estimate_usd": 0.3828222,
+            "usage": {
+              "input_tokens": 21535,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 241024,
+              "output_tokens": 16394,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            },
+            "agent_failure": true
+          }
+        }
+      },
+      "error": "运行资源或时间预算已耗尽，已保存进度",
+      "events": [
+        {
+          "seq": 12788,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790600671.9691122
+        },
+        {
+          "seq": 12790,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790600674.5774012
+        },
+        {
+          "seq": 12791,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 24,
+          "occurred_at": 1790600674.601483
+        },
+        {
+          "seq": 12792,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 24,
+          "occurred_at": 1790600674.6017568
+        },
+        {
+          "seq": 12802,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790600677.153885
+        },
+        {
+          "seq": 12803,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600677.154293
+        },
+        {
+          "seq": 12804,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "12",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600677.154529
+        },
+        {
+          "seq": 12805,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "12",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600677.1547992
+        },
+        {
+          "seq": 12806,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 1,
+          "occurred_at": 1790600677.155006
+        },
+        {
+          "seq": 12807,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 1,
+          "occurred_at": 1790600677.155078
+        },
+        {
+          "seq": 12821,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790600680.720897
+        },
+        {
+          "seq": 12822,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600680.721407
+        },
+        {
+          "seq": 12823,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_years": 1
+              },
+              "time_constraint": "上年12月",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "上年12月保险购买金额>=10万元",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "12",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600680.72165
+        },
+        {
+          "seq": 12824,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 1,
+          "occurred_at": 1790600680.7218602
+        },
+        {
+          "seq": 12825,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 1,
+          "occurred_at": 1790600680.7219179
+        },
+        {
+          "seq": 12896,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790600705.259655
+        },
+        {
+          "seq": 12897,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 30,
+          "occurred_at": 1790600705.289857
+        },
+        {
+          "seq": 12898,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 30,
+          "occurred_at": 1790600705.2902
+        },
+        {
+          "seq": 12929,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790600714.405958
+        },
+        {
+          "seq": 12930,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600714.408661
+        },
+        {
+          "seq": 12931,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_years": 1
+              },
+              "time_constraint": "上年12月",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "上年12月保险购买金额>=10万元",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "12",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600714.40895
+        },
+        {
+          "seq": 12932,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 1,
+          "occurred_at": 1790600714.409183
+        },
+        {
+          "seq": 12933,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 2,
+          "occurred_at": 1790600714.410145
+        },
+        {
+          "seq": 12951,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790600720.187159
+        },
+        {
+          "seq": 12952,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600720.190463
+        },
+        {
+          "seq": 12953,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "10"
+              ],
+              "value_unit": "CNY",
+              "value_scale": 10000,
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "上年12月",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_years": 1
+              },
+              "time_constraint": "上年12月",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "GAP",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "上年12月保险购买金额>=10万元",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "CALIBER_CONFLICT",
+                "category": "CALIBER_CONFLICT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "候选指标的时间或统计范围与要求不同，正在查找匹配口径",
+                "user_message": "候选指标的时间或统计范围与要求不同，正在查找匹配口径",
+                "expected": {
+                  "time_anchor_label": "上年12月"
+                },
+                "actual": {
+                  "time_anchor_label": "上年"
+                },
+                "repair_actions": [
+                  "search_tags",
+                  "search_capabilities"
+                ],
+                "user_decision_required": false,
+                "retryable": true
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600720.19069
+        },
+        {
+          "seq": 12954,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790600720.191063
+        },
+        {
+          "seq": 12955,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 1,
+          "occurred_at": 1790600720.191255
+        },
+        {
+          "seq": 12990,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790600734.340322
+        },
+        {
+          "seq": 12991,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600734.343242
+        },
+        {
+          "seq": 12992,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "100000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "上年12月保险购买金额>=10万元",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "LITERAL_DRIFT",
+                "category": "LITERAL_DRIFT",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "原话中的数值未被条件或时间口径保留",
+                "user_message": "原话中的数值未被条件或时间口径保留",
+                "expected": "12",
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600734.343704
+        },
+        {
+          "seq": 12993,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790600734.34434
+        },
+        {
+          "seq": 12994,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 2,
+          "occurred_at": 1790600734.3445802
+        },
+        {
+          "seq": 13006,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790600746.32163
+        },
+        {
+          "seq": 13007,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600746.3240929
+        },
+        {
+          "seq": 13008,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "10"
+              ],
+              "value_unit": "CNY",
+              "value_scale": 10000,
+              "expected_caliber": {},
+              "time_constraint": "上年12月",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "GAP",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "上年12月保险购买金额>=10万元",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "FORMAT_ERROR",
+                "category": "FORMAT_ERROR",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "正在补全这项条件的时间解释",
+                "user_message": "正在补全这项条件的时间解释",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [
+                  "repair_time_parse"
+                ],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600746.3244102
+        },
+        {
+          "seq": 13009,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790600746.324948
+        },
+        {
+          "seq": 13010,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 1,
+          "occurred_at": 1790600746.325113
+        },
+        {
+          "seq": 13021,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790600750.118721
+        },
+        {
+          "seq": 13022,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600750.121471
+        },
+        {
+          "seq": 13023,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "上年12月保险购买金额至少10万元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "10"
+              ],
+              "value_unit": "CNY",
+              "value_scale": 10000,
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_years": 1,
+                "month_of_year": 12
+              },
+              "time_constraint": "上年12月",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1009,
+              "name": "上年12月保险购买金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上年12月保险购买金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "GAP",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上年",
+                "time_anchor_type": "YEAR_OFFSET",
+                "time_offset_months": null,
+                "time_offset_years": 1,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            "summary": "上年12月保险购买金额>=10万元",
+            "intent_plan": {
+              "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上年12月保险购买金额至少10万元"
+                  ],
+                  "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "METADATA_INCOMPLETE",
+                "category": "METADATA_INCOMPLETE",
+                "resolution": "CAPABILITY_GAP",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "候选指标缺少可核验的口径信息",
+                "user_message": "候选指标缺少可核验的口径信息",
+                "expected": {
+                  "month_of_year": 12
+                },
+                "actual": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "CALENDAR",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "WHOLE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "上年",
+                  "time_anchor_type": "YEAR_OFFSET",
+                  "time_offset_months": null,
+                  "time_offset_years": 1,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                },
+                "repair_actions": [
+                  "get_tag_details",
+                  "search_capabilities"
+                ],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600750.1217248
+        },
+        {
+          "seq": 13024,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 2,
+          "occurred_at": 1790600750.123146
+        },
+        {
+          "seq": 13025,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 2,
+          "occurred_at": 1790600750.123719
+        },
+        {
+          "seq": 13029,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790600754.116555
+        },
+        {
+          "seq": 13030,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 32,
+          "occurred_at": 1790600754.149087
+        },
+        {
+          "seq": 13031,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 32,
+          "occurred_at": 1790600754.149605
+        },
+        {
+          "seq": 13032,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790600754.1541471
+        },
+        {
+          "seq": 13039,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 2654,
+          "occurred_at": 1790600756.808383
+        },
+        {
+          "seq": 13040,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 2654,
+          "occurred_at": 1790600756.8084888
+        },
+        {
+          "seq": 13049,
+          "type": "run.failed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 11,
+            "deep": 1,
+            "details": 1,
+            "submit_rejections": 3,
+            "llm_turns": 13,
+            "model": "deepseek-flash",
+            "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+            "max_turns": 16,
+            "cli_start_ms": 556,
+            "cli_peak_rss_mb": 349.31,
+            "evidence_requests": 1,
+            "stop_reason": "timeout",
+            "sdk_result": "error_during_execution",
+            "sdk_cost_estimate_usd": 0.3828222,
+            "usage": {
+              "input_tokens": 21535,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 241024,
+              "output_tokens": 16394,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            },
+            "agent_failure": true
+          },
+          "occurred_at": 1790600762.087039
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 12788,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790600671.9691122
+    },
+    {
+      "seq": 12790,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790600674.5774012
+    },
+    {
+      "seq": 12791,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 24,
+      "occurred_at": 1790600674.601483
+    },
+    {
+      "seq": 12792,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 24,
+      "occurred_at": 1790600674.6017568
+    },
+    {
+      "seq": 12802,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790600677.153885
+    },
+    {
+      "seq": 12803,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600677.154293
+    },
+    {
+      "seq": 12804,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "12",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600677.154529
+    },
+    {
+      "seq": 12805,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "12",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600677.1547992
+    },
+    {
+      "seq": 12806,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 1,
+      "occurred_at": 1790600677.155006
+    },
+    {
+      "seq": 12807,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 1,
+      "occurred_at": 1790600677.155078
+    },
+    {
+      "seq": 12821,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790600680.720897
+    },
+    {
+      "seq": 12822,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600680.721407
+    },
+    {
+      "seq": 12823,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {
+            "calendar_mode": "CALENDAR",
+            "period_edge": "WHOLE",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_years": 1
+          },
+          "time_constraint": "上年12月",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "上年12月保险购买金额>=10万元",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "12",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600680.72165
+    },
+    {
+      "seq": 12824,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 1,
+      "occurred_at": 1790600680.7218602
+    },
+    {
+      "seq": 12825,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 1,
+      "occurred_at": 1790600680.7219179
+    },
+    {
+      "seq": 12896,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790600705.259655
+    },
+    {
+      "seq": 12897,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 30,
+      "occurred_at": 1790600705.289857
+    },
+    {
+      "seq": 12898,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 30,
+      "occurred_at": 1790600705.2902
+    },
+    {
+      "seq": 12929,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790600714.405958
+    },
+    {
+      "seq": 12930,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600714.408661
+    },
+    {
+      "seq": 12931,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {
+            "calendar_mode": "CALENDAR",
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_years": 1
+          },
+          "time_constraint": "上年12月",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "上年12月保险购买金额>=10万元",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月（基准日2026-09-18推算为2025年12月）的保险购买金额不低于10万元人民币",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "12",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600714.40895
+    },
+    {
+      "seq": 12932,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 1,
+      "occurred_at": 1790600714.409183
+    },
+    {
+      "seq": 12933,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 2,
+      "occurred_at": 1790600714.410145
+    },
+    {
+      "seq": 12951,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790600720.187159
+    },
+    {
+      "seq": 12952,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600720.190463
+    },
+    {
+      "seq": 12953,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "10"
+          ],
+          "value_unit": "CNY",
+          "value_scale": 10000,
+          "expected_caliber": {
+            "calendar_mode": "CALENDAR",
+            "period_edge": "WHOLE",
+            "time_anchor_label": "上年12月",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_years": 1
+          },
+          "time_constraint": "上年12月",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "GAP",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "上年12月保险购买金额>=10万元",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "CALIBER_CONFLICT",
+            "category": "CALIBER_CONFLICT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "候选指标的时间或统计范围与要求不同，正在查找匹配口径",
+            "user_message": "候选指标的时间或统计范围与要求不同，正在查找匹配口径",
+            "expected": {
+              "time_anchor_label": "上年12月"
+            },
+            "actual": {
+              "time_anchor_label": "上年"
+            },
+            "repair_actions": [
+              "search_tags",
+              "search_capabilities"
+            ],
+            "user_decision_required": false,
+            "retryable": true
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600720.19069
+    },
+    {
+      "seq": 12954,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790600720.191063
+    },
+    {
+      "seq": 12955,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 1,
+      "occurred_at": 1790600720.191255
+    },
+    {
+      "seq": 12990,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790600734.340322
+    },
+    {
+      "seq": 12991,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600734.343242
+    },
+    {
+      "seq": 12992,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "100000"
+          ],
+          "value_unit": "CNY",
+          "value_scale": "1.0000",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "上年12月保险购买金额>=10万元",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "LITERAL_DRIFT",
+            "category": "LITERAL_DRIFT",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "原话中的数值未被条件或时间口径保留",
+            "user_message": "原话中的数值未被条件或时间口径保留",
+            "expected": "12",
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600734.343704
+    },
+    {
+      "seq": 12993,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790600734.34434
+    },
+    {
+      "seq": 12994,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 2,
+      "occurred_at": 1790600734.3445802
+    },
+    {
+      "seq": 13006,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790600746.32163
+    },
+    {
+      "seq": 13007,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600746.3240929
+    },
+    {
+      "seq": 13008,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "10"
+          ],
+          "value_unit": "CNY",
+          "value_scale": 10000,
+          "expected_caliber": {},
+          "time_constraint": "上年12月",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "GAP",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "上年12月保险购买金额>=10万元",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "FORMAT_ERROR",
+            "category": "FORMAT_ERROR",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "正在补全这项条件的时间解释",
+            "user_message": "正在补全这项条件的时间解释",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [
+              "repair_time_parse"
+            ],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600746.3244102
+    },
+    {
+      "seq": 13009,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790600746.324948
+    },
+    {
+      "seq": 13010,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 1,
+      "occurred_at": 1790600746.325113
+    },
+    {
+      "seq": 13021,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790600750.118721
+    },
+    {
+      "seq": 13022,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600750.121471
+    },
+    {
+      "seq": 13023,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "上年12月保险购买金额至少10万元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">=",
+          "values": [
+            "10"
+          ],
+          "value_unit": "CNY",
+          "value_scale": 10000,
+          "expected_caliber": {
+            "calendar_mode": "CALENDAR",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_years": 1,
+            "month_of_year": 12
+          },
+          "time_constraint": "上年12月",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 1009,
+          "name": "上年12月保险购买金额",
+          "semantic_type": "NUM_AMOUNT",
+          "unit": "CNY",
+          "definition": "上年12月保险购买金额",
+          "allowed_operators": [
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "between"
+          ],
+          "code_options": [],
+          "status": "GAP",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": "CALENDAR",
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "WHOLE",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "EOP",
+            "time_anchor_label": "上年",
+            "time_anchor_type": "YEAR_OFFSET",
+            "time_offset_months": null,
+            "time_offset_years": 1,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "CNY",
+            "unit_scale": 1
+          }
+        },
+        "summary": "上年12月保险购买金额>=10万元",
+        "intent_plan": {
+          "original_request": "帮我找上年12月保险购买金额至少10万元的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上年12月保险购买金额至少10万元"
+              ],
+              "business_meaning": "客户在上年12月的保险购买金额不低于10万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "METADATA_INCOMPLETE",
+            "category": "METADATA_INCOMPLETE",
+            "resolution": "CAPABILITY_GAP",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "候选指标缺少可核验的口径信息",
+            "user_message": "候选指标缺少可核验的口径信息",
+            "expected": {
+              "month_of_year": 12
+            },
+            "actual": {
+              "boundary_semantics": null,
+              "calendar_mode": "CALENDAR",
+              "denominator": null,
+              "numerator": null,
+              "period_edge": "WHOLE",
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "EOP",
+              "time_anchor_label": "上年",
+              "time_anchor_type": "YEAR_OFFSET",
+              "time_offset_months": null,
+              "time_offset_years": 1,
+              "time_window_unit": null,
+              "time_window_value": null,
+              "unit": "CNY",
+              "unit_scale": 1
+            },
+            "repair_actions": [
+              "get_tag_details",
+              "search_capabilities"
+            ],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600750.1217248
+    },
+    {
+      "seq": 13024,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 2,
+      "occurred_at": 1790600750.123146
+    },
+    {
+      "seq": 13025,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 2,
+      "occurred_at": 1790600750.123719
+    },
+    {
+      "seq": 13029,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790600754.116555
+    },
+    {
+      "seq": 13030,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 32,
+      "occurred_at": 1790600754.149087
+    },
+    {
+      "seq": 13031,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 32,
+      "occurred_at": 1790600754.149605
+    },
+    {
+      "seq": 13032,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790600754.1541471
+    },
+    {
+      "seq": 13039,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 2654,
+      "occurred_at": 1790600756.808383
+    },
+    {
+      "seq": 13040,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 2654,
+      "occurred_at": 1790600756.8084888
+    },
+    {
+      "seq": 13049,
+      "type": "run.failed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 11,
+        "deep": 1,
+        "details": 1,
+        "submit_rejections": 3,
+        "llm_turns": 13,
+        "model": "deepseek-flash",
+        "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+        "max_turns": 16,
+        "cli_start_ms": 556,
+        "cli_peak_rss_mb": 349.31,
+        "evidence_requests": 1,
+        "stop_reason": "timeout",
+        "sdk_result": "error_during_execution",
+        "sdk_cost_estimate_usd": 0.3828222,
+        "usage": {
+          "input_tokens": 21535,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 241024,
+          "output_tokens": 16394,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        },
+        "agent_failure": true
+      },
+      "occurred_at": 1790600762.087039
+    }
+  ]
+}

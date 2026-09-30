@@ -1,0 +1,4 @@
+{
+  "reason": "stop after reproduced ambiguity/fuzzy-rule failures; preserve all completed evidence; next round uses same 100 initial inputs and identical final oracles",
+  "completed_cases": 13
+}

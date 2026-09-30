@@ -85,16 +85,6 @@ docs/项目参考文档/
 /data/agent/
 /tagpilot-agent/out/
 
-# 标签评测工程（独立 Python 项目，不参与运行时、CI 与构建）
-/tagpilot-eval/
-
-# 洞察评测新增入口纳入交付，保留其他本地评测产物忽略规则
-!/tagpilot-eval/
-/tagpilot-eval/*
-!/tagpilot-eval/tagpilot_eval/
-/tagpilot-eval/tagpilot_eval/*
-!/tagpilot-eval/tagpilot_eval/insight.py
-
 ######################################################################
 # Python
 

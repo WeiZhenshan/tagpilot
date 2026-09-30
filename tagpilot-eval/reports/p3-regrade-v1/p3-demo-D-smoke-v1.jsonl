@@ -1,0 +1,6 @@
+{"case_id": "CAL-8001", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-8004", "checks": {"final_turn_expectation": false, "first_turn_expectation": false}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验", "first_turn": {"agent_error": "权限或发布版本发生变化，请重新核验"}}, "failures": ["AUTHORITY_CONTEXT_MISMATCH", "FIRST_TURN"], "status": "RUN_INVALID"}
+{"case_id": "CAL-8005", "checks": {"final_turn_expectation": false, "first_turn_expectation": false}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验", "first_turn": {"agent_error": "权限或发布版本发生变化，请重新核验"}}, "failures": ["AUTHORITY_CONTEXT_MISMATCH", "FIRST_TURN"], "status": "RUN_INVALID"}
+{"case_id": "CAL-8031", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-8061", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-8089", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}

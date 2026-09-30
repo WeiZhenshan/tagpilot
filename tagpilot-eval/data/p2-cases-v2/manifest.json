@@ -1,0 +1,54 @@
+{
+  "schema_version": "p2-cases.v1",
+  "phase": "P2",
+  "status": "DRAFT",
+  "case_count": 2000,
+  "mother_cases": 500,
+  "formal_cases": 2000,
+  "quotas": {
+    "SINGLE": 600,
+    "COMPOSITION": 500,
+    "CLARIFICATION": 300,
+    "BOUNDARY": 200,
+    "MULTITURN": 200,
+    "GAP": 200
+  },
+  "quotas_achieved": {
+    "SINGLE": 600,
+    "COMPOSITION": 500,
+    "CLARIFICATION": 300,
+    "BOUNDARY": 200,
+    "MULTITURN": 200,
+    "GAP": 200
+  },
+  "quota_shortfall_declared": true,
+  "quota_shortfall": {},
+  "variants_per_mother": {
+    "4": 500
+  },
+  "splits": {
+    "REGRESSION": 407,
+    "DEV": 1394,
+    "HOLDOUT": 199
+  },
+  "lineage_groups": 489,
+  "target_tags": 359,
+  "p0_manifest_sha256": "25f005e766a51837f3ecccdb39cf38d604111900ae509c1288f422b37678cb9a",
+  "partition_sha256": "8c5b115649eeed90e177c5b02233a8936590d7ead23737fbef593b76925e6e63",
+  "fixture_sha256": "50dde9e3a572f23fc110c58f622f7ef4acf1b14d36e74f21e4eee5bde821f04f",
+  "quarantined_variants": 2,
+  "back_translation_unavailable_variants": 73,
+  "verification_note": "通过边界词 lint 且目标标签/操作符/取值可重建的改写才算“已回译核对”；回译推理吃满 token 而无法比对的，标 BACK_TRANSLATION_UNAVAILABLE 并计数，由覆盖全部正式案例的独立 AI 复核把关，不在此处假装已核对。",
+  "independent_model_review": "PENDING",
+  "human_review": "PENDING",
+  "authorization": {
+    "authorized_by": "USER",
+    "authorized_at": "2026-09-28",
+    "basis": "修正错挂标签与模板重复字后的 v2"
+  },
+  "files": {
+    "cases.jsonl": "6622a71f1d53fa53c83b6c1c971e1222ba2a55a94693f07413742e05e3e464c8",
+    "inputs.jsonl": "8f862b44b689a54c27092f7ee4283569f051ea87d93def52e5fe5f88618a0399",
+    "oracle-results.jsonl": "8d0b02bed188833847b1c44632264feed9446a766406589136db33b344ad3c16"
+  }
+}

@@ -1,0 +1,1306 @@
+{
+  "states": [
+    {
+      "run_id": "p3-7d310700c144-cal-1067",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "clause_id": "C1",
+            "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+            "requirement_ids": [
+              "R1"
+            ],
+            "operator": "=",
+            "values": [
+              "1"
+            ],
+            "value_unit": "NONE",
+            "value_scale": 1,
+            "expected_caliber": {},
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "tag_id": 704,
+            "name": "当前财富推介M2标志",
+            "semantic_type": "BOOL",
+            "unit": "NONE",
+            "definition": "当前财富推介M2标志，码值 1=是、0=否",
+            "allowed_operators": [
+              "="
+            ],
+            "code_options": [
+              {
+                "tag_id": 704,
+                "code": "0",
+                "label": "否",
+                "definition": "否",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              },
+              {
+                "tag_id": 704,
+                "code": "1",
+                "label": "是",
+                "definition": "是",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              }
+            ],
+            "status": "BOUND",
+            "caliber_struct": {
+              "boundary_semantics": null,
+              "calendar_mode": null,
+              "denominator": null,
+              "numerator": null,
+              "period_edge": "END",
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "FLAG",
+              "time_anchor_label": "当前",
+              "time_anchor_type": "POINT",
+              "time_offset_months": null,
+              "time_offset_years": null,
+              "time_window_unit": null,
+              "time_window_value": null,
+              "unit": "NONE",
+              "unit_scale": 1
+            }
+          },
+          "summary": "筛选当前财富推介M2标志为“是”的客户",
+          "intent_plan": {
+            "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "筛选当前财富推介M2标志为“是”的客户。"
+                ],
+                "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260919-002-r3",
+          "snapshot_id": "L107-20260919-002",
+          "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 2,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 3,
+            "model": "deepseek-flash",
+            "prompt_sha256": "217b95720978e6da55b72bb239d449f24e1ac072b39b932e567798cbb1f81fa9",
+            "max_turns": 16,
+            "cli_start_ms": 186,
+            "cli_peak_rss_mb": 252.89,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.0601962,
+            "usage": {
+              "input_tokens": 16166,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 15744,
+              "output_tokens": 465,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 11420,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790599331.0547462
+        },
+        {
+          "seq": 11421,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790599332.485271
+        },
+        {
+          "seq": 11422,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 16,
+          "occurred_at": 1790599332.501804
+        },
+        {
+          "seq": 11423,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 17,
+          "occurred_at": 1790599332.502126
+        },
+        {
+          "seq": 11429,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790599334.4723651
+        },
+        {
+          "seq": 11430,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790599334.4731698
+        },
+        {
+          "seq": 11431,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 704,
+              "name": "当前财富推介M2标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前财富推介M2标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 704,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 704,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "筛选当前财富推介M2标志为“是”的客户",
+            "intent_plan": {
+              "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "筛选当前财富推介M2标志为“是”的客户。"
+                  ],
+                  "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790599334.473433
+        },
+        {
+          "seq": 11432,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 704,
+              "name": "当前财富推介M2标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前财富推介M2标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 704,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 704,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "筛选当前财富推介M2标志为“是”的客户",
+            "intent_plan": {
+              "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "筛选当前财富推介M2标志为“是”的客户。"
+                  ],
+                  "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790599334.4739358
+        },
+        {
+          "seq": 11433,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 704,
+              "name": "当前财富推介M2标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前财富推介M2标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 704,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 704,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "筛选当前财富推介M2标志为“是”的客户",
+            "intent_plan": {
+              "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "筛选当前财富推介M2标志为“是”的客户。"
+                  ],
+                  "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790599334.474321
+        },
+        {
+          "seq": 11434,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "当前财富推介M2标志",
+          "occurred_at": 1790599334.47457
+        },
+        {
+          "seq": 11435,
+          "type": "draft.ready",
+          "message": "筛选当前财富推介M2标志为“是”的客户",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 704,
+              "name": "当前财富推介M2标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前财富推介M2标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 704,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 704,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "筛选当前财富推介M2标志为“是”的客户",
+            "intent_plan": {
+              "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "筛选当前财富推介M2标志为“是”的客户。"
+                  ],
+                  "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790599334.4747572
+        },
+        {
+          "seq": 11436,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 2,
+          "occurred_at": 1790599334.475141
+        },
+        {
+          "seq": 11437,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 2,
+          "occurred_at": 1790599334.475202
+        },
+        {
+          "seq": 11438,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 2,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 3,
+            "model": "deepseek-flash",
+            "prompt_sha256": "217b95720978e6da55b72bb239d449f24e1ac072b39b932e567798cbb1f81fa9",
+            "max_turns": 16,
+            "cli_start_ms": 186,
+            "cli_peak_rss_mb": 252.89,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.0601962,
+            "usage": {
+              "input_tokens": 16166,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 15744,
+              "output_tokens": 465,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790599334.491743
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 11420,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790599331.0547462
+    },
+    {
+      "seq": 11421,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790599332.485271
+    },
+    {
+      "seq": 11422,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 16,
+      "occurred_at": 1790599332.501804
+    },
+    {
+      "seq": 11423,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 17,
+      "occurred_at": 1790599332.502126
+    },
+    {
+      "seq": 11429,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790599334.4723651
+    },
+    {
+      "seq": 11430,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790599334.4731698
+    },
+    {
+      "seq": 11431,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 704,
+          "name": "当前财富推介M2标志",
+          "semantic_type": "BOOL",
+          "unit": "NONE",
+          "definition": "当前财富推介M2标志，码值 1=是、0=否",
+          "allowed_operators": [
+            "="
+          ],
+          "code_options": [
+            {
+              "tag_id": 704,
+              "code": "0",
+              "label": "否",
+              "definition": "否",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 704,
+              "code": "1",
+              "label": "是",
+              "definition": "是",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "FLAG",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "筛选当前财富推介M2标志为“是”的客户",
+        "intent_plan": {
+          "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "筛选当前财富推介M2标志为“是”的客户。"
+              ],
+              "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790599334.473433
+    },
+    {
+      "seq": 11432,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 704,
+          "name": "当前财富推介M2标志",
+          "semantic_type": "BOOL",
+          "unit": "NONE",
+          "definition": "当前财富推介M2标志，码值 1=是、0=否",
+          "allowed_operators": [
+            "="
+          ],
+          "code_options": [
+            {
+              "tag_id": 704,
+              "code": "0",
+              "label": "否",
+              "definition": "否",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 704,
+              "code": "1",
+              "label": "是",
+              "definition": "是",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "FLAG",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "筛选当前财富推介M2标志为“是”的客户",
+        "intent_plan": {
+          "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "筛选当前财富推介M2标志为“是”的客户。"
+              ],
+              "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790599334.4739358
+    },
+    {
+      "seq": 11433,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 704,
+          "name": "当前财富推介M2标志",
+          "semantic_type": "BOOL",
+          "unit": "NONE",
+          "definition": "当前财富推介M2标志，码值 1=是、0=否",
+          "allowed_operators": [
+            "="
+          ],
+          "code_options": [
+            {
+              "tag_id": 704,
+              "code": "0",
+              "label": "否",
+              "definition": "否",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 704,
+              "code": "1",
+              "label": "是",
+              "definition": "是",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "FLAG",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "筛选当前财富推介M2标志为“是”的客户",
+        "intent_plan": {
+          "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "筛选当前财富推介M2标志为“是”的客户。"
+              ],
+              "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790599334.474321
+    },
+    {
+      "seq": 11434,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "当前财富推介M2标志",
+      "occurred_at": 1790599334.47457
+    },
+    {
+      "seq": 11435,
+      "type": "draft.ready",
+      "message": "筛选当前财富推介M2标志为“是”的客户",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "value_unit": "NONE",
+          "value_scale": 1,
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 704,
+          "name": "当前财富推介M2标志",
+          "semantic_type": "BOOL",
+          "unit": "NONE",
+          "definition": "当前财富推介M2标志，码值 1=是、0=否",
+          "allowed_operators": [
+            "="
+          ],
+          "code_options": [
+            {
+              "tag_id": 704,
+              "code": "0",
+              "label": "否",
+              "definition": "否",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 704,
+              "code": "1",
+              "label": "是",
+              "definition": "是",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "FLAG",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "筛选当前财富推介M2标志为“是”的客户",
+        "intent_plan": {
+          "original_request": "筛选当前财富推介M2标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "筛选当前财富推介M2标志为“是”的客户。"
+              ],
+              "business_meaning": "客户当前财富推介M2标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790599334.4747572
+    },
+    {
+      "seq": 11436,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 2,
+      "occurred_at": 1790599334.475141
+    },
+    {
+      "seq": 11437,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 2,
+      "occurred_at": 1790599334.475202
+    },
+    {
+      "seq": 11438,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 2,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 3,
+        "model": "deepseek-flash",
+        "prompt_sha256": "217b95720978e6da55b72bb239d449f24e1ac072b39b932e567798cbb1f81fa9",
+        "max_turns": 16,
+        "cli_start_ms": 186,
+        "cli_peak_rss_mb": 252.89,
+        "evidence_requests": 1,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.0601962,
+        "usage": {
+          "input_tokens": 16166,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 15744,
+          "output_tokens": 465,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790599334.491743
+    }
+  ]
+}

@@ -1,0 +1,1342 @@
+{
+  "states": [
+    {
+      "run_id": "p3-71e7276997bb-cal-1052",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "C1",
+                "source_span": "当前对公授信上市企业法人标志为“是”",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": "=",
+                "values": [
+                  "1"
+                ],
+                "value_unit": "NONE",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 681,
+                "name": "当前对公授信上市企业法人标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 681,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 681,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "",
+          "intent_plan": {
+            "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "当前对公授信上市企业法人标志为“是”"
+                ],
+                "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260919-002-r3",
+          "snapshot_id": "L107-20260919-002",
+          "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 2,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 3,
+            "model": "deepseek-flash",
+            "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+            "max_turns": 16,
+            "cli_start_ms": 148,
+            "cli_peak_rss_mb": 279.84,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.06342600000000001,
+            "usage": {
+              "input_tokens": 16367,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 16000,
+              "output_tokens": 635,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 13207,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790600800.123801
+        },
+        {
+          "seq": 13211,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790600801.24878
+        },
+        {
+          "seq": 13212,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 21,
+          "occurred_at": 1790600801.274035
+        },
+        {
+          "seq": 13213,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 21,
+          "occurred_at": 1790600801.274153
+        },
+        {
+          "seq": 13217,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790600803.5354502
+        },
+        {
+          "seq": 13218,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600803.536004
+        },
+        {
+          "seq": 13219,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前对公授信上市企业法人标志为“是”",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 681,
+                  "name": "当前对公授信上市企业法人标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 681,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 681,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前对公授信上市企业法人标志为“是”"
+                  ],
+                  "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600803.536355
+        },
+        {
+          "seq": 13220,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前对公授信上市企业法人标志为“是”",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 681,
+                  "name": "当前对公授信上市企业法人标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 681,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 681,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前对公授信上市企业法人标志为“是”"
+                  ],
+                  "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600803.53685
+        },
+        {
+          "seq": 13221,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前对公授信上市企业法人标志为“是”",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 681,
+                  "name": "当前对公授信上市企业法人标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 681,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 681,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前对公授信上市企业法人标志为“是”"
+                  ],
+                  "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600803.537257
+        },
+        {
+          "seq": 13222,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "当前对公授信上市企业法人标志",
+          "occurred_at": 1790600803.537518
+        },
+        {
+          "seq": 13223,
+          "type": "draft.ready",
+          "message": "筛选当前对公授信上市企业法人标志为“是”的客户",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "当前对公授信上市企业法人标志为“是”",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 681,
+                  "name": "当前对公授信上市企业法人标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 681,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 681,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前对公授信上市企业法人标志为“是”"
+                  ],
+                  "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600803.537715
+        },
+        {
+          "seq": 13224,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 2,
+          "occurred_at": 1790600803.5379891
+        },
+        {
+          "seq": 13225,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 2,
+          "occurred_at": 1790600803.538173
+        },
+        {
+          "seq": 13226,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 2,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 3,
+            "model": "deepseek-flash",
+            "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+            "max_turns": 16,
+            "cli_start_ms": 148,
+            "cli_peak_rss_mb": 279.84,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.06342600000000001,
+            "usage": {
+              "input_tokens": 16367,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 16000,
+              "output_tokens": 635,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790600803.5525298
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 13207,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790600800.123801
+    },
+    {
+      "seq": 13211,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790600801.24878
+    },
+    {
+      "seq": 13212,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 21,
+      "occurred_at": 1790600801.274035
+    },
+    {
+      "seq": 13213,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 21,
+      "occurred_at": 1790600801.274153
+    },
+    {
+      "seq": 13217,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790600803.5354502
+    },
+    {
+      "seq": 13218,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600803.536004
+    },
+    {
+      "seq": 13219,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前对公授信上市企业法人标志为“是”",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 681,
+              "name": "当前对公授信上市企业法人标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 681,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 681,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前对公授信上市企业法人标志为“是”"
+              ],
+              "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600803.536355
+    },
+    {
+      "seq": 13220,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前对公授信上市企业法人标志为“是”",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 681,
+              "name": "当前对公授信上市企业法人标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 681,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 681,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前对公授信上市企业法人标志为“是”"
+              ],
+              "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600803.53685
+    },
+    {
+      "seq": 13221,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前对公授信上市企业法人标志为“是”",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 681,
+              "name": "当前对公授信上市企业法人标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 681,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 681,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前对公授信上市企业法人标志为“是”"
+              ],
+              "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600803.537257
+    },
+    {
+      "seq": 13222,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "当前对公授信上市企业法人标志",
+      "occurred_at": 1790600803.537518
+    },
+    {
+      "seq": 13223,
+      "type": "draft.ready",
+      "message": "筛选当前对公授信上市企业法人标志为“是”的客户",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "当前对公授信上市企业法人标志为“是”",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 681,
+              "name": "当前对公授信上市企业法人标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前对公授信上市企业法人标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 681,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 681,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "筛选当前对公授信上市企业法人标志为“是”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前对公授信上市企业法人标志为“是”"
+              ],
+              "business_meaning": "客户当前对公授信上市企业法人标志为“是”（码值1）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600803.537715
+    },
+    {
+      "seq": 13224,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 2,
+      "occurred_at": 1790600803.5379891
+    },
+    {
+      "seq": 13225,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 2,
+      "occurred_at": 1790600803.538173
+    },
+    {
+      "seq": 13226,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 2,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 3,
+        "model": "deepseek-flash",
+        "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+        "max_turns": 16,
+        "cli_start_ms": 148,
+        "cli_peak_rss_mb": 279.84,
+        "evidence_requests": 1,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.06342600000000001,
+        "usage": {
+          "input_tokens": 16367,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 16000,
+          "output_tokens": 635,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790600803.5525298
+    }
+  ]
+}

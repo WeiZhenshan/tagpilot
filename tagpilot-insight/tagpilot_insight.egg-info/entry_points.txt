@@ -1,0 +1,2 @@
+[console_scripts]
+tagpilot-insight = tagpilot_insight.cli:main

@@ -1,0 +1,32 @@
+{
+  "schema_version": "p3-demo.v1",
+  "phase": "P3",
+  "cases": 100,
+  "scope": "独立Demo开发验证，不扩充P2/P4",
+  "status": "AI_AUTHORED_AND_REVIEWED",
+  "scenarios": {
+    "大额入金转化": 15,
+    "定期到期承接": 15,
+    "代发客户流失预警": 14,
+    "沉睡客户激活": 14,
+    "基金客户配置优化": 14,
+    "营销活动复盘": 14,
+    "渠道迁移": 14
+  },
+  "reference_date": "2026-09-18",
+  "language_styles": [
+    "标准",
+    "口语",
+    "省略",
+    "模糊澄清",
+    "指代追加"
+  ],
+  "source_manifest_sha256": "45d92940707c7f9ffb50faf91334bffc0ab8ba98945c0c73f3111d189b1b6544",
+  "all_have_fixture_oracle": true,
+  "oracle_nonempty": 72,
+  "files": {
+    "cases.jsonl": "a54a9c47fd2bcc10f68c13508d2ed245b80a2014d73ec4be69af1ddfb55bc0ec",
+    "inputs.jsonl": "885367c8940d4b305e2a987fdceeffa414fb63f3b33765c87e64c3452125bfd4",
+    "oracle-results.jsonl": "0b03f208d884f3e393ff4980485dbaf57e74c91c4c241feb29dba1b84740971f"
+  }
+}

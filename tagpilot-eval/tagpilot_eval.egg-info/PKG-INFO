@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: tagpilot-eval
+Version: 0.1.0
+Summary: TagPilot P0 facts and P1 calibration only
+Requires-Python: >=3.11
+Requires-Dist: pydantic<3,>=2.10
+Provides-Extra: dev
+Requires-Dist: pytest<10,>=8; extra == "dev"
+Requires-Dist: jsonschema<5,>=4; extra == "dev"
+Provides-Extra: live
+Requires-Dist: PyYAML<7,>=6; extra == "live"

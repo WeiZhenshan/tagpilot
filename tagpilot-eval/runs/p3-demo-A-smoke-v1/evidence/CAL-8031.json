@@ -1,0 +1,2611 @@
+{
+  "states": [
+    {
+      "run_id": "p3-25b25015c06b-cal-8031",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "C1",
+                "source_span": "上月代发至少10000元",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "operator": ">=",
+                "values": [
+                  "10000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {
+                  "calendar_mode": "CALENDAR",
+                  "period_edge": "WHOLE",
+                  "time_anchor_label": "上月",
+                  "time_anchor_type": "MONTH_OFFSET",
+                  "time_offset_months": 1
+                },
+                "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1043,
+                "name": "上月代发金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "上月代发金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "CALENDAR",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "WHOLE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "上月",
+                  "time_anchor_type": "MONTH_OFFSET",
+                  "time_offset_months": 1,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C2",
+                "source_span": "本月代发不超过0元",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": "<=",
+                "values": [
+                  "0"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {
+                  "calendar_mode": "CALENDAR",
+                  "period_edge": "TO_DATE",
+                  "time_anchor_label": "本月",
+                  "time_anchor_type": "MTD"
+                },
+                "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1033,
+                "name": "本月代发金额",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "本月代发金额",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": "CALENDAR",
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "TO_DATE",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "本月",
+                  "time_anchor_type": "MTD",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+          "intent_plan": {
+            "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "上月代发至少10000元"
+                ],
+                "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "本月代发不超过0元"
+                ],
+                "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260919-002-r3",
+          "snapshot_id": "L107-20260919-002",
+          "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 4,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 5,
+            "cli_start_ms": 158,
+            "cli_peak_rss_mb": 331.05,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.1061676,
+            "usage": {
+              "input_tokens": 17063,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 51712,
+              "output_tokens": 2631,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 2092,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790594364.2879958
+        },
+        {
+          "seq": 2093,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790594367.150719
+        },
+        {
+          "seq": 2094,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 26,
+          "occurred_at": 1790594367.176948
+        },
+        {
+          "seq": 2095,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 26,
+          "occurred_at": 1790594367.177113
+        },
+        {
+          "seq": 2101,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790594369.494072
+        },
+        {
+          "seq": 2102,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790594369.494761
+        },
+        {
+          "seq": 2103,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少10000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    10000
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 1,
+                  "expected_caliber": {},
+                  "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "GAP",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    0
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 1,
+                  "expected_caliber": {},
+                  "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "GAP",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "上月代发≥10000元且本月代发≤0元的流失预警客户",
+            "intent_plan": {
+              "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少10000元"
+                  ],
+                  "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "FORMAT_ERROR",
+                "category": "FORMAT_ERROR",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "正在补全这项条件的时间解释",
+                "user_message": "正在补全这项条件的时间解释",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [
+                  "repair_time_parse"
+                ],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "FORMAT_ERROR",
+                "category": "FORMAT_ERROR",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C2",
+                "requirement_id": "C2",
+                "message": "正在补全这项条件的时间解释",
+                "user_message": "正在补全这项条件的时间解释",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [
+                  "repair_time_parse"
+                ],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594369.494932
+        },
+        {
+          "seq": 2104,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少10000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    10000
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 1,
+                  "expected_caliber": {},
+                  "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "GAP",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    0
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 1,
+                  "expected_caliber": {},
+                  "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "GAP",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "上月代发≥10000元且本月代发≤0元的流失预警客户",
+            "intent_plan": {
+              "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少10000元"
+                  ],
+                  "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "FORMAT_ERROR",
+                "category": "FORMAT_ERROR",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "正在补全这项条件的时间解释",
+                "user_message": "正在补全这项条件的时间解释",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [
+                  "repair_time_parse"
+                ],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "FORMAT_ERROR",
+                "category": "FORMAT_ERROR",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C2",
+                "requirement_id": "C2",
+                "message": "正在补全这项条件的时间解释",
+                "user_message": "正在补全这项条件的时间解释",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [
+                  "repair_time_parse"
+                ],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594369.495187
+        },
+        {
+          "seq": 2105,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790594369.495478
+        },
+        {
+          "seq": 2106,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 1,
+          "occurred_at": 1790594369.495559
+        },
+        {
+          "seq": 2107,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790594372.889237
+        },
+        {
+          "seq": 2108,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790594372.889745
+        },
+        {
+          "seq": 2109,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少10000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "10000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "WHOLE",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1
+                  },
+                  "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "TO_DATE",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD"
+                  },
+                  "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "上月代发≥10000元且本月代发≤0元的流失预警客户",
+            "intent_plan": {
+              "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少10000元"
+                  ],
+                  "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ],
+                "logic": "AND"
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594372.890002
+        },
+        {
+          "seq": 2110,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 1,
+          "occurred_at": 1790594372.89034
+        },
+        {
+          "seq": 2111,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 1,
+          "occurred_at": 1790594372.8904388
+        },
+        {
+          "seq": 2112,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790594375.388696
+        },
+        {
+          "seq": 2113,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790594375.389332
+        },
+        {
+          "seq": 2114,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少10000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "10000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "WHOLE",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1
+                  },
+                  "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "TO_DATE",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD"
+                  },
+                  "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+            "intent_plan": {
+              "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少10000元"
+                  ],
+                  "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594375.389591
+        },
+        {
+          "seq": 2115,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少10000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "10000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "WHOLE",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1
+                  },
+                  "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "TO_DATE",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD"
+                  },
+                  "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+            "intent_plan": {
+              "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少10000元"
+                  ],
+                  "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594375.389847
+        },
+        {
+          "seq": 2116,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "上月代发金额",
+          "occurred_at": 1790594375.3900852
+        },
+        {
+          "seq": 2117,
+          "type": "clause.updated",
+          "clause_id": "C2",
+          "message": "本月代发金额",
+          "occurred_at": 1790594375.390156
+        },
+        {
+          "seq": 2118,
+          "type": "draft.ready",
+          "message": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "上月代发至少10000元",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "10000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "WHOLE",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1
+                  },
+                  "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1043,
+                  "name": "上月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "上月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "WHOLE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "上月",
+                    "time_anchor_type": "MONTH_OFFSET",
+                    "time_offset_months": 1,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "本月代发不超过0元",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "<=",
+                  "values": [
+                    "0"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {
+                    "calendar_mode": "CALENDAR",
+                    "period_edge": "TO_DATE",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD"
+                  },
+                  "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1033,
+                  "name": "本月代发金额",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "本月代发金额",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": "CALENDAR",
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "TO_DATE",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "本月",
+                    "time_anchor_type": "MTD",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+            "intent_plan": {
+              "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "上月代发至少10000元"
+                  ],
+                  "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "本月代发不超过0元"
+                  ],
+                  "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594375.390239
+        },
+        {
+          "seq": 2119,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 1,
+          "occurred_at": 1790594375.390458
+        },
+        {
+          "seq": 2120,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 2,
+          "occurred_at": 1790594375.3905962
+        },
+        {
+          "seq": 2121,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 4,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 5,
+            "cli_start_ms": 158,
+            "cli_peak_rss_mb": 331.05,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.1061676,
+            "usage": {
+              "input_tokens": 17063,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 51712,
+              "output_tokens": 2631,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790594375.408703
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 2092,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790594364.2879958
+    },
+    {
+      "seq": 2093,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790594367.150719
+    },
+    {
+      "seq": 2094,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 26,
+      "occurred_at": 1790594367.176948
+    },
+    {
+      "seq": 2095,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 26,
+      "occurred_at": 1790594367.177113
+    },
+    {
+      "seq": 2101,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790594369.494072
+    },
+    {
+      "seq": 2102,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790594369.494761
+    },
+    {
+      "seq": 2103,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少10000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                10000
+              ],
+              "value_unit": "CNY",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "GAP",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                0
+              ],
+              "value_unit": "CNY",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "GAP",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "上月代发≥10000元且本月代发≤0元的流失预警客户",
+        "intent_plan": {
+          "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少10000元"
+              ],
+              "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "FORMAT_ERROR",
+            "category": "FORMAT_ERROR",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "正在补全这项条件的时间解释",
+            "user_message": "正在补全这项条件的时间解释",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [
+              "repair_time_parse"
+            ],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "FORMAT_ERROR",
+            "category": "FORMAT_ERROR",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C2",
+            "requirement_id": "C2",
+            "message": "正在补全这项条件的时间解释",
+            "user_message": "正在补全这项条件的时间解释",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [
+              "repair_time_parse"
+            ],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594369.494932
+    },
+    {
+      "seq": 2104,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少10000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                10000
+              ],
+              "value_unit": "CNY",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "GAP",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                0
+              ],
+              "value_unit": "CNY",
+              "value_scale": 1,
+              "expected_caliber": {},
+              "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "GAP",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "上月代发≥10000元且本月代发≤0元的流失预警客户",
+        "intent_plan": {
+          "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少10000元"
+              ],
+              "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "FORMAT_ERROR",
+            "category": "FORMAT_ERROR",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "正在补全这项条件的时间解释",
+            "user_message": "正在补全这项条件的时间解释",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [
+              "repair_time_parse"
+            ],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "FORMAT_ERROR",
+            "category": "FORMAT_ERROR",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C2",
+            "requirement_id": "C2",
+            "message": "正在补全这项条件的时间解释",
+            "user_message": "正在补全这项条件的时间解释",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [
+              "repair_time_parse"
+            ],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594369.495187
+    },
+    {
+      "seq": 2105,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790594369.495478
+    },
+    {
+      "seq": 2106,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 1,
+      "occurred_at": 1790594369.495559
+    },
+    {
+      "seq": 2107,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790594372.889237
+    },
+    {
+      "seq": 2108,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790594372.889745
+    },
+    {
+      "seq": 2109,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少10000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "10000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1
+              },
+              "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "TO_DATE",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD"
+              },
+              "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "上月代发≥10000元且本月代发≤0元的流失预警客户",
+        "intent_plan": {
+          "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少10000元"
+              ],
+              "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ],
+            "logic": "AND"
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594372.890002
+    },
+    {
+      "seq": 2110,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 1,
+      "occurred_at": 1790594372.89034
+    },
+    {
+      "seq": 2111,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 1,
+      "occurred_at": 1790594372.8904388
+    },
+    {
+      "seq": 2112,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790594375.388696
+    },
+    {
+      "seq": 2113,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790594375.389332
+    },
+    {
+      "seq": 2114,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少10000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "10000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1
+              },
+              "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "TO_DATE",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD"
+              },
+              "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+        "intent_plan": {
+          "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少10000元"
+              ],
+              "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594375.389591
+    },
+    {
+      "seq": 2115,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少10000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "10000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1
+              },
+              "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "TO_DATE",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD"
+              },
+              "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+        "intent_plan": {
+          "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少10000元"
+              ],
+              "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594375.389847
+    },
+    {
+      "seq": 2116,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "上月代发金额",
+      "occurred_at": 1790594375.3900852
+    },
+    {
+      "seq": 2117,
+      "type": "clause.updated",
+      "clause_id": "C2",
+      "message": "本月代发金额",
+      "occurred_at": 1790594375.390156
+    },
+    {
+      "seq": 2118,
+      "type": "draft.ready",
+      "message": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "上月代发至少10000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">=",
+              "values": [
+                "10000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "WHOLE",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1
+              },
+              "time_constraint": "上月（基准日2026-09-18对应2026-08整月）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1043,
+              "name": "上月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "上月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "WHOLE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "上月",
+                "time_anchor_type": "MONTH_OFFSET",
+                "time_offset_months": 1,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "本月代发不超过0元",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "<=",
+              "values": [
+                "0"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {
+                "calendar_mode": "CALENDAR",
+                "period_edge": "TO_DATE",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD"
+              },
+              "time_constraint": "本月（基准日2026-09-18，统计至当日）",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1033,
+              "name": "本月代发金额",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "本月代发金额",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": "CALENDAR",
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "TO_DATE",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "本月",
+                "time_anchor_type": "MTD",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "上月代发≥10000元且本月代发≤0元的代发流失预警客户",
+        "intent_plan": {
+          "original_request": "上月代发至少10000元、本月代发不超过0元的客户，列入本次代发流失预警观察名单。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "上月代发至少10000元"
+              ],
+              "business_meaning": "上月（2026-08）整月代发金额不低于10000元",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "本月代发不超过0元"
+              ],
+              "business_meaning": "本月（2026-09，统计至基准日）代发金额不超过0元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594375.390239
+    },
+    {
+      "seq": 2119,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 1,
+      "occurred_at": 1790594375.390458
+    },
+    {
+      "seq": 2120,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 2,
+      "occurred_at": 1790594375.3905962
+    },
+    {
+      "seq": 2121,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 4,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 5,
+        "cli_start_ms": 158,
+        "cli_peak_rss_mb": 331.05,
+        "evidence_requests": 1,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.1061676,
+        "usage": {
+          "input_tokens": 17063,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 51712,
+          "output_tokens": 2631,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790594375.408703
+    }
+  ]
+}

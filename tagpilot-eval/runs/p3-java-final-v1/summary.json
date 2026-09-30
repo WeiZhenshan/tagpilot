@@ -1,8 +1,0 @@
-{
-  "phase": "P3",
-  "layer": "L3",
-  "cases": 100,
-  "statuses": {
-    "PASS": 100
-  }
-}

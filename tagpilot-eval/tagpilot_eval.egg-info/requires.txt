@@ -1,0 +1,8 @@
+pydantic<3,>=2.10
+
+[dev]
+pytest<10,>=8
+jsonschema<5,>=4
+
+[live]
+PyYAML<7,>=6

@@ -1,0 +1,2 @@
+[console_scripts]
+tagpilot-eval = tagpilot_eval.cli:main

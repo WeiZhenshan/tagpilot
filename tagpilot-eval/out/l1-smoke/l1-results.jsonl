@@ -1,0 +1,16 @@
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-001", "category": "SINGLE", "conditions": 1, "phrases": ["上年12月保险购买金额至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-002", "category": "SINGLE", "conditions": 1, "phrases": ["上月末信用卡垫款余额至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-003", "category": "SINGLE", "conditions": 1, "phrases": ["近12个月最高AUM至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-004", "category": "SINGLE", "conditions": 1, "phrases": ["子女数量（私银KYC）至少3"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-005", "category": "SINGLE", "conditions": 1, "phrases": ["当前APP会员等级至少3"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-006", "category": "SINGLE", "conditions": 1, "phrases": ["历史品质生活实物商品下单金额至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-007", "category": "SINGLE", "conditions": 1, "phrases": ["当前待跟进商机数至少3"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-008", "category": "SINGLE", "conditions": 1, "phrases": ["当前快捷支付日限额至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-009", "category": "SINGLE", "conditions": 1, "phrases": ["近12个月保险购买金额至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-010", "category": "SINGLE", "conditions": 1, "phrases": ["当前信用卡垫款余额至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-011", "category": "SINGLE", "conditions": 1, "phrases": ["T-3月末AUM至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-012", "category": "SINGLE", "conditions": 1, "phrases": ["当前私银KYC完整度至少50%"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-013", "category": "SINGLE", "conditions": 1, "phrases": ["当前客户潜力值（财富价值潜力模型）至少50"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-014", "category": "SINGLE", "conditions": 1, "phrases": ["历史品质生活订单最近一次下单金额至少10万元"], "ranks": [1], "recalled": [true]}
+{"all_conditions_covered": false, "atomic_recall": 0.0, "case_id": "CAL-015", "category": "SINGLE", "conditions": 1, "phrases": ["近30天企微私聊消息接收条数（线上经营服务）至少3"], "ranks": [null], "recalled": [false]}
+{"all_conditions_covered": true, "atomic_recall": 1.0, "case_id": "CAL-016", "category": "SINGLE", "conditions": 1, "phrases": ["当前网银交易日限额至少10万元"], "ranks": [1], "recalled": [true]}

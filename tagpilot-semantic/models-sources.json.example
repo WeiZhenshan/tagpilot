@@ -1,0 +1,11 @@
+{
+  "embedding": {
+    "repo_id": "BAAI/bge-m3",
+    "local_dir": "tagpilot-semantic/out/models/bge-m3"
+  },
+  "reranker": {
+    "repo_id": "BAAI/bge-reranker-v2-m3",
+    "local_dir": "tagpilot-semantic/out/models/bge-reranker-v2-m3"
+  },
+  "notes": "权重由仓库根目录 bin/download-bge-models.sh 下载，不入 Git。"
+}

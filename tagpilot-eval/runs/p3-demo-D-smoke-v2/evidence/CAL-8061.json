@@ -1,0 +1,3715 @@
+{
+  "states": [
+    {
+      "run_id": "p3-29fbf7ea5fc5-cal-8061",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "c1",
+                "source_span": "当前基金未持有",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "gap_reason": "NO_PUBLISHED_TAG",
+                "operator": "=",
+                "values": [
+                  "false"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "status": "GAP"
+              },
+              {
+                "clause_id": "c2",
+                "source_span": "基金风评C4/C5",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": "in",
+                "values": [
+                  "C4",
+                  "C5"
+                ],
+                "value_unit": "NONE",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1477,
+                "name": "当前基金风评等级",
+                "semantic_type": "ENUM_ORDINAL",
+                "unit": "NONE",
+                "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                "allowed_operators": [
+                  "=",
+                  "in",
+                  "not_in"
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 1477,
+                    "code": "C1",
+                    "label": "C1 谨慎型",
+                    "definition": "C1 谨慎型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 1,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1477,
+                    "code": "C2",
+                    "label": "C2 稳健型",
+                    "definition": "C2 稳健型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 2,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1477,
+                    "code": "C3",
+                    "label": "C3 平衡型",
+                    "definition": "C3 平衡型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 3,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1477,
+                    "code": "C4",
+                    "label": "C4 成长型",
+                    "definition": "C4 成长型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 4,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1477,
+                    "code": "C5",
+                    "label": "C5 进取型",
+                    "definition": "C5 进取型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 5,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": "inclusive_lower",
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "NONE",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "c3",
+                "source_span": "当前时点AUM≥30万",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": ">=",
+                "values": [
+                  "300000"
+                ],
+                "value_unit": "CNY",
+                "value_scale": "1.0000",
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 721,
+                "name": "当前时点AUM",
+                "semantic_type": "NUM_AMOUNT",
+                "unit": "CNY",
+                "definition": "当前时点AUM",
+                "allowed_operators": [
+                  ">",
+                  ">=",
+                  "<",
+                  "<=",
+                  "between"
+                ],
+                "code_options": [],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "EOP",
+                  "time_anchor_label": "当前时点",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "CNY",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万",
+          "intent_plan": {
+            "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "当前基金未持有"
+                ],
+                "business_meaning": "客户当前未持有基金（否定条件：排除当前持有基金者）",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "基金风评C4/C5"
+                ],
+                "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "当前时点AUM≥30万"
+                ],
+                "business_meaning": "当前时点AUM不小于30万元",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [
+            {
+              "code": "UNKNOWN_TAG",
+              "category": "BINDING_MISMATCH",
+              "resolution": "AGENT_FIXABLE",
+              "clause_id": "c1",
+              "requirement_id": "c1",
+              "message": "请选择可用的已发布标签",
+              "user_message": "请选择可用的已发布标签",
+              "expected": null,
+              "actual": null,
+              "repair_actions": [],
+              "user_decision_required": false,
+              "retryable": false
+            },
+            {
+              "code": "REQUIREMENT_MISSING",
+              "category": "INTENT_COVERAGE",
+              "resolution": "AGENT_FIXABLE",
+              "clause_id": "c1",
+              "requirement_id": "c1",
+              "message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+              "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+              "expected": null,
+              "actual": null,
+              "repair_actions": [],
+              "user_decision_required": false,
+              "retryable": false
+            }
+          ],
+          "plan_status": "DRAFT",
+          "valid": false,
+          "build_id": "bge-m3-l107-20260928-004-p3d",
+          "snapshot_id": "L107-20260928-004",
+          "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "PARTIAL",
+          "gaps": [
+            {
+              "requirement_id": "R1",
+              "reason": "NO_PUBLISHED_TAG",
+              "nearest_tag_ids": []
+            }
+          ],
+          "stats": {
+            "tools": 8,
+            "deep": 2,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 9,
+            "cli_start_ms": 157,
+            "cli_peak_rss_mb": 334.05,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.12546419999999997,
+            "usage": {
+              "input_tokens": 19796,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 75904,
+              "output_tokens": 2887,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 3131,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790595059.416621
+        },
+        {
+          "seq": 3132,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790595061.684695
+        },
+        {
+          "seq": 3133,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 25,
+          "occurred_at": 1790595061.709719
+        },
+        {
+          "seq": 3134,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 25,
+          "occurred_at": 1790595061.7099898
+        },
+        {
+          "seq": 3135,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790595061.712759
+        },
+        {
+          "seq": 3136,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 15,
+          "occurred_at": 1790595061.727935
+        },
+        {
+          "seq": 3137,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 15,
+          "occurred_at": 1790595061.7282581
+        },
+        {
+          "seq": 3138,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790595063.544327
+        },
+        {
+          "seq": 3139,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 154,
+          "occurred_at": 1790595063.700968
+        },
+        {
+          "seq": 3140,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 154,
+          "occurred_at": 1790595063.70114
+        },
+        {
+          "seq": 3141,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790595063.7032268
+        },
+        {
+          "seq": 3142,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 12,
+          "occurred_at": 1790595063.715443
+        },
+        {
+          "seq": 3143,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 12,
+          "occurred_at": 1790595063.715722
+        },
+        {
+          "seq": 3144,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790595066.0009642
+        },
+        {
+          "seq": 3145,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 113,
+          "occurred_at": 1790595066.117891
+        },
+        {
+          "seq": 3146,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 114,
+          "occurred_at": 1790595066.1180558
+        },
+        {
+          "seq": 3147,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790595066.120267
+        },
+        {
+          "seq": 3148,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 14,
+          "occurred_at": 1790595066.1340868
+        },
+        {
+          "seq": 3149,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 14,
+          "occurred_at": 1790595066.1343591
+        },
+        {
+          "seq": 3150,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790595070.493423
+        },
+        {
+          "seq": 3151,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790595070.494074
+        },
+        {
+          "seq": 3152,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "当前基金未持有",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "目录中未找到表示客户当前是否持有基金的已发布标签",
+                  "operator": "=",
+                  "values": [
+                    "false"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "基金风评C4/C5",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C4",
+                    "C5"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1477,
+                  "name": "当前基金风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1477,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未持有基金且基金风评C4/C5且当前AUM≥30万",
+            "intent_plan": {
+              "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前基金未持有"
+                  ],
+                  "business_meaning": "客户当前未持有基金（否定：排除当前持有基金者）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "基金风评C4/C5"
+                  ],
+                  "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不小于30万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+                "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-004-p3d",
+            "snapshot_id": "L107-20260928-004",
+            "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+          },
+          "occurred_at": 1790595070.496105
+        },
+        {
+          "seq": 3153,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "当前基金未持有",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "目录中未找到表示客户当前是否持有基金的已发布标签",
+                  "operator": "=",
+                  "values": [
+                    "false"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "基金风评C4/C5",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C4",
+                    "C5"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1477,
+                  "name": "当前基金风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1477,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未持有基金且基金风评C4/C5且当前AUM≥30万",
+            "intent_plan": {
+              "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前基金未持有"
+                  ],
+                  "business_meaning": "客户当前未持有基金（否定：排除当前持有基金者）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "基金风评C4/C5"
+                  ],
+                  "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不小于30万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+                "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-004-p3d",
+            "snapshot_id": "L107-20260928-004",
+            "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+          },
+          "occurred_at": 1790595070.496904
+        },
+        {
+          "seq": 3154,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 4,
+          "occurred_at": 1790595070.497508
+        },
+        {
+          "seq": 3155,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 4,
+          "occurred_at": 1790595070.497625
+        },
+        {
+          "seq": 3156,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790595073.9248269
+        },
+        {
+          "seq": 3157,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 2,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790595073.9255161
+        },
+        {
+          "seq": 3158,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "当前基金未持有",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+                  "operator": "=",
+                  "values": [
+                    "false"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "基金风评C4/C5",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C4",
+                    "C5"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1477,
+                  "name": "当前基金风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1477,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万",
+            "intent_plan": {
+              "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前基金未持有"
+                  ],
+                  "business_meaning": "客户当前未持有基金（否定条件：排除当前持有基金者）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "基金风评C4/C5"
+                  ],
+                  "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不小于30万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+                "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-004-p3d",
+            "snapshot_id": "L107-20260928-004",
+            "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+          },
+          "occurred_at": 1790595073.927344
+        },
+        {
+          "seq": 3159,
+          "type": "plan.validated",
+          "message": "已保留待处理事项",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "当前基金未持有",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "NO_PUBLISHED_TAG",
+                  "operator": "=",
+                  "values": [
+                    "false"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "基金风评C4/C5",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C4",
+                    "C5"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1477,
+                  "name": "当前基金风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1477,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万",
+            "intent_plan": {
+              "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前基金未持有"
+                  ],
+                  "business_meaning": "客户当前未持有基金（否定条件：排除当前持有基金者）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "基金风评C4/C5"
+                  ],
+                  "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不小于30万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+                "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-004-p3d",
+            "snapshot_id": "L107-20260928-004",
+            "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+          },
+          "occurred_at": 1790595073.9280388
+        },
+        {
+          "seq": 3160,
+          "type": "clause.updated",
+          "clause_id": "c1",
+          "message": "当前基金未持有",
+          "occurred_at": 1790595073.9285948
+        },
+        {
+          "seq": 3161,
+          "type": "clause.updated",
+          "clause_id": "c2",
+          "message": "当前基金风评等级",
+          "occurred_at": 1790595073.9286668
+        },
+        {
+          "seq": 3162,
+          "type": "clause.updated",
+          "clause_id": "c3",
+          "message": "当前时点AUM",
+          "occurred_at": 1790595073.9289448
+        },
+        {
+          "seq": 3163,
+          "type": "draft.ready",
+          "message": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万；仅前两项可执行条件已绑定",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "c1",
+                  "source_span": "当前基金未持有",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "NO_PUBLISHED_TAG",
+                  "operator": "=",
+                  "values": [
+                    "false"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "c2",
+                  "source_span": "基金风评C4/C5",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C4",
+                    "C5"
+                  ],
+                  "value_unit": "NONE",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1477,
+                  "name": "当前基金风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1477,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1477,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "c3",
+                  "source_span": "当前时点AUM≥30万",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": ">=",
+                  "values": [
+                    "300000"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": "1.0000",
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 721,
+                  "name": "当前时点AUM",
+                  "semantic_type": "NUM_AMOUNT",
+                  "unit": "CNY",
+                  "definition": "当前时点AUM",
+                  "allowed_operators": [
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "between"
+                  ],
+                  "code_options": [],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "EOP",
+                    "time_anchor_label": "当前时点",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "CNY",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万",
+            "intent_plan": {
+              "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "当前基金未持有"
+                  ],
+                  "business_meaning": "客户当前未持有基金（否定条件：排除当前持有基金者）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "基金风评C4/C5"
+                  ],
+                  "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "当前时点AUM≥30万"
+                  ],
+                  "business_meaning": "当前时点AUM不小于30万元",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "c1",
+                "requirement_id": "c1",
+                "message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+                "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-004-p3d",
+            "snapshot_id": "L107-20260928-004",
+            "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+          },
+          "occurred_at": 1790595073.929101
+        },
+        {
+          "seq": 3164,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 4,
+          "occurred_at": 1790595073.929559
+        },
+        {
+          "seq": 3165,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 4,
+          "occurred_at": 1790595073.929748
+        },
+        {
+          "seq": 3166,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 8,
+            "deep": 2,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 9,
+            "cli_start_ms": 157,
+            "cli_peak_rss_mb": 334.05,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.12546419999999997,
+            "usage": {
+              "input_tokens": 19796,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 75904,
+              "output_tokens": 2887,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790595073.944342
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 3131,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790595059.416621
+    },
+    {
+      "seq": 3132,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790595061.684695
+    },
+    {
+      "seq": 3133,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 25,
+      "occurred_at": 1790595061.709719
+    },
+    {
+      "seq": 3134,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 25,
+      "occurred_at": 1790595061.7099898
+    },
+    {
+      "seq": 3135,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790595061.712759
+    },
+    {
+      "seq": 3136,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 15,
+      "occurred_at": 1790595061.727935
+    },
+    {
+      "seq": 3137,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 15,
+      "occurred_at": 1790595061.7282581
+    },
+    {
+      "seq": 3138,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790595063.544327
+    },
+    {
+      "seq": 3139,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 154,
+      "occurred_at": 1790595063.700968
+    },
+    {
+      "seq": 3140,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 154,
+      "occurred_at": 1790595063.70114
+    },
+    {
+      "seq": 3141,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790595063.7032268
+    },
+    {
+      "seq": 3142,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 12,
+      "occurred_at": 1790595063.715443
+    },
+    {
+      "seq": 3143,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 12,
+      "occurred_at": 1790595063.715722
+    },
+    {
+      "seq": 3144,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790595066.0009642
+    },
+    {
+      "seq": 3145,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 113,
+      "occurred_at": 1790595066.117891
+    },
+    {
+      "seq": 3146,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 114,
+      "occurred_at": 1790595066.1180558
+    },
+    {
+      "seq": 3147,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790595066.120267
+    },
+    {
+      "seq": 3148,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 14,
+      "occurred_at": 1790595066.1340868
+    },
+    {
+      "seq": 3149,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 14,
+      "occurred_at": 1790595066.1343591
+    },
+    {
+      "seq": 3150,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790595070.493423
+    },
+    {
+      "seq": 3151,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790595070.494074
+    },
+    {
+      "seq": 3152,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "当前基金未持有",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "目录中未找到表示客户当前是否持有基金的已发布标签",
+              "operator": "=",
+              "values": [
+                "false"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "基金风评C4/C5",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "in",
+              "values": [
+                "C4",
+                "C5"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1477,
+              "name": "当前基金风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1477,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未持有基金且基金风评C4/C5且当前AUM≥30万",
+        "intent_plan": {
+          "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前基金未持有"
+              ],
+              "business_meaning": "客户当前未持有基金（否定：排除当前持有基金者）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "基金风评C4/C5"
+              ],
+              "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不小于30万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+            "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-004-p3d",
+        "snapshot_id": "L107-20260928-004",
+        "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+      },
+      "occurred_at": 1790595070.496105
+    },
+    {
+      "seq": 3153,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "当前基金未持有",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "目录中未找到表示客户当前是否持有基金的已发布标签",
+              "operator": "=",
+              "values": [
+                "false"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "基金风评C4/C5",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "in",
+              "values": [
+                "C4",
+                "C5"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1477,
+              "name": "当前基金风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1477,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未持有基金且基金风评C4/C5且当前AUM≥30万",
+        "intent_plan": {
+          "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前基金未持有"
+              ],
+              "business_meaning": "客户当前未持有基金（否定：排除当前持有基金者）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "基金风评C4/C5"
+              ],
+              "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不小于30万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+            "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-004-p3d",
+        "snapshot_id": "L107-20260928-004",
+        "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+      },
+      "occurred_at": 1790595070.496904
+    },
+    {
+      "seq": 3154,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 4,
+      "occurred_at": 1790595070.497508
+    },
+    {
+      "seq": 3155,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 4,
+      "occurred_at": 1790595070.497625
+    },
+    {
+      "seq": 3156,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790595073.9248269
+    },
+    {
+      "seq": 3157,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 2,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790595073.9255161
+    },
+    {
+      "seq": 3158,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "当前基金未持有",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+              "operator": "=",
+              "values": [
+                "false"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "基金风评C4/C5",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "in",
+              "values": [
+                "C4",
+                "C5"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1477,
+              "name": "当前基金风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1477,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万",
+        "intent_plan": {
+          "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前基金未持有"
+              ],
+              "business_meaning": "客户当前未持有基金（否定条件：排除当前持有基金者）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "基金风评C4/C5"
+              ],
+              "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不小于30万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+            "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-004-p3d",
+        "snapshot_id": "L107-20260928-004",
+        "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+      },
+      "occurred_at": 1790595073.927344
+    },
+    {
+      "seq": 3159,
+      "type": "plan.validated",
+      "message": "已保留待处理事项",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "当前基金未持有",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "NO_PUBLISHED_TAG",
+              "operator": "=",
+              "values": [
+                "false"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "基金风评C4/C5",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "in",
+              "values": [
+                "C4",
+                "C5"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1477,
+              "name": "当前基金风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1477,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万",
+        "intent_plan": {
+          "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前基金未持有"
+              ],
+              "business_meaning": "客户当前未持有基金（否定条件：排除当前持有基金者）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "基金风评C4/C5"
+              ],
+              "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不小于30万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+            "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-004-p3d",
+        "snapshot_id": "L107-20260928-004",
+        "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+      },
+      "occurred_at": 1790595073.9280388
+    },
+    {
+      "seq": 3160,
+      "type": "clause.updated",
+      "clause_id": "c1",
+      "message": "当前基金未持有",
+      "occurred_at": 1790595073.9285948
+    },
+    {
+      "seq": 3161,
+      "type": "clause.updated",
+      "clause_id": "c2",
+      "message": "当前基金风评等级",
+      "occurred_at": 1790595073.9286668
+    },
+    {
+      "seq": 3162,
+      "type": "clause.updated",
+      "clause_id": "c3",
+      "message": "当前时点AUM",
+      "occurred_at": 1790595073.9289448
+    },
+    {
+      "seq": 3163,
+      "type": "draft.ready",
+      "message": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万；仅前两项可执行条件已绑定",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "c1",
+              "source_span": "当前基金未持有",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "NO_PUBLISHED_TAG",
+              "operator": "=",
+              "values": [
+                "false"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "c2",
+              "source_span": "基金风评C4/C5",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "in",
+              "values": [
+                "C4",
+                "C5"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1477,
+              "name": "当前基金风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前基金风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1477,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1477,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "c3",
+              "source_span": "当前时点AUM≥30万",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": ">=",
+              "values": [
+                "300000"
+              ],
+              "value_unit": "CNY",
+              "value_scale": "1.0000",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 721,
+              "name": "当前时点AUM",
+              "semantic_type": "NUM_AMOUNT",
+              "unit": "CNY",
+              "definition": "当前时点AUM",
+              "allowed_operators": [
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "between"
+              ],
+              "code_options": [],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "EOP",
+                "time_anchor_label": "当前时点",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "CNY",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "未持有基金（缺标签）+ 基金风评C4/C5 + 当前时点AUM≥30万",
+        "intent_plan": {
+          "original_request": "当前基金未持有；基金风评C4/C5；当前时点AUM≥30万。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "当前基金未持有"
+              ],
+              "business_meaning": "客户当前未持有基金（否定条件：排除当前持有基金者）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "基金风评C4/C5"
+              ],
+              "business_meaning": "当前基金风评等级为C4成长型或C5进取型",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "当前时点AUM≥30万"
+              ],
+              "business_meaning": "当前时点AUM不小于30万元",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "c1",
+            "requirement_id": "c1",
+            "message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+            "user_message": "目录中未找到表示客户当前是否持有基金的已发布标签（已做 quick+deep 检索，均未命中）",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-004-p3d",
+        "snapshot_id": "L107-20260928-004",
+        "artifact_hash": "caeb192aba6d1ad47ad317d32635229d9895515d93a3ec8787b296285480ac46"
+      },
+      "occurred_at": 1790595073.929101
+    },
+    {
+      "seq": 3164,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 4,
+      "occurred_at": 1790595073.929559
+    },
+    {
+      "seq": 3165,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 4,
+      "occurred_at": 1790595073.929748
+    },
+    {
+      "seq": 3166,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 8,
+        "deep": 2,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 9,
+        "cli_start_ms": 157,
+        "cli_peak_rss_mb": 334.05,
+        "evidence_requests": 1,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.12546419999999997,
+        "usage": {
+          "input_tokens": 19796,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 75904,
+          "output_tokens": 2887,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790595073.944342
+    }
+  ]
+}

@@ -1,0 +1,4578 @@
+{
+  "states": [
+    {
+      "run_id": "p3-0b7f8cc153e2-cal-8007",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "clause_id": "C1",
+                "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+                "requirement_ids": [
+                  "R1"
+                ],
+                "gap_reason": "NO_PUBLISHED_TAG",
+                "operator": ">=",
+                "values": [
+                  "40"
+                ],
+                "value_unit": "CNY",
+                "value_scale": 10000,
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "status": "GAP"
+              },
+              {
+                "clause_id": "C2",
+                "source_span": "还没买理财",
+                "requirement_ids": [
+                  "R2"
+                ],
+                "operator": "=",
+                "values": [
+                  "0"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 601,
+                "name": "当前持有理财标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前持有理财标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 601,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 601,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C3",
+                "source_span": "理财风评是C3、C4或C5",
+                "requirement_ids": [
+                  "R3"
+                ],
+                "operator": "in",
+                "values": [
+                  "C3",
+                  "C4",
+                  "C5"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 1466,
+                "name": "当前理财风评等级",
+                "semantic_type": "ENUM_ORDINAL",
+                "unit": "NONE",
+                "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                "allowed_operators": [
+                  "=",
+                  "in",
+                  "not_in"
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 1466,
+                    "code": "C1",
+                    "label": "C1 谨慎型",
+                    "definition": "C1 谨慎型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 1,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1466,
+                    "code": "C2",
+                    "label": "C2 稳健型",
+                    "definition": "C2 稳健型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 2,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1466,
+                    "code": "C3",
+                    "label": "C3 平衡型",
+                    "definition": "C3 平衡型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 3,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1466,
+                    "code": "C4",
+                    "label": "C4 成长型",
+                    "definition": "C4 成长型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 4,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 1466,
+                    "code": "C5",
+                    "label": "C5 进取型",
+                    "definition": "C5 进取型",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": 5,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": "inclusive_lower",
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "NONE",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              },
+              {
+                "clause_id": "C4",
+                "source_span": "当前手机号必须正常",
+                "requirement_ids": [
+                  "R4"
+                ],
+                "operator": "=",
+                "values": [
+                  "1"
+                ],
+                "expected_caliber": {},
+                "unknown_policy": "EXCLUDE",
+                "kind": "TAG_PREDICATE",
+                "tag_id": 568,
+                "name": "当前手机号码正常标志",
+                "semantic_type": "BOOL",
+                "unit": "NONE",
+                "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                "allowed_operators": [
+                  "="
+                ],
+                "code_options": [
+                  {
+                    "tag_id": 568,
+                    "code": "0",
+                    "label": "否",
+                    "definition": "否",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  },
+                  {
+                    "tag_id": 568,
+                    "code": "1",
+                    "label": "是",
+                    "definition": "是",
+                    "lower_bound": null,
+                    "upper_bound": null,
+                    "lower_inclusive": null,
+                    "upper_inclusive": null,
+                    "bound_unit": null,
+                    "rank_no": null,
+                    "parent_tag_id": null,
+                    "parent_code": null,
+                    "level_no": null,
+                    "is_unknown_bucket": 0
+                  }
+                ],
+                "status": "BOUND",
+                "caliber_struct": {
+                  "boundary_semantics": null,
+                  "calendar_mode": null,
+                  "denominator": null,
+                  "numerator": null,
+                  "period_edge": "END",
+                  "scope": "ALL",
+                  "source_system": null,
+                  "statistic": "FLAG",
+                  "time_anchor_label": "当前",
+                  "time_anchor_type": "POINT",
+                  "time_offset_months": null,
+                  "time_offset_years": null,
+                  "time_window_unit": null,
+                  "time_window_value": null,
+                  "unit": "NONE",
+                  "unit_scale": 1
+                }
+              }
+            ]
+          },
+          "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+          "intent_plan": {
+            "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "最近30天别人从别的银行转进来，合起来有40万或更多"
+                ],
+                "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R2",
+                "source_spans": [
+                  "还没买理财"
+                ],
+                "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R3",
+                "source_spans": [
+                  "理财风评是C3、C4或C5"
+                ],
+                "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+                "origin": "USER"
+              },
+              {
+                "requirement_id": "R4",
+                "source_spans": [
+                  "当前手机号必须正常"
+                ],
+                "business_meaning": "当前手机号码正常标志=1",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                },
+                {
+                  "requirement_id": "R2"
+                },
+                {
+                  "requirement_id": "R3"
+                },
+                {
+                  "requirement_id": "R4"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [
+            {
+              "code": "UNKNOWN_TAG",
+              "category": "BINDING_MISMATCH",
+              "resolution": "AGENT_FIXABLE",
+              "clause_id": "C1",
+              "requirement_id": "C1",
+              "message": "请选择可用的已发布标签",
+              "user_message": "请选择可用的已发布标签",
+              "expected": null,
+              "actual": null,
+              "repair_actions": [],
+              "user_decision_required": false,
+              "retryable": false
+            },
+            {
+              "code": "REQUIREMENT_MISSING",
+              "category": "INTENT_COVERAGE",
+              "resolution": "AGENT_FIXABLE",
+              "clause_id": "C1",
+              "requirement_id": "C1",
+              "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+              "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+              "expected": null,
+              "actual": null,
+              "repair_actions": [],
+              "user_decision_required": false,
+              "retryable": false
+            }
+          ],
+          "plan_status": "DRAFT",
+          "valid": false,
+          "build_id": "bge-m3-l107-20260928-006-p3g",
+          "snapshot_id": "L107-20260928-006",
+          "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "PARTIAL",
+          "gaps": [
+            {
+              "requirement_id": "R1",
+              "reason": "NO_PUBLISHED_TAG",
+              "nearest_tag_ids": [
+                711
+              ]
+            }
+          ],
+          "stats": {
+            "tools": 19,
+            "deep": 2,
+            "details": 0,
+            "submit_rejections": 0,
+            "llm_turns": 20,
+            "model": "deepseek-flash",
+            "prompt_sha256": "716a132b2e21ff515841a562cd335dbdce6f71b1466573d1cac267c6a6d03a4f",
+            "max_turns": 16,
+            "cli_start_ms": 165,
+            "cli_peak_rss_mb": 312.42,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.212367,
+            "usage": {
+              "input_tokens": 19259,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 192000,
+              "output_tokens": 6466,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 6945,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790597472.773321
+        },
+        {
+          "seq": 6951,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597475.826228
+        },
+        {
+          "seq": 6952,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 29,
+          "occurred_at": 1790597475.855474
+        },
+        {
+          "seq": 6953,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 29,
+          "occurred_at": 1790597475.855675
+        },
+        {
+          "seq": 6954,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790597475.8586051
+        },
+        {
+          "seq": 6955,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 11,
+          "occurred_at": 1790597475.869716
+        },
+        {
+          "seq": 6956,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 11,
+          "occurred_at": 1790597475.869925
+        },
+        {
+          "seq": 6957,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597477.4390552
+        },
+        {
+          "seq": 6961,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 10968,
+          "occurred_at": 1790597488.406744
+        },
+        {
+          "seq": 6962,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 10968,
+          "occurred_at": 1790597488.407028
+        },
+        {
+          "seq": 6963,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790597488.41168
+        },
+        {
+          "seq": 6964,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 12,
+          "occurred_at": 1790597488.424148
+        },
+        {
+          "seq": 6965,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 12,
+          "occurred_at": 1790597488.424452
+        },
+        {
+          "seq": 6966,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597489.654727
+        },
+        {
+          "seq": 6967,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 22,
+          "occurred_at": 1790597489.6791098
+        },
+        {
+          "seq": 6968,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 22,
+          "occurred_at": 1790597489.679438
+        },
+        {
+          "seq": 6969,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597491.1908648
+        },
+        {
+          "seq": 6970,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 18,
+          "occurred_at": 1790597491.210966
+        },
+        {
+          "seq": 6971,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 18,
+          "occurred_at": 1790597491.211156
+        },
+        {
+          "seq": 6972,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597492.717837
+        },
+        {
+          "seq": 6973,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 29,
+          "occurred_at": 1790597492.7471302
+        },
+        {
+          "seq": 6974,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 29,
+          "occurred_at": 1790597492.747529
+        },
+        {
+          "seq": 6975,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790597492.7495391
+        },
+        {
+          "seq": 6976,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 11,
+          "occurred_at": 1790597492.7612522
+        },
+        {
+          "seq": 6977,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 12,
+          "occurred_at": 1790597492.7615428
+        },
+        {
+          "seq": 6983,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597494.316533
+        },
+        {
+          "seq": 7005,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 5439,
+          "occurred_at": 1790597499.756643
+        },
+        {
+          "seq": 7006,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 5442,
+          "occurred_at": 1790597499.758868
+        },
+        {
+          "seq": 7007,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790597499.763189
+        },
+        {
+          "seq": 7008,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 12,
+          "occurred_at": 1790597499.775715
+        },
+        {
+          "seq": 7009,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 13,
+          "occurred_at": 1790597499.7760031
+        },
+        {
+          "seq": 7010,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597501.9129338
+        },
+        {
+          "seq": 7011,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 46,
+          "occurred_at": 1790597501.961322
+        },
+        {
+          "seq": 7012,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 46,
+          "occurred_at": 1790597501.9616928
+        },
+        {
+          "seq": 7013,
+          "type": "tool.started",
+          "tool": "find_capabilities",
+          "message": "正在查找已发布业务能力",
+          "occurred_at": 1790597501.963916
+        },
+        {
+          "seq": 7014,
+          "type": "telemetry.span",
+          "name": "tool.find_capabilities",
+          "duration_ms": 15,
+          "occurred_at": 1790597501.979087
+        },
+        {
+          "seq": 7015,
+          "type": "tool.completed",
+          "tool": "find_capabilities",
+          "message": "已完成查找已发布业务能力",
+          "duration_ms": 15,
+          "occurred_at": 1790597501.979392
+        },
+        {
+          "seq": 7022,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597503.771809
+        },
+        {
+          "seq": 7023,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 26,
+          "occurred_at": 1790597503.8001559
+        },
+        {
+          "seq": 7024,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 26,
+          "occurred_at": 1790597503.800692
+        },
+        {
+          "seq": 7025,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597503.804917
+        },
+        {
+          "seq": 7026,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 0,
+          "occurred_at": 1790597503.805721
+        },
+        {
+          "seq": 7027,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 1,
+          "occurred_at": 1790597503.805999
+        },
+        {
+          "seq": 7028,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597505.782529
+        },
+        {
+          "seq": 7029,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 29,
+          "occurred_at": 1790597505.814701
+        },
+        {
+          "seq": 7030,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 29,
+          "occurred_at": 1790597505.8154209
+        },
+        {
+          "seq": 7031,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790597505.8202949
+        },
+        {
+          "seq": 7032,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 0,
+          "occurred_at": 1790597505.821146
+        },
+        {
+          "seq": 7033,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 1,
+          "occurred_at": 1790597505.821541
+        },
+        {
+          "seq": 7046,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790597520.5280142
+        },
+        {
+          "seq": 7047,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 3,
+          "duration_ms": 1,
+          "status": "ok",
+          "occurred_at": 1790597520.529181
+        },
+        {
+          "seq": 7048,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                  "operator": ">=",
+                  "values": [
+                    "40"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 10000,
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "还没买理财",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "理财风评是C3、C4或C5",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C3",
+                    "C4",
+                    "C5"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1466,
+                  "name": "当前理财风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1466,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+            "intent_plan": {
+              "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近30天别人从别的银行转进来，合起来有40万或更多"
+                  ],
+                  "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "还没买理财"
+                  ],
+                  "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "理财风评是C3、C4或C5"
+                  ],
+                  "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志=1",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790597520.52971
+        },
+        {
+          "seq": 7049,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                  "operator": ">=",
+                  "values": [
+                    "40"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 10000,
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "还没买理财",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "理财风评是C3、C4或C5",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C3",
+                    "C4",
+                    "C5"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1466,
+                  "name": "当前理财风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1466,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+            "intent_plan": {
+              "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近30天别人从别的银行转进来，合起来有40万或更多"
+                  ],
+                  "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "还没买理财"
+                  ],
+                  "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "理财风评是C3、C4或C5"
+                  ],
+                  "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志=1",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790597520.530535
+        },
+        {
+          "seq": 7050,
+          "type": "plan.validated",
+          "message": "已保留待处理事项",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "NO_PUBLISHED_TAG",
+                  "operator": ">=",
+                  "values": [
+                    "40"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 10000,
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "还没买理财",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "理财风评是C3、C4或C5",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C3",
+                    "C4",
+                    "C5"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1466,
+                  "name": "当前理财风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1466,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+            "intent_plan": {
+              "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近30天别人从别的银行转进来，合起来有40万或更多"
+                  ],
+                  "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "还没买理财"
+                  ],
+                  "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "理财风评是C3、C4或C5"
+                  ],
+                  "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志=1",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790597520.531123
+        },
+        {
+          "seq": 7051,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "最近30天别人从别的银行转进来，合起来有40万或更多",
+          "occurred_at": 1790597520.5318751
+        },
+        {
+          "seq": 7052,
+          "type": "clause.updated",
+          "clause_id": "C2",
+          "message": "当前持有理财标志",
+          "occurred_at": 1790597520.532286
+        },
+        {
+          "seq": 7053,
+          "type": "clause.updated",
+          "clause_id": "C3",
+          "message": "当前理财风评等级",
+          "occurred_at": 1790597520.532356
+        },
+        {
+          "seq": 7054,
+          "type": "clause.updated",
+          "clause_id": "C4",
+          "message": "当前手机号码正常标志",
+          "occurred_at": 1790597520.532501
+        },
+        {
+          "seq": 7055,
+          "type": "draft.ready",
+          "message": "圈选方案已保存",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "clause_id": "C1",
+                  "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+                  "requirement_ids": [
+                    "R1"
+                  ],
+                  "gap_reason": "NO_PUBLISHED_TAG",
+                  "operator": ">=",
+                  "values": [
+                    "40"
+                  ],
+                  "value_unit": "CNY",
+                  "value_scale": 10000,
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "status": "GAP"
+                },
+                {
+                  "clause_id": "C2",
+                  "source_span": "还没买理财",
+                  "requirement_ids": [
+                    "R2"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "0"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 601,
+                  "name": "当前持有理财标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前持有理财标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 601,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 601,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C3",
+                  "source_span": "理财风评是C3、C4或C5",
+                  "requirement_ids": [
+                    "R3"
+                  ],
+                  "operator": "in",
+                  "values": [
+                    "C3",
+                    "C4",
+                    "C5"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 1466,
+                  "name": "当前理财风评等级",
+                  "semantic_type": "ENUM_ORDINAL",
+                  "unit": "NONE",
+                  "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+                  "allowed_operators": [
+                    "=",
+                    "in",
+                    "not_in"
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 1466,
+                      "code": "C1",
+                      "label": "C1 谨慎型",
+                      "definition": "C1 谨慎型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 1,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C2",
+                      "label": "C2 稳健型",
+                      "definition": "C2 稳健型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 2,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C3",
+                      "label": "C3 平衡型",
+                      "definition": "C3 平衡型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 3,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C4",
+                      "label": "C4 成长型",
+                      "definition": "C4 成长型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 4,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 1466,
+                      "code": "C5",
+                      "label": "C5 进取型",
+                      "definition": "C5 进取型",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": 5,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": "inclusive_lower",
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "NONE",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                },
+                {
+                  "clause_id": "C4",
+                  "source_span": "当前手机号必须正常",
+                  "requirement_ids": [
+                    "R4"
+                  ],
+                  "operator": "=",
+                  "values": [
+                    "1"
+                  ],
+                  "expected_caliber": {},
+                  "unknown_policy": "EXCLUDE",
+                  "kind": "TAG_PREDICATE",
+                  "tag_id": 568,
+                  "name": "当前手机号码正常标志",
+                  "semantic_type": "BOOL",
+                  "unit": "NONE",
+                  "definition": "当前手机号码正常标志，码值 1=是、0=否",
+                  "allowed_operators": [
+                    "="
+                  ],
+                  "code_options": [
+                    {
+                      "tag_id": 568,
+                      "code": "0",
+                      "label": "否",
+                      "definition": "否",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    },
+                    {
+                      "tag_id": 568,
+                      "code": "1",
+                      "label": "是",
+                      "definition": "是",
+                      "lower_bound": null,
+                      "upper_bound": null,
+                      "lower_inclusive": null,
+                      "upper_inclusive": null,
+                      "bound_unit": null,
+                      "rank_no": null,
+                      "parent_tag_id": null,
+                      "parent_code": null,
+                      "level_no": null,
+                      "is_unknown_bucket": 0
+                    }
+                  ],
+                  "status": "BOUND",
+                  "caliber_struct": {
+                    "boundary_semantics": null,
+                    "calendar_mode": null,
+                    "denominator": null,
+                    "numerator": null,
+                    "period_edge": "END",
+                    "scope": "ALL",
+                    "source_system": null,
+                    "statistic": "FLAG",
+                    "time_anchor_label": "当前",
+                    "time_anchor_type": "POINT",
+                    "time_offset_months": null,
+                    "time_offset_years": null,
+                    "time_window_unit": null,
+                    "time_window_value": null,
+                    "unit": "NONE",
+                    "unit_scale": 1
+                  }
+                }
+              ]
+            },
+            "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+            "intent_plan": {
+              "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "最近30天别人从别的银行转进来，合起来有40万或更多"
+                  ],
+                  "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R2",
+                  "source_spans": [
+                    "还没买理财"
+                  ],
+                  "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R3",
+                  "source_spans": [
+                    "理财风评是C3、C4或C5"
+                  ],
+                  "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+                  "origin": "USER"
+                },
+                {
+                  "requirement_id": "R4",
+                  "source_spans": [
+                    "当前手机号必须正常"
+                  ],
+                  "business_meaning": "当前手机号码正常标志=1",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  },
+                  {
+                    "requirement_id": "R2"
+                  },
+                  {
+                    "requirement_id": "R3"
+                  },
+                  {
+                    "requirement_id": "R4"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              },
+              {
+                "code": "REQUIREMENT_MISSING",
+                "category": "INTENT_COVERAGE",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260928-006-p3g",
+            "snapshot_id": "L107-20260928-006",
+            "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+          },
+          "occurred_at": 1790597520.532659
+        },
+        {
+          "seq": 7056,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 5,
+          "occurred_at": 1790597520.533163
+        },
+        {
+          "seq": 7057,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 5,
+          "occurred_at": 1790597520.533337
+        },
+        {
+          "seq": 7058,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 19,
+            "deep": 2,
+            "details": 0,
+            "submit_rejections": 0,
+            "llm_turns": 20,
+            "model": "deepseek-flash",
+            "prompt_sha256": "716a132b2e21ff515841a562cd335dbdce6f71b1466573d1cac267c6a6d03a4f",
+            "max_turns": 16,
+            "cli_start_ms": 165,
+            "cli_peak_rss_mb": 312.42,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.212367,
+            "usage": {
+              "input_tokens": 19259,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 192000,
+              "output_tokens": 6466,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790597520.550862
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 6945,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790597472.773321
+    },
+    {
+      "seq": 6951,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597475.826228
+    },
+    {
+      "seq": 6952,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 29,
+      "occurred_at": 1790597475.855474
+    },
+    {
+      "seq": 6953,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 29,
+      "occurred_at": 1790597475.855675
+    },
+    {
+      "seq": 6954,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790597475.8586051
+    },
+    {
+      "seq": 6955,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 11,
+      "occurred_at": 1790597475.869716
+    },
+    {
+      "seq": 6956,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 11,
+      "occurred_at": 1790597475.869925
+    },
+    {
+      "seq": 6957,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597477.4390552
+    },
+    {
+      "seq": 6961,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 10968,
+      "occurred_at": 1790597488.406744
+    },
+    {
+      "seq": 6962,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 10968,
+      "occurred_at": 1790597488.407028
+    },
+    {
+      "seq": 6963,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790597488.41168
+    },
+    {
+      "seq": 6964,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 12,
+      "occurred_at": 1790597488.424148
+    },
+    {
+      "seq": 6965,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 12,
+      "occurred_at": 1790597488.424452
+    },
+    {
+      "seq": 6966,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597489.654727
+    },
+    {
+      "seq": 6967,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 22,
+      "occurred_at": 1790597489.6791098
+    },
+    {
+      "seq": 6968,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 22,
+      "occurred_at": 1790597489.679438
+    },
+    {
+      "seq": 6969,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597491.1908648
+    },
+    {
+      "seq": 6970,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 18,
+      "occurred_at": 1790597491.210966
+    },
+    {
+      "seq": 6971,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 18,
+      "occurred_at": 1790597491.211156
+    },
+    {
+      "seq": 6972,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597492.717837
+    },
+    {
+      "seq": 6973,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 29,
+      "occurred_at": 1790597492.7471302
+    },
+    {
+      "seq": 6974,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 29,
+      "occurred_at": 1790597492.747529
+    },
+    {
+      "seq": 6975,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790597492.7495391
+    },
+    {
+      "seq": 6976,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 11,
+      "occurred_at": 1790597492.7612522
+    },
+    {
+      "seq": 6977,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 12,
+      "occurred_at": 1790597492.7615428
+    },
+    {
+      "seq": 6983,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597494.316533
+    },
+    {
+      "seq": 7005,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 5439,
+      "occurred_at": 1790597499.756643
+    },
+    {
+      "seq": 7006,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 5442,
+      "occurred_at": 1790597499.758868
+    },
+    {
+      "seq": 7007,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790597499.763189
+    },
+    {
+      "seq": 7008,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 12,
+      "occurred_at": 1790597499.775715
+    },
+    {
+      "seq": 7009,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 13,
+      "occurred_at": 1790597499.7760031
+    },
+    {
+      "seq": 7010,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597501.9129338
+    },
+    {
+      "seq": 7011,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 46,
+      "occurred_at": 1790597501.961322
+    },
+    {
+      "seq": 7012,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 46,
+      "occurred_at": 1790597501.9616928
+    },
+    {
+      "seq": 7013,
+      "type": "tool.started",
+      "tool": "find_capabilities",
+      "message": "正在查找已发布业务能力",
+      "occurred_at": 1790597501.963916
+    },
+    {
+      "seq": 7014,
+      "type": "telemetry.span",
+      "name": "tool.find_capabilities",
+      "duration_ms": 15,
+      "occurred_at": 1790597501.979087
+    },
+    {
+      "seq": 7015,
+      "type": "tool.completed",
+      "tool": "find_capabilities",
+      "message": "已完成查找已发布业务能力",
+      "duration_ms": 15,
+      "occurred_at": 1790597501.979392
+    },
+    {
+      "seq": 7022,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597503.771809
+    },
+    {
+      "seq": 7023,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 26,
+      "occurred_at": 1790597503.8001559
+    },
+    {
+      "seq": 7024,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 26,
+      "occurred_at": 1790597503.800692
+    },
+    {
+      "seq": 7025,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597503.804917
+    },
+    {
+      "seq": 7026,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 0,
+      "occurred_at": 1790597503.805721
+    },
+    {
+      "seq": 7027,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 1,
+      "occurred_at": 1790597503.805999
+    },
+    {
+      "seq": 7028,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597505.782529
+    },
+    {
+      "seq": 7029,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 29,
+      "occurred_at": 1790597505.814701
+    },
+    {
+      "seq": 7030,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 29,
+      "occurred_at": 1790597505.8154209
+    },
+    {
+      "seq": 7031,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790597505.8202949
+    },
+    {
+      "seq": 7032,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 0,
+      "occurred_at": 1790597505.821146
+    },
+    {
+      "seq": 7033,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 1,
+      "occurred_at": 1790597505.821541
+    },
+    {
+      "seq": 7046,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790597520.5280142
+    },
+    {
+      "seq": 7047,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 3,
+      "duration_ms": 1,
+      "status": "ok",
+      "occurred_at": 1790597520.529181
+    },
+    {
+      "seq": 7048,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+              "operator": ">=",
+              "values": [
+                "40"
+              ],
+              "value_unit": "CNY",
+              "value_scale": 10000,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "还没买理财",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "理财风评是C3、C4或C5",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "in",
+              "values": [
+                "C3",
+                "C4",
+                "C5"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1466,
+              "name": "当前理财风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1466,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+        "intent_plan": {
+          "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近30天别人从别的银行转进来，合起来有40万或更多"
+              ],
+              "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "还没买理财"
+              ],
+              "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "理财风评是C3、C4或C5"
+              ],
+              "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志=1",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790597520.52971
+    },
+    {
+      "seq": 7049,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+              "operator": ">=",
+              "values": [
+                "40"
+              ],
+              "value_unit": "CNY",
+              "value_scale": 10000,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "还没买理财",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "理财风评是C3、C4或C5",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "in",
+              "values": [
+                "C3",
+                "C4",
+                "C5"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1466,
+              "name": "当前理财风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1466,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+        "intent_plan": {
+          "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近30天别人从别的银行转进来，合起来有40万或更多"
+              ],
+              "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "还没买理财"
+              ],
+              "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "理财风评是C3、C4或C5"
+              ],
+              "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志=1",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790597520.530535
+    },
+    {
+      "seq": 7050,
+      "type": "plan.validated",
+      "message": "已保留待处理事项",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "NO_PUBLISHED_TAG",
+              "operator": ">=",
+              "values": [
+                "40"
+              ],
+              "value_unit": "CNY",
+              "value_scale": 10000,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "还没买理财",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "理财风评是C3、C4或C5",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "in",
+              "values": [
+                "C3",
+                "C4",
+                "C5"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1466,
+              "name": "当前理财风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1466,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+        "intent_plan": {
+          "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近30天别人从别的银行转进来，合起来有40万或更多"
+              ],
+              "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "还没买理财"
+              ],
+              "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "理财风评是C3、C4或C5"
+              ],
+              "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志=1",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790597520.531123
+    },
+    {
+      "seq": 7051,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "最近30天别人从别的银行转进来，合起来有40万或更多",
+      "occurred_at": 1790597520.5318751
+    },
+    {
+      "seq": 7052,
+      "type": "clause.updated",
+      "clause_id": "C2",
+      "message": "当前持有理财标志",
+      "occurred_at": 1790597520.532286
+    },
+    {
+      "seq": 7053,
+      "type": "clause.updated",
+      "clause_id": "C3",
+      "message": "当前理财风评等级",
+      "occurred_at": 1790597520.532356
+    },
+    {
+      "seq": 7054,
+      "type": "clause.updated",
+      "clause_id": "C4",
+      "message": "当前手机号码正常标志",
+      "occurred_at": 1790597520.532501
+    },
+    {
+      "seq": 7055,
+      "type": "draft.ready",
+      "message": "圈选方案已保存",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "logic": "AND",
+          "children": [
+            {
+              "clause_id": "C1",
+              "source_span": "最近30天别人从别的银行转进来，合起来有40万或更多",
+              "requirement_ids": [
+                "R1"
+              ],
+              "gap_reason": "NO_PUBLISHED_TAG",
+              "operator": ">=",
+              "values": [
+                "40"
+              ],
+              "value_unit": "CNY",
+              "value_scale": 10000,
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            {
+              "clause_id": "C2",
+              "source_span": "还没买理财",
+              "requirement_ids": [
+                "R2"
+              ],
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 601,
+              "name": "当前持有理财标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前持有理财标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 601,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 601,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C3",
+              "source_span": "理财风评是C3、C4或C5",
+              "requirement_ids": [
+                "R3"
+              ],
+              "operator": "in",
+              "values": [
+                "C3",
+                "C4",
+                "C5"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 1466,
+              "name": "当前理财风评等级",
+              "semantic_type": "ENUM_ORDINAL",
+              "unit": "NONE",
+              "definition": "当前理财风评等级，码值 C1=C1 谨慎型、C2=C2 稳健型、C3=C3 平衡型、C4=C4 成长型、C5=C5 进取型",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 1466,
+                  "code": "C1",
+                  "label": "C1 谨慎型",
+                  "definition": "C1 谨慎型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 1,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C2",
+                  "label": "C2 稳健型",
+                  "definition": "C2 稳健型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 2,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C3",
+                  "label": "C3 平衡型",
+                  "definition": "C3 平衡型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 3,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C4",
+                  "label": "C4 成长型",
+                  "definition": "C4 成长型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 4,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 1466,
+                  "code": "C5",
+                  "label": "C5 进取型",
+                  "definition": "C5 进取型",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": 5,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": "inclusive_lower",
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            {
+              "clause_id": "C4",
+              "source_span": "当前手机号必须正常",
+              "requirement_ids": [
+                "R4"
+              ],
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 568,
+              "name": "当前手机号码正常标志",
+              "semantic_type": "BOOL",
+              "unit": "NONE",
+              "definition": "当前手机号码正常标志，码值 1=是、0=否",
+              "allowed_operators": [
+                "="
+              ],
+              "code_options": [
+                {
+                  "tag_id": 568,
+                  "code": "0",
+                  "label": "否",
+                  "definition": "否",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 568,
+                  "code": "1",
+                  "label": "是",
+                  "definition": "是",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "FLAG",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            }
+          ]
+        },
+        "summary": "近30天他行转入≥40万；当前未持理财；理财风评C3/C4/C5；手机号正常。转入金额指标未检索到。",
+        "intent_plan": {
+          "original_request": "最近30天别人从别的银行转进来，合起来有40万或更多，还没买理财、理财风评是C3、C4或C5的，帮我圈一下。 另外，当前手机号必须正常。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "最近30天别人从别的银行转进来，合起来有40万或更多"
+              ],
+              "business_meaning": "最近30天（滚动窗口，基准日2026-09-18）他行/跨行转入资金合计≥40万元人民币",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R2",
+              "source_spans": [
+                "还没买理财"
+              ],
+              "business_meaning": "当前未持有理财产品（当前持有理财标志=0）",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R3",
+              "source_spans": [
+                "理财风评是C3、C4或C5"
+              ],
+              "business_meaning": "当前理财风险测评等级为C3、C4或C5",
+              "origin": "USER"
+            },
+            {
+              "requirement_id": "R4",
+              "source_spans": [
+                "当前手机号必须正常"
+              ],
+              "business_meaning": "当前手机号码正常标志=1",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              },
+              {
+                "requirement_id": "R2"
+              },
+              {
+                "requirement_id": "R3"
+              },
+              {
+                "requirement_id": "R4"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          },
+          {
+            "code": "REQUIREMENT_MISSING",
+            "category": "INTENT_COVERAGE",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "user_message": "未找到已发布的他行/跨行转入金额指标或对应计算能力，多个关键词检索均未命中",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260928-006-p3g",
+        "snapshot_id": "L107-20260928-006",
+        "artifact_hash": "b21ec4e101058f4a6b558e0dbb73e7169e9797fabcb4a40142bd28bbf77f00d3"
+      },
+      "occurred_at": 1790597520.532659
+    },
+    {
+      "seq": 7056,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 5,
+      "occurred_at": 1790597520.533163
+    },
+    {
+      "seq": 7057,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 5,
+      "occurred_at": 1790597520.533337
+    },
+    {
+      "seq": 7058,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 19,
+        "deep": 2,
+        "details": 0,
+        "submit_rejections": 0,
+        "llm_turns": 20,
+        "model": "deepseek-flash",
+        "prompt_sha256": "716a132b2e21ff515841a562cd335dbdce6f71b1466573d1cac267c6a6d03a4f",
+        "max_turns": 16,
+        "cli_start_ms": 165,
+        "cli_peak_rss_mb": 312.42,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.212367,
+        "usage": {
+          "input_tokens": 19259,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 192000,
+          "output_tokens": 6466,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790597520.550862
+    }
+  ]
+}

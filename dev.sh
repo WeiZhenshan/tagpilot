@@ -178,6 +178,16 @@ ensure_embedding_path() {
     fi
 }
 
+ensure_reranker_path() {
+    [ -n "${TAG_RERANKER_PATH:-}" ] && return 0
+    [ "${TAG_ALLOW_HASH_BASELINE:-false}" = true ] && return 0
+    if [ -d "$ROOT_DIR/tagpilot-semantic/out/models/bge-reranker-v2-m3" ]; then
+        TAG_RERANKER_PATH="$ROOT_DIR/tagpilot-semantic/out/models/bge-reranker-v2-m3"
+        export TAG_RERANKER_PATH
+        blue "使用本机默认重排模型: $TAG_RERANKER_PATH"
+    fi
+}
+
 check_env() {
     port_up 6379 || { red "Redis 未启动 (端口 6379)，请先启动"; exit 1; }
     port_up 3306 || { red "MySQL 未启动 (端口 3306)，请先启动"; exit 1; }
@@ -261,6 +271,7 @@ runtime_start() {
     ensure_runtime_token
     ensure_runtime_python
     ensure_embedding_path
+    ensure_reranker_path
     ensure_tag_data_dirs
     runtime_check_env || return 1
 

@@ -1,0 +1,8 @@
+{"case_ids": ["CAL-1057", "CAL-1113", "CAL-1114", "CAL-1121", "CAL-1123", "CAL-1174", "CAL-1191", "CAL-1234", "CAL-1251", "CAL-1266"], "cluster": "OUTCOME"}
+{"case_ids": ["CAL-1452", "CAL-1458", "CAL-4355", "CAL-4356", "CAL-4362", "CAL-4365", "CAL-4372", "CAL-4374", "CAL-4375"], "cluster": "SOURCE_FACT"}
+{"case_ids": ["CAL-1464", "CAL-3198", "CAL-3204", "CAL-3235", "CAL-3336", "CAL-3340", "CAL-3369", "CAL-3451", "CAL-3891", "CAL-4131"], "cluster": "UNATTRIBUTED"}
+{"case_ids": ["CAL-3749", "CAL-3756"], "cluster": "CODE_UNIT_ENDPOINT"}
+{"case_ids": ["CAL-1272", "CAL-3717"], "cluster": "DISAMBIGUATION"}
+{"case_ids": ["CAL-3392", "CAL-3393"], "cluster": "RETRIEVAL_MISS"}
+{"case_ids": ["CAL-4005"], "cluster": "CLARIFICATION_BEHAVIOR"}
+{"case_ids": ["CAL-3805"], "cluster": "RUN_INVALID"}

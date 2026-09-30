@@ -1,0 +1,947 @@
+{
+  "states": [
+    {
+      "run_id": "p3-71e7276997bb-cal-4005",
+      "status": "WAITING",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "clause_id": "C1",
+            "source_span": "结构性存款余额超过1000元",
+            "requirement_ids": [
+              "R1"
+            ],
+            "operator": ">",
+            "values": [
+              "1000"
+            ],
+            "value_unit": "CNY",
+            "expected_caliber": {},
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "status": "NEEDS_DECISION"
+          },
+          "summary": "",
+          "intent_plan": {
+            "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+            "requirements": [
+              {
+                "requirement_id": "R1",
+                "source_spans": [
+                  "结构性存款余额超过1000元"
+                ],
+                "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "logic": "AND",
+              "children": [
+                {
+                  "requirement_id": "R1"
+                }
+              ]
+            },
+            "assumptions": []
+          },
+          "intent_changes": [],
+          "diagnostics": [
+            {
+              "code": "UNKNOWN_TAG",
+              "category": "BINDING_MISMATCH",
+              "resolution": "AGENT_FIXABLE",
+              "clause_id": "C1",
+              "requirement_id": "C1",
+              "message": "请选择可用的已发布标签",
+              "user_message": "请选择可用的已发布标签",
+              "expected": null,
+              "actual": null,
+              "repair_actions": [],
+              "user_decision_required": false,
+              "retryable": false
+            }
+          ],
+          "plan_status": "NEEDS_DECISION",
+          "valid": false,
+          "build_id": "bge-m3-l107-20260919-002-r3",
+          "snapshot_id": "L107-20260919-002",
+          "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+        },
+        "questions": [
+          {
+            "requirement_id": "R1",
+            "clause_id": "C1",
+            "prompt": "结构性存款余额超过1000元，采用哪个时间口径？",
+            "options": [
+              "当前结构性存款余额（截至2026-09-18的时点余额）",
+              "上月末结构性存款余额（截至2026-08-31的月末余额）"
+            ],
+            "reason": "MULTIPLE_PUBLISHED_DEFINITIONS"
+          }
+        ],
+        "interrupt_id": "p3-71e7276997bb-cal-4005-0",
+        "outcome": {
+          "outcome": "NEEDS_USER_INPUT",
+          "gaps": [],
+          "stats": {
+            "tools": 3,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 4,
+            "model": "deepseek-flash",
+            "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+            "max_turns": 16,
+            "cli_start_ms": 156,
+            "cli_peak_rss_mb": 328.55,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.0938724,
+            "usage": {
+              "input_tokens": 18465,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 17408,
+              "output_tokens": 2217,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 13326,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790600868.179737
+        },
+        {
+          "seq": 13327,
+          "type": "tool.started",
+          "tool": "find_tags",
+          "message": "正在查找相关标签",
+          "occurred_at": 1790600875.0486012
+        },
+        {
+          "seq": 13328,
+          "type": "telemetry.span",
+          "name": "tool.find_tags",
+          "duration_ms": 23,
+          "occurred_at": 1790600875.071605
+        },
+        {
+          "seq": 13329,
+          "type": "tool.completed",
+          "tool": "find_tags",
+          "message": "已完成查找相关标签",
+          "duration_ms": 23,
+          "occurred_at": 1790600875.072021
+        },
+        {
+          "seq": 13330,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790600875.075577
+        },
+        {
+          "seq": 13331,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 14,
+          "occurred_at": 1790600875.0900521
+        },
+        {
+          "seq": 13332,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 14,
+          "occurred_at": 1790600875.090175
+        },
+        {
+          "seq": 13333,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790600878.24546
+        },
+        {
+          "seq": 13334,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 0,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790600878.249203
+        },
+        {
+          "seq": 13335,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "结构性存款余额超过1000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">",
+              "values": [
+                "1000"
+              ],
+              "value_unit": "CNY",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "结构性存款余额超过1000元"
+                  ],
+                  "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600878.249592
+        },
+        {
+          "seq": 13336,
+          "type": "plan.observed",
+          "message": "正在核验待处理条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "结构性存款余额超过1000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">",
+              "values": [
+                "1000"
+              ],
+              "value_unit": "CNY",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "GAP"
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "结构性存款余额超过1000元"
+                  ],
+                  "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "DRAFT",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600878.250036
+        },
+        {
+          "seq": 13337,
+          "type": "plan.validated",
+          "message": "已保留待处理事项",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "结构性存款余额超过1000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">",
+              "values": [
+                "1000"
+              ],
+              "value_unit": "CNY",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "NEEDS_DECISION"
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "结构性存款余额超过1000元"
+                  ],
+                  "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "NEEDS_DECISION",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600878.250311
+        },
+        {
+          "seq": 13338,
+          "type": "clause.updated",
+          "clause_id": "C1",
+          "message": "结构性存款余额超过1000元",
+          "occurred_at": 1790600878.2508302
+        },
+        {
+          "seq": 13339,
+          "type": "draft.ready",
+          "message": "结构性存款余额超1000元的客户；时间口径待定，需确认取当前还是上月末余额",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "C1",
+              "source_span": "结构性存款余额超过1000元",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": ">",
+              "values": [
+                "1000"
+              ],
+              "value_unit": "CNY",
+              "expected_caliber": {},
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "status": "NEEDS_DECISION"
+            },
+            "summary": "",
+            "intent_plan": {
+              "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "结构性存款余额超过1000元"
+                  ],
+                  "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [
+              {
+                "code": "UNKNOWN_TAG",
+                "category": "BINDING_MISMATCH",
+                "resolution": "AGENT_FIXABLE",
+                "clause_id": "C1",
+                "requirement_id": "C1",
+                "message": "请选择可用的已发布标签",
+                "user_message": "请选择可用的已发布标签",
+                "expected": null,
+                "actual": null,
+                "repair_actions": [],
+                "user_decision_required": false,
+                "retryable": false
+              }
+            ],
+            "plan_status": "NEEDS_DECISION",
+            "valid": false,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790600878.250895
+        },
+        {
+          "seq": 13340,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 2,
+          "occurred_at": 1790600878.2513049
+        },
+        {
+          "seq": 13341,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 3,
+          "occurred_at": 1790600878.251505
+        },
+        {
+          "seq": 13342,
+          "type": "run.waiting",
+          "message": "等待业务选择",
+          "stats": {
+            "tools": 3,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 4,
+            "model": "deepseek-flash",
+            "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+            "max_turns": 16,
+            "cli_start_ms": 156,
+            "cli_peak_rss_mb": 328.55,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.0938724,
+            "usage": {
+              "input_tokens": 18465,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 17408,
+              "output_tokens": 2217,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790600878.2676191
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 13326,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790600868.179737
+    },
+    {
+      "seq": 13327,
+      "type": "tool.started",
+      "tool": "find_tags",
+      "message": "正在查找相关标签",
+      "occurred_at": 1790600875.0486012
+    },
+    {
+      "seq": 13328,
+      "type": "telemetry.span",
+      "name": "tool.find_tags",
+      "duration_ms": 23,
+      "occurred_at": 1790600875.071605
+    },
+    {
+      "seq": 13329,
+      "type": "tool.completed",
+      "tool": "find_tags",
+      "message": "已完成查找相关标签",
+      "duration_ms": 23,
+      "occurred_at": 1790600875.072021
+    },
+    {
+      "seq": 13330,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790600875.075577
+    },
+    {
+      "seq": 13331,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 14,
+      "occurred_at": 1790600875.0900521
+    },
+    {
+      "seq": 13332,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 14,
+      "occurred_at": 1790600875.090175
+    },
+    {
+      "seq": 13333,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790600878.24546
+    },
+    {
+      "seq": 13334,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 0,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790600878.249203
+    },
+    {
+      "seq": 13335,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "结构性存款余额超过1000元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">",
+          "values": [
+            "1000"
+          ],
+          "value_unit": "CNY",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "status": "GAP"
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "结构性存款余额超过1000元"
+              ],
+              "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600878.249592
+    },
+    {
+      "seq": 13336,
+      "type": "plan.observed",
+      "message": "正在核验待处理条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "结构性存款余额超过1000元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">",
+          "values": [
+            "1000"
+          ],
+          "value_unit": "CNY",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "status": "GAP"
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "结构性存款余额超过1000元"
+              ],
+              "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "DRAFT",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600878.250036
+    },
+    {
+      "seq": 13337,
+      "type": "plan.validated",
+      "message": "已保留待处理事项",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "结构性存款余额超过1000元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">",
+          "values": [
+            "1000"
+          ],
+          "value_unit": "CNY",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "status": "NEEDS_DECISION"
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "结构性存款余额超过1000元"
+              ],
+              "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "NEEDS_DECISION",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600878.250311
+    },
+    {
+      "seq": 13338,
+      "type": "clause.updated",
+      "clause_id": "C1",
+      "message": "结构性存款余额超过1000元",
+      "occurred_at": 1790600878.2508302
+    },
+    {
+      "seq": 13339,
+      "type": "draft.ready",
+      "message": "结构性存款余额超1000元的客户；时间口径待定，需确认取当前还是上月末余额",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "C1",
+          "source_span": "结构性存款余额超过1000元",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": ">",
+          "values": [
+            "1000"
+          ],
+          "value_unit": "CNY",
+          "expected_caliber": {},
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "status": "NEEDS_DECISION"
+        },
+        "summary": "",
+        "intent_plan": {
+          "original_request": "为推进业务经营，需筛选出结构性存款余额超过1000元的客户，时间口径待定。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "结构性存款余额超过1000元"
+              ],
+              "business_meaning": "筛选结构性存款余额超过1000元的客户；时间口径待定（当前时点或上月末）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [
+          {
+            "code": "UNKNOWN_TAG",
+            "category": "BINDING_MISMATCH",
+            "resolution": "AGENT_FIXABLE",
+            "clause_id": "C1",
+            "requirement_id": "C1",
+            "message": "请选择可用的已发布标签",
+            "user_message": "请选择可用的已发布标签",
+            "expected": null,
+            "actual": null,
+            "repair_actions": [],
+            "user_decision_required": false,
+            "retryable": false
+          }
+        ],
+        "plan_status": "NEEDS_DECISION",
+        "valid": false,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790600878.250895
+    },
+    {
+      "seq": 13340,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 2,
+      "occurred_at": 1790600878.2513049
+    },
+    {
+      "seq": 13341,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 3,
+      "occurred_at": 1790600878.251505
+    },
+    {
+      "seq": 13342,
+      "type": "run.waiting",
+      "message": "等待业务选择",
+      "stats": {
+        "tools": 3,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 4,
+        "model": "deepseek-flash",
+        "prompt_sha256": "4dc165474239e016a7fa66b5482e3f80ddd3165fe697353edd7c3a88589148f3",
+        "max_turns": 16,
+        "cli_start_ms": 156,
+        "cli_peak_rss_mb": 328.55,
+        "evidence_requests": 1,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.0938724,
+        "usage": {
+          "input_tokens": 18465,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 17408,
+          "output_tokens": 2217,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790600878.2676191
+    }
+  ]
+}

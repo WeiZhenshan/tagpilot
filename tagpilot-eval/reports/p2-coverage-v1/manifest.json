@@ -1,0 +1,14 @@
+{
+  "schema_version": "p2-coverage.v1",
+  "phase": "P2",
+  "status": "MEASURED",
+  "authorization": {
+    "authorized_by": "USER",
+    "authorized_at": "2026-09-28",
+    "basis": "P2 覆盖报告"
+  },
+  "files": {
+    "uncovered-code-fields.jsonl": "d73ef90ab15f7205fc5cc031b741d527f620cd5aa491e7d3134bc81cac543213",
+    "coverage.json": "7bd75cd896d5f1b8d56c4b67c96cba3104a797f0484f008e907c16740cf59b4f"
+  }
+}

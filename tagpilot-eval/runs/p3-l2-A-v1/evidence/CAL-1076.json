@@ -1,0 +1,2128 @@
+{
+  "states": [
+    {
+      "run_id": "p3-9c1d99c9693e-cal-1076",
+      "status": "COMPLETED",
+      "result": {
+        "plan": {
+          "schema_version": 3,
+          "tree": {
+            "clause_id": "c1",
+            "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+            "requirement_ids": [
+              "c1"
+            ],
+            "operator": "=",
+            "values": [
+              "NORMAL"
+            ],
+            "value_unit": "NONE",
+            "expected_caliber": {
+              "time_anchor_label": "当前"
+            },
+            "time_constraint": "当前",
+            "unknown_policy": "EXCLUDE",
+            "kind": "TAG_PREDICATE",
+            "tag_id": 972,
+            "name": "当前速易贷授信状态",
+            "semantic_type": "ENUM_NOMINAL",
+            "unit": "NONE",
+            "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+            "allowed_operators": [
+              "=",
+              "in",
+              "not_in"
+            ],
+            "code_options": [
+              {
+                "tag_id": 972,
+                "code": "CLOSED",
+                "label": "已关闭",
+                "definition": "已关闭",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              },
+              {
+                "tag_id": 972,
+                "code": "EXPIRED",
+                "label": "已到期",
+                "definition": "已到期",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              },
+              {
+                "tag_id": 972,
+                "code": "FROZEN",
+                "label": "冻结",
+                "definition": "冻结",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              },
+              {
+                "tag_id": 972,
+                "code": "NONE",
+                "label": "无授信",
+                "definition": "无授信",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              },
+              {
+                "tag_id": 972,
+                "code": "NORMAL",
+                "label": "正常",
+                "definition": "正常",
+                "lower_bound": null,
+                "upper_bound": null,
+                "lower_inclusive": null,
+                "upper_inclusive": null,
+                "bound_unit": null,
+                "rank_no": null,
+                "parent_tag_id": null,
+                "parent_code": null,
+                "level_no": null,
+                "is_unknown_bucket": 0
+              }
+            ],
+            "status": "BOUND",
+            "caliber_struct": {
+              "boundary_semantics": null,
+              "calendar_mode": null,
+              "denominator": null,
+              "numerator": null,
+              "period_edge": "END",
+              "scope": "ALL",
+              "source_system": null,
+              "statistic": "NONE",
+              "time_anchor_label": "当前",
+              "time_anchor_type": "POINT",
+              "time_offset_months": null,
+              "time_offset_years": null,
+              "time_window_unit": null,
+              "time_window_value": null,
+              "unit": "NONE",
+              "unit_scale": 1
+            }
+          },
+          "summary": "速易贷授信状态为正常的客户",
+          "intent_changes": [],
+          "intent_plan": {
+            "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+            "requirements": [
+              {
+                "requirement_id": "c1",
+                "source_spans": [
+                  "筛选当前速易贷授信状态为“正常”的客户。"
+                ],
+                "business_meaning": "筛选当前速易贷授信状态为“正常”的客户。",
+                "origin": "USER"
+              }
+            ],
+            "logic_tree": {
+              "requirement_id": "c1"
+            },
+            "assumptions": []
+          },
+          "diagnostics": [],
+          "plan_status": "READY",
+          "valid": true,
+          "build_id": "bge-m3-l107-20260919-002-r3",
+          "snapshot_id": "L107-20260919-002",
+          "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+        },
+        "questions": [],
+        "interrupt_id": null,
+        "outcome": {
+          "outcome": "READY",
+          "gaps": [],
+          "stats": {
+            "tools": 3,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 4,
+            "cli_start_ms": 155,
+            "cli_peak_rss_mb": 292.94,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.07352339999999999,
+            "usage": {
+              "input_tokens": 16295,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 32128,
+              "output_tokens": 1000,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          }
+        }
+      },
+      "error": null,
+      "events": [
+        {
+          "seq": 2385,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790594452.733003
+        },
+        {
+          "seq": 2386,
+          "type": "tool.started",
+          "tool": "get_tag_details",
+          "message": "正在核对标签口径与码值",
+          "occurred_at": 1790594455.622286
+        },
+        {
+          "seq": 2387,
+          "type": "telemetry.span",
+          "name": "tool.get_tag_details",
+          "duration_ms": 27,
+          "occurred_at": 1790594455.652181
+        },
+        {
+          "seq": 2388,
+          "type": "tool.completed",
+          "tool": "get_tag_details",
+          "message": "已完成核对标签口径与码值",
+          "duration_ms": 28,
+          "occurred_at": 1790594455.6527119
+        },
+        {
+          "seq": 2389,
+          "type": "tool.started",
+          "tool": "check_plan",
+          "message": "正在核验圈选条件",
+          "occurred_at": 1790594457.631814
+        },
+        {
+          "seq": 2390,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790594457.6343691
+        },
+        {
+          "seq": 2391,
+          "type": "intent.ready",
+          "message": "已整理圈选条件",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "c1",
+              "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "NORMAL"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {
+                "time_anchor_label": "当前"
+              },
+              "time_constraint": "当前",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 972,
+              "name": "当前速易贷授信状态",
+              "semantic_type": "ENUM_NOMINAL",
+              "unit": "NONE",
+              "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 972,
+                  "code": "CLOSED",
+                  "label": "已关闭",
+                  "definition": "已关闭",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "EXPIRED",
+                  "label": "已到期",
+                  "definition": "已到期",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "FROZEN",
+                  "label": "冻结",
+                  "definition": "冻结",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NONE",
+                  "label": "无授信",
+                  "definition": "无授信",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NORMAL",
+                  "label": "正常",
+                  "definition": "正常",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "速易贷授信状态为正常的客户",
+            "intent_plan": {
+              "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "筛选当前速易贷授信状态为“正常”的客户。"
+                  ],
+                  "business_meaning": "客户当前速易贷授信状态为正常（NORMAL）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594457.6347651
+        },
+        {
+          "seq": 2392,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "c1",
+              "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirement_ids": [
+                "R1"
+              ],
+              "operator": "=",
+              "values": [
+                "NORMAL"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {
+                "time_anchor_label": "当前"
+              },
+              "time_constraint": "当前",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 972,
+              "name": "当前速易贷授信状态",
+              "semantic_type": "ENUM_NOMINAL",
+              "unit": "NONE",
+              "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 972,
+                  "code": "CLOSED",
+                  "label": "已关闭",
+                  "definition": "已关闭",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "EXPIRED",
+                  "label": "已到期",
+                  "definition": "已到期",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "FROZEN",
+                  "label": "冻结",
+                  "definition": "冻结",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NONE",
+                  "label": "无授信",
+                  "definition": "无授信",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NORMAL",
+                  "label": "正常",
+                  "definition": "正常",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "速易贷授信状态为正常的客户",
+            "intent_plan": {
+              "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "R1",
+                  "source_spans": [
+                    "筛选当前速易贷授信状态为“正常”的客户。"
+                  ],
+                  "business_meaning": "客户当前速易贷授信状态为正常（NORMAL）",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "logic": "AND",
+                "children": [
+                  {
+                    "requirement_id": "R1"
+                  }
+                ]
+              },
+              "assumptions": []
+            },
+            "intent_changes": [],
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594457.6354308
+        },
+        {
+          "seq": 2393,
+          "type": "telemetry.span",
+          "name": "tool.check_plan",
+          "duration_ms": 2,
+          "occurred_at": 1790594457.6358988
+        },
+        {
+          "seq": 2394,
+          "type": "tool.completed",
+          "tool": "check_plan",
+          "message": "已完成核验圈选条件",
+          "duration_ms": 2,
+          "occurred_at": 1790594457.636069
+        },
+        {
+          "seq": 2395,
+          "type": "tool.started",
+          "tool": "submit_result",
+          "message": "正在整理圈选方案",
+          "occurred_at": 1790594459.1552372
+        },
+        {
+          "seq": 2396,
+          "type": "telemetry.span",
+          "name": "guard.evidence",
+          "count": 1,
+          "duration_ms": 0,
+          "status": "ok",
+          "occurred_at": 1790594459.1557791
+        },
+        {
+          "seq": 2397,
+          "type": "plan.observed",
+          "message": "条件核验通过",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "c1",
+              "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirement_ids": [
+                "c1"
+              ],
+              "operator": "=",
+              "values": [
+                "NORMAL"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {
+                "time_anchor_label": "当前"
+              },
+              "time_constraint": "当前",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 972,
+              "name": "当前速易贷授信状态",
+              "semantic_type": "ENUM_NOMINAL",
+              "unit": "NONE",
+              "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 972,
+                  "code": "CLOSED",
+                  "label": "已关闭",
+                  "definition": "已关闭",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "EXPIRED",
+                  "label": "已到期",
+                  "definition": "已到期",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "FROZEN",
+                  "label": "冻结",
+                  "definition": "冻结",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NONE",
+                  "label": "无授信",
+                  "definition": "无授信",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NORMAL",
+                  "label": "正常",
+                  "definition": "正常",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "速易贷授信状态为正常的客户",
+            "intent_changes": [],
+            "intent_plan": {
+              "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "c1",
+                  "source_spans": [
+                    "筛选当前速易贷授信状态为“正常”的客户。"
+                  ],
+                  "business_meaning": "筛选当前速易贷授信状态为“正常”的客户。",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "requirement_id": "c1"
+              },
+              "assumptions": []
+            },
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594459.155997
+        },
+        {
+          "seq": 2398,
+          "type": "plan.validated",
+          "message": "条件已核验",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "c1",
+              "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirement_ids": [
+                "c1"
+              ],
+              "operator": "=",
+              "values": [
+                "NORMAL"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {
+                "time_anchor_label": "当前"
+              },
+              "time_constraint": "当前",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 972,
+              "name": "当前速易贷授信状态",
+              "semantic_type": "ENUM_NOMINAL",
+              "unit": "NONE",
+              "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 972,
+                  "code": "CLOSED",
+                  "label": "已关闭",
+                  "definition": "已关闭",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "EXPIRED",
+                  "label": "已到期",
+                  "definition": "已到期",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "FROZEN",
+                  "label": "冻结",
+                  "definition": "冻结",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NONE",
+                  "label": "无授信",
+                  "definition": "无授信",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NORMAL",
+                  "label": "正常",
+                  "definition": "正常",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "速易贷授信状态为正常的客户",
+            "intent_changes": [],
+            "intent_plan": {
+              "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "c1",
+                  "source_spans": [
+                    "筛选当前速易贷授信状态为“正常”的客户。"
+                  ],
+                  "business_meaning": "筛选当前速易贷授信状态为“正常”的客户。",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "requirement_id": "c1"
+              },
+              "assumptions": []
+            },
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594459.15665
+        },
+        {
+          "seq": 2399,
+          "type": "clause.updated",
+          "clause_id": "c1",
+          "message": "当前速易贷授信状态",
+          "occurred_at": 1790594459.15727
+        },
+        {
+          "seq": 2400,
+          "type": "draft.ready",
+          "message": "速易贷授信状态为\"正常\"的客户",
+          "plan": {
+            "schema_version": 3,
+            "tree": {
+              "clause_id": "c1",
+              "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirement_ids": [
+                "c1"
+              ],
+              "operator": "=",
+              "values": [
+                "NORMAL"
+              ],
+              "value_unit": "NONE",
+              "expected_caliber": {
+                "time_anchor_label": "当前"
+              },
+              "time_constraint": "当前",
+              "unknown_policy": "EXCLUDE",
+              "kind": "TAG_PREDICATE",
+              "tag_id": 972,
+              "name": "当前速易贷授信状态",
+              "semantic_type": "ENUM_NOMINAL",
+              "unit": "NONE",
+              "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+              "allowed_operators": [
+                "=",
+                "in",
+                "not_in"
+              ],
+              "code_options": [
+                {
+                  "tag_id": 972,
+                  "code": "CLOSED",
+                  "label": "已关闭",
+                  "definition": "已关闭",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "EXPIRED",
+                  "label": "已到期",
+                  "definition": "已到期",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "FROZEN",
+                  "label": "冻结",
+                  "definition": "冻结",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NONE",
+                  "label": "无授信",
+                  "definition": "无授信",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                },
+                {
+                  "tag_id": 972,
+                  "code": "NORMAL",
+                  "label": "正常",
+                  "definition": "正常",
+                  "lower_bound": null,
+                  "upper_bound": null,
+                  "lower_inclusive": null,
+                  "upper_inclusive": null,
+                  "bound_unit": null,
+                  "rank_no": null,
+                  "parent_tag_id": null,
+                  "parent_code": null,
+                  "level_no": null,
+                  "is_unknown_bucket": 0
+                }
+              ],
+              "status": "BOUND",
+              "caliber_struct": {
+                "boundary_semantics": null,
+                "calendar_mode": null,
+                "denominator": null,
+                "numerator": null,
+                "period_edge": "END",
+                "scope": "ALL",
+                "source_system": null,
+                "statistic": "NONE",
+                "time_anchor_label": "当前",
+                "time_anchor_type": "POINT",
+                "time_offset_months": null,
+                "time_offset_years": null,
+                "time_window_unit": null,
+                "time_window_value": null,
+                "unit": "NONE",
+                "unit_scale": 1
+              }
+            },
+            "summary": "速易贷授信状态为正常的客户",
+            "intent_changes": [],
+            "intent_plan": {
+              "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+              "requirements": [
+                {
+                  "requirement_id": "c1",
+                  "source_spans": [
+                    "筛选当前速易贷授信状态为“正常”的客户。"
+                  ],
+                  "business_meaning": "筛选当前速易贷授信状态为“正常”的客户。",
+                  "origin": "USER"
+                }
+              ],
+              "logic_tree": {
+                "requirement_id": "c1"
+              },
+              "assumptions": []
+            },
+            "diagnostics": [],
+            "plan_status": "READY",
+            "valid": true,
+            "build_id": "bge-m3-l107-20260919-002-r3",
+            "snapshot_id": "L107-20260919-002",
+            "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+          },
+          "occurred_at": 1790594459.157496
+        },
+        {
+          "seq": 2401,
+          "type": "telemetry.span",
+          "name": "tool.submit_result",
+          "duration_ms": 2,
+          "occurred_at": 1790594459.1579578
+        },
+        {
+          "seq": 2402,
+          "type": "tool.completed",
+          "tool": "submit_result",
+          "message": "已完成整理圈选方案",
+          "duration_ms": 2,
+          "occurred_at": 1790594459.158049
+        },
+        {
+          "seq": 2403,
+          "type": "run.completed",
+          "message": "圈选方案与处理进度已保存",
+          "stats": {
+            "tools": 3,
+            "deep": 0,
+            "details": 1,
+            "submit_rejections": 0,
+            "llm_turns": 4,
+            "cli_start_ms": 155,
+            "cli_peak_rss_mb": 292.94,
+            "evidence_requests": 1,
+            "stop_reason": "submitted",
+            "sdk_result": "success",
+            "sdk_cost_estimate_usd": 0.07352339999999999,
+            "usage": {
+              "input_tokens": 16295,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 32128,
+              "output_tokens": 1000,
+              "server_tool_use": {
+                "web_search_requests": 0,
+                "web_fetch_requests": 0
+              },
+              "service_tier": "standard",
+              "cache_creation": {
+                "ephemeral_1h_input_tokens": 0,
+                "ephemeral_5m_input_tokens": 0
+              },
+              "inference_geo": "",
+              "iterations": [],
+              "speed": "standard"
+            }
+          },
+          "occurred_at": 1790594459.171869
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 2385,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790594452.733003
+    },
+    {
+      "seq": 2386,
+      "type": "tool.started",
+      "tool": "get_tag_details",
+      "message": "正在核对标签口径与码值",
+      "occurred_at": 1790594455.622286
+    },
+    {
+      "seq": 2387,
+      "type": "telemetry.span",
+      "name": "tool.get_tag_details",
+      "duration_ms": 27,
+      "occurred_at": 1790594455.652181
+    },
+    {
+      "seq": 2388,
+      "type": "tool.completed",
+      "tool": "get_tag_details",
+      "message": "已完成核对标签口径与码值",
+      "duration_ms": 28,
+      "occurred_at": 1790594455.6527119
+    },
+    {
+      "seq": 2389,
+      "type": "tool.started",
+      "tool": "check_plan",
+      "message": "正在核验圈选条件",
+      "occurred_at": 1790594457.631814
+    },
+    {
+      "seq": 2390,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790594457.6343691
+    },
+    {
+      "seq": 2391,
+      "type": "intent.ready",
+      "message": "已整理圈选条件",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "c1",
+          "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": "=",
+          "values": [
+            "NORMAL"
+          ],
+          "value_unit": "NONE",
+          "expected_caliber": {
+            "time_anchor_label": "当前"
+          },
+          "time_constraint": "当前",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 972,
+          "name": "当前速易贷授信状态",
+          "semantic_type": "ENUM_NOMINAL",
+          "unit": "NONE",
+          "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+          "allowed_operators": [
+            "=",
+            "in",
+            "not_in"
+          ],
+          "code_options": [
+            {
+              "tag_id": 972,
+              "code": "CLOSED",
+              "label": "已关闭",
+              "definition": "已关闭",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "EXPIRED",
+              "label": "已到期",
+              "definition": "已到期",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "FROZEN",
+              "label": "冻结",
+              "definition": "冻结",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NONE",
+              "label": "无授信",
+              "definition": "无授信",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NORMAL",
+              "label": "正常",
+              "definition": "正常",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "NONE",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "速易贷授信状态为正常的客户",
+        "intent_plan": {
+          "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "筛选当前速易贷授信状态为“正常”的客户。"
+              ],
+              "business_meaning": "客户当前速易贷授信状态为正常（NORMAL）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594457.6347651
+    },
+    {
+      "seq": 2392,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "c1",
+          "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirement_ids": [
+            "R1"
+          ],
+          "operator": "=",
+          "values": [
+            "NORMAL"
+          ],
+          "value_unit": "NONE",
+          "expected_caliber": {
+            "time_anchor_label": "当前"
+          },
+          "time_constraint": "当前",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 972,
+          "name": "当前速易贷授信状态",
+          "semantic_type": "ENUM_NOMINAL",
+          "unit": "NONE",
+          "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+          "allowed_operators": [
+            "=",
+            "in",
+            "not_in"
+          ],
+          "code_options": [
+            {
+              "tag_id": 972,
+              "code": "CLOSED",
+              "label": "已关闭",
+              "definition": "已关闭",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "EXPIRED",
+              "label": "已到期",
+              "definition": "已到期",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "FROZEN",
+              "label": "冻结",
+              "definition": "冻结",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NONE",
+              "label": "无授信",
+              "definition": "无授信",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NORMAL",
+              "label": "正常",
+              "definition": "正常",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "NONE",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "速易贷授信状态为正常的客户",
+        "intent_plan": {
+          "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "R1",
+              "source_spans": [
+                "筛选当前速易贷授信状态为“正常”的客户。"
+              ],
+              "business_meaning": "客户当前速易贷授信状态为正常（NORMAL）",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "logic": "AND",
+            "children": [
+              {
+                "requirement_id": "R1"
+              }
+            ]
+          },
+          "assumptions": []
+        },
+        "intent_changes": [],
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594457.6354308
+    },
+    {
+      "seq": 2393,
+      "type": "telemetry.span",
+      "name": "tool.check_plan",
+      "duration_ms": 2,
+      "occurred_at": 1790594457.6358988
+    },
+    {
+      "seq": 2394,
+      "type": "tool.completed",
+      "tool": "check_plan",
+      "message": "已完成核验圈选条件",
+      "duration_ms": 2,
+      "occurred_at": 1790594457.636069
+    },
+    {
+      "seq": 2395,
+      "type": "tool.started",
+      "tool": "submit_result",
+      "message": "正在整理圈选方案",
+      "occurred_at": 1790594459.1552372
+    },
+    {
+      "seq": 2396,
+      "type": "telemetry.span",
+      "name": "guard.evidence",
+      "count": 1,
+      "duration_ms": 0,
+      "status": "ok",
+      "occurred_at": 1790594459.1557791
+    },
+    {
+      "seq": 2397,
+      "type": "plan.observed",
+      "message": "条件核验通过",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "c1",
+          "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirement_ids": [
+            "c1"
+          ],
+          "operator": "=",
+          "values": [
+            "NORMAL"
+          ],
+          "value_unit": "NONE",
+          "expected_caliber": {
+            "time_anchor_label": "当前"
+          },
+          "time_constraint": "当前",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 972,
+          "name": "当前速易贷授信状态",
+          "semantic_type": "ENUM_NOMINAL",
+          "unit": "NONE",
+          "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+          "allowed_operators": [
+            "=",
+            "in",
+            "not_in"
+          ],
+          "code_options": [
+            {
+              "tag_id": 972,
+              "code": "CLOSED",
+              "label": "已关闭",
+              "definition": "已关闭",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "EXPIRED",
+              "label": "已到期",
+              "definition": "已到期",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "FROZEN",
+              "label": "冻结",
+              "definition": "冻结",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NONE",
+              "label": "无授信",
+              "definition": "无授信",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NORMAL",
+              "label": "正常",
+              "definition": "正常",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "NONE",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "速易贷授信状态为正常的客户",
+        "intent_changes": [],
+        "intent_plan": {
+          "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "c1",
+              "source_spans": [
+                "筛选当前速易贷授信状态为“正常”的客户。"
+              ],
+              "business_meaning": "筛选当前速易贷授信状态为“正常”的客户。",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "requirement_id": "c1"
+          },
+          "assumptions": []
+        },
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594459.155997
+    },
+    {
+      "seq": 2398,
+      "type": "plan.validated",
+      "message": "条件已核验",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "c1",
+          "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirement_ids": [
+            "c1"
+          ],
+          "operator": "=",
+          "values": [
+            "NORMAL"
+          ],
+          "value_unit": "NONE",
+          "expected_caliber": {
+            "time_anchor_label": "当前"
+          },
+          "time_constraint": "当前",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 972,
+          "name": "当前速易贷授信状态",
+          "semantic_type": "ENUM_NOMINAL",
+          "unit": "NONE",
+          "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+          "allowed_operators": [
+            "=",
+            "in",
+            "not_in"
+          ],
+          "code_options": [
+            {
+              "tag_id": 972,
+              "code": "CLOSED",
+              "label": "已关闭",
+              "definition": "已关闭",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "EXPIRED",
+              "label": "已到期",
+              "definition": "已到期",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "FROZEN",
+              "label": "冻结",
+              "definition": "冻结",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NONE",
+              "label": "无授信",
+              "definition": "无授信",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NORMAL",
+              "label": "正常",
+              "definition": "正常",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "NONE",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "速易贷授信状态为正常的客户",
+        "intent_changes": [],
+        "intent_plan": {
+          "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "c1",
+              "source_spans": [
+                "筛选当前速易贷授信状态为“正常”的客户。"
+              ],
+              "business_meaning": "筛选当前速易贷授信状态为“正常”的客户。",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "requirement_id": "c1"
+          },
+          "assumptions": []
+        },
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594459.15665
+    },
+    {
+      "seq": 2399,
+      "type": "clause.updated",
+      "clause_id": "c1",
+      "message": "当前速易贷授信状态",
+      "occurred_at": 1790594459.15727
+    },
+    {
+      "seq": 2400,
+      "type": "draft.ready",
+      "message": "速易贷授信状态为\"正常\"的客户",
+      "plan": {
+        "schema_version": 3,
+        "tree": {
+          "clause_id": "c1",
+          "source_span": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirement_ids": [
+            "c1"
+          ],
+          "operator": "=",
+          "values": [
+            "NORMAL"
+          ],
+          "value_unit": "NONE",
+          "expected_caliber": {
+            "time_anchor_label": "当前"
+          },
+          "time_constraint": "当前",
+          "unknown_policy": "EXCLUDE",
+          "kind": "TAG_PREDICATE",
+          "tag_id": 972,
+          "name": "当前速易贷授信状态",
+          "semantic_type": "ENUM_NOMINAL",
+          "unit": "NONE",
+          "definition": "当前速易贷授信状态，码值 NORMAL=正常、FROZEN=冻结、CLOSED=已关闭、EXPIRED=已到期、NONE=无授信",
+          "allowed_operators": [
+            "=",
+            "in",
+            "not_in"
+          ],
+          "code_options": [
+            {
+              "tag_id": 972,
+              "code": "CLOSED",
+              "label": "已关闭",
+              "definition": "已关闭",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "EXPIRED",
+              "label": "已到期",
+              "definition": "已到期",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "FROZEN",
+              "label": "冻结",
+              "definition": "冻结",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NONE",
+              "label": "无授信",
+              "definition": "无授信",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            },
+            {
+              "tag_id": 972,
+              "code": "NORMAL",
+              "label": "正常",
+              "definition": "正常",
+              "lower_bound": null,
+              "upper_bound": null,
+              "lower_inclusive": null,
+              "upper_inclusive": null,
+              "bound_unit": null,
+              "rank_no": null,
+              "parent_tag_id": null,
+              "parent_code": null,
+              "level_no": null,
+              "is_unknown_bucket": 0
+            }
+          ],
+          "status": "BOUND",
+          "caliber_struct": {
+            "boundary_semantics": null,
+            "calendar_mode": null,
+            "denominator": null,
+            "numerator": null,
+            "period_edge": "END",
+            "scope": "ALL",
+            "source_system": null,
+            "statistic": "NONE",
+            "time_anchor_label": "当前",
+            "time_anchor_type": "POINT",
+            "time_offset_months": null,
+            "time_offset_years": null,
+            "time_window_unit": null,
+            "time_window_value": null,
+            "unit": "NONE",
+            "unit_scale": 1
+          }
+        },
+        "summary": "速易贷授信状态为正常的客户",
+        "intent_changes": [],
+        "intent_plan": {
+          "original_request": "筛选当前速易贷授信状态为“正常”的客户。",
+          "requirements": [
+            {
+              "requirement_id": "c1",
+              "source_spans": [
+                "筛选当前速易贷授信状态为“正常”的客户。"
+              ],
+              "business_meaning": "筛选当前速易贷授信状态为“正常”的客户。",
+              "origin": "USER"
+            }
+          ],
+          "logic_tree": {
+            "requirement_id": "c1"
+          },
+          "assumptions": []
+        },
+        "diagnostics": [],
+        "plan_status": "READY",
+        "valid": true,
+        "build_id": "bge-m3-l107-20260919-002-r3",
+        "snapshot_id": "L107-20260919-002",
+        "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af"
+      },
+      "occurred_at": 1790594459.157496
+    },
+    {
+      "seq": 2401,
+      "type": "telemetry.span",
+      "name": "tool.submit_result",
+      "duration_ms": 2,
+      "occurred_at": 1790594459.1579578
+    },
+    {
+      "seq": 2402,
+      "type": "tool.completed",
+      "tool": "submit_result",
+      "message": "已完成整理圈选方案",
+      "duration_ms": 2,
+      "occurred_at": 1790594459.158049
+    },
+    {
+      "seq": 2403,
+      "type": "run.completed",
+      "message": "圈选方案与处理进度已保存",
+      "stats": {
+        "tools": 3,
+        "deep": 0,
+        "details": 1,
+        "submit_rejections": 0,
+        "llm_turns": 4,
+        "cli_start_ms": 155,
+        "cli_peak_rss_mb": 292.94,
+        "evidence_requests": 1,
+        "stop_reason": "submitted",
+        "sdk_result": "success",
+        "sdk_cost_estimate_usd": 0.07352339999999999,
+        "usage": {
+          "input_tokens": 16295,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 32128,
+          "output_tokens": 1000,
+          "server_tool_use": {
+            "web_search_requests": 0,
+            "web_fetch_requests": 0
+          },
+          "service_tier": "standard",
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "inference_geo": "",
+          "iterations": [],
+          "speed": "standard"
+        }
+      },
+      "occurred_at": 1790594459.171869
+    }
+  ]
+}

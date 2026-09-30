@@ -1,0 +1,5 @@
+{
+  "source": "tagpilot-eval/runs/p3-l2-G-final-v6",
+  "source_sha256": "76c4ff1ef762fb86cc748217ddd92542ef6f05485c6a85e34c3a0d6b3547f51a",
+  "scope": "12个READY回归的L3链接，不调用或复跑模型，NEEDS_USER_INPUT不执行。"
+}

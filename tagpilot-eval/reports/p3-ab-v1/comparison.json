@@ -1,0 +1,44 @@
+{
+  "phase": "P3",
+  "comparison": "A原语义/B新语义，固定原索引配置",
+  "cases": 1296,
+  "conditions": 1880,
+  "a_recall": 0.993617,
+  "b_recall": 0.993617,
+  "metric": "atomic_micro_recall",
+  "a_all_covered": 1284,
+  "b_all_covered": 1284,
+  "gains": [],
+  "regressions": [],
+  "a_bundle": {
+    "build_id": "bge-m3-l107-20260919-002-r3",
+    "snapshot_id": "L107-20260919-002",
+    "artifact_hash": "330542edc5fa7664bb1c85893174e190603342ff5a245c5593e873794928e2af",
+    "retrieval_config_hash": "96fec00554b48abc2379d93375cc9f55694626f52a9c61fb1debd5e81e9f1adb",
+    "content_hash": "de5f8af51fd4baca3377c0d477187fefed3efadead7c6b5e3991387deba05ade",
+    "doc_count": 3374,
+    "id_reconciled": true,
+    "store_type": "MILVUS",
+    "embedding_model": "BAAI/bge-m3",
+    "reranker_model": "BAAI/bge-reranker-v2-m3",
+    "doc_template_version": "tpl1"
+  },
+  "b_bundle": {
+    "build_id": "bge-m3-l107-20260928-004-p3v1",
+    "snapshot_id": "L107-20260928-004",
+    "artifact_hash": "53a5642f7dae4cf317f43a439451da0369e23c3401c12a4ed5b102b0882d28e9",
+    "retrieval_config_hash": "96fec00554b48abc2379d93375cc9f55694626f52a9c61fb1debd5e81e9f1adb",
+    "content_hash": "b5ec1d1f735a8727ca67e96076ba62c7c1da4830423b122b1ad080a0ae53d9a1",
+    "doc_count": 3382,
+    "id_reconciled": true,
+    "store_type": "MILVUS",
+    "embedding_model": "BAAI/bge-m3",
+    "reranker_model": "BAAI/bge-reranker-v2-m3",
+    "doc_template_version": "tpl1"
+  },
+  "evidence_sha256": {
+    "a": "a959364afb384aaedec834085099422738e4928127ad7d825066d65c460b1bfc",
+    "b": "a959364afb384aaedec834085099422738e4928127ad7d825066d65c460b1bfc"
+  },
+  "scope": "本地开发质量；不替代L2终态/L3完整ID集，不表示银行业务验收"
+}

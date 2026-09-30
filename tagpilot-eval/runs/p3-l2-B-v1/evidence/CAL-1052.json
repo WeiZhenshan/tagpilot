@@ -1,0 +1,39 @@
+{
+  "states": [
+    {
+      "run_id": "p3-a4c8b94a9bfb-cal-1052",
+      "status": "FAILED",
+      "result": null,
+      "error": "权限或发布版本发生变化，请重新核验",
+      "events": [
+        {
+          "seq": 2522,
+          "type": "run.started",
+          "message": "正在理解圈选需求",
+          "occurred_at": 1790594624.734064
+        },
+        {
+          "seq": 2523,
+          "type": "run.failed",
+          "message": "权限或发布版本发生变化，请重新核验",
+          "occurred_at": 1790594624.747658
+        }
+      ],
+      "cancelled_by_harness": false
+    }
+  ],
+  "events": [
+    {
+      "seq": 2522,
+      "type": "run.started",
+      "message": "正在理解圈选需求",
+      "occurred_at": 1790594624.734064
+    },
+    {
+      "seq": 2523,
+      "type": "run.failed",
+      "message": "权限或发布版本发生变化，请重新核验",
+      "occurred_at": 1790594624.747658
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "reason": "old rerank 60s timeout; stop to load versioned F budget; incomplete run, not an acceptance score",
+  "completed_cases": 5
+}

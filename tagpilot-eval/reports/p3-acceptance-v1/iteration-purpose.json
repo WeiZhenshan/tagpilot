@@ -1,9 +1,0 @@
-{
-  "case_id": "CAL-8062",
-  "source_run": "p3-demo-G-full-v2-2",
-  "root_cause": "把经理行动安排误作客户筛选条件；澄清回答没有删除授权，冻结守卫正确拦截后循环超时。",
-  "fix": "提示明确用途、名单名称、行动安排不是客户属性筛选条件；不放松多轮冻结、不改案例和最终oracle。",
-  "prompt_file_sha256": "6def66b20ee4f164e32f0910af2f520514e64a8a7f364e00d1f0b0acbb79751a",
-  "loaded_in_current_100_run": false,
-  "status": "FIX_PREPARED_REPLAY_PENDING"
-}

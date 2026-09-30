@@ -1,0 +1,142 @@
+# TagPilot 评测 P1 验收（收尾冻结）
+
+生成时间基准：2026-09-27 ｜ 分支 `feature/tag-agent-v4.0` ｜ 数据集版本 `calibration.v2`
+
+本报告冻结 P1 收尾六项的证据。**P2 未授权**，正式生成 0 条；语义变更与索引重建未执行。
+
+## 1. 版本清单
+
+| 工件 | 版本 / 文件 | sha256 |
+|---|---|---|
+| 事实包 manifest | `manifest.json` | `25f005e766a51837…` |
+| 事实清单 facts.jsonl | `facts.jsonl` | `2fcdd070e4d049a7…` |
+| 来源冲突处置 dispositions.jsonl | `dispositions.jsonl` | `51ffcfedadc8cb30…` |
+| 码值分母漂移 source-drift.json | `source-drift.json` | `f3a20b288774b33c…` |
+| 校准集 manifest | `manifest.json` | `0141d9ac7bcf8804…` |
+| 母案例 cases.jsonl | `cases.jsonl` | `42290f72f5b8a6b0…` |
+| 无答案输入 inputs.jsonl | `inputs.jsonl` | `a7ccf10663caac33…` |
+| 独立复核 reviews.jsonl | `independent-review-v1.jsonl` | `ed783aebac807149…` |
+| 人工抽检页 | `human-review.html` | `5650c844fc7aa807…` |
+| 人工抽检台账 | `ledger.jsonl` | `41325ac2a5f97c89…` |
+| L1 结果 l1-summary.json | `l1-summary.json` | `365de7536a3c0d27…` |
+| L2 结果 l2-summary.json | `l2-summary.json` | `711f2f86c99a2fec…` |
+| L2 逐题运行证据 runs.jsonl | `runs.jsonl` | `b059efe6fed09052…` |
+| L2 逐题判定 verdicts.jsonl | `verdicts.jsonl` | `77575f94d941b3fe…` |
+
+- 事实包 supersedes：`a3d1eff3cbf23877…`；校准集 supersedes：`a6d3ce49e02674e7…`
+- 活动快照/索引：`L107-20260919-002` / `bge-m3-l107-20260919-002-r3`；观测时间 `33736cf5806d2be2…`
+
+## 2. 收尾六项状态
+
+| 项 | 状态 | 证据 |
+|---|---|---|
+| ① 独立复核 200 母案例 | 完成 | 机械复核无绑定/单位/口径/阈值/码值/资格缺陷；6 题 Demo 字面量、8 题话术同文已处置 |
+| ② 裁判与解析复核 | 完成 | `JUDGE-AUDIT.md`；树级无假通过，终态裁判补齐 |
+| ③ 来源冲突处置 | 完成 | 9 个阻断项全部处置，无阻断项被静默忽略 |
+| ④ 人工抽检 | 完成 | 40 题：{'ACCEPT': 40}（2026-09-27，复核人本人的确认） |
+| ⑤ 真实运行链路 | 完成 | L1 全量 + L2 全量 200 + 终态裁判 + 裁判验收套件 |
+| ⑥ 冻结验收版本 | 本报告 | — |
+
+## 3. 独立复核（第 1 项）
+
+独立复核由与被测 Agent、与配方作者不同的上下文完成，逐题核对标签重绑定、字段/单位、时间与统计口径、阈值与码值是否出现在原话、资格与未解决事实边界、以及自然表达。
+
+- 覆盖：200 / 200 母案例，全部有复核结论与理由。
+- 结论分布：{'ACCEPT': 192, 'REVISE': 8}。
+- 改写：8 题（多轮母案例首轮话术同文，改写为语义等价的不同表达）：CAL-161, CAL-162, CAL-163, CAL-164, CAL-165, CAL-166, CAL-167, CAL-168。
+- 保留提示（ACCEPT with caveat）：6 题 contains 谓词的原话引用了模拟数据字面量（`SIM_…`），属 Demo 约定而非真实客户经理表达，仅在模拟数据上可执行。
+- 机械复核零缺陷项：字段绑定、单位、口径、阈值出现、码值成员、资格、未解决事实、标签重绑定、禁止标签、操作符支持。
+
+## 4. 裁判与解析复核（第 2 项）
+
+- 条件树裁判**不存在假通过**：`PASS` 要求标准化结构相等，结构相等即语义相等；语义扰动一律判失败（反例覆盖改阈值/操作符/绑定/字段）。
+- 真正的假通过面是**终态层此前未判**，已补 `judge.py` 并通过验收套件：已知正确 / 等价改写 / 已知错误 / 漏条件 / 伪造 valid / 计划缺失 / 证据缺失 / 非终态。
+- 修复：计划翻译器忽略 `value_scale`（会把 10 万元判错）；口径检查改为只判显式矛盾；旧字段字典 NULL 率非数值单元格不再导致崩溃。
+- 来源分母漂移 177/1723 → 178/1725 由第 3 项处置引起，已显式记录，未回填事实包。
+
+## 5. 来源冲突处置（第 3 项）
+
+9 个阻断项处置（均为源头已修正、快照未重发布，故校准金标保持 GAP）：
+
+| issue | 标签 | 类别 | 处置 |
+|---|---|---|---|
+| P0-0032 | 637 | BUSINESS_SEMANTIC_TYPE_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0185 | 1073 | RATIO_COUNT_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0187 | 1076 | RATIO_COUNT_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0233 | 1187 | CONCEPT_MAXIMUM_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0306 | 1282 | CONCEPT_MAXIMUM_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0310 | 1291 | CONCEPT_MAXIMUM_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0314 | 1305 | CONCEPT_MAXIMUM_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0317 | 1308 | CONCEPT_MAXIMUM_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+| P0-0318 | 1311 | CONCEPT_MAXIMUM_CONFLICT | RESOLVED_IN_SOURCE_PENDING_REPUBLICATION |
+
+- 提示项：{'ACCEPTED_AS_WARNING_NON_BLOCKING': 358, 'EXCLUDED_FROM_AUTO_GOLD': 2, 'PARTIALLY_RESOLVED_IN_SOURCE': 54, 'RESOLVED_IN_SOURCE_PENDING_REPUBLICATION': 3}
+- 码值分母漂移：{'published': 177, 'working_tree': 178} / {'published': 1723, 'working_tree': 1725}（工作树前移，已发布快照未变）。
+
+## 6. 人工抽检（第 4 项）
+
+- 结论：40 题，{'ACCEPT': 40}；复核人本人的确认，记录日期 2026-09-27。
+- 台账：`reviews/human-review-v2/ledger.jsonl`（绑定校准集 hash，不可覆盖）。
+- 抽检覆盖 6 个类别各分层样本；结论为接受即未发现需要修订的业务口径或表达问题。
+
+## 7. L1 检索与消歧
+
+- 样本：144 个含原子条件的 READY 母案例，共 208 个原子条件；k=20，确定性 fast 模式（不启用重排）。
+- 原子条件 Recall@20 = **0.9861**；全部条件在 top-20 内均被召回的案件 = 142/144。
+
+| 类别 | 案件 | 全条件覆盖 | 原子召回 |
+|---|---:|---:|---:|
+| BOUNDARY | 19 | 18/19 | 0.9474 |
+| COMPOSITION | 47 | 47/47 | 1.0000 |
+| GAP | 2 | 2/2 | 1.0000 |
+| MULTITURN | 16 | 16/16 | 1.0000 |
+| SINGLE | 60 | 59/60 | 0.9833 |
+
+- 未全覆盖案件：CAL-015, CAL-142
+- 例外性质：两处未覆盖均为**高置信度单候选误选**（`当前时点AUM（本行）`→返回非本行 721；`企微私聊消息接收条数`→返回 1362），属消歧问题而非 top-K 深度不足，指向易混淆关系改进。
+- 说明：分母只含"含原子条件"的题；澄清题、缺口题与全客群题不计入（无语义绑定可比）。
+
+## 8. L2 Agent 方案（真实运行）
+
+- 样本：200 个母案例，真实 DeepSeek 调用，隔离评测实例（不打扰开发实例）。
+- 终态分布：{'PARTIAL': 21, 'READY': 126, 'NEEDS_USER_INPUT': 44, 'CAPABILITY_GAP': 9}
+- 判定：{'FAIL': 43, 'PASS': 157}；失败标签：{'OUTCOME': 37, 'TREE': 4, 'SLOTS': 1, 'FULL_ID_SET': 1, 'GAP_REASON': 1, 'FIRST_TURN': 5}
+- 成本（SDK 估值，非账单）≈ $26.9194；累计耗时 3815.0s。
+
+| 类别 | 案件 | PASS | FAIL | RUN_INVALID |
+|---|---:|---:|---:|---:|
+| BOUNDARY | 20 | 14 | 6 | 0 |
+| CLARIFICATION | 30 | 28 | 2 | 0 |
+| COMPOSITION | 50 | 46 | 4 | 0 |
+| GAP | 20 | 8 | 12 | 0 |
+| MULTITURN | 20 | 14 | 6 | 0 |
+| SINGLE | 60 | 47 | 13 | 0 |
+
+- 判定独立性：结构、完整 ID 集、口径由独立裁判重算；不采信 Agent 的 `valid`/`plan_status`。
+- `PARTIAL` 不等于成功；首轮终态不符合案例定义即失败（与方案一致）。
+
+**Demo 质量目标口径（分母如实展示，未达标不作隐藏）**
+
+| 指标 | 分子/分母 | 本批 | 目标 |
+|---|---:|---:|---:|
+| 可回答条件的无必要澄清率 | 7/146 | 0.0479 | ≤0.05 |
+| READY 中完整方案正确率 | 121/126 | 0.9603 | ≥0.99 |
+| 能力缺口题（应判 CAPABILITY_GAP） | — | 20 | — |
+
+- **失败归因**：未达标题 43 个，按 SDK 终止原因 {'error_max_turns': 14, 'success': 22, 'error_during_execution': 7}；其中 **20/26** 题的草案方案在语义上与标准树完全一致——即失败集中在**收敛/预算**（`error_max_turns`）而非语义绑定。
+- 该结论仅对本批校准题与当前 Agent 预算（max_turns=10、budget=1USD）成立，不证明放宽预算即可通过。
+
+- 无必要澄清涉及：CAL-006, CAL-080, CAL-142, CAL-148, CAL-149, CAL-161, CAL-169
+
+## 9. L3 Java 执行
+
+- **NOT_APPLICABLE（本轮）**：未接入隔离的 Java 编译/执行路径，按方案如实标注，不计入通过分母，也不折算为 L1/L2 成绩。
+
+## 10. 残留缺口与未授权事项
+
+- 9 个阻断标签在**当前已发布快照**上仍为 UNRESOLVED，金标保持 CAPABILITY_GAP；源头修正需经快照发布与索引激活后才可重评。
+- 417 项提示保持为提示，未改写来源定义（其中 358 项为旧字典 NULL 率差异）。
+- 客户逐单元格内容未与数据库比对；L1/L2 真值仅对绑定 hash 的仓库 SQL 成立。
+- Java 执行、L1 检索跑批契约外的分组分区与近重复检测、成本预算、变更发布均未执行。
+- **P2（2000 条正式生成）与 P3（语义改进发布）仍未授权**；P1 验收通过与否需另由本人决定。
+
