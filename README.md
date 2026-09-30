@@ -49,7 +49,7 @@ DB_PASSWORD=123456 bash bin/import-competition-db.sh
 
 说明见 [`sql/seed/competition/README.md`](sql/seed/competition/README.md)。快照已含：标签库 **107**、已发布 **元 Skill**、语义 **ACTIVE 快照**、演示对照客群 **「全量客户（资产结构基准）」**、`schema_migration` 全记录等；**无需**再跑 `ry_init.sql`、`db-migrate.sh`、`agent-meta-skills.sql`。
 
-**DataBroker 数据源密码**：库内密文与导出机的 [`.databroker-crypto-secret`](.databroker-crypto-secret) 绑定。评委需向交付方索取同一份密钥文件放到仓库根目录，或在「数据源管理」里重新录入密码。
+**DataBroker 数据源密码**：库内密文与 [`.databroker-crypto-secret`](.databroker-crypto-secret) 配对。该文件与 `.tag-runtime-token` 已随评委 zip 提供（`bin/package-competition-zip.sh` 打包，解压后在仓库根目录），无需再向交付方索取；若非 zip 途径取得仓库，则需另取该密钥，或在「数据源管理」里重新录入密码。
 
 <details>
 <summary>备选：从空库按脚本初始化（无竞赛快照时）</summary>
@@ -125,7 +125,7 @@ mvn clean package -DskipTests
 | tagpilot-agent | 8092 | 圈选 / Skill 编排 |
 | tagpilot-assistant | 5174 | React 工作台 UI |
 
-首次启动时 `dev.sh` 会生成本机 `.tag-runtime-token`；若尚无 `.databroker-crypto-secret` 也会随机生成（**与竞赛库快照不匹配时 JDBC 数据源会解密失败**，见上文）。
+评委 zip 已附带 `.databroker-crypto-secret` 与 `.tag-runtime-token`（解压后在仓库根目录），**不要改动**——前者与快照内数据源密码密文配对，改动后 JDBC 数据源解密会失败。若这两个文件缺失，`dev.sh` 会自动重新生成：运行时令牌新生成不影响功能，而加密密钥新生成后需在「数据源管理」重新录入一次数据源密码。
 
 ---
 
@@ -157,11 +157,11 @@ mysql --default-character-set=utf8mb4 -h127.0.0.1 -uroot -p ry < sql/seed/compet
 | 项 | 是否随仓库/快照 | 说明 |
 | :--- | :--- | :--- |
 | MySQL `ry` + `indiv_cust` | **是**（`sql/seed/competition/*.sql.gz`） | 业务、Skill 登记、语义元数据、部分历史会话（若有） |
-| `.databroker-crypto-secret` | **否**（单独交付） | 与快照内 `dp_datasource` 密文配对；缺失则重配数据源密码 |
+| `.databroker-crypto-secret` | **是**（随评委 zip） | 与快照内 `dp_datasource` 密文配对；缺失则需在「数据源管理」重录密码。本地演示凭据，正式分发前请替换 |
+| `.tag-runtime-token` | **是**（随评委 zip） | Java/Python 服务间令牌；删掉也能用（`dev.sh` 会重新生成一份）。本地演示凭据，正式分发前请轮换 |
 | BGE `bge-m3` + reranker | **否** | `bin/download-bge-models.sh` |
 | `tagpilot-semantic/out/full-*` | zip 脚本附带 | 与库内 `ts_catalog_snapshot` 的 ACTIVE 版本应对齐；若检索报 503，联系交付方更新索引包 |
-| `.tag-llm-config` | **否** | 评委自备 API Key；圈选与 Skill 必需 |
-| `.tag-runtime-token` | 启动时自动生成 | Java/Python 共用，删后 `dev.sh restart` 即可 |
+| `.tag-llm-config` | **否**（需自备 API Key） | 圈选与 Skill 运行必需；**这是唯一涉及外部计费服务的配置**，脚本默认 DeepSeek 官方端点 |
 | `tagpilot-agent/out/workbench.sqlite` | **否** | Agent 运行事件；新机为空，**不**影响按演示脚本重新圈选 |
 | Redis | 空即可 | 仅登录 Token/缓存 |
 | 上传头像等 `ruoyi.profile` 文件 | **否** | 缺则头像 404，不影响演示 |
