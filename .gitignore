@@ -52,6 +52,7 @@ dump.rdb
 .databroker-crypto-secret
 .tag-runtime-token
 .tag-llm-config
+.tag-embedding-config
 
 # Agent / AI 工具的本机会话产物（不提交）
 # 注意：项目知识文档在 docs/superpowers/specs/，仍正常跟踪

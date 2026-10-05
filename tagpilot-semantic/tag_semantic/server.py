@@ -12,7 +12,7 @@ from fastapi import FastAPI, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 from tag_semantic.index.lease import build_lease
 from tag_semantic.index.builder import build_index, load_index, sha
-from tag_semantic.index.embedder import BGEEmbedder, BGEReranker
+from tag_semantic.index.embedder import create_embedder, create_reranker
 from tag_semantic.index.milvus_store import id_hash
 from tag_semantic.retrieve.service import RetrieveService, selection_context, visible_candidates
 from tag_semantic.snapshot.loader import load_catalog
@@ -109,13 +109,8 @@ def create_app(artifact_root=None, snapshot_root=None, token=None):
                 catalog = load_catalog(snapshots / (request.snapshot_id + '.jsonl'))
                 if catalog.meta.get('snapshot_id') != request.snapshot_id or catalog.meta['library_id'] != request.library_id:
                     raise ValueError('快照与构建请求身份不一致')
-                embedding_path = os.getenv('TAG_EMBEDDING_PATH')
-                reranker_path = os.getenv('TAG_RERANKER_PATH')
-                if not embedding_path and os.getenv('TAG_ALLOW_HASH_BASELINE') != 'true':
-                    raise ValueError('真实 Embedding 未配置；基线须显式开启 TAG_ALLOW_HASH_BASELINE')
                 built = build_index(catalog, root / request.build_id, request.build_id, request.store_type,
-                                    BGEEmbedder(embedding_path) if embedding_path else None,
-                                    BGEReranker(reranker_path) if reranker_path else None,
+                                    create_embedder(), create_reranker(),
                                     config=request.retrieval_config)
                 return {**built['manifest'], 'artifact_uri': (root / request.build_id).as_uri(), 'artifact_hash': sha(root / request.build_id / 'manifest.json')}
         except Exception as exc:

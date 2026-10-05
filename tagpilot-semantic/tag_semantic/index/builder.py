@@ -8,7 +8,10 @@ from pathlib import Path
 import numpy as np
 from tag_semantic.docs.templates import TEMPLATE_VERSION, render_documents
 from tag_semantic.index.alias_index import AliasIndex
-from tag_semantic.index.embedder import HashEmbedder, BGEEmbedder, BGEReranker
+from tag_semantic.index.embedder import (
+    create_embedder,
+    restore_embedder, restore_reranker, assert_models_match_manifest,
+)
 from tag_semantic.index.local_store import LocalStore
 from tag_semantic.index.milvus_store import MilvusStore, id_hash
 from tag_semantic.snapshot.canonicalize import dumps_jsonl, content_hash
@@ -42,7 +45,7 @@ def build_index(catalog, out_dir: Path, build_id: str, store_type='LOCAL', embed
         raise FileExistsError('构建目录已存在；请分配新 build_id')
     out_dir.parent.mkdir(parents=True, exist_ok=True)
     temp = Path(tempfile.mkdtemp(prefix='.building-', dir=out_dir.parent))
-    embedder = embedder or HashEmbedder()
+    embedder = embedder if embedder is not None else create_embedder()
     config = {'channel_k': 30, 'rrf_k': 60, 'rerank_k': 30, 'domain_prior_weight': 0.002,
               'exact_alias_fast_path': True, 'exact_alias_fast_path_version': 'v2-multicondition-aware', **(config or {})}
     docs = render_documents(list(catalog.tags.values()), list(catalog.concepts.values()), catalog.code_values)
@@ -65,10 +68,16 @@ def build_index(catalog, out_dir: Path, build_id: str, store_type='LOCAL', embed
     stats = store.build(docs)
     manifest = {'build_id': build_id, 'snapshot_id': catalog.meta.get('snapshot_id'), 'library_id': catalog.meta['library_id'],
                 'content_hash': content_hash(catalog.rows), 'doc_template_version': TEMPLATE_VERSION,
+                'embedding_backend': getattr(embedder, 'backend', 'hash'),
+                'embedding_base_url': getattr(embedder, 'base_url', None),
                 'embedding_model': embedder.model, 'embedding_dim': embedder.dim,
                 'embedding_model_hash': getattr(embedder, 'model_hash', hashlib.sha256(b'hash-v1:64').hexdigest()),
-                'embedding_path': getattr(embedder, 'path', None), 'reranker_path': getattr(reranker, 'path', None),
-                'reranker_model': getattr(reranker, 'model', None), 'reranker_model_hash': getattr(reranker, 'model_hash', None),
+                'embedding_path': getattr(embedder, 'path', None),
+                'reranker_backend': getattr(reranker, 'backend', None) if reranker else None,
+                'reranker_base_url': getattr(reranker, 'base_url', None) if reranker else None,
+                'reranker_path': getattr(reranker, 'path', None) if reranker else None,
+                'reranker_model': getattr(reranker, 'model', None) if reranker else None,
+                'reranker_model_hash': getattr(reranker, 'model_hash', None) if reranker else None,
                 'retrieval_config': config, 'retrieval_config_hash': hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest(),
                 'analyzer_version': 'jieba-default' if store_type == 'MILVUS' else 'local-char-v1',
                 'eval_summary': {'status': 'NOT_EVALUATED'}, 'store_type': store_type, 'doc_count': len(docs),
@@ -116,14 +125,9 @@ def load_index(out_dir: Path):
     catalog = load_catalog(root / 'snapshot.jsonl', manifest['content_hash'])
     if catalog.meta.get('snapshot_id') != manifest['snapshot_id'] or catalog.meta['library_id'] != manifest['library_id']:
         raise ValueError('manifest 与快照身份不一致')
-    embedder_path = _resolved_model_path(manifest['embedding_path'])
-    reranker_path = _resolved_model_path(manifest.get('reranker_path'))
-    embedder = BGEEmbedder(embedder_path) if embedder_path else HashEmbedder()
-    if getattr(embedder, 'model_hash', hashlib.sha256(b'hash-v1:64').hexdigest()) != manifest['embedding_model_hash']:
-        raise ValueError('Embedding 模型已变化，必须新建 build')
-    reranker = BGEReranker(reranker_path) if reranker_path else None
-    if reranker and reranker.model_hash != manifest['reranker_model_hash']:
-        raise ValueError('Reranker 模型已变化，必须新建 build')
+    embedder = restore_embedder(manifest, _resolved_model_path(manifest.get('embedding_path')))
+    reranker = restore_reranker(manifest, _resolved_model_path(manifest.get('reranker_path')))
+    assert_models_match_manifest(manifest, embedder, reranker)
     docs = [json.loads(line) for line in (root / 'docs.jsonl').read_text().splitlines()]
     vectors = np.load(root / 'emb.npy', allow_pickle=False)
     if vectors.shape != (len(docs), manifest['embedding_dim']) or not np.isfinite(vectors).all():

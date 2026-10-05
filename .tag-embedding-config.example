@@ -1,0 +1,20 @@
+# TagPilot remote Embedding / Rerank (SiliconFlow). Copy to repo root as
+# `.tag-embedding-config` (gitignored). Never commit real API keys.
+#
+# Factory default remains local if TAG_EMBEDDING_BACKEND is unset.
+# For this runtime, set backend=remote and keep secrets only in this file.
+
+TAG_EMBEDDING_BACKEND=remote
+TAG_RERANK_BACKEND=remote
+
+TAG_EMBEDDING_BASE_URL=https://api.siliconflow.cn/v1
+TAG_EMBEDDING_MODEL=BAAI/bge-m3
+TAG_EMBEDDING_DIM=1024
+TAG_EMBEDDING_API_KEY=sk-replace-me
+
+TAG_RERANK_BASE_URL=https://api.siliconflow.cn/v1
+TAG_RERANK_MODEL=BAAI/bge-reranker-v2-m3
+# TAG_RERANK_API_KEY=   # optional; falls back to TAG_EMBEDDING_API_KEY / SILICONFLOW_API_KEY
+
+TAG_EMBEDDING_TIMEOUT_S=60
+TAG_EMBEDDING_BATCH_SIZE=32
