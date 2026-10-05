@@ -23,8 +23,10 @@ DEFAULT_EMBEDDING_MODEL = 'BAAI/bge-m3'
 DEFAULT_EMBEDDING_DIM = 1024
 DEFAULT_RERANK_MODEL = 'BAAI/bge-reranker-v2-m3'
 DEFAULT_TIMEOUT_S = 60.0
+DEFAULT_CONNECT_TIMEOUT_S = 10.0
 DEFAULT_BATCH_SIZE = 32
 DEFAULT_MAX_RETRIES = 3
+RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})
 CONFIG_FILENAME = '.tag-embedding-config'
 FORBIDDEN_REMOTE_BUILD_IDS = frozenset({'bge-m3-l107-20260919-002-r3'})
 MODEL_CHANGED = '模型已变化，必须新建 build'
@@ -164,29 +166,41 @@ def _join_endpoint(base_url: str, name: str) -> str:
     return (base_url or '').strip().rstrip('/') + '/' + name
 
 
+def _http_timeout(timeout_s: float) -> httpx.Timeout:
+    read = float(timeout_s)
+    connect = min(DEFAULT_CONNECT_TIMEOUT_S, read)
+    return httpx.Timeout(connect=connect, read=read, write=read, pool=connect)
+
+
+def _http_error(status_code: int, url: str) -> ValueError:
+    return ValueError(f'远程 HTTP {status_code} {url}')
+
+
 def _post_json(client: httpx.Client, url: str, payload: dict, api_key: str,
-               timeout_s: float, max_retries: int, retry_backoff_s: float) -> dict:
+               timeout: httpx.Timeout | float, max_retries: int, retry_backoff_s: float) -> dict:
     headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+    timeout = timeout if isinstance(timeout, httpx.Timeout) else _http_timeout(timeout)
     last_error: Exception | None = None
     attempts = max(0, int(max_retries)) + 1
     for attempt in range(attempts):
         try:
-            response = client.post(url, json=payload, headers=headers, timeout=timeout_s)
-            if response.status_code in (408, 429, 500, 502, 503, 504) and attempt + 1 < attempts:
-                last_error = httpx.HTTPStatusError(
-                    f'HTTP {response.status_code}', request=response.request, response=response)
-                time.sleep(retry_backoff_s * (attempt + 1))
-                continue
-            response.raise_for_status()
-            data = response.json()
-            if not isinstance(data, dict):
-                raise ValueError('远程接口返回格式错误')
-            return data
+            response = client.post(url, json=payload, headers=headers, timeout=timeout)
         except (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError) as exc:
             last_error = exc
             if attempt + 1 >= attempts:
                 raise
             time.sleep(retry_backoff_s * (attempt + 1))
+            continue
+        if response.status_code in RETRYABLE_STATUS and attempt + 1 < attempts:
+            last_error = _http_error(response.status_code, url)
+            time.sleep(retry_backoff_s * (attempt + 1))
+            continue
+        if response.status_code >= 400:
+            raise _http_error(response.status_code, url)
+        data = response.json()
+        if not isinstance(data, dict):
+            raise ValueError('远程接口返回格式错误')
+        return data
     if last_error:
         raise last_error
     raise RuntimeError('远程请求失败')
@@ -206,13 +220,25 @@ class OpenAICompatibleEmbedder:
         self.model = model
         self.dim = int(dim)
         self.timeout_s = float(timeout_s)
+        self._timeout = _http_timeout(self.timeout_s)
         self.batch_size = max(1, int(batch_size))
         self.max_retries = max(0, int(max_retries))
         self.retry_backoff_s = float(retry_backoff_s)
         self.model_hash = remote_embedding_model_hash(self.base_url, self.model, self.dim)
         self._api_key = api_key
-        self._client = client or httpx.Client()
         self._owns_client = client is None
+        self._client = client or httpx.Client(timeout=self._timeout)
+
+    def close(self) -> None:
+        if self._owns_client:
+            self._client.close()
+            self._owns_client = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
 
     def __repr__(self) -> str:
         return f'OpenAICompatibleEmbedder(model={self.model!r}, dim={self.dim}, base_url={self.base_url!r})'
@@ -229,7 +255,7 @@ class OpenAICompatibleEmbedder:
     def _encode_batch(self, texts: list[str]) -> list[list[float]]:
         payload = {'model': self.model, 'input': texts}
         data = _post_json(self._client, _join_endpoint(self.base_url, 'embeddings'), payload,
-                          self._api_key, self.timeout_s, self.max_retries, self.retry_backoff_s)
+                          self._api_key, self._timeout, self.max_retries, self.retry_backoff_s)
         rows = list(data.get('data') or [])
         rows.sort(key=lambda row: int(row.get('index', 0)))
         if len(rows) != len(texts):
@@ -255,12 +281,24 @@ class HttpReranker:
         self.base_url = (base_url or DEFAULT_EMBEDDING_BASE_URL).strip().rstrip('/')
         self.model = model
         self.timeout_s = float(timeout_s)
+        self._timeout = _http_timeout(self.timeout_s)
         self.max_retries = max(0, int(max_retries))
         self.retry_backoff_s = float(retry_backoff_s)
         self.model_hash = remote_reranker_model_hash(self.base_url, self.model)
         self._api_key = api_key
-        self._client = client or httpx.Client()
         self._owns_client = client is None
+        self._client = client or httpx.Client(timeout=self._timeout)
+
+    def close(self) -> None:
+        if self._owns_client:
+            self._client.close()
+            self._owns_client = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
 
     def __repr__(self) -> str:
         return f'HttpReranker(model={self.model!r}, base_url={self.base_url!r})'
@@ -279,15 +317,25 @@ class HttpReranker:
         documents = [pack_rerank_document(item) for item in candidates]
         payload = {'model': self.model, 'query': query, 'documents': documents, 'top_n': len(documents)}
         data = _post_json(self._client, _join_endpoint(self.base_url, 'rerank'), payload,
-                          self._api_key, self.timeout_s, self.max_retries, self.retry_backoff_s)
+                          self._api_key, self._timeout, self.max_retries, self.retry_backoff_s)
+        rows = data.get('results')
+        if not isinstance(rows, list) or len(rows) < len(candidates):
+            raise ValueError('远程 Rerank 返回条数与输入不一致')
         scores = {}
-        for row in data.get('results') or []:
+        for row in rows:
+            if not isinstance(row, dict) or row.get('index') is None:
+                raise ValueError('远程 Rerank 结果缺少 index')
             try:
-                index = int(row.get('index'))
-            except (TypeError, ValueError):
-                continue
-            scores[index] = float(row.get('relevance_score') or 0.0)
-        items = [dict(item, rerank_score=float(scores.get(i, 0.0))) for i, item in enumerate(candidates)]
+                index = int(row['index'])
+            except (TypeError, ValueError) as exc:
+                raise ValueError('远程 Rerank 结果缺少 index') from exc
+            if row.get('relevance_score') is None:
+                raise ValueError('远程 Rerank 结果缺少 relevance_score')
+            scores[index] = float(row['relevance_score'])
+        missing = [i for i in range(len(candidates)) if i not in scores]
+        if missing:
+            raise ValueError('远程 Rerank 返回条数与输入不一致')
+        items = [dict(item, rerank_score=scores[i]) for i, item in enumerate(candidates)]
         return sorted(items, key=lambda x: (-x['rerank_score'], x['doc']['doc_id']))[:k]
 
 
@@ -353,6 +401,7 @@ def _create_remote_embedder() -> OpenAICompatibleEmbedder:
         dim=int(_cfg('TAG_EMBEDDING_DIM', str(DEFAULT_EMBEDDING_DIM)) or DEFAULT_EMBEDDING_DIM),
         timeout_s=float(_cfg('TAG_EMBEDDING_TIMEOUT_S', str(DEFAULT_TIMEOUT_S)) or DEFAULT_TIMEOUT_S),
         batch_size=int(_cfg('TAG_EMBEDDING_BATCH_SIZE', str(DEFAULT_BATCH_SIZE)) or DEFAULT_BATCH_SIZE),
+        max_retries=int(_cfg('TAG_EMBEDDING_MAX_RETRIES', str(DEFAULT_MAX_RETRIES)) or DEFAULT_MAX_RETRIES),
     )
 
 
@@ -366,6 +415,7 @@ def _create_remote_reranker() -> HttpReranker:
         model=_cfg('TAG_RERANK_MODEL', DEFAULT_RERANK_MODEL) or DEFAULT_RERANK_MODEL,
         api_key=key,
         timeout_s=float(_cfg('TAG_EMBEDDING_TIMEOUT_S', str(DEFAULT_TIMEOUT_S)) or DEFAULT_TIMEOUT_S),
+        max_retries=int(_cfg('TAG_EMBEDDING_MAX_RETRIES', str(DEFAULT_MAX_RETRIES)) or DEFAULT_MAX_RETRIES),
     )
 
 
@@ -388,7 +438,12 @@ def create_embedder() -> HashEmbedder | BGEEmbedder | OpenAICompatibleEmbedder:
 
 
 def create_reranker() -> BGEReranker | HttpReranker | None:
-    backend = (_cfg('TAG_RERANK_BACKEND', 'local') or 'local').strip().lower()
+    explicit = _cfg('TAG_RERANK_BACKEND')
+    if explicit in (None, ''):
+        embedding_backend = (_cfg('TAG_EMBEDDING_BACKEND', 'local') or 'local').strip().lower()
+        backend = 'remote' if embedding_backend == 'remote' else 'local'
+    else:
+        backend = explicit.strip().lower()
     if backend in {'none', 'off', 'false'}:
         return None
     if backend == 'remote':
@@ -424,7 +479,12 @@ def _requested_embedding_backend() -> str:
 
 
 def _requested_rerank_backend() -> str:
-    return (_cfg('TAG_RERANK_BACKEND') or '').strip().lower()
+    explicit = (_cfg('TAG_RERANK_BACKEND') or '').strip().lower()
+    if explicit:
+        return explicit
+    if _requested_embedding_backend() == 'remote':
+        return 'remote'
+    return ''
 
 
 def restore_embedder(manifest: dict, resolved_path: str | None = None):

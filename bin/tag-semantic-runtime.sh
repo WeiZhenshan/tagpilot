@@ -18,7 +18,7 @@ elif [[ -f "$ROOT_DIR/.tag-embedding-config" ]]; then
     TAG_EMBEDDING_BASE_URL TAG_EMBEDDING_MODEL TAG_EMBEDDING_DIM TAG_EMBEDDING_PATH \
     TAG_EMBEDDING_API_KEY TAG_RERANK_API_KEY SILICONFLOW_API_KEY \
     TAG_RERANK_BASE_URL TAG_RERANK_MODEL TAG_RERANKER_PATH \
-    TAG_EMBEDDING_TIMEOUT_S TAG_EMBEDDING_BATCH_SIZE
+    TAG_EMBEDDING_TIMEOUT_S TAG_EMBEDDING_BATCH_SIZE TAG_EMBEDDING_MAX_RETRIES
 fi
 
 backend="${TAG_EMBEDDING_BACKEND:-local}"
@@ -32,7 +32,8 @@ if [[ "$backend" == "remote" ]]; then
     echo '远程 Embedding 需要 TAG_EMBEDDING_API_KEY 或 SILICONFLOW_API_KEY（或仓库根 .tag-embedding-config）' >&2
     exit 1
   fi
-  if [[ "${TAG_RERANK_BACKEND:-}" == "remote" ]]; then
+  if [[ -z "${TAG_RERANK_BACKEND:-}" || "${TAG_RERANK_BACKEND}" == "remote" ]]; then
+    TAG_RERANK_BACKEND=remote
     : "${TAG_RERANK_BASE_URL:=https://api.siliconflow.cn/v1}"
     : "${TAG_RERANK_MODEL:=BAAI/bge-reranker-v2-m3}"
     export TAG_RERANK_BACKEND TAG_RERANK_BASE_URL TAG_RERANK_MODEL

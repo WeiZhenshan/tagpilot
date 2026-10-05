@@ -14,7 +14,7 @@
 #   TAG_RUNTIME_TOKEN=xxx ./dev.sh start          指定服务间令牌 (默认读取/生成本机 .tag-runtime-token)
 #   TAG_SNAPSHOT_DIR=xxx TAG_INDEX_DIR=yyy ./dev.sh start   指定快照/索引目录 (默认自动选用 tagpilot-semantic/out 下的完整数据集)
 #   LLM 选择器默认读取本机 .tag-llm-config（DeepSeek 等 OpenAI-compatible 端点）；也可用环境变量 TAG_LLM_* 覆盖
-#   Embedding 默认读取本机 .tag-embedding-config（SiliconFlow remote）；TAG_EMBEDDING_BACKEND=local|remote|hash
+#   Embedding 默认 local；存在本机 .tag-embedding-config 时加载（可设 remote）。TAG_EMBEDDING_BACKEND=local|remote|hash
 AppName=ruoyi-admin.jar
 
 # JVM参数
@@ -204,7 +204,7 @@ ensure_embedding_config() {
         TAG_EMBEDDING_BASE_URL TAG_EMBEDDING_MODEL TAG_EMBEDDING_DIM TAG_EMBEDDING_PATH \
         TAG_EMBEDDING_API_KEY TAG_RERANK_API_KEY SILICONFLOW_API_KEY \
         TAG_RERANK_BASE_URL TAG_RERANK_MODEL TAG_RERANKER_PATH \
-        TAG_EMBEDDING_TIMEOUT_S TAG_EMBEDDING_BATCH_SIZE
+        TAG_EMBEDDING_TIMEOUT_S TAG_EMBEDDING_BATCH_SIZE TAG_EMBEDDING_MAX_RETRIES
     blue "已加载本机 Embedding 配置 (backend=${TAG_EMBEDDING_BACKEND:-?} model=${TAG_EMBEDDING_MODEL:-?})"
 }
 
@@ -217,12 +217,13 @@ ensure_embedding_path() {
         TAG_EMBEDDING_MODEL=${TAG_EMBEDDING_MODEL:-BAAI/bge-m3}
         TAG_EMBEDDING_DIM=${TAG_EMBEDDING_DIM:-1024}
         export TAG_EMBEDDING_BACKEND TAG_EMBEDDING_BASE_URL TAG_EMBEDDING_MODEL TAG_EMBEDDING_DIM
-        if [ "${TAG_RERANK_BACKEND:-local}" = "remote" ]; then
+        blue "使用远程 Embedding: ${TAG_EMBEDDING_MODEL} @ ${TAG_EMBEDDING_BASE_URL}"
+        if [ -z "${TAG_RERANK_BACKEND:-}" ] || [ "${TAG_RERANK_BACKEND}" = "remote" ]; then
+            TAG_RERANK_BACKEND=remote
             TAG_RERANK_BASE_URL=${TAG_RERANK_BASE_URL:-https://api.siliconflow.cn/v1}
             TAG_RERANK_MODEL=${TAG_RERANK_MODEL:-BAAI/bge-reranker-v2-m3}
             export TAG_RERANK_BACKEND TAG_RERANK_BASE_URL TAG_RERANK_MODEL
         fi
-        blue "使用远程 Embedding: ${TAG_EMBEDDING_MODEL} @ ${TAG_EMBEDDING_BASE_URL}"
         return 0
     fi
     [ -n "${TAG_EMBEDDING_PATH:-}" ] && return 0

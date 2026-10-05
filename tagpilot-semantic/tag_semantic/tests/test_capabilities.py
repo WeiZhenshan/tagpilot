@@ -25,6 +25,7 @@ def test_capability_survives_snapshot_build_and_authorized_http(tmp_path):
     from tag_semantic.server import create_app
     from tag_semantic.tests.test_pipeline import _pilot_bundle
     from tag_semantic.index.builder import build_index
+    from tag_semantic.index.embedder import HashEmbedder
     from tag_semantic.snapshot.loader import load_catalog
     _,_,snapshot=_pilot_bundle(tmp_path)
     rows=deepcopy(snapshot['rows'])
@@ -37,7 +38,7 @@ def test_capability_survives_snapshot_build_and_authorized_http(tmp_path):
     meta['content_hash']=content_hash(rows)
     path=tmp_path/'cap-snapshot.jsonl';path.write_text('\n'.join(json.dumps(r,ensure_ascii=False) for r in rows)+'\n')
     catalog=load_catalog(path);assert catalog.capabilities['customer.example']['aliases']==['示例客户']
-    build_index(catalog,tmp_path/'cap-build','cap-build')
+    build_index(catalog,tmp_path/'cap-build','cap-build', embedder=HashEmbedder())
     with TestClient(create_app(tmp_path,tmp_path,'secret')) as client:
         body={'requirement':'示例客户','library_id':107,'build_id':'cap-build','eligible_tag_ids':[526]}
         assert client.post('/capabilities',json=body).status_code==401

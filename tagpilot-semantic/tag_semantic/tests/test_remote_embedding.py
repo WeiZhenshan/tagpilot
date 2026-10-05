@@ -19,6 +19,7 @@ from tag_semantic.index.embedder import (
     remote_embedding_model_hash,
     remote_reranker_model_hash,
     restore_embedder,
+    _http_timeout,
 )
 from tag_semantic.index.builder import build_index, load_index
 from tag_semantic.tests.test_pipeline import _pilot_bundle
@@ -48,8 +49,12 @@ def test_remote_model_hash_formula_does_not_include_api_key():
     assert rerank_hash == hashlib.sha256(b'remote|https://api.siliconflow.cn/v1|BAAI/bge-reranker-v2-m3|v1').hexdigest()
     left = OpenAICompatibleEmbedder(BASE, 'BAAI/bge-m3', 'sk-one', dim=1024)
     right = OpenAICompatibleEmbedder(BASE, 'BAAI/bge-m3', 'sk-two', dim=1024)
-    assert left.model_hash == right.model_hash == embedding_hash
-    assert left.path is None and right.path is None
+    try:
+        assert left.model_hash == right.model_hash == embedding_hash
+        assert left.path is None and right.path is None
+    finally:
+        left.close()
+        right.close()
 
 
 def test_openai_compatible_embedder_encode_and_empty_input():
@@ -95,8 +100,32 @@ def test_encode_failure_after_retries():
 
     embedder = OpenAICompatibleEmbedder(
         BASE, 'BAAI/bge-m3', 'sk-test', dim=DIM, max_retries=1, retry_backoff_s=0, client=_client(handler))
-    with pytest.raises(httpx.HTTPStatusError):
+    with pytest.raises(ValueError, match=r'远程 HTTP 500 https://api.siliconflow.cn/v1/embeddings') as caught:
         embedder.encode(['x'])
+    assert 'authorization' not in str(caught.value).lower()
+    assert 'Bearer' not in str(caught.value)
+
+
+def test_client_errors_do_not_retry_or_sleep(monkeypatch):
+    slept = []
+    monkeypatch.setattr('tag_semantic.index.embedder.time.sleep', lambda seconds: slept.append(seconds))
+    for status in (400, 401):
+        calls = {'n': 0}
+
+        def handler(request: httpx.Request, status=status) -> httpx.Response:
+            calls['n'] += 1
+            return httpx.Response(status, headers={'Authorization': 'Bearer leaked'}, json={'error': 'no'})
+
+        embedder = OpenAICompatibleEmbedder(
+            BASE, 'BAAI/bge-m3', 'sk-test', dim=DIM, max_retries=3, retry_backoff_s=1, client=_client(handler))
+        with pytest.raises(ValueError, match=rf'远程 HTTP {status} {BASE}/embeddings') as caught:
+            embedder.encode(['x'])
+        assert calls['n'] == 1
+        assert slept == []
+        message = str(caught.value)
+        assert 'authorization' not in message.lower()
+        assert 'Bearer' not in message
+        assert 'leaked' not in message
 
 
 def test_http_reranker_packs_like_bge_and_sorts_by_score_then_doc_id():
@@ -141,11 +170,60 @@ def test_rerank_truncates_candidates_to_50():
     assert ranked[0]['doc']['doc_id'] == 'tag:000'
 
 
+def _rerank_candidates():
+    return [
+        {'doc': {'doc_id': 'tag:c', 'body_text': '正文C', 'family_key': 'fam'}},
+        {'doc': {'doc_id': 'tag:b', 'body_text': '正文B', 'family_key': 'fam'}},
+        {'doc': {'doc_id': 'tag:a', 'body_text': '正文A', 'family_key': 'fam'}},
+    ]
+
+
+def test_rerank_raises_when_index_missing_or_results_short():
+    def missing_index(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={'results': [
+            {'index': 0, 'relevance_score': 0.1},
+            {'relevance_score': 0.2},
+            {'index': 2, 'relevance_score': 0.3},
+        ]})
+
+    reranker = HttpReranker(BASE, 'BAAI/bge-reranker-v2-m3', 'sk-test', retry_backoff_s=0, client=_client(missing_index))
+    with pytest.raises(ValueError, match='缺少 index'):
+        reranker.rerank('q', _rerank_candidates(), k=3)
+
+    def short_results(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={'results': [
+            {'index': 0, 'relevance_score': 0.1},
+            {'index': 2, 'relevance_score': 0.3},
+        ]})
+
+    reranker = HttpReranker(BASE, 'BAAI/bge-reranker-v2-m3', 'sk-test', retry_backoff_s=0, client=_client(short_results))
+    with pytest.raises(ValueError, match='条数与输入不一致'):
+        reranker.rerank('q', _rerank_candidates(), k=3)
+
+
+def test_http_timeout_splits_connect_and_read():
+    timeout = _http_timeout(60)
+    assert isinstance(timeout, httpx.Timeout)
+    assert timeout.connect == 10.0
+    assert timeout.read == 60.0
+    assert timeout.write == 60.0
+    short = _http_timeout(5)
+    assert short.connect == 5.0 and short.read == 5.0
+    embedder = OpenAICompatibleEmbedder(BASE, 'BAAI/bge-m3', 'sk-test', dim=DIM, timeout_s=60)
+    try:
+        assert embedder._timeout.connect == 10.0 and embedder._timeout.read == 60.0
+    finally:
+        embedder.close()
+
+
 def test_remote_embedder_does_not_import_flagembedding():
     sys.modules.pop('FlagEmbedding', None)
     embedder = OpenAICompatibleEmbedder(BASE, 'BAAI/bge-m3', 'sk-test', dim=DIM)
-    assert embedder.backend == 'remote'
-    assert 'FlagEmbedding' not in sys.modules
+    try:
+        assert embedder.backend == 'remote'
+        assert 'FlagEmbedding' not in sys.modules
+    finally:
+        embedder.close()
 
 
 def test_factory_remote_and_missing_key(monkeypatch):
@@ -157,13 +235,25 @@ def test_factory_remote_and_missing_key(monkeypatch):
     with pytest.raises(ValueError, match='远程模式需要 API Key'):
         create_embedder()
     monkeypatch.setenv('TAG_EMBEDDING_API_KEY', 'sk-test')
-    monkeypatch.setenv('TAG_RERANK_BACKEND', 'remote')
     embedder = create_embedder()
     reranker = create_reranker()
-    assert isinstance(embedder, OpenAICompatibleEmbedder)
-    assert embedder.model == 'BAAI/bge-m3' and embedder.dim == 1024
-    assert isinstance(reranker, HttpReranker)
-    assert reranker.model == 'BAAI/bge-reranker-v2-m3'
+    extra = None
+    try:
+        assert isinstance(embedder, OpenAICompatibleEmbedder)
+        assert embedder.model == 'BAAI/bge-m3' and embedder.dim == 1024
+        assert embedder.max_retries == 3
+        assert isinstance(reranker, HttpReranker)
+        assert reranker.model == 'BAAI/bge-reranker-v2-m3'
+        monkeypatch.setenv('TAG_EMBEDDING_MAX_RETRIES', '7')
+        extra = create_embedder()
+        assert extra.max_retries == 7
+        monkeypatch.setenv('TAG_RERANK_BACKEND', 'none')
+        assert create_reranker() is None
+    finally:
+        embedder.close()
+        reranker.close()
+        if extra is not None:
+            extra.close()
 
 
 def test_factory_reads_dot_config_without_logging_keys(monkeypatch, tmp_path):
@@ -176,9 +266,12 @@ def test_factory_reads_dot_config_without_logging_keys(monkeypatch, tmp_path):
         'TAG_RERANK_BACKEND': 'none',
     })
     embedder = create_embedder()
-    assert isinstance(embedder, OpenAICompatibleEmbedder)
-    assert 'sk-from-file' not in repr(embedder)
-    assert create_reranker() is None
+    try:
+        assert isinstance(embedder, OpenAICompatibleEmbedder)
+        assert 'sk-from-file' not in repr(embedder)
+        assert create_reranker() is None
+    finally:
+        embedder.close()
 
 
 def test_build_manifest_records_backend_fields(tmp_path):
