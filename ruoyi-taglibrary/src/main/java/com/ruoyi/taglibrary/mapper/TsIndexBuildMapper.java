@@ -8,6 +8,8 @@ public interface TsIndexBuildMapper {
 
     TsIndexBuild selectById(String buildId);
 
+    TsIndexBuild selectByIdForUpdate(String buildId);
+
     TsIndexBuild selectActiveBySnapshotId(String snapshotId);
 
     List<TsIndexBuild> selectBySnapshotId(String snapshotId);

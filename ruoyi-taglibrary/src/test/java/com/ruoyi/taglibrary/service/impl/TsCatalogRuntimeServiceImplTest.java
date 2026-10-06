@@ -123,12 +123,17 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         build.setSnapshotId("L107-1");
         build.setStatus("READY");
         when(indexBuildMapper.selectById("b1")).thenReturn(build);
+        when(indexBuildMapper.selectByIdForUpdate("b1")).thenReturn(build);
         TsCatalogSnapshot snapshot = new TsCatalogSnapshot();
         snapshot.setSnapshotId("L107-1");
         snapshot.setLibraryId(107L);
         when(snapshotMapper.selectById("L107-1")).thenReturn(snapshot);
+        snapshot.setStatus("PUBLISHED"); snapshot.setContentHash("content");
+        when(snapshotMapper.lockLibrary(107L)).thenReturn(107L);
+        when(snapshotMapper.selectByIdForUpdate("L107-1")).thenReturn(snapshot);
         build.setDocIdHash("hash"); build.setStoreType("LOCAL");
-        when(runtime.get("/stats?build_id=b1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
+        build.setArtifactHash("artifact");
+        when(runtime.get("/stats?build_id=b1")).thenReturn(identity(snapshot, build));
         TsIndexBuild activated = runtimeService.activate("b1");
         assertEquals("ACTIVE", activated.getStatus());
         verify(snapshotMapper).retireActive(107L, "L107-1");
@@ -145,8 +150,13 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         build.setDocIdHash("hash"); build.setStoreType("MILVUS"); build.setArtifactHash("h-new");
         TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("L107-6"); snapshot.setLibraryId(107L);
         when(indexBuildMapper.selectById("sf1")).thenReturn(build);
+        when(indexBuildMapper.selectByIdForUpdate("sf1")).thenReturn(build);
         when(snapshotMapper.selectById("L107-6")).thenReturn(snapshot);
-        when(runtime.get("/stats?build_id=sf1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
+        snapshot.setStatus("PUBLISHED"); snapshot.setContentHash("content");
+        when(snapshotMapper.lockLibrary(107L)).thenReturn(107L);
+        when(snapshotMapper.selectByIdForUpdate("L107-6")).thenReturn(snapshot);
+        build.setArtifactHash("artifact");
+        when(runtime.get("/stats?build_id=sf1")).thenReturn(identity(snapshot, build));
         runtimeService.activate("sf1");
         org.mockito.InOrder order = org.mockito.Mockito.inOrder(runtime, indexBuildMapper, planRebinder);
         order.verify(runtime).post(org.mockito.ArgumentMatchers.eq("/activate"), any());
@@ -161,8 +171,13 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         build.setDocIdHash("hash"); build.setStoreType("MILVUS"); build.setArtifactHash("h-new");
         TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("L107-6"); snapshot.setLibraryId(107L);
         when(indexBuildMapper.selectById("sf1")).thenReturn(build);
+        when(indexBuildMapper.selectByIdForUpdate("sf1")).thenReturn(build);
         when(snapshotMapper.selectById("L107-6")).thenReturn(snapshot);
-        when(runtime.get("/stats?build_id=sf1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
+        snapshot.setStatus("PUBLISHED"); snapshot.setContentHash("content");
+        when(snapshotMapper.lockLibrary(107L)).thenReturn(107L);
+        when(snapshotMapper.selectByIdForUpdate("L107-6")).thenReturn(snapshot);
+        build.setArtifactHash("artifact");
+        when(runtime.get("/stats?build_id=sf1")).thenReturn(identity(snapshot, build));
         when(planRebinder.rebindSameSnapshot(107L, build)).thenThrow(new ServiceException("客群改绑失败：132"));
         org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
         try {
@@ -181,8 +196,13 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         build.setStoreType("MILVUS"); build.setDocIdHash("hash");
         TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("s1"); snapshot.setLibraryId(107L);
         when(indexBuildMapper.selectById("b1")).thenReturn(build);
+        when(indexBuildMapper.selectByIdForUpdate("b1")).thenReturn(build);
         when(snapshotMapper.selectById("s1")).thenReturn(snapshot);
-        when(runtime.get("/stats?build_id=b1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
+        snapshot.setStatus("PUBLISHED"); snapshot.setContentHash("content");
+        when(snapshotMapper.lockLibrary(107L)).thenReturn(107L);
+        when(snapshotMapper.selectByIdForUpdate("s1")).thenReturn(snapshot);
+        build.setArtifactHash("artifact");
+        when(runtime.get("/stats?build_id=b1")).thenReturn(identity(snapshot, build));
         when(runtime.post(org.mockito.ArgumentMatchers.eq("/activate"), any())).thenThrow(new ServiceException("RPC timeout after alias changed"));
         org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
         try {
@@ -243,6 +263,12 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         assertThrows(ServiceException.class, () -> runtimeService.updateBuildStatus("b1", "READY", "{}"));
         verifyNoInteractions(runtime);
         org.mockito.Mockito.verify(indexBuildMapper, org.mockito.Mockito.never()).updateBuild(any());
+    }
+
+    private java.util.Map<String, Object> identity(TsCatalogSnapshot snapshot, TsIndexBuild build) {
+        return com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true,
+                "doc_id_hash", build.getDocIdHash(), "build_id", build.getBuildId(), "snapshot_id", snapshot.getSnapshotId(),
+                "library_id", 107L, "content_hash", snapshot.getContentHash(), "store_type", build.getStoreType(), "artifact_hash", build.getArtifactHash());
     }
 
     private TsIndexBuild readyBuild() {

@@ -11,6 +11,12 @@ public interface TlObjectGroupMapper {
     TlObjectGroup selectObjectGroupById(Long groupId);
     TlObjectGroup selectObjectGroupByIdForUpdate(Long groupId);
 
+    /** 与索引激活共用库锁，必须先于客群行锁。 */
+    Long lockLibrary(Long libraryId);
+
+    /** 当前读：拒绝旧事务读视图/会话缓存中的发布绑定。 */
+    java.util.List<java.util.Map<String, Object>> selectActiveBindingsForUpdate(Long libraryId);
+
     int insertObjectGroup(TlObjectGroup group);
 
     int updateObjectGroup(TlObjectGroup group);

@@ -65,8 +65,9 @@ class TsAudiencePlanRebinderTest {
         assertEquals("h-new", p.get("artifact_hash"));
         assertEquals("S6", p.get("snapshot_id"));
         // 其余字段原样保留（含方案 hash、修订号、小数精度）
-        assertEquals("plan-h", p.get("hash"));
-        assertEquals(3, p.get("revision"));
+        assertEquals("plan-h", p.get("previous_hash"));
+        org.junit.jupiter.api.Assertions.assertNotEquals("plan-h", p.get("hash"));
+        assertEquals(4, p.get("revision"));
         assertEquals(true, patch.getRuleJson().contains("\"ratio\":0.406600"));
     }
 
@@ -95,8 +96,8 @@ class TsAudiencePlanRebinderTest {
     }
 
     @Test
-    void missingArtifactHashSkipsRebind() {
-        assertEquals(0, rebinder.rebindSameSnapshot(107L, build("sf1", "S6", null)));
+    void missingArtifactHashRejectsActivation() {
+        assertThrows(ServiceException.class, () -> rebinder.rebindSameSnapshot(107L, build("sf1", "S6", null)));
         verify(groups, never()).selectPlanGroupsBySnapshotForUpdate(any(), any());
     }
 

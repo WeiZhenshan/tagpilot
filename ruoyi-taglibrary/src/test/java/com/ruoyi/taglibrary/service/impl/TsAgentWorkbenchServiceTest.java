@@ -37,9 +37,11 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     @Mock ITlTagService tags;
     @Mock TsAgentSkillService agentSkills;
     @Mock TsTagStatsService tagStats;
+    @Mock TsCatalogSnapshotMapper saveSnapshots;
     @InjectMocks TsAgentWorkbenchService service;
     TsAgentThread row;
     @BeforeEach void setup() throws Exception {
+        lenient().when(saveSnapshots.lockLibrary(107L)).thenReturn(107L);
         ((LoginUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).setUserId(2L);
         row=new TsAgentThread();row.setThreadId("owned");row.setUserId(2L);row.setLibraryId(107L);row.setRowVersion(0L);row.setTitle("测试");row.setArchived("0");row.setPinned("0");
         lenient().when(threads.lock("owned",2L)).thenReturn(row);
@@ -126,7 +128,7 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     }
     TlObjectGroup baselineGroup(Long groupId, Long library, String name, Long userCount) throws Exception {
         TlObjectGroup group=new TlObjectGroup();group.setGroupId(groupId);group.setLibraryId(library);group.setGroupName(name);group.setUserCount(userCount);
-        group.setRuleJson(json.writeValueAsString(map("schemaVersion",4,"audiencePlan",map("hash","bh","valid",true,"build_id","build","snapshot_id","snapshot","tree",map("clause_id","b","tag_id",1)))));
+        group.setRuleJson(json.writeValueAsString(map("schemaVersion",4,"audiencePlan",map("hash","bh","valid",true,"build_id","build","snapshot_id","snapshot","artifact_hash","hash","tree",map("clause_id","b","tag_id",1)))));
         return group;
     }
     @Test void skillRunInjectsBaselineCohortStatisticsForSelectedChips() throws Exception {

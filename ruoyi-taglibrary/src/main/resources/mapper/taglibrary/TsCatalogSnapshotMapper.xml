@@ -23,8 +23,8 @@
         snapshot_id, library_id, snapshot_no, tag_count, concept_count, alias_count, code_value_count,
         content_hash, file_sha256, storage_uri, schema_version, status, source_manifest, quality_report, publish_by, publish_time
     </sql>
-    <select id="lockLibrary" resultType="Long">
-        select library_id from tl_tag_library where library_id = #{libraryId} for update
+    <select id="lockLibrary" resultType="Long" flushCache="true" useCache="false">
+        select library_id from tl_tag_library where library_id = #{libraryId} and del_flag = '0' for update
     </select>
     <select id="selectByLibraryId" resultMap="SnapshotResult">
         select <include refid="cols"/> from ts_catalog_snapshot where library_id = #{libraryId} order by snapshot_no desc
@@ -32,8 +32,11 @@
     <select id="selectById" resultMap="SnapshotResult">
         select <include refid="cols"/> from ts_catalog_snapshot where snapshot_id = #{snapshotId}
     </select>
-    <select id="selectActiveByLibraryId" resultMap="SnapshotResult">
-        select <include refid="cols"/> from ts_catalog_snapshot where library_id = #{libraryId} and status = 'ACTIVE' limit 1
+    <select id="selectByIdForUpdate" flushCache="true" useCache="false" resultMap="SnapshotResult">
+        select <include refid="cols"/> from ts_catalog_snapshot where snapshot_id = #{snapshotId} for update
+    </select>
+    <select id="selectActiveByLibraryId" flushCache="true" useCache="false" resultMap="SnapshotResult">
+        select <include refid="cols"/> from ts_catalog_snapshot where library_id = #{libraryId} and status = 'ACTIVE' for update
     </select>
     <select id="selectMaxSnapshotNo" resultType="Integer">
         select max(snapshot_no) from ts_catalog_snapshot where library_id = #{libraryId}

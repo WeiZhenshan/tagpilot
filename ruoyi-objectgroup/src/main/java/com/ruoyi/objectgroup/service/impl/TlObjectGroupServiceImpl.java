@@ -124,6 +124,8 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         if (group.getLibraryId() == null) {
             throw new ServiceException("请选择关联标签库");
         }
+        lockLibraryForSave(group.getLibraryId());
+        validateActivePlan(group.getRuleJson(), group.getLibraryId());
         group.setCreateBy(SecurityUtils.getUsername());
         group.setRuleJson(validateAndStampRule(group.getRuleJson(), group.getLibraryId()));
         int rows = groupMapper.insertObjectGroup(group);
@@ -134,16 +136,49 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
     @Override
     @Transactional
     public int updateObjectGroup(TlObjectGroup group) {
+        // 先定位库（不锁客群），再按 library → group 顺序取得当前读。
+        TlObjectGroup hint = groupMapper.selectObjectGroupById(group.getGroupId());
+        if (hint == null) throw new ServiceException("对象群不存在", 409);
+        Long libraryId = hint.getLibraryId();
+        lockLibraryForSave(libraryId);
+        TlObjectGroup saved = groupMapper.selectObjectGroupByIdForUpdate(group.getGroupId());
+        if (saved == null || !java.util.Objects.equals(saved.getLibraryId(), libraryId)
+                || (group.getLibraryId() != null && !java.util.Objects.equals(group.getLibraryId(), libraryId)))
+            throw new ServiceException("对象群所属标签库已变化，请刷新", 409);
+        validateActivePlan(group.getRuleJson(), libraryId);
+        // 智能体方案不得通过通用编辑器退回手工规则；请从工作台重新核验。
+        if (group.getRuleJson() != null && hasAudiencePlan(saved.getRuleJson()) && !hasAudiencePlan(group.getRuleJson()))
+            throw new ServiceException("智能体客群请从工作台重新核验", 409);
+        group.getParams().put("expectedRuleJson", saved.getRuleJson());
         group.setUpdateBy(SecurityUtils.getUsername());
-        Long libraryId = group.getLibraryId();
-        if (libraryId == null) {
-            TlObjectGroup saved = groupMapper.selectObjectGroupById(group.getGroupId());
-            libraryId = saved == null ? null : saved.getLibraryId();
-        }
         group.setRuleJson(validateAndStampRule(group.getRuleJson(), libraryId));
         int rows = groupMapper.updateObjectGroup(group);
+        if (rows != 1) throw new ServiceException("对象群已变化，请刷新后重试", 409);
         bindImportBatches(group.getRuleJson(), group.getGroupId());
         return rows;
+    }
+
+    private void lockLibraryForSave(Long libraryId) {
+        if (libraryId == null || groupMapper.lockLibrary(libraryId) == null)
+            throw new ServiceException("标签库不存在", 409);
+    }
+
+    /** 不依赖 taglibrary 模块，保持依赖方向；发布信封用数据库当前读验证。 */
+    private void validateActivePlan(String ruleJson, Long libraryId) {
+        if (ruleJson == null || ruleJson.isEmpty()) return;
+        try {
+            com.fasterxml.jackson.databind.JsonNode plan = objectMapper.readTree(ruleJson).get("audiencePlan");
+            if (plan == null || plan.isNull()) return;
+            List<Map<String, Object>> bindings = groupMapper.selectActiveBindingsForUpdate(libraryId);
+            if (!plan.isObject() || bindings.size() != 1) throw new ServiceException("发布版本不唯一或不存在，请重新核验", 409);
+            Map<String, Object> active = bindings.get(0);
+            for (String key : new String[] {"snapshot_id", "build_id", "artifact_hash"}) {
+                Object value = active.get(key);
+                if (value == null || String.valueOf(value).isEmpty() || !String.valueOf(value).equals(plan.path(key).asText()))
+                    throw new ServiceException("圈选方案发布版本已变化，请重新核验", 409);
+            }
+        } catch (ServiceException e) { throw e; }
+        catch (Exception e) { throw new ServiceException("对象群规则格式不正确"); }
     }
 
     @Override
@@ -190,9 +225,12 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
             groupMapper.updateUserCount(groupId, count);
             TlObjectGroup group = groupMapper.selectObjectGroupById(groupId);
             if (group != null) {
-                group.setGroupSql(sql);
-                group.setUpdateBy(SecurityUtils.getUsername());
-                groupMapper.updateObjectGroup(group);
+                // 计数回写只提交派生 SQL；不得携带旧整行规则覆盖激活改绑。
+                TlObjectGroup patch = new TlObjectGroup();
+                patch.setGroupId(groupId);
+                patch.setGroupSql(sql);
+                patch.setUpdateBy(SecurityUtils.getUsername());
+                groupMapper.updateObjectGroup(patch);
             }
         }
         return new RuleRunResultVO(count, warning);

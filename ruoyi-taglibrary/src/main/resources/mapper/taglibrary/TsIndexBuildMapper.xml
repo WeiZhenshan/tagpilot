@@ -36,8 +36,11 @@
     <select id="selectById" resultMap="BuildResult">
         select <include refid="cols"/> from ts_index_build where build_id = #{buildId}
     </select>
-    <select id="selectActiveBySnapshotId" resultMap="BuildResult">
-        select <include refid="cols"/> from ts_index_build where snapshot_id = #{snapshotId} and status = 'ACTIVE' limit 1
+    <select id="selectByIdForUpdate" flushCache="true" useCache="false" resultMap="BuildResult">
+        select <include refid="cols"/> from ts_index_build where build_id = #{buildId} for update
+    </select>
+    <select id="selectActiveBySnapshotId" flushCache="true" useCache="false" resultMap="BuildResult">
+        select <include refid="cols"/> from ts_index_build where snapshot_id = #{snapshotId} and status = 'ACTIVE' for update
     </select>
     <select id="selectBySnapshotId" resultMap="BuildResult">
         select <include refid="cols"/> from ts_index_build where snapshot_id = #{snapshotId} order by create_time desc

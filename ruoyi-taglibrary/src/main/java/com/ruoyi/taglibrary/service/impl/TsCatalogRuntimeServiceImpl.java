@@ -250,19 +250,32 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
         if (build == null) {
             throw new ServiceException("构建不存在");
         }
-        if (!"READY".equals(build.getStatus()) && !"RETIRED".equals(build.getStatus())) {
+        if (!java.util.Arrays.asList("READY", "RETIRED", "ACTIVE").contains(build.getStatus())) {
             throw new ServiceException("仅 READY 构建可以激活");
         }
         TsCatalogSnapshot snapshot = snapshotMapper.selectById(build.getSnapshotId());
         if (snapshot == null) {
             throw new ServiceException("快照不存在");
         }
-        snapshotMapper.lockLibrary(snapshot.getLibraryId());
-        // 锁后重新读取，防止并发激活使用陈旧状态。
-        build = indexBuildMapper.selectById(buildId);
-        if (!("READY".equals(build.getStatus()) || "RETIRED".equals(build.getStatus()))) throw new ServiceException("构建状态已变化");
+        if (snapshotMapper.lockLibrary(snapshot.getLibraryId()) == null) throw new ServiceException("标签库不存在");
+        // FOR UPDATE 当前读并清空 MyBatis 本地缓存，覆盖 RR 的旧读视图。
+        snapshot = snapshotMapper.selectByIdForUpdate(snapshot.getSnapshotId());
+        build = indexBuildMapper.selectByIdForUpdate(buildId);
+        if (build == null || snapshot == null || !build.getSnapshotId().equals(snapshot.getSnapshotId())
+                || !java.util.Arrays.asList("PUBLISHED", "ACTIVE", "RETIRED").contains(snapshot.getStatus())
+                || !java.util.Arrays.asList("READY", "RETIRED", "ACTIVE").contains(build.getStatus()))
+            throw new ServiceException("构建或快照状态已变化");
         Map<String, Object> stats = runtime.get("/stats?build_id=" + buildId);
-        if (!Boolean.TRUE.equals(stats.get("id_reconciled")) || (build.getDocIdHash() == null || !build.getDocIdHash().equals(stats.get("doc_id_hash")))) throw new ServiceException("索引行集对账失败");
+        validateActivationIdentity(snapshot, build, stats);
+        if ("ACTIVE".equals(build.getStatus())) {
+            TsCatalogSnapshot active = snapshotMapper.selectActiveByLibraryId(snapshot.getLibraryId());
+            TsIndexBuild authoritative = active == null ? null : indexBuildMapper.selectActiveBySnapshotId(active.getSnapshotId());
+            if (active == null || !snapshot.getSnapshotId().equals(active.getSnapshotId())
+                    || authoritative == null || !buildId.equals(authoritative.getBuildId()))
+                throw new ServiceException("ACTIVE 构建不是库内权威版本");
+            // 请求超时后重试：对账后返回成功，不再调用激活 RPC 或改写历史执行。
+            return build;
+        }
         final Long activationLibraryId = snapshot.getLibraryId();
         final Map<String, Object> attemptedActivation = activationPayload(snapshot, build);
         if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
@@ -273,7 +286,7 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
                             // 回滚已释放原库锁，须在新事务重新取锁并读取当前权威状态；不能覆盖随后成功的激活。
                             maintenance.reconcile(activationLibraryId);
                         }
-                        catch (Exception e) { org.slf4j.LoggerFactory.getLogger(TsCatalogRuntimeServiceImpl.class).error("语义索引激活补偿失败，须按数据库 ACTIVE 对账恢复"); }
+                        catch (Exception e) { org.slf4j.LoggerFactory.getLogger(TsCatalogRuntimeServiceImpl.class).error("语义索引激活补偿失败 library={}，须调用 /taglibrary/semantic/library/{libraryId}/reconcile 按数据库 ACTIVE 恢复", activationLibraryId); }
                     }
                 }
             });
@@ -397,6 +410,19 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
     private static final class LocalDemoFreeze {
         private final Map<Long, Map<String, Object>> tags = new java.util.HashMap<Long, Map<String, Object>>();
         private final Map<Long, List<Map<String, Object>>> codes = new java.util.HashMap<Long, List<Map<String, Object>>>();
+    }
+
+    private void validateActivationIdentity(TsCatalogSnapshot snapshot, TsIndexBuild build, Map<String, Object> stats) {
+        if (!Boolean.TRUE.equals(stats.get("id_reconciled"))) throw new ServiceException("索引行集对账失败");
+        Map<String, Object> expected = com.ruoyi.taglibrary.service.TsSnapshotAssembler.map(
+                "library_id", snapshot.getLibraryId(), "snapshot_id", snapshot.getSnapshotId(),
+                "build_id", build.getBuildId(), "content_hash", snapshot.getContentHash(),
+                "store_type", build.getStoreType(), "artifact_hash", build.getArtifactHash(), "doc_id_hash", build.getDocIdHash());
+        for (Map.Entry<String, Object> field : expected.entrySet()) {
+            Object actual = stats.get(field.getKey()), value = field.getValue();
+            if (value == null || String.valueOf(value).isEmpty() || actual == null || !String.valueOf(value).equals(String.valueOf(actual)))
+                throw new ServiceException("激活产物身份对账失败：" + field.getKey());
+        }
     }
 
     private Map<String, Object> activationPayload(TsCatalogSnapshot snapshot, TsIndexBuild build) {
