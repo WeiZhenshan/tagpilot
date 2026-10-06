@@ -250,6 +250,7 @@ export default {
     return {
       // 表单
       groupId: undefined,
+      expectedRuleJson: null,
       ruleSchemaVersion: 2,
       advancedRule: null,
       groupName: '',
@@ -349,6 +350,7 @@ export default {
       this.ruleSchemaVersion = 2
       this.advancedRule = null
       this.groupId = undefined
+      this.expectedRuleJson = null
       this.groupName = ''
       this.groupDesc = ''
       this.conditions = []
@@ -371,6 +373,7 @@ export default {
     loadGroup() {
       getGroup(this.groupId).then(response => {
         const g = response.data
+        this.expectedRuleJson = g.ruleJson == null ? null : g.ruleJson
         this.groupName = g.groupName
         this.groupDesc = g.groupDesc
         this.libraryId = g.libraryId
@@ -774,6 +777,7 @@ export default {
         libraryId: this.libraryId,
         ruleJson: JSON.stringify(this.buildRule())
       }
+      if (this.groupId) payload.params = { expectedRuleJson: this.expectedRuleJson }
       this.saveLoading = true
       const api = this.groupId ? updateGroup(payload) : addGroup(payload)
       api.then(() => {

@@ -623,6 +623,8 @@ public class TsAgentWorkbenchService {
         TlObjectGroup group=new TlObjectGroup();group.setLibraryId(row.getLibraryId());group.setGroupName(name);group.setRuleJson(encode(rule));
         if(updating) {
             group.setGroupId(source.getGroupId());group.setGroupSql(sql);
+            // 上方已验证用户进入工作台时的 source_rule_hash，并在库锁内读取原文。
+            group.getParams().put("expectedRuleJson", source.getRuleJson());
             Map<String,Object> count=obj(state.get("count"));
             group.setUserCount(number(count.get("revision"))==number(state.get("revision"))?number(count.get("value")):0L);
             if(groups.updateObjectGroup(group)!=1)throw new ServiceException("原客群更新失败",409);

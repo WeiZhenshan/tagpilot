@@ -75,7 +75,15 @@
         </set>
         where group_id = #{groupId} and del_flag = '0'
         <!-- 任何规则写入必须提交读取时的原文；缺失预期值也拒绝。激活改绑使用相同 CAS。 -->
-        <if test="ruleJson != null">and rule_json = #{params.expectedRuleJson}</if>
+        <if test="ruleJson != null">
+            <choose>
+                <when test="params.containsKey('expectedRuleJson')">
+                    and (rule_json = #{params.expectedRuleJson,jdbcType=LONGVARCHAR}
+                         or (rule_json is null and #{params.expectedRuleJson,jdbcType=LONGVARCHAR} is null))
+                </when>
+                <otherwise>and 1 = 0</otherwise>
+            </choose>
+        </if>
     </update>
 
     <update id="deleteObjectGroupByIds" parameterType="Long">

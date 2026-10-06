@@ -101,3 +101,13 @@ docs/项目参考文档/
 
 __pycache__/
 *.pyc
+
+# 本机秘密配置的备份也不得进入新 clone 的暂存区
+.databroker-crypto-secret.*
+.tag-runtime-token.*
+.tag-llm-config.*
+.tag-embedding-config.*
+!.databroker-crypto-secret.example
+!.tag-runtime-token.example
+!.tag-llm-config.example
+!.tag-embedding-config.example

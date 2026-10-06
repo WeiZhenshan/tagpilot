@@ -156,4 +156,56 @@ class ActivationTransactionRegressionTest {
         } finally {release.countDown();pool.shutdownNow();}
     }
 
+    @Test void explicitNullExpectedAllowsFirstRuleButMissingExpectedDoesNot() throws Exception {
+        db.createStatement().execute("update tl_object_group set rule_json=null where group_id=131");
+        TlObjectGroup missing = new TlObjectGroup();missing.setGroupId(131L);missing.setRuleJson("{\"conditions\":[]}");
+        assertEquals(0,groups.updateObjectGroup(missing));
+        assertNull(value("select rule_json from tl_object_group where group_id=131"));
+        loginForTest();
+        try {
+            missing.getParams().put("expectedRuleJson",null);
+            assertEquals(1,saveService().updateObjectGroup(missing));
+            assertEquals("{\"conditions\":[]}",value("select rule_json from tl_object_group where group_id=131"));
+        } finally {org.springframework.security.core.context.SecurityContextHolder.clearContext();}
+    }
+    @Test void sameBuildStaleEditorCannotReplaceNewRuleAndMatchingEditorCanSave() throws Exception {
+        String original=value("select rule_json from tl_object_group where group_id=131");
+        String revised=original.replace("0.406600","0.500000");
+        TlObjectGroup newer=new TlObjectGroup();newer.setGroupId(131L);newer.setRuleJson(revised);
+        newer.getParams().put("expectedRuleJson",original);assertEquals(1,groups.updateObjectGroup(newer));
+        TlObjectGroup stale=new TlObjectGroup();stale.setGroupId(131L);stale.setRuleJson(original);
+        stale.getParams().put("expectedRuleJson",original);
+        loginForTest();
+        try {
+            ServiceException failure=assertThrows(ServiceException.class,()->saveService().updateObjectGroup(stale));
+            assertEquals(Integer.valueOf(409),failure.getCode());
+            assertEquals(original,stale.getParams().get("expectedRuleJson"));
+            assertEquals(revised,value("select rule_json from tl_object_group where group_id=131"));
+            // 同一发布、匹配用户读版本的合法修改仍可保存。
+            TlObjectGroup valid=newGroup();valid.setGroupId(131L);valid.getParams().put("expectedRuleJson",revised);
+            assertEquals(1,saveService().updateObjectGroup(valid));
+            assertEquals(valid.getRuleJson(),value("select rule_json from tl_object_group where group_id=131"));
+        } finally {org.springframework.security.core.context.SecurityContextHolder.clearContext();}
+    }
+    @Test void serviceRejectsMissingExpectedButAllowsNameOnlyPatch() throws Exception {
+        TlObjectGroup missing=newGroup();missing.setGroupId(131L);
+        loginForTest();
+        try {
+            assertThrows(ServiceException.class,()->saveService().updateObjectGroup(missing));
+            TlObjectGroup name=new TlObjectGroup();name.setGroupId(131L);name.setGroupName("新名称");
+            String original=value("select rule_json from tl_object_group where group_id=131");
+            assertEquals(1,saveService().updateObjectGroup(name));
+            assertEquals(original,value("select rule_json from tl_object_group where group_id=131"));
+            assertEquals("新名称",value("select group_name from tl_object_group where group_id=131"));
+        } finally {org.springframework.security.core.context.SecurityContextHolder.clearContext();}
+    }
+    @Test void oldBuildEditorIsRejectedEvenWithMatchingCurrentRawText() throws Exception {
+        String old=value("select rule_json from tl_object_group where group_id=131");
+        service.activate("new");
+        TlObjectGroup stale=newGroup();stale.setGroupId(131L);stale.setRuleJson(old);
+        stale.getParams().put("expectedRuleJson",value("select rule_json from tl_object_group where group_id=131"));
+        assertThrows(ServiceException.class,()->saveService().updateObjectGroup(stale));
+        assertTrue(value("select rule_json from tl_object_group where group_id=131").contains("\"build_id\":\"new\""));
+    }
+
 }

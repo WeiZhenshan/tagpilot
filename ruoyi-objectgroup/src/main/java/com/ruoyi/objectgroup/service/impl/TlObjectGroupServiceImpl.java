@@ -149,7 +149,10 @@ public class TlObjectGroupServiceImpl implements ITlObjectGroupService {
         // 智能体方案不得通过通用编辑器退回手工规则；请从工作台重新核验。
         if (group.getRuleJson() != null && hasAudiencePlan(saved.getRuleJson()) && !hasAudiencePlan(group.getRuleJson()))
             throw new ServiceException("智能体客群请从工作台重新核验", 409);
-        group.getParams().put("expectedRuleJson", saved.getRuleJson());
+        // 客户端必须提交打开编辑页时的原文；显式 NULL 与未提供预期不同。
+        if (group.getRuleJson() != null && (!group.getParams().containsKey("expectedRuleJson")
+                || !java.util.Objects.equals(group.getParams().get("expectedRuleJson"), saved.getRuleJson())))
+            throw new ServiceException("对象群已变化或缺少原规则，请刷新后重试", 409);
         group.setUpdateBy(SecurityUtils.getUsername());
         group.setRuleJson(validateAndStampRule(group.getRuleJson(), libraryId));
         int rows = groupMapper.updateObjectGroup(group);

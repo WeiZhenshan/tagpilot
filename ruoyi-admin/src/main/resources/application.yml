@@ -115,7 +115,7 @@ pagehelper:
 # Swagger配置
 swagger:
   # 是否开启swagger
-  enabled: true
+  enabled: false
   # 请求前缀
   pathMapping: /dev-api
 
@@ -151,3 +151,13 @@ tag:
   runtime-url: ${TAG_RUNTIME_URL:http://127.0.0.1:8091}
   agent-url: ${TAG_AGENT_URL:http://127.0.0.1:8092}
   runtime-token: ${TAG_RUNTIME_TOKEN:}
+
+# 生产默认关闭两套文档栈
+springfox:
+  documentation:
+    enabled: false
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
