@@ -26,7 +26,16 @@ public class TsAudiencePlanCompiler {
     private boolean expressionsEnabled = true;
 
     public RulePayload compile(Long library, Map<String,Object> plan) {
-        Map<String,Object> bundle = catalog.activeBundle(library);
+        return compileWithBundle(library, plan, catalog.activeBundle(library));
+    }
+
+    /** 保存不得复用进入工作台时的 RR 读视图，库锁内重新核验发布信封。 */
+    @org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.MANDATORY)
+    public RulePayload compileForSave(Long library, Map<String,Object> plan) {
+        return compileWithBundle(library, plan, catalog.activeBundleForUpdate(library));
+    }
+
+    private RulePayload compileWithBundle(Long library, Map<String,Object> plan, Map<String,Object> bundle) {
         for (String key : Arrays.asList("build_id","snapshot_id","artifact_hash"))
             if (!Objects.equals(bundle.get(key),plan.get(key))) throw new TsPlanValidationException("VERSION_MISMATCH",null,"发布版本已变化，请重新核验方案");
         Set<Long> eligible = new HashSet<>(catalog.eligibleTagIds(library, String.valueOf(bundle.get("snapshot_id"))));

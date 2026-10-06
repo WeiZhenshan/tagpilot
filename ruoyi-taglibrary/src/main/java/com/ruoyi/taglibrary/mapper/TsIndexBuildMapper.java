@@ -12,6 +12,9 @@ public interface TsIndexBuildMapper {
 
     TsIndexBuild selectActiveBySnapshotId(String snapshotId);
 
+    /** 库级锁内当前读，避免 RR 旧读视图。 */
+    TsIndexBuild selectActiveBySnapshotIdForUpdate(String snapshotId);
+
     List<TsIndexBuild> selectBySnapshotId(String snapshotId);
 
     int insertBuild(TsIndexBuild build);

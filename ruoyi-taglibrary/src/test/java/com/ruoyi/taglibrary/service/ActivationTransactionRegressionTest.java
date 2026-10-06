@@ -26,6 +26,9 @@ class ActivationTransactionRegressionTest {
     TsAudiencePlanRebinder rebinder;
     TsCatalogRuntimeServiceImpl service;
     TsRuntimeClient runtime;
+    TsCatalogSnapshotMapper snapshots;
+    TsIndexBuildMapper builds;
+    org.apache.ibatis.session.Configuration mapperConfig;
     TsIndexMaintenanceService maintenance;
 
     @BeforeEach void setup() throws Exception {
@@ -52,10 +55,12 @@ class ActivationTransactionRegressionTest {
         }
         factory.setMapperLocations(xmls.toArray(new Resource[0]));SqlSessionTemplate session=new SqlSessionTemplate(factory.getObject());
         groups=session.getMapper(TlObjectGroupMapper.class);
+        mapperConfig=factory.getObject().getConfiguration();
+        snapshots=session.getMapper(TsCatalogSnapshotMapper.class);builds=session.getMapper(TsIndexBuildMapper.class);
         TsAudiencePlanRebinder target=new TsAudiencePlanRebinder();ReflectionTestUtils.setField(target,"groups",groups);rebinder=proxy(target);
         TsCatalogRuntimeServiceImpl impl=new TsCatalogRuntimeServiceImpl();
-        ReflectionTestUtils.setField(impl,"snapshotMapper",session.getMapper(TsCatalogSnapshotMapper.class));
-        ReflectionTestUtils.setField(impl,"indexBuildMapper",session.getMapper(TsIndexBuildMapper.class));
+        ReflectionTestUtils.setField(impl,"snapshotMapper",snapshots);
+        ReflectionTestUtils.setField(impl,"indexBuildMapper",builds);
         runtime=mock(TsRuntimeClient.class);maintenance=mock(TsIndexMaintenanceService.class);
         ReflectionTestUtils.setField(impl,"runtime",runtime);ReflectionTestUtils.setField(impl,"maintenance",maintenance);ReflectionTestUtils.setField(impl,"planRebinder",rebinder);
         when(runtime.get("/stats?build_id=new")).thenReturn(TsSnapshotAssembler.map("id_reconciled",true,"library_id",107,"snapshot_id","S6","build_id","new","content_hash","content","store_type","MILVUS","artifact_hash","new-h","doc_id_hash","ids"));
@@ -208,4 +213,46 @@ class ActivationTransactionRegressionTest {
         assertTrue(value("select rule_json from tl_object_group where group_id=131").contains("\"build_id\":\"new\""));
     }
 
+
+    @Test void ordinaryActiveSqlDoesNotLockButCurrentReadClearsCacheAndLocks() {
+        for (String[] mapping : new String[][] {
+                {"com.ruoyi.taglibrary.mapper.TsCatalogSnapshotMapper.selectActiveByLibraryId", "libraryId"},
+                {"com.ruoyi.taglibrary.mapper.TsIndexBuildMapper.selectActiveBySnapshotId", "snapshotId"}}) {
+            Map<String,Object> params=Collections.singletonMap(mapping[1], "107");
+            org.apache.ibatis.mapping.MappedStatement plain=mapperConfig.getMappedStatement(mapping[0]);
+            org.apache.ibatis.mapping.MappedStatement locked=mapperConfig.getMappedStatement(mapping[0]+"ForUpdate");
+            assertFalse(plain.getBoundSql(params).getSql().toLowerCase().contains("for update"));
+            assertTrue(locked.getBoundSql(params).getSql().toLowerCase().contains("for update"));
+            assertTrue(locked.isFlushCacheRequired());assertFalse(locked.isUseCache());
+        }
+    }
+
+    @Test void activeReadIsNonblockingWhileSaveCurrentReadWaitsForPublication() throws Exception {
+        java.util.concurrent.CountDownLatch locked=new java.util.concurrent.CountDownLatch(1), release=new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.ExecutorService pool=java.util.concurrent.Executors.newFixedThreadPool(3);
+        try {
+            java.util.concurrent.Future<?> activation=pool.submit(()->new org.springframework.transaction.support.TransactionTemplate(new DataSourceTransactionManager(ds)).execute(t->{
+                snapshots.lockLibrary(107L);snapshots.selectActiveByLibraryIdForUpdate(107L);builds.selectActiveBySnapshotIdForUpdate("S6");
+                locked.countDown();
+                try {assertTrue(release.await(5,java.util.concurrent.TimeUnit.SECONDS));}catch(InterruptedException e){throw new RuntimeException(e);}
+                builds.retireActiveByLibraryId(107L);
+                com.ruoyi.taglibrary.domain.TsIndexBuild next=builds.selectByIdForUpdate("new");next.setStatus("ACTIVE");builds.updateBuild(next);return null;
+            }));
+            assertTrue(locked.await(5,java.util.concurrent.TimeUnit.SECONDS));
+            // 普通工作台/统计事务不会取得发布锁。
+            java.util.concurrent.Future<Map<String,Object>> reader=pool.submit(()->service.activeBundle(107L));
+            assertEquals("old",reader.get(1,java.util.concurrent.TimeUnit.SECONDS).get("build_id"));
+            java.util.concurrent.Future<Map<String,Object>> saver=pool.submit(()->new org.springframework.transaction.support.TransactionTemplate(new DataSourceTransactionManager(ds)).execute(t->{
+                snapshots.selectActiveByLibraryId(107L); // 故意先建立旧读视图/本地缓存。
+                return service.activeBundleForUpdate(107L);
+            }));
+            assertThrows(java.util.concurrent.TimeoutException.class,()->saver.get(100,java.util.concurrent.TimeUnit.MILLISECONDS));
+            release.countDown();activation.get(5,java.util.concurrent.TimeUnit.SECONDS);
+            assertEquals("new",saver.get(5,java.util.concurrent.TimeUnit.SECONDS).get("build_id"));
+        } finally {release.countDown();pool.shutdownNow();}
+    }
+
+    @Test void saveBundleRequiresExistingTransaction() {
+        assertThrows(org.springframework.transaction.IllegalTransactionStateException.class,()->service.activeBundleForUpdate(107L));
+    }
 }

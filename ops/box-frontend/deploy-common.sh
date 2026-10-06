@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 ROOT=/workspace/tagpilot-data/frontend-prod
-AUDIT=/workspace/tagpilot-data/codex-fix-20261006/fix2
+AUDIT=/workspace/tagpilot-data/codex-fix-20261006/fix3
 CONF="$ROOT/conf/nginx.conf"
 PIDFILE="$ROOT/run/nginx.pid"
 mkdir -p "$ROOT/run" "$AUDIT"
@@ -15,11 +15,11 @@ replace_conf() {
   mv -f "$CONF.next.$$" "$CONF" || return 1
 }
 nginx_apply() {
-  sudo -n /usr/sbin/nginx -c "$CONF" -t || return 1
+  sudo -n /usr/sbin/nginx -c "$CONF" 9>&- -t || return 1
   if [[ -f "$PIDFILE" ]] && sudo -n kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-    sudo -n /usr/sbin/nginx -c "$CONF" -s reload || return 1
+    sudo -n /usr/sbin/nginx -c "$CONF" 9>&- -s reload || return 1
   else
-    sudo -n /usr/sbin/nginx -c "$CONF" || return 1
+    sudo -n /usr/sbin/nginx -c "$CONF" 9>&- || return 1
   fi
 }
 probe() {

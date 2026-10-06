@@ -5,11 +5,11 @@ exec 9>"$ROOT/run/deploy.lock"; flock -n 9
 deployment_begin dev
 started_pidfiles=""
 if ! curl --max-time 3 -fsS http://127.0.0.1:5174/agent-ui/ -o /dev/null; then
-  (cd /workspace/tagpilot/tagpilot-assistant; nohup setsid npm run dev -- --host 127.0.0.1 >"$AUDIT/assistant-dev.log" 2>&1 </dev/null & echo $! >"$ROOT/run/assistant-dev.pid")
+  (cd /workspace/tagpilot/tagpilot-assistant; nohup setsid npm run dev -- --host 127.0.0.1 >"$AUDIT/assistant-dev.log" 2>&1 </dev/null 9>&- & echo $! >"$ROOT/run/assistant-dev.pid")
   started_pidfiles="$ROOT/run/assistant-dev.pid"
 fi
 if ! curl --max-time 3 -fsS http://127.0.0.1:18081/ -o /dev/null; then
-  (cd /workspace/tagpilot/ruoyi-ui; nohup setsid env PORT=18081 NODE_OPTIONS=--openssl-legacy-provider npm run dev -- --host 127.0.0.1 --port 18081 >"$AUDIT/ui-dev.log" 2>&1 </dev/null & echo $! >"$ROOT/run/vue-cli.pid")
+  (cd /workspace/tagpilot/ruoyi-ui; nohup setsid env PORT=18081 NODE_OPTIONS=--openssl-legacy-provider npm run dev -- --host 127.0.0.1 --port 18081 >"$AUDIT/ui-dev.log" 2>&1 </dev/null 9>&- & echo $! >"$ROOT/run/vue-cli.pid")
   started_pidfiles="$started_pidfiles $ROOT/run/vue-cli.pid"
 fi
 ready=0

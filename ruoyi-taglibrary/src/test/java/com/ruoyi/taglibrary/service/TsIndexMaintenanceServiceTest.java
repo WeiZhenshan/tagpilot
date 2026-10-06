@@ -32,20 +32,20 @@ class TsIndexMaintenanceServiceTest {
     @Test void reconciliationRestoresCurrentDatabaseAuthority() {
         when(snapshots.lockLibrary(107L)).thenReturn(107L);
         TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("current");
-        when(snapshots.selectActiveByLibraryId(107L)).thenReturn(snapshot);
-        when(builds.selectActiveBySnapshotId("current")).thenReturn(build("newer", "MILVUS", "ACTIVE"));
+        when(snapshots.selectActiveByLibraryIdForUpdate(107L)).thenReturn(snapshot);
+        when(builds.selectActiveBySnapshotIdForUpdate("current")).thenReturn(build("newer", "MILVUS", "ACTIVE"));
         service.reconcile(107L);
         InOrder order = inOrder(snapshots, runtime);
         order.verify(snapshots).lockLibrary(107L);
-        order.verify(snapshots).selectActiveByLibraryId(107L);
+        order.verify(snapshots).selectActiveByLibraryIdForUpdate(107L);
         order.verify(runtime).post(eq("/activate"), argThat(p -> "newer".equals(((Map<?, ?>) p).get("build_id")) && "current".equals(((Map<?, ?>) p).get("snapshot_id"))));
         verifyNoMoreInteractions(runtime);
     }
     @Test void localAuthorityClearsOrphanMilvusAliasBeforeActivation() {
         when(snapshots.lockLibrary(107L)).thenReturn(107L);
         TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("s");
-        when(snapshots.selectActiveByLibraryId(107L)).thenReturn(snapshot);
-        when(builds.selectActiveBySnapshotId("s")).thenReturn(build("local", "LOCAL", "ACTIVE"));
+        when(snapshots.selectActiveByLibraryIdForUpdate(107L)).thenReturn(snapshot);
+        when(builds.selectActiveBySnapshotIdForUpdate("s")).thenReturn(build("local", "LOCAL", "ACTIVE"));
         when(builds.selectByLibraryId(107L)).thenReturn(Collections.singletonList(build("orphan", "MILVUS", "READY")));
         service.reconcile(107L);
         InOrder order = inOrder(runtime);

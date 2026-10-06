@@ -268,8 +268,8 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
         Map<String, Object> stats = runtime.get("/stats?build_id=" + buildId);
         validateActivationIdentity(snapshot, build, stats);
         if ("ACTIVE".equals(build.getStatus())) {
-            TsCatalogSnapshot active = snapshotMapper.selectActiveByLibraryId(snapshot.getLibraryId());
-            TsIndexBuild authoritative = active == null ? null : indexBuildMapper.selectActiveBySnapshotId(active.getSnapshotId());
+            TsCatalogSnapshot active = snapshotMapper.selectActiveByLibraryIdForUpdate(snapshot.getLibraryId());
+            TsIndexBuild authoritative = active == null ? null : indexBuildMapper.selectActiveBySnapshotIdForUpdate(active.getSnapshotId());
             if (active == null || !snapshot.getSnapshotId().equals(active.getSnapshotId())
                     || authoritative == null || !buildId.equals(authoritative.getBuildId()))
                 throw new ServiceException("ACTIVE 构建不是库内权威版本");
@@ -306,12 +306,26 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Object> activeBundle(Long libraryId) {
         TsCatalogSnapshot snapshot = snapshotMapper.selectActiveByLibraryId(libraryId);
+        TsIndexBuild build = snapshot == null ? null : indexBuildMapper.selectActiveBySnapshotId(snapshot.getSnapshotId());
+        return bundle(snapshot, build);
+    }
+
+    @Override
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.MANDATORY)
+    public Map<String, Object> activeBundleForUpdate(Long libraryId) {
+        if (snapshotMapper.lockLibrary(libraryId) == null) throw new ServiceException("标签库不存在", 409);
+        TsCatalogSnapshot snapshot = snapshotMapper.selectActiveByLibraryIdForUpdate(libraryId);
+        TsIndexBuild build = snapshot == null ? null : indexBuildMapper.selectActiveBySnapshotIdForUpdate(snapshot.getSnapshotId());
+        return bundle(snapshot, build);
+    }
+
+    private Map<String, Object> bundle(TsCatalogSnapshot snapshot, TsIndexBuild build) {
         if (snapshot == null) {
             throw new ServiceException("库内无 ACTIVE 快照");
         }
-        TsIndexBuild build = indexBuildMapper.selectActiveBySnapshotId(snapshot.getSnapshotId());
         if (build == null) {
             throw new ServiceException("库内无 ACTIVE 索引构建");
         }

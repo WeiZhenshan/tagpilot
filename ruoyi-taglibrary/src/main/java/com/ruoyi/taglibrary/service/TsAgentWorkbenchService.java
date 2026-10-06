@@ -619,7 +619,7 @@ public class TsAgentWorkbenchService {
                 || (state.containsKey("source_group_name") && !Objects.equals(state.get("source_group_name"),source.getGroupName())))
                 throw new ServiceException("原客群已被其他操作更新，请从客群列表重新进入",409);
         }
-        RulePayload rule=compiler.compile(row.getLibraryId(),plan);String sql=groups.buildRuleSql(row.getLibraryId(),rule);
+        RulePayload rule=compiler.compileForSave(row.getLibraryId(),plan);String sql=groups.buildRuleSql(row.getLibraryId(),rule);
         TlObjectGroup group=new TlObjectGroup();group.setLibraryId(row.getLibraryId());group.setGroupName(name);group.setRuleJson(encode(rule));
         if(updating) {
             group.setGroupId(source.getGroupId());group.setGroupSql(sql);

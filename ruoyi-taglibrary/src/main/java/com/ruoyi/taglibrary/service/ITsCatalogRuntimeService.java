@@ -19,4 +19,7 @@ public interface ITsCatalogRuntimeService {
     TsIndexBuild activate(String buildId);
 
     Map<String, Object> activeBundle(Long libraryId);
+
+    /** 必须在保存事务内调用，按 library → snapshot → build 取得当前发布信封。 */
+    Map<String, Object> activeBundleForUpdate(Long libraryId);
 }

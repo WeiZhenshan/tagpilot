@@ -36,6 +36,9 @@
         select <include refid="cols"/> from ts_catalog_snapshot where snapshot_id = #{snapshotId} for update
     </select>
     <select id="selectActiveByLibraryId" flushCache="true" useCache="false" resultMap="SnapshotResult">
+        select <include refid="cols"/> from ts_catalog_snapshot where library_id = #{libraryId} and status = 'ACTIVE'
+    </select>
+    <select id="selectActiveByLibraryIdForUpdate" flushCache="true" useCache="false" resultMap="SnapshotResult">
         select <include refid="cols"/> from ts_catalog_snapshot where library_id = #{libraryId} and status = 'ACTIVE' for update
     </select>
     <select id="selectMaxSnapshotNo" resultType="Integer">

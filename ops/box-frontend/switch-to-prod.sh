@@ -6,8 +6,8 @@ release="$ROOT/releases/$(date +%Y%m%d-%H%M%S)-$$"
 mkdir -p "$release/dist" "$release/assistant-www/agent-ui"
 deployment_begin prod
 previous=$(readlink -f "$ROOT/current")
-(cd /workspace/tagpilot/ruoyi-ui; NODE_OPTIONS=--openssl-legacy-provider VUE_APP_BASE_API=/dev-api npm run build:prod -- --dest "$release/dist") >"$AUDIT/build-ui.log" 2>&1
-(cd /workspace/tagpilot/tagpilot-assistant; npm run build -- --outDir "$release/assistant-www/agent-ui") >"$AUDIT/build-assistant.log" 2>&1
+(cd /workspace/tagpilot/ruoyi-ui; NODE_OPTIONS=--openssl-legacy-provider VUE_APP_BASE_API=/dev-api npm run build:prod 9>&- -- --dest "$release/dist") >"$AUDIT/build-ui.log" 2>&1
+(cd /workspace/tagpilot/tagpilot-assistant; npm run build 9>&- -- --outDir "$release/assistant-www/agent-ui") >"$AUDIT/build-assistant.log" 2>&1
 [[ -s "$release/dist/index.html" && -s "$release/assistant-www/agent-ui/index.html" ]]
 ! rg -q '@vite/client' "$release/assistant-www/agent-ui/index.html"
 # 校验所有本版本 HTML 引用的本地构建资源，防止空目录或缺 chunk。
