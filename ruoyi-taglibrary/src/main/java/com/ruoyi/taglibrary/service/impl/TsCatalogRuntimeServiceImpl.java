@@ -64,6 +64,7 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
     @Autowired private com.ruoyi.taglibrary.service.TsSnapshotAssembler assembler;
     @Autowired private com.ruoyi.taglibrary.service.TsSnapshotArtifactStore artifacts;
     @Autowired private com.ruoyi.taglibrary.service.TsIndexMaintenanceService maintenance;
+    @Autowired private com.ruoyi.taglibrary.service.TsAudiencePlanRebinder planRebinder;
 
     /**
      * 本地演示可使用刚从 Java 权威导出接口下载的冻结件做当前资格校验。
@@ -286,6 +287,8 @@ public class TsCatalogRuntimeServiceImpl implements ITsCatalogRuntimeService {
         build.setStatus("ACTIVE");
         build.setMilvusAlias("tag_docs_active_l" + snapshot.getLibraryId());
         indexBuildMapper.updateBuild(build);
+        // 同快照换构建（如远程 embedding 重建）：已保存客群随激活改绑，与激活同事务；失败则整体回滚并走上方补偿。
+        planRebinder.rebindSameSnapshot(snapshot.getLibraryId(), build);
         return build;
     }
 

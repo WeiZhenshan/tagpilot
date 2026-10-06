@@ -83,4 +83,14 @@
         select count(*) from tl_object_group where library_id = #{libraryId} and del_flag = '0'
     </select>
 
+    <select id="selectPlanGroupsBySnapshotForUpdate" resultMap="TlObjectGroupResult">
+        select g.*
+        from tl_object_group g
+        where g.library_id = #{libraryId}
+          and g.del_flag = '0'
+          and g.rule_json like concat('%', #{snapshotId}, '%')
+        order by g.group_id
+        for update
+    </select>
+
 </mapper>

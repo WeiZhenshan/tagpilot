@@ -46,6 +46,7 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
     @Mock private com.ruoyi.taglibrary.service.TsSnapshotArtifactStore artifacts;
     @Mock private com.ruoyi.taglibrary.service.TsRuntimeClient runtime;
     @Mock private com.ruoyi.taglibrary.service.TsIndexMaintenanceService maintenance;
+    @Mock private com.ruoyi.taglibrary.service.TsAudiencePlanRebinder planRebinder;
     @Mock private TlTagLibraryMapper libraryMapper;
     @Mock private TlTagMapper tagMapper;
     @Mock private TsTagSemanticMapper tagSemanticMapper;
@@ -135,6 +136,42 @@ class TsCatalogRuntimeServiceImplTest extends BaseServiceTest {
         ArgumentCaptor<TsIndexBuild> captor = ArgumentCaptor.forClass(TsIndexBuild.class);
         verify(indexBuildMapper).updateBuild(captor.capture());
         assertEquals("ACTIVE", captor.getValue().getStatus());
+    }
+
+    @Test
+    void activateRebindsSameSnapshotGroupsAfterSwitchingActive() {
+        TsIndexBuild build = new TsIndexBuild();
+        build.setBuildId("sf1"); build.setSnapshotId("L107-6"); build.setStatus("RETIRED");
+        build.setDocIdHash("hash"); build.setStoreType("MILVUS"); build.setArtifactHash("h-new");
+        TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("L107-6"); snapshot.setLibraryId(107L);
+        when(indexBuildMapper.selectById("sf1")).thenReturn(build);
+        when(snapshotMapper.selectById("L107-6")).thenReturn(snapshot);
+        when(runtime.get("/stats?build_id=sf1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
+        runtimeService.activate("sf1");
+        org.mockito.InOrder order = org.mockito.Mockito.inOrder(runtime, indexBuildMapper, planRebinder);
+        order.verify(runtime).post(org.mockito.ArgumentMatchers.eq("/activate"), any());
+        order.verify(indexBuildMapper).updateBuild(build);
+        order.verify(planRebinder).rebindSameSnapshot(107L, build);
+    }
+
+    @Test
+    void rebindFailureFailsActivationAndTriggersCompensation() {
+        TsIndexBuild build = new TsIndexBuild();
+        build.setBuildId("sf1"); build.setSnapshotId("L107-6"); build.setStatus("READY");
+        build.setDocIdHash("hash"); build.setStoreType("MILVUS"); build.setArtifactHash("h-new");
+        TsCatalogSnapshot snapshot = new TsCatalogSnapshot(); snapshot.setSnapshotId("L107-6"); snapshot.setLibraryId(107L);
+        when(indexBuildMapper.selectById("sf1")).thenReturn(build);
+        when(snapshotMapper.selectById("L107-6")).thenReturn(snapshot);
+        when(runtime.get("/stats?build_id=sf1")).thenReturn(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id_reconciled", true, "doc_id_hash", "hash"));
+        when(planRebinder.rebindSameSnapshot(107L, build)).thenThrow(new ServiceException("客群改绑失败：132"));
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            // 异常不得被吞掉：@Transactional 据此回滚构建/快照状态与客群改绑，并由补偿把远端 alias 对齐回数据库 ACTIVE。
+            assertThrows(ServiceException.class, () -> runtimeService.activate("sf1"));
+            for (org.springframework.transaction.support.TransactionSynchronization sync : org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations())
+                sync.afterCompletion(org.springframework.transaction.support.TransactionSynchronization.STATUS_ROLLED_BACK);
+            verify(maintenance).reconcile(107L);
+        } finally { org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization(); }
     }
 
     @Test
