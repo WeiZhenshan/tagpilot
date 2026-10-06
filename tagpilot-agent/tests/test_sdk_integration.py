@@ -111,6 +111,23 @@ def test_soft_budget_interrupts_stall_and_queries_convergence_once(tmp_path,gate
     store.db.close()
 
 
+def test_model_transport_injects_missing_custom_headers_only(gateway):
+    import httpx,os
+    from tagpilot_agent.runtime.model_transport import model_transport
+    from tagpilot_agent.runtime.run_context import RunContext
+    app=gateway([[],[]])
+    ctx=RunContext(REQ,Evidence())
+    async def scenario():
+        async with model_transport(ctx,os.environ['ANTHROPIC_BASE_URL'],'local-fake-key','x-opencode-session: tagpilot-insight') as base:
+            async with httpx.AsyncClient() as client:
+                first=await client.post(base+'/v1/messages',json={},headers={'x-api-key':'local-fake-key'})
+                second=await client.post(base+'/v1/messages',json={},headers={'x-api-key':'local-fake-key','x-opencode-session':'from-client'})
+                assert first.status_code==200 and second.status_code==200
+    asyncio.run(scenario())
+    assert app.state.headers[0]['x-opencode-session']=='tagpilot-insight'
+    assert app.state.headers[1]['x-opencode-session']=='from-client'
+
+
 def test_model_transport_idle_timeout_is_observable(gateway,monkeypatch):
     import httpx,os
     from tagpilot_agent.runtime.model_transport import model_transport

@@ -11,7 +11,7 @@ export ANTHROPIC_API_KEY='<模型密钥>'
 ./bin/tagpilot-agent.sh
 ```
 
-启动脚本可读取根目录未入 Git 的 `.tag-llm-config`。仅将官方 `TAG_LLM_BASE_URL=https://api.deepseek.com` 映射到 Anthropic 端点；第三方网关必须显式设置 `ANTHROPIC_BASE_URL`。原 OpenAI 协议 URL 不能直接用于 SDK。
+启动脚本始终读取根目录未入 Git 的 `.tag-llm-config`（外部 `TAG_LLM_*` 仍是权威配置，只覆盖同名值；配置文件导出的 `ANTHROPIC_BASE_URL` / `ANTHROPIC_CUSTOM_HEADERS` 始终生效，外部端点与配置文件不一致时保留宿主显式提供的 Anthropic 映射）。官方 `TAG_LLM_BASE_URL=https://api.deepseek.com` 映射到 Anthropic 端点；第三方网关必须显式设置 `ANTHROPIC_BASE_URL`。OpenCode 网关缺少 `x-opencode-session` 会被启动脚本强制注入（可用 `TAG_OPENCODE_SESSION` 覆盖），SDK 子进程环境与回环转发同样显式携带该自定义头。原 OpenAI 协议 URL 不能直接用于 SDK。健康检查用 `scripts/model_health.py`（httpx + 浏览器型 UA，断言响应不是 Cloudflare 1010 或 MissingSessionID）。
 
 | 配置 | 默认值 / 含义 |
 |---|---|
