@@ -4,7 +4,7 @@ parser=argparse.ArgumentParser(description='仅在显式隔离目录测试脚本
 parser.add_argument('--output-dir', required=True, type=Path)
 args=parser.parse_args()
 base=args.output_dir.resolve()
-repo=Path(__file__).resolve().parents[2]
+repo=Path('/workspace/tagpilot').resolve()
 if base==repo or repo in base.parents:
  parser.error('输出目录必须位于仓库之外')
 base.mkdir(parents=True,exist_ok=True)
