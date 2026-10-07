@@ -104,10 +104,16 @@ def cmd_fetch(args):
 
 
 def cmd_build(args):
-    from tag_semantic.index.embedder import BGEEmbedder, BGEReranker
+    import os
+    from tag_semantic.index.embedder import create_embedder, create_reranker
+    if args.embedding_path:
+        os.environ['TAG_EMBEDDING_PATH'] = args.embedding_path
+        os.environ['TAG_EMBEDDING_BACKEND'] = 'local'
+    if args.reranker_path:
+        os.environ['TAG_RERANKER_PATH'] = args.reranker_path
+        os.environ['TAG_RERANK_BACKEND'] = 'local'
     result = build_index(load_catalog(args.snapshot), args.out, args.build_id, args.store_type,
-                         BGEEmbedder(args.embedding_path) if args.embedding_path else None,
-                         BGEReranker(args.reranker_path) if args.reranker_path else None)
+                         create_embedder(), create_reranker())
     print(json.dumps(result["manifest"], ensure_ascii=False))
     return 0
 

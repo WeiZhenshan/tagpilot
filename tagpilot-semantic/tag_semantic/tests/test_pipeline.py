@@ -1,6 +1,7 @@
 from tag_semantic.eval.run import contract_cross_bucket, contract_empty_eligible, contract_partial_eligible, run_dev_eval, snapshot_coverage
 from tag_semantic.eval.gold import GOLD_DEV
 from tag_semantic.index.builder import build_index
+from tag_semantic.index.embedder import HashEmbedder
 from tag_semantic.index.milvus_store import MilvusStore, MilvusUnavailable
 from tag_semantic.profile.aggregator import aggregate_profile
 from tag_semantic.retrieve.family import resolve_family
@@ -49,7 +50,7 @@ def _pilot_bundle(tmp_path: Path):
     path = tmp_path / "snapshot.jsonl"
     path.write_text(snapshot["jsonl"], encoding="utf-8")
     catalog = load_catalog(path, expected_hash=snapshot["content_hash"])
-    built = build_index(catalog, tmp_path / "b1", "b1")
+    built = build_index(catalog, tmp_path / "b1", "b1", embedder=HashEmbedder())
     service = RetrieveService(catalog, built["store"], built["alias_index"])
     return service, catalog, snapshot
 

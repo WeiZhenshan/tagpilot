@@ -14,6 +14,7 @@
 #   TAG_RUNTIME_TOKEN=xxx ./dev.sh start          指定服务间令牌 (默认读取/生成本机 .tag-runtime-token)
 #   TAG_SNAPSHOT_DIR=xxx TAG_INDEX_DIR=yyy ./dev.sh start   指定快照/索引目录 (默认自动选用 tagpilot-semantic/out 下的完整数据集)
 #   LLM 选择器默认读取本机 .tag-llm-config（DeepSeek 等 OpenAI-compatible 端点）；也可用环境变量 TAG_LLM_* 覆盖
+#   Embedding 默认 local；存在本机 .tag-embedding-config 时加载（可设 remote）。TAG_EMBEDDING_BACKEND=local|remote|hash
 AppName=ruoyi-admin.jar
 
 # JVM参数
@@ -36,6 +37,9 @@ TOKEN_FILE="$ROOT_DIR/.tag-runtime-token"
 
 # LLM 选择器配置（OpenAI-compatible；本机持久化、不入 git）
 LLM_CONFIG_FILE="$ROOT_DIR/.tag-llm-config"
+
+# 远程 Embedding/Rerank 配置（SiliconFlow 等；本机持久化、不入 git）
+EMBEDDING_CONFIG_FILE="$ROOT_DIR/.tag-embedding-config"
 
 # Python 语义引擎（tag_semantic / uvicorn，令牌经环境变量注入两侧进程）
 RT_SCRIPT="$ROOT_DIR/bin/tag-semantic-runtime.sh"
@@ -65,7 +69,7 @@ yellow() { printf '\033[0;33m%s\033[0m\n' "$*"; }
 blue()   { printf '\033[0;34m%s\033[0m\n' "$*"; }
 
 if [ "$1" = "" ]; then
-    sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
 fi
 
@@ -167,10 +171,64 @@ ensure_agent_python() {
     export TAG_AGENT_PYTHON
 }
 
-# 未显式配置向量模型时使用本机已下载的 bge-m3（真实模式必需，基线实验除外）
+# 外部 TAG_EMBEDDING_* 优先；否则读取本机 .tag-embedding-config（密钥不入 Git、不打印）
+ensure_embedding_config() {
+    [ -f "$EMBEDDING_CONFIG_FILE" ] || return 0
+    _B=${TAG_EMBEDDING_BACKEND:-}
+    _EKEY=${TAG_EMBEDDING_API_KEY:-}
+    _RKEY=${TAG_RERANK_API_KEY:-}
+    _SKEY=${SILICONFLOW_API_KEY:-}
+    _EURL=${TAG_EMBEDDING_BASE_URL:-}
+    _EMODEL=${TAG_EMBEDDING_MODEL:-}
+    _EDIM=${TAG_EMBEDDING_DIM:-}
+    _EPATH=${TAG_EMBEDDING_PATH:-}
+    _RB=${TAG_RERANK_BACKEND:-}
+    _RURL=${TAG_RERANK_BASE_URL:-}
+    _RMODEL=${TAG_RERANK_MODEL:-}
+    _RPATH=${TAG_RERANKER_PATH:-}
+    # shellcheck disable=SC1090
+    . "$EMBEDDING_CONFIG_FILE"
+    [ -n "$_B" ] && TAG_EMBEDDING_BACKEND="$_B"
+    [ -n "$_EKEY" ] && TAG_EMBEDDING_API_KEY="$_EKEY"
+    [ -n "$_RKEY" ] && TAG_RERANK_API_KEY="$_RKEY"
+    [ -n "$_SKEY" ] && SILICONFLOW_API_KEY="$_SKEY"
+    [ -n "$_EURL" ] && TAG_EMBEDDING_BASE_URL="$_EURL"
+    [ -n "$_EMODEL" ] && TAG_EMBEDDING_MODEL="$_EMODEL"
+    [ -n "$_EDIM" ] && TAG_EMBEDDING_DIM="$_EDIM"
+    [ -n "$_EPATH" ] && TAG_EMBEDDING_PATH="$_EPATH"
+    [ -n "$_RB" ] && TAG_RERANK_BACKEND="$_RB"
+    [ -n "$_RURL" ] && TAG_RERANK_BASE_URL="$_RURL"
+    [ -n "$_RMODEL" ] && TAG_RERANK_MODEL="$_RMODEL"
+    [ -n "$_RPATH" ] && TAG_RERANKER_PATH="$_RPATH"
+    export TAG_EMBEDDING_BACKEND TAG_RERANK_BACKEND \
+        TAG_EMBEDDING_BASE_URL TAG_EMBEDDING_MODEL TAG_EMBEDDING_DIM TAG_EMBEDDING_PATH \
+        TAG_EMBEDDING_API_KEY TAG_RERANK_API_KEY SILICONFLOW_API_KEY \
+        TAG_RERANK_BASE_URL TAG_RERANK_MODEL TAG_RERANKER_PATH \
+        TAG_EMBEDDING_TIMEOUT_S TAG_EMBEDDING_BATCH_SIZE TAG_EMBEDDING_MAX_RETRIES
+    blue "已加载本机 Embedding 配置 (backend=${TAG_EMBEDDING_BACKEND:-?} model=${TAG_EMBEDDING_MODEL:-?})"
+}
+
+# remote：校验 URL/模型/Key，不要求本地模型目录。local：未显式配置时使用本机 bge-m3。
 ensure_embedding_path() {
+    ensure_embedding_config
+    backend=${TAG_EMBEDDING_BACKEND:-local}
+    if [ "$backend" = "remote" ]; then
+        TAG_EMBEDDING_BASE_URL=${TAG_EMBEDDING_BASE_URL:-https://api.siliconflow.cn/v1}
+        TAG_EMBEDDING_MODEL=${TAG_EMBEDDING_MODEL:-BAAI/bge-m3}
+        TAG_EMBEDDING_DIM=${TAG_EMBEDDING_DIM:-1024}
+        export TAG_EMBEDDING_BACKEND TAG_EMBEDDING_BASE_URL TAG_EMBEDDING_MODEL TAG_EMBEDDING_DIM
+        blue "使用远程 Embedding: ${TAG_EMBEDDING_MODEL} @ ${TAG_EMBEDDING_BASE_URL}"
+        if [ -z "${TAG_RERANK_BACKEND:-}" ] || [ "${TAG_RERANK_BACKEND}" = "remote" ]; then
+            TAG_RERANK_BACKEND=remote
+            TAG_RERANK_BASE_URL=${TAG_RERANK_BASE_URL:-https://api.siliconflow.cn/v1}
+            TAG_RERANK_MODEL=${TAG_RERANK_MODEL:-BAAI/bge-reranker-v2-m3}
+            export TAG_RERANK_BACKEND TAG_RERANK_BASE_URL TAG_RERANK_MODEL
+        fi
+        return 0
+    fi
     [ -n "${TAG_EMBEDDING_PATH:-}" ] && return 0
     [ "${TAG_ALLOW_HASH_BASELINE:-false}" = true ] && return 0
+    [ "$backend" = "hash" ] && return 0
     if [ -d "$ROOT_DIR/tagpilot-semantic/out/models/bge-m3" ]; then
         TAG_EMBEDDING_PATH="$ROOT_DIR/tagpilot-semantic/out/models/bge-m3"
         export TAG_EMBEDDING_PATH
@@ -214,7 +272,7 @@ compile_backend_if_stale() {
     fi
 }
 
-# 语义运行时前置校验：令牌由 ensure_runtime_token 注入，模型路径外部优先、本机默认 bge-m3
+# 语义运行时前置校验：令牌由 ensure_runtime_token 注入；remote 不检查本地模型 / FlagEmbedding
 runtime_check_env() {
     [ -n "${TAG_RUNTIME_TOKEN:-}" ] || {
         red "未配置 TAG_RUNTIME_TOKEN（Java 与 Python 必须使用同一令牌，只经环境变量注入）"
@@ -223,24 +281,44 @@ runtime_check_env() {
     ensure_runtime_python
     RT_PY="$TAG_RUNTIME_PYTHON"
     (cd "$ROOT_DIR" && [ -x "$RT_PY" ]) || {
-        red "解释器不可执行: $RT_PY (请先 uv sync --project tagpilot-semantic --extra dev，真实模型还需 --extra models)"
+        red "解释器不可执行: $RT_PY (请先 uv sync --project tagpilot-semantic --extra dev，本地模型还需 --extra models)"
         return 1
     }
-    if [ -z "${TAG_EMBEDDING_PATH:-}" ] && [ "${TAG_ALLOW_HASH_BASELINE:-false}" != "true" ]; then
-        red "未配置 TAG_EMBEDDING_PATH (隔离基线实验可设 TAG_ALLOW_HASH_BASELINE=true)"
-        return 1
-    fi
-    if [ -n "${TAG_EMBEDDING_PATH:-}" ] && ! (cd "$ROOT_DIR" && [ -d "$TAG_EMBEDDING_PATH" ]); then
-        red "TAG_EMBEDDING_PATH 目录不存在: $TAG_EMBEDDING_PATH"
-        return 1
-    fi
-    # 缺 FlagEmbedding 时运行时能起来，但加载索引会失败成一个看不出原因的 503
-    if [ -n "${TAG_EMBEDDING_PATH:-}" ] && ! (cd "$ROOT_DIR" && "$RT_PY" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('FlagEmbedding') else 1)" >/dev/null 2>&1); then
-        PY_VER=$(cd "$ROOT_DIR" && "$RT_PY" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null)
-        red "解释器缺少 FlagEmbedding（真实模型依赖，当前 Python ${PY_VER:-?}）"
-        red "请执行: UV_PROJECT_ENVIRONMENT=.venv-models uv sync --project tagpilot-semantic --python 3.12 --extra dev --extra models"
-        red "或设置: export TAG_RUNTIME_PYTHON='tagpilot-semantic/.venv-models/bin/python'"
-        return 1
+    backend=${TAG_EMBEDDING_BACKEND:-local}
+    if [ "$backend" = "remote" ]; then
+        key=${TAG_EMBEDDING_API_KEY:-${SILICONFLOW_API_KEY:-}}
+        if [ -z "$key" ]; then
+            red "远程 Embedding 未配置 API Key（TAG_EMBEDDING_API_KEY 或 SILICONFLOW_API_KEY，或仓库根 .tag-embedding-config）"
+            return 1
+        fi
+        if [ -z "${TAG_EMBEDDING_BASE_URL:-}" ] || [ -z "${TAG_EMBEDDING_MODEL:-}" ]; then
+            red "远程 Embedding 需要 TAG_EMBEDDING_BASE_URL 与 TAG_EMBEDDING_MODEL"
+            return 1
+        fi
+        if [ "${TAG_RERANK_BACKEND:-}" = "remote" ]; then
+            rkey=${TAG_RERANK_API_KEY:-${TAG_EMBEDDING_API_KEY:-${SILICONFLOW_API_KEY:-}}}
+            if [ -z "$rkey" ]; then
+                red "远程 Rerank 未配置 API Key"
+                return 1
+            fi
+        fi
+    elif [ "$backend" != "hash" ] && [ "${TAG_ALLOW_HASH_BASELINE:-false}" != "true" ]; then
+        if [ -z "${TAG_EMBEDDING_PATH:-}" ]; then
+            red "未配置 TAG_EMBEDDING_PATH (隔离基线实验可设 TAG_ALLOW_HASH_BASELINE=true；远程模式设 TAG_EMBEDDING_BACKEND=remote)"
+            return 1
+        fi
+        if ! (cd "$ROOT_DIR" && [ -d "$TAG_EMBEDDING_PATH" ]); then
+            red "TAG_EMBEDDING_PATH 目录不存在: $TAG_EMBEDDING_PATH"
+            return 1
+        fi
+        # 缺 FlagEmbedding 时运行时能起来，但加载本地索引会失败成一个看不出原因的 503
+        if ! (cd "$ROOT_DIR" && "$RT_PY" -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('FlagEmbedding') else 1)" >/dev/null 2>&1); then
+            PY_VER=$(cd "$ROOT_DIR" && "$RT_PY" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null)
+            red "解释器缺少 FlagEmbedding（本地模型依赖，当前 Python ${PY_VER:-?}）"
+            red "请执行: UV_PROJECT_ENVIRONMENT=.venv-models uv sync --project tagpilot-semantic --python 3.12 --extra dev --extra models"
+            red "或设置: export TAG_RUNTIME_PYTHON='tagpilot-semantic/.venv-models/bin/python'"
+            return 1
+        fi
     fi
     port_up 6379 || yellow "Redis 未运行 (6379)，运行时可能不可用"
     if ! port_up "${TAG_MILVUS_PORT:-19530}"; then
