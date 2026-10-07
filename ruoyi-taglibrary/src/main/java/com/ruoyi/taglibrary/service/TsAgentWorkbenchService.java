@@ -534,7 +534,7 @@ public class TsAgentWorkbenchService {
             try {saved=obj(json.readValue(group.getRuleJson(),Map.class).get("audiencePlan"));}
             catch(Exception e) {continue;}
             if(saved.isEmpty() || !saved.containsKey("tree"))continue;
-            if(!Objects.equals(saved.get("build_id"),bundle.get("build_id")) || !Objects.equals(saved.get("snapshot_id"),bundle.get("snapshot_id")))continue;
+            if(!Objects.equals(saved.get("build_id"),bundle.get("build_id")) || !Objects.equals(saved.get("snapshot_id"),bundle.get("snapshot_id")) || !Objects.equals(saved.get("artifact_hash"),bundle.get("artifact_hash")))continue;
             out.add(map("group_id",group.getGroupId(),"group_name",group.getGroupName(),"user_count",group.getUserCount()));
         }
         return out;
@@ -598,6 +598,8 @@ public class TsAgentWorkbenchService {
         TsAgentThread row=owned(thread);Map<String,Object> state=data(row);Map<String,Object> plan=currentPlan(state,request);
         return groups.previewRule(null,row.getLibraryId(),compiler.compile(row.getLibraryId(),plan));
     }
+    @Autowired private com.ruoyi.taglibrary.mapper.TsCatalogSnapshotMapper saveSnapshots;
+
     @Transactional
     public Map<String,Object> createGroup(String thread,Map<String,Object> request) {
         TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
@@ -608,6 +610,7 @@ public class TsAgentWorkbenchService {
         Map<String,Object> previous=threads.execution(thread,uid(),number(state.get("revision")));
         if(previous!=null)return previous;
         String name=String.valueOf(request.getOrDefault("name","" )).trim();if(name.isEmpty()||name.length()>100)throw new ServiceException("客群名称须为1至100字");
+        if(saveSnapshots.lockLibrary(row.getLibraryId())==null)throw new ServiceException("标签库不存在",409);
         TlObjectGroup source=null;
         if(updating) {
             source=groups.selectObjectGroupByIdForUpdate(number(state.get("source_group_id")));
@@ -616,10 +619,12 @@ public class TsAgentWorkbenchService {
                 || (state.containsKey("source_group_name") && !Objects.equals(state.get("source_group_name"),source.getGroupName())))
                 throw new ServiceException("原客群已被其他操作更新，请从客群列表重新进入",409);
         }
-        RulePayload rule=compiler.compile(row.getLibraryId(),plan);String sql=groups.buildRuleSql(row.getLibraryId(),rule);
+        RulePayload rule=compiler.compileForSave(row.getLibraryId(),plan);String sql=groups.buildRuleSql(row.getLibraryId(),rule);
         TlObjectGroup group=new TlObjectGroup();group.setLibraryId(row.getLibraryId());group.setGroupName(name);group.setRuleJson(encode(rule));
         if(updating) {
             group.setGroupId(source.getGroupId());group.setGroupSql(sql);
+            // 上方已验证用户进入工作台时的 source_rule_hash，并在库锁内读取原文。
+            group.getParams().put("expectedRuleJson", source.getRuleJson());
             Map<String,Object> count=obj(state.get("count"));
             group.setUserCount(number(count.get("revision"))==number(state.get("revision"))?number(count.get("value")):0L);
             if(groups.updateObjectGroup(group)!=1)throw new ServiceException("原客群更新失败",409);

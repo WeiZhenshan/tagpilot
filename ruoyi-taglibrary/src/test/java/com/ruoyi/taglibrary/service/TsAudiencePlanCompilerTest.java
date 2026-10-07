@@ -108,4 +108,12 @@ class TsAudiencePlanCompilerTest {
         TsPlanValidationException mismatch=assertThrows(TsPlanValidationException.class,()->compiler.compile(107L,version));
         assertEquals("VERSION_MISMATCH",mismatch.getDiagnosticCode());assertNull(mismatch.getClauseId());
     }
+    @Test void saveCompilerUsesCurrentBundleWhileNormalCompilerUsesMvccBundle() {
+        Map<String,Object> p=plan(leaf("a"));
+        when(catalog.activeBundleForUpdate(107L)).thenReturn(TsSnapshotAssembler.map("snapshot_id","stale","build_id","stale","artifact_hash","stale"));
+        assertThrows(ServiceException.class,()->compiler.compileForSave(107L,p));
+        verify(catalog).activeBundleForUpdate(107L);
+        verify(catalog,never()).activeBundle(107L);
+    }
+
 }

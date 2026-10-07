@@ -10,7 +10,12 @@ public interface TsCatalogSnapshotMapper {
 
     TsCatalogSnapshot selectById(String snapshotId);
 
+    TsCatalogSnapshot selectByIdForUpdate(String snapshotId);
+
     TsCatalogSnapshot selectActiveByLibraryId(Long libraryId);
+
+    /** 库级锁内当前读，避免 RR 旧读视图。 */
+    TsCatalogSnapshot selectActiveByLibraryIdForUpdate(Long libraryId);
 
     Integer selectMaxSnapshotNo(Long libraryId);
 

@@ -34,7 +34,7 @@ public class TsIndexMaintenanceService {
     @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     public Map<String, Object> reconcile(Long libraryId) {
         if (snapshots.lockLibrary(libraryId) == null) throw new ServiceException("标签库不存在");
-        TsCatalogSnapshot snapshot = snapshots.selectActiveByLibraryId(libraryId);
+        TsCatalogSnapshot snapshot = snapshots.selectActiveByLibraryIdForUpdate(libraryId);
         if (snapshot == null) {
             // 首次激活后 JVM 崩溃可能只留下 alias；数据库没有 ACTIVE 即不得保留路由。
             List<String> checked = new ArrayList<>();
@@ -45,7 +45,7 @@ public class TsIndexMaintenanceService {
             }
             return map("status", "NO_ACTIVE", "checked_build_ids", checked);
         }
-        TsIndexBuild build = builds.selectActiveBySnapshotId(snapshot.getSnapshotId());
+        TsIndexBuild build = builds.selectActiveBySnapshotIdForUpdate(snapshot.getSnapshotId());
         if (build == null) throw new ServiceException("无 ACTIVE 构建");
         if (!"MILVUS".equals(build.getStoreType())) {
             for (TsIndexBuild candidate : builds.selectByLibraryId(libraryId)) {

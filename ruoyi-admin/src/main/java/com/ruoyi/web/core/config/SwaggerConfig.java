@@ -28,6 +28,7 @@ import springfox.documentation.spring.web.plugins.Docket;
  * @author ruoyi
  */
 @Configuration
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "swagger.enabled", havingValue = "true")
 public class SwaggerConfig
 {
     /** 系统基础配置 */

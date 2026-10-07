@@ -40,7 +40,9 @@ public class TsInsightRegistryService {
   Map<String,Object> result=agent.post("/agent/insight/trial",Collections.singletonMap("skill_id",id));
   result.put("registry_version",version);result.put("boundary","固定合成客群试跑，仅核对包内模板与Guard；未执行此版本的实际指标绑定，不更新复核或发布状态。");return result;
  }
- private void validateDefinition(Long library,JsonNode n){
+ private void validateDefinition(Long library,JsonNode n){validateDefinition(library,n,false);}
+ /** 复核包含远端 RPC，使用普通读；发布已持库锁，必须校验当前发布快照。 */
+ private void validateDefinition(Long library,JsonNode n,boolean currentRead){
   try{LocalDate.parse(n.path("data_as_of").asText());}catch(Exception e){throw new ServiceException("必须登记真实数据日期");}
   for(String key:Arrays.asList("binding_version","benchmark_version"))if(!n.path(key).asText().matches("\\d+\\.\\d+\\.\\d+"))throw new ServiceException("指标或基准版本非法");
   if(n.path("benchmark_definition").asText().trim().isEmpty()||n.path("benchmark_definition").asText().length()>500)throw new ServiceException("必须登记基准定义");
@@ -48,7 +50,7 @@ public class TsInsightRegistryService {
   JsonNode semanticCatalog=json.valueToTree(agent.get("/agent/insight/catalog")),codePack=null;
   for(JsonNode pack:semanticCatalog.path("skills"))if(n.path("skill_id").asText().equals(pack.path("manifest").path("id").asText()))codePack=pack;
   if(codePack==null)throw new ServiceException("技能未在代码包登记");
-  Set<Long> eligible=new HashSet<>(catalog.eligibleTagIds(library,String.valueOf(catalog.activeBundle(library).get("snapshot_id"))));Set<String> keys=new HashSet<>();
+  Set<Long> eligible=new HashSet<>(catalog.eligibleTagIds(library,String.valueOf((currentRead?catalog.activeBundleForUpdate(library):catalog.activeBundle(library)).get("snapshot_id"))));Set<String> keys=new HashSet<>();
   for(JsonNode b:n.path("bindings")) {
    b.fieldNames().forEachRemaining(k->{if(!Arrays.asList("metric","category","tag_ids","unit","kind","threshold","enum_map").contains(k))throw new ServiceException("指标绑定不能含SQL或物理字段");});
    String name=b.path("metric").asText(),category=b.path("category").asText("");
@@ -106,7 +108,7 @@ public class TsInsightRegistryService {
  @Transactional public void publish(Long library,String id,String version){
   visible(library);mapper.lockLibrary(library);Map<String,Object> row=mapper.version(library,id,version);if(row==null||!Arrays.asList("REVIEWED","RETIRED").contains(row.get("status")))throw new ServiceException("只有复核版本可以发布或回滚");
   JsonNode pack=local(id);if(!Objects.equals(pack.path("pack_hash").asText(),row.get("pack_hash")))throw new ServiceException("发布包hash不一致");
-  validateDefinition(library,definition(row));completeDefinition(definition(row),pack);
+  validateDefinition(library,definition(row),true);completeDefinition(definition(row),pack);
   try{JsonNode gate=json.readTree(String.valueOf(row.get("evaluation_json")));if(!gate.path("passed").asBoolean()||!gate.path("pack_hash").asText().equals(row.get("pack_hash")))throw new ServiceException("评测门禁已失效");}
   catch(java.io.IOException e){throw new ServiceException("评测门禁缺失");}
   mapper.retire(library,id);if(mapper.publish(library,id,version,SecurityUtils.getUsername())!=1)throw new ServiceException("发布状态变化",409);

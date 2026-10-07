@@ -13,12 +13,22 @@ from fastapi.responses import JSONResponse, StreamingResponse
 HOP_HEADERS={'host','connection','transfer-encoding','keep-alive','proxy-authenticate','proxy-authorization','te','trailer','upgrade'}
 
 
+def parse_custom_headers(raw):
+    """解析 ANTHROPIC_CUSTOM_HEADERS（每行 Name: Value），返回待补齐的请求头字典。"""
+    parsed={}
+    for line in (raw or '').splitlines():
+        name,sep,value=line.partition(':')
+        if sep and name.strip():parsed[name.strip()]=value.strip()
+    return parsed
+
+
 @asynccontextmanager
-async def model_transport(ctx,base,key):
+async def model_transport(ctx,base,key,custom_headers=''):
     app=FastAPI(docs_url=None,redoc_url=None,openapi_url=None)
     idle=max(.1,float(os.getenv('TAG_AGENT_MODEL_IDLE_TIMEOUT','25')))
     client=httpx.AsyncClient(timeout=httpx.Timeout(idle,connect=min(10.,idle)))
     pending=set()
+    injected=parse_custom_headers(custom_headers)
 
     @app.post('/v1/{path:path}')
     async def forward(path:str,request:Request):
@@ -42,6 +52,10 @@ async def model_transport(ctx,base,key):
                 ctx.emit({'type':'model.request.completed',**metric})
 
         headers={k:v for k,v in request.headers.items() if k.lower() not in HOP_HEADERS}
+        # 显式补齐 ANTHROPIC_CUSTOM_HEADERS（如 OpenCode 会话头），不依赖 CLI 是否已携带。
+        present={k.lower() for k in headers}
+        for name,value in injected.items():
+            if name.lower() not in present:headers[name]=value
         url=base.rstrip('/')+'/v1/'+path
         if request.url.query:url+='?'+request.url.query
         task=asyncio.create_task(client.send(client.build_request('POST',url,content=await request.body(),headers=headers),stream=True))

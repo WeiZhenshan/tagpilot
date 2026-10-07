@@ -37,9 +37,11 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     @Mock ITlTagService tags;
     @Mock TsAgentSkillService agentSkills;
     @Mock TsTagStatsService tagStats;
+    @Mock TsCatalogSnapshotMapper saveSnapshots;
     @InjectMocks TsAgentWorkbenchService service;
     TsAgentThread row;
     @BeforeEach void setup() throws Exception {
+        lenient().when(saveSnapshots.lockLibrary(107L)).thenReturn(107L);
         ((LoginUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).setUserId(2L);
         row=new TsAgentThread();row.setThreadId("owned");row.setUserId(2L);row.setLibraryId(107L);row.setRowVersion(0L);row.setTitle("测试");row.setArchived("0");row.setPinned("0");
         lenient().when(threads.lock("owned",2L)).thenReturn(row);
@@ -126,7 +128,7 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     }
     TlObjectGroup baselineGroup(Long groupId, Long library, String name, Long userCount) throws Exception {
         TlObjectGroup group=new TlObjectGroup();group.setGroupId(groupId);group.setLibraryId(library);group.setGroupName(name);group.setUserCount(userCount);
-        group.setRuleJson(json.writeValueAsString(map("schemaVersion",4,"audiencePlan",map("hash","bh","valid",true,"build_id","build","snapshot_id","snapshot","tree",map("clause_id","b","tag_id",1)))));
+        group.setRuleJson(json.writeValueAsString(map("schemaVersion",4,"audiencePlan",map("hash","bh","valid",true,"build_id","build","snapshot_id","snapshot","artifact_hash","hash","tree",map("clause_id","b","tag_id",1)))));
         return group;
     }
     @Test void skillRunInjectsBaselineCohortStatisticsForSelectedChips() throws Exception {
@@ -421,7 +423,7 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
             "source_rule_hash",TsSnapshotCanonicalizer.sha256(source.getRuleJson()),"messages",new ArrayList<>()));
         when(groups.selectObjectGroupByIdForUpdate(90L)).thenReturn(source);
         when(threads.execution(eq("owned"),eq(2L),anyLong())).thenReturn(null);
-        when(compiler.compile(eq(107L),any())).thenReturn(new RulePayload());when(groups.updateObjectGroup(any())).thenReturn(1);
+        when(compiler.compileForSave(eq(107L),any())).thenReturn(new RulePayload());when(groups.updateObjectGroup(any())).thenReturn(1);
         assertEquals(90L,service.createGroup("owned",confirmation()).get("group_id"));
         verify(groups).updateObjectGroup(argThat(g->g.getGroupId()==90L && "测试客群".equals(g.getGroupName())));verify(groups,never()).insertObjectGroup(any());
         verify(permissions,never()).hasPermi("objectgroup:group:add");
@@ -450,7 +452,7 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     }
     @Test void createsUsingTrustedCompilerAndRecordsExecution() {
         when(threads.execution("owned",2L,2L)).thenReturn(null);
-        when(compiler.compile(eq(107L),any())).thenReturn(new RulePayload());
+        when(compiler.compileForSave(eq(107L),any())).thenReturn(new RulePayload());
         doAnswer(i->{((TlObjectGroup)i.getArgument(0)).setGroupId(91L);return 1;}).when(groups).insertObjectGroup(any());
         assertEquals(91L,service.createGroup("owned",confirmation()).get("group_id"));
         verify(threads).executionInsert(anyString(),eq("owned"),eq(2L),eq(2L),eq("h"),eq(91L));

@@ -344,7 +344,7 @@ runtime_start() {
 
     mkdir -p "$ROOT_DIR/logs"
     blue "启动语义引擎 (端口 $RT_PORT，日志: $RT_LOG)..."
-    (cd "$ROOT_DIR" && nohup "$RT_SCRIPT" > "$RT_LOG" 2>&1 < /dev/null &)
+    (cd "$ROOT_DIR" && nohup "$RT_SCRIPT" > "$RT_LOG" 2>&1 < /dev/null 9>&- &)
 
     WAITED=0
     READY=0
@@ -410,7 +410,7 @@ agent_start() {
 
     mkdir -p "$ROOT_DIR/logs"
     blue "启动 Agent 编排层 (端口 $AGENT_PORT，日志: $AGENT_LOG)..."
-    (cd "$ROOT_DIR" && nohup "$AGENT_SCRIPT" > "$AGENT_LOG" 2>&1 < /dev/null &)
+    (cd "$ROOT_DIR" && nohup "$AGENT_SCRIPT" > "$AGENT_LOG" 2>&1 < /dev/null 9>&- &)
 
     WAITED=0
     READY=0
@@ -459,7 +459,7 @@ assistant_start() {
     fi
     mkdir -p "$ROOT_DIR/logs"
     blue "启动智能体工作台 (端口 $ASSISTANT_PORT，日志: $ASSISTANT_LOG)..."
-    (cd "$ROOT_DIR" && nohup "$ASSISTANT_SCRIPT" > "$ASSISTANT_LOG" 2>&1 < /dev/null &)
+    (cd "$ROOT_DIR" && nohup "$ASSISTANT_SCRIPT" > "$ASSISTANT_LOG" 2>&1 < /dev/null 9>&- &)
 
     WAITED=0
     READY=0
@@ -516,7 +516,7 @@ start()
     # 运行不可变副本，避免开发期间 mvn package 覆盖正在被 JVM 延迟读取的嵌套 JAR。
     mkdir -p "$(dirname "$RUNTIME_JAR")"
     cp "$JAR_PATH" "$RUNTIME_JAR.tmp" && mv "$RUNTIME_JAR.tmp" "$RUNTIME_JAR"
-    nohup java $JVM_OPTS -jar "$RUNTIME_JAR" > "$BACKEND_LOG" 2>&1 &
+    nohup java $JVM_OPTS -jar "$RUNTIME_JAR" > "$BACKEND_LOG" 2>&1 9>&- &
     green "Start $AppName success... (pid: $!)"
 
     WAITED=0
@@ -545,7 +545,7 @@ start()
 
     : > "$FRONTEND_LOG"
     blue "启动前端 (端口 $FRONTEND_PORT，日志: $FRONTEND_LOG)..."
-    (cd "$UI_DIR" && nohup env port="$FRONTEND_PORT" npm run dev > "$FRONTEND_LOG" 2>&1 < /dev/null &)
+    (cd "$UI_DIR" && nohup env port="$FRONTEND_PORT" npm run dev > "$FRONTEND_LOG" 2>&1 < /dev/null 9>&- &)
     sleep 2
     FPID=$(pgrep -f "$FRONTEND_PAT" 2>/dev/null | head -1)
     echo "Start ruoyi-ui dev server success... (pid: ${FPID:-?})"

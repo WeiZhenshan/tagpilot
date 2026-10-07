@@ -11,12 +11,13 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 
 def create_gateway(script):
-    app=FastAPI();app.state.requests=[];app.state.script=list(script)
+    app=FastAPI();app.state.requests=[];app.state.headers=[];app.state.script=list(script)
     @app.post('/v1/messages/count_tokens')
     async def count():return {'input_tokens':100}
     @app.post('/v1/messages')
     async def messages(request:Request):
         body=await request.json();app.state.requests.append(body)
+        app.state.headers.append({k.lower():v for k,v in request.headers.items()})
         index=min(len(app.state.requests)-1,len(app.state.script)-1)
         calls=app.state.script[index] if app.state.script else []
         if calls in ('error','stall'):

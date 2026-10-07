@@ -420,6 +420,7 @@ class TlObjectGroupServiceImplTest {
         group.setRuleJson("{\"objectKeyField\":\"cust\",\"conditions\":[]}");
         mockOnlineVersion(9L);
 
+        when(groupMapper.lockLibrary(LIBRARY_ID)).thenReturn(LIBRARY_ID);
         service.insertObjectGroup(group);
 
         verify(groupMapper).insertObjectGroup(group);
@@ -438,6 +439,7 @@ class TlObjectGroupServiceImplTest {
         doThrow(new ServiceException("标签[性别]来源已变更待确认"))
                 .when(ruleTagValidator).validateRule(eq(LIBRARY_ID), eq(9L), any(RulePayload.class));
 
+        when(groupMapper.lockLibrary(LIBRARY_ID)).thenReturn(LIBRARY_ID);
         ServiceException e = assertThrows(ServiceException.class, () -> service.insertObjectGroup(group));
 
         assertTrue(e.getMessage().contains("待确认"), e.getMessage());
@@ -453,6 +455,7 @@ class TlObjectGroupServiceImplTest {
         when(extMapper.selectDatasetIdByLibrary(LIBRARY_ID)).thenReturn(DATASET_ID);
         when(onlineVersionResolver.resolve(DATASET_ID)).thenReturn(null);
 
+        when(groupMapper.lockLibrary(LIBRARY_ID)).thenReturn(LIBRARY_ID);
         service.insertObjectGroup(group);
 
         verify(groupMapper).insertObjectGroup(group);
@@ -490,8 +493,7 @@ class TlObjectGroupServiceImplTest {
         // 告警仅提示，回写 group_sql 时不得把新版本写成规则基线
         ArgumentCaptor<TlObjectGroup> captor = ArgumentCaptor.forClass(TlObjectGroup.class);
         verify(groupMapper).updateObjectGroup(captor.capture());
-        assertTrue(captor.getValue().getRuleJson().contains("\"datasetVersionId\":11"));
-        assertFalse(captor.getValue().getRuleJson().contains("\"datasetVersionId\":12"));
+        assertNull(captor.getValue().getRuleJson(), "计数回写只提交 SQL，不携带整行旧规则");
     }
 
     @Test

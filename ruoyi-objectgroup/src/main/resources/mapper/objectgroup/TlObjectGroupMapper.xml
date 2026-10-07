@@ -38,8 +38,18 @@
         where g.group_id = #{groupId} and g.del_flag = '0'
     </select>
 
-    <select id="selectObjectGroupByIdForUpdate" parameterType="Long" resultMap="TlObjectGroupResult">
+    <select id="selectObjectGroupByIdForUpdate" parameterType="Long" resultMap="TlObjectGroupResult" flushCache="true" useCache="false">
         select * from tl_object_group where group_id = #{groupId} and del_flag = '0' for update
+    </select>
+
+    <select id="lockLibrary" resultType="Long" flushCache="true" useCache="false">
+        select library_id from tl_tag_library where library_id = #{libraryId} and del_flag = '0' for update
+    </select>
+    <select id="selectActiveBindingsForUpdate" resultType="map" flushCache="true" useCache="false">
+        select s.snapshot_id, b.build_id, b.artifact_hash
+        from ts_catalog_snapshot s join ts_index_build b on b.snapshot_id = s.snapshot_id
+        where s.library_id = #{libraryId} and s.status = 'ACTIVE' and b.status = 'ACTIVE'
+        for update
     </select>
 
     <insert id="insertObjectGroup" parameterType="TlObjectGroup" useGeneratedKeys="true" keyProperty="groupId">
@@ -63,7 +73,17 @@
             <if test="updateBy != null">update_by = #{updateBy},</if>
             update_time = sysdate()
         </set>
-        where group_id = #{groupId}
+        where group_id = #{groupId} and del_flag = '0'
+        <!-- 任何规则写入必须提交读取时的原文；缺失预期值也拒绝。激活改绑使用相同 CAS。 -->
+        <if test="ruleJson != null">
+            <choose>
+                <when test="params.containsKey('expectedRuleJson')">
+                    and (rule_json = #{params.expectedRuleJson,jdbcType=LONGVARCHAR}
+                         or (rule_json is null and #{params.expectedRuleJson,jdbcType=LONGVARCHAR} is null))
+                </when>
+                <otherwise>and 1 = 0</otherwise>
+            </choose>
+        </if>
     </update>
 
     <update id="deleteObjectGroupByIds" parameterType="Long">
@@ -76,11 +96,21 @@
 
     <update id="updateUserCount">
         update tl_object_group set user_count = #{userCount}, update_time = sysdate()
-        where group_id = #{groupId}
+        where group_id = #{groupId} and del_flag = '0'
     </update>
 
     <select id="countActiveByLibraryId" parameterType="Long" resultType="int">
         select count(*) from tl_object_group where library_id = #{libraryId} and del_flag = '0'
+    </select>
+
+    <select id="selectPlanGroupsBySnapshotForUpdate" resultMap="TlObjectGroupResult">
+        select g.*
+        from tl_object_group g
+        where g.library_id = #{libraryId}
+          and g.del_flag = '0'
+          and g.rule_json like concat('%', #{snapshotId}, '%')
+        order by g.group_id
+        for update
     </select>
 
 </mapper>
