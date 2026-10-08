@@ -1,0 +1,168 @@
+{
+  "reason": "修复多轮 final RUN_INVALID/PARTIAL 被空 checks 错判 PASS；仅重判独立旧证据，不改冻结产物，不调用模型。",
+  "facts": "tagpilot-eval/data/p3-facts-v3",
+  "runs": [
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-A-smoke-v1",
+      "runs": 3,
+      "statuses": {
+        "FAIL": 2,
+        "PASS": 1
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "287cdcd3c0395ca381b3b89317437fe2930907d3867abf1441cb16c2f9b2dd2a",
+      "regraded_sha256": "4a18e8b03222d3fc62f13ef089bf07fff3a869f19c923f88da20fa59098cd27d"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-D-smoke-v1",
+      "runs": 6,
+      "statuses": {
+        "RUN_INVALID": 6
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "72aaf9693d7f58bdf76cb6e1bc00f517dab3e77e8f9bed45fb2e80b43b940da3",
+      "regraded_sha256": "0ec39a8cf1e0e9f3231ed35b6f47345884d539a37a4f9b1db65ec81ee7e33e57"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-D-smoke-v2",
+      "runs": 6,
+      "statuses": {
+        "FAIL": 4,
+        "PASS": 2
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "9031d14773c5bc61055ee1fd40bb7d43c72ec405efe7e97981a4f8068ba7d6e2",
+      "regraded_sha256": "47b9ea7013218ac16cc7be4c2359b6fcb78aa398002a0e60e6225c2a5e5966f4"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-E-full-v1-1",
+      "runs": 5,
+      "statuses": {
+        "PASS": 3,
+        "FAIL": 2
+      },
+      "interrupted": true,
+      "raw_runs_sha256": "d7aec640aeaab0d2837b556e00b9da915d98f33325ceb6d95bc48a7b81550b9b",
+      "regraded_sha256": "57cc40d77bc179868f147de46d009709cd38a9692674450417344d23f938848b"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-E-full-v1-2",
+      "runs": 3,
+      "statuses": {
+        "FAIL": 2,
+        "PASS": 1
+      },
+      "interrupted": true,
+      "raw_runs_sha256": "beba4d27569b5f1b9b4ff6980d5d9ea9806bad012f0ecb3c18c8112d50010615",
+      "regraded_sha256": "2795b94f04728775d0df32bb6da7bcf3bf7a1b1975e9ca8cdfcbb0106a59ca48"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-E-smoke-v1",
+      "runs": 6,
+      "statuses": {
+        "PASS": 4,
+        "FAIL": 2
+      },
+      "interrupted": true,
+      "raw_runs_sha256": "dd2ee1fb5faee98a1b709af2117f88c7a544f958daa05f6555cb3607fc66f15d",
+      "regraded_sha256": "269335820c3e2a063a7501057a85c781e40492b49719e0922ea83102fd7cb272"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-F-full-v1-1",
+      "runs": 17,
+      "statuses": {
+        "PASS": 16,
+        "FAIL": 1
+      },
+      "interrupted": true,
+      "raw_runs_sha256": "17fcbd6431b7fae9a4ae90347568bdd8ffc522e00c8f9a7e89dfb37dc1f52ae1",
+      "regraded_sha256": "433c1e9d683fe81906f798ad57dbb9f9e458f4ef234156f4cbbeb1cab31dd8ab"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-F-full-v1-2",
+      "runs": 13,
+      "statuses": {
+        "FAIL": 6,
+        "PASS": 7
+      },
+      "interrupted": true,
+      "raw_runs_sha256": "55d85e5fa3566f215bc0262eaa95d380b5f2d420f45ee9fa265018191dedf235",
+      "regraded_sha256": "06921ee04bfb00a0be2060f8808f0932f9388b6b25e59fa03983a8f85c695ffc"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-G-detailfix-smoke-v1",
+      "runs": 4,
+      "statuses": {
+        "PASS": 4
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "ca731cf918f3c87ef9d662e97ea2060b9eef9db06d3d92195b9e1fbe37d932d5",
+      "regraded_sha256": "bd7b660c1d1fe29643bce85c599c9f71302e83faebf742df3a52725cb42e2292"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-G-full-v1-1",
+      "runs": 8,
+      "statuses": {
+        "PASS": 6,
+        "FAIL": 2
+      },
+      "interrupted": true,
+      "raw_runs_sha256": "f0a3071a1ba0a46ef436238479efd83ca3952327d4650c57effb1fc690bd839d",
+      "regraded_sha256": "64400e39c8cb0eb44698be5d6da3fcff18571d142309d3f8f2767b93518287a4"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-demo-G-full-v1-2",
+      "runs": 7,
+      "statuses": {
+        "PASS": 6,
+        "FAIL": 1
+      },
+      "interrupted": true,
+      "raw_runs_sha256": "844b8934f1a60eb4612a9005ec7b5b2cc8258d96dd42d844ecf07293f4cd896a",
+      "regraded_sha256": "29be627767cd54e2a70dfcfbbcae94dbcee69569d3e64408e338836f7b4fb7e3"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-l2-A-v1",
+      "runs": 15,
+      "statuses": {
+        "FAIL": 1,
+        "PASS": 14
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "09a55da1dd8b09fa209e9409e80949c8cb423bad055f7949ea3fd9655b79186d",
+      "regraded_sha256": "e529b3531ebfd9da81ce5b03c91546640b79c08fe114775c9b1c9f50b594ca3a"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-l2-A-v2",
+      "runs": 15,
+      "statuses": {
+        "FAIL": 4,
+        "PASS": 11
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "37f2c377802eda777a75f5e5f68573f815c3e39661146d6bb66de8a45e68b294",
+      "regraded_sha256": "32658ac4cc6a559303f24cb2940d824daed37ac1442579dbbea86ff304c31f92"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-l2-B-v1",
+      "runs": 15,
+      "statuses": {
+        "RUN_INVALID": 15
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "35a6c7e95b563ec7e858657146aa72ef69f737fa72e34b554a86a82072d324c7",
+      "regraded_sha256": "0aae47d9a93f2732743c6a26b7226d1eed45be4aae38b07b5a3873e2b2259c0a"
+    },
+    {
+      "run_directory": "tagpilot-eval/runs/p3-l2-B-v2",
+      "runs": 15,
+      "statuses": {
+        "FAIL": 2,
+        "PASS": 13
+      },
+      "interrupted": false,
+      "raw_runs_sha256": "9f26f5f84c9b9670a3cc367a66aaed951d09f30f6982460b1ab5730d02885e51",
+      "regraded_sha256": "df7711061fb9f17556adce06f4f7cb443f1b4b998014fad8d8aefb9586ab209e"
+    }
+  ]
+}

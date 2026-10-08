@@ -1,0 +1,15 @@
+{"case_id": "CAL-1001", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1006", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1010", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1022", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1028", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1029", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1036", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1037", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1052", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1067", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1073", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-1076", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-3891", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-3970", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}
+{"case_id": "CAL-4005", "checks": {}, "evidence": {"agent_error": "权限或发布版本发生变化，请重新核验"}, "failures": ["AUTHORITY_CONTEXT_MISMATCH"], "status": "RUN_INVALID"}

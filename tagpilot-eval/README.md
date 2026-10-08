@@ -24,8 +24,8 @@ P2 的隔离单位是 `(谱系组, 掩码模板签名)`：只看谱系组会让�
 
 | 工件 | 内容 |
 |---|---|
-| [P1 验收报告](reports/p1-acceptance-v1/REPORT.md) / [HTML](reports/p1-acceptance-v1/report.html) | 版本清单、六项状态、L1/L2 结果、残留缺口 |
-| [裁判与解析复核](reports/p1-acceptance-v1/JUDGE-AUDIT.md) | 裁判能否把错答判对、解析能否静默读错的审计结论 |
+| [P0/P1 验收报告](reports/p0-p1-v1/REPORT.md) / [HTML](reports/p0-p1-v1/report.html) | 版本清单、六项状态、L1/L2 结果、P0 审计与残留缺口 |
+| [裁判与解析复核](reports/p0-p1-v1/JUDGE-AUDIT.md) | 裁判能否把错答判对、解析能否静默读错的审计结论 |
 | [事实包 p0-v2](data/p0-v2/manifest.json) | supersedes p0-v1；facts 不变，issues 附处置 |
 | [来源冲突处置](data/p0-v2/dispositions.jsonl) / [码值分母漂移](data/p0-v2/source-drift.json) | 9 个阻断项逐条处置与证据 |
 | [校准集 calibration-v2](data/calibration-v2/manifest.json) | supersedes calibration-v1；200 母案例，独立复核已落实 |

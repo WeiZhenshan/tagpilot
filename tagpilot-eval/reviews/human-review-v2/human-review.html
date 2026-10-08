@@ -1,0 +1,677 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8">
+<title>P1 人工抽检（40 题）</title>
+<style>
+body{font:15px/1.7 system-ui;max-width:1180px;margin:32px auto;padding:0 20px;color:#1f2933}
+h1{font-size:24px} code{background:#eef2f6;padding:1px 5px;border-radius:4px}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+th,td{border:1px solid #d7dee5;padding:4px 7px;text-align:left;vertical-align:top}
+th{background:#f5f7fa} .case{border:1px solid #d7dee5;border-radius:8px;margin:12px 0;padding:10px 14px}
+summary{cursor:pointer} .req{font-size:16px;margin:8px 0;color:#111}
+.outcome{color:#0b6b3a;font-weight:600} .unit{color:#6b7280}
+.cal{color:#8a5a00} .flag{background:#fff4e5;border-left:4px solid #d98600;padding:6px 10px;margin:6px 0}
+.ind{background:#eef6ff;border-left:4px solid #2b6cb0;padding:6px 10px;margin:6px 0}
+.decide{margin-top:8px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.comment{flex:1;min-width:260px;padding:5px 8px;border:1px solid #cbd5e1;border-radius:5px}
+button{font:15px system-ui;padding:8px 16px;border:0;border-radius:6px;background:#1f6feb;color:#fff;cursor:pointer}
+textarea{width:100%;height:150px;font:12px ui-monospace,monospace}
+.bar{position:sticky;top:0;background:#fff;padding:10px 0;border-bottom:1px solid #e5e9ef;z-index:5}
+</style>
+<div class="bar"><h1>P1 人工抽检 · 40 题</h1>
+<p>逐题复核<b>业务合理性</b>与<b>自然表达</b>。标准树与来源事实仅在评测控制面使用，不得进入被测 Agent。完成后点“生成结论”并复制回会话。</p>
+<button onclick="collect()">生成结论</button> <span id="done"></span></div>
+
+<details class="case" data-case="CAL-018">
+ <summary><b>CAL-018</b> · SINGLE · 产品持有单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：帮我找上月末备用金垫款余额至少10万元的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>上月末备用金垫款余额</b> <code>789</code> ≥ 100000 <span class="unit">CNY</span> <span class="cal">[calendar_mode=CALENDAR; statistic=EOP; time_anchor_label=上月末]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>789</code></td><td>上月末备用金垫款余额</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;calendar_mode&#x27;: &#x27;CALENDAR&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;上月末&#x27;, &#x27;time_anchor_type&#x27;: &#x27;MONTH_OFFSET&#x27;, &#x27;time_offset_months&#x27;: 1, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-018" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-018" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-018" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-018" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-060">
+ <summary><b>CAL-060</b> · SINGLE · 业务往来单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：请找本年薪资通首次代发企业名称文本中包含“SIM_代发企业_001”的客户，按文字包含匹配。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>本年薪资通首次代发企业名称</b> <code>1028</code> 包含 SIM_代发企业_001 <span class="unit">NONE</span> <span class="cal">[calendar_mode=CALENDAR; statistic=NONE; time_anchor_label=本年]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1028</code></td><td>本年薪资通首次代发企业名称</td><td>文本型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;calendar_mode&#x27;: &#x27;CALENDAR&#x27;, &#x27;period_edge&#x27;: &#x27;TO_DATE&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;本年&#x27;, &#x27;time_anchor_type&#x27;: &#x27;YTD&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 绑定、单位、口径、阈值与码值经独立复核一致；contains 谓词所需字面量取自模拟数据。</div>
+ <div class="flag">DEMO_CONVENTION_FIXTURE_LITERAL：原话引用了模拟数据字面量（SIM_…），属 Demo 约定而非真实客户经理表达；仅在模拟数据上可执行。</div>
+ <div class="decide">
+  <label><input type="radio" name="CAL-060" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-060" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-060" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-060" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-023">
+ <summary><b>CAL-023</b> · SINGLE · 客户概况单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：筛选当前手机号码正常标志为“是”的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前手机号码正常标志</b> <code>568</code> = 1 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>568</code></td><td>当前手机号码正常标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-023" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-023" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-023" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-023" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-038">
+ <summary><b>CAL-038</b> · SINGLE · 客户价值单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：筛选当前税前平均月收入等级为“5千以下”的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前税前平均月收入等级</b> <code>779</code> = 01 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>779</code></td><td>当前税前平均月收入等级</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>01=5千以下; 02=5千(含)-1万; 03=1万(含)-2万; 04=2万(含)-5万; 05=5万(含)-10万; 06=10万及以上</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-038" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-038" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-038" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-038" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-026">
+ <summary><b>CAL-026</b> · SINGLE · 客群特征单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：筛选当前持有线上工薪贷标志为“是”的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前持有线上工薪贷标志</b> <code>576</code> = 1 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>576</code></td><td>当前持有线上工薪贷标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-026" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-026" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-026" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-026" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-045">
+ <summary><b>CAL-045</b> · SINGLE · 渠道管理单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：历史品质生活订单最近一次下单日期晚于2026年9月1日的客户有哪些？当天不包含。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>历史品质生活订单最近一次下单日期</b> <code>1422</code> > 2026-09-01 <span class="unit">NONE</span> <span class="cal">[statistic=LATEST; time_anchor_label=历史]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1422</code></td><td>历史品质生活订单最近一次下单日期</td><td>日期型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;LATEST&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-045" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-045" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-045" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-045" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-053">
+ <summary><b>CAL-053</b> · SINGLE · 业务往来单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：请找历史薪资通最近一次代发企业名称文本中包含“SIM_代发企业_001”的客户，按文字包含匹配。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>历史薪资通最近一次代发企业名称</b> <code>1027</code> 包含 SIM_代发企业_001 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=历史]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1027</code></td><td>历史薪资通最近一次代发企业名称</td><td>文本型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 绑定、单位、口径、阈值与码值经独立复核一致；contains 谓词所需字面量取自模拟数据。</div>
+ <div class="flag">DEMO_CONVENTION_FIXTURE_LITERAL：原话引用了模拟数据字面量（SIM_…），属 Demo 约定而非真实客户经理表达；仅在模拟数据上可执行。</div>
+ <div class="decide">
+  <label><input type="radio" name="CAL-053" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-053" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-053" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-053" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-006">
+ <summary><b>CAL-006</b> · SINGLE · 渠道管理单字段理解
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：帮我找历史品质生活实物商品下单金额至少10万元的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>历史品质生活实物商品下单金额</b> <code>1420</code> ≥ 100000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=历史]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1420</code></td><td>历史品质生活实物商品下单金额</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-006" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-006" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-006" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-006" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-076">
+ <summary><b>CAL-076</b> · COMPOSITION · 持有状态与指定风评
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前持有健康保险标志为否，并且当前保险风评等级属于C3、C4、C5的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有健康保险标志</b> <code>621</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前保险风评等级</b> <code>1480</code> 属于 C3、C4、C5 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>621</code></td><td>当前持有健康保险标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>1480</code></td><td>当前保险风评等级</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>C1=C1 谨慎型; C2=C2 稳健型; C3=C3 平衡型; C4=C4 成长型; C5=C5 进取型</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-076" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-076" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-076" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-076" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-082">
+ <summary><b>CAL-082</b> · COMPOSITION · 双产品空白
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前既没有理财也没有基金；两项都要明确为否，不把未知当成否。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有理财标志</b> <code>601</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有基金标志</b> <code>620</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>601</code></td><td>当前持有理财标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>620</code></td><td>当前持有基金标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-082" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-082" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-082" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-082" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-098">
+ <summary><b>CAL-098</b> · COMPOSITION · 资产门槛与产品及指定风评
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM至少50万元、当前持有定期存款标志为否，并且当前理财风评为C3或C4。三项同时满足；这里只按我给的条件筛选。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> ≥ 500000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有定期存款标志</b> <code>638</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前理财风评等级</b> <code>1466</code> 属于 C3、C4 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>638</code></td><td>当前持有定期存款标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>1466</code></td><td>当前理财风评等级</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>C1=C1 谨慎型; C2=C2 稳健型; C3=C3 平衡型; C4=C4 成长型; C5=C5 进取型</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-098" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-098" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-098" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-098" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-077">
+ <summary><b>CAL-077</b> · COMPOSITION · 持有状态与指定风评
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前持有万能保险标志为否，并且当前保险风评等级属于C3、C4、C5的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有万能保险标志</b> <code>630</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前保险风评等级</b> <code>1480</code> 属于 C3、C4、C5 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>630</code></td><td>当前持有万能保险标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>1480</code></td><td>当前保险风评等级</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>C1=C1 谨慎型; C2=C2 稳健型; C3=C3 平衡型; C4=C4 成长型; C5=C5 进取型</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-077" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-077" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-077" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-077" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-101">
+ <summary><b>CAL-101</b> · COMPOSITION · 显式产品占比
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM大于0，并且当前存款余额除以当前时点AUM达到20%及以上；任一数据缺失就排除。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> > 0 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>DIV(813, 721)</code> ≥ ['0.2']</div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>813</code></td><td>当前存款余额</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-101" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-101" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-101" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-101" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-081">
+ <summary><b>CAL-081</b> · COMPOSITION · 价值与产品任选
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM不少于100万元，并且当前持有理财或基金至少一种。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> ≥ 1000000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b> 或 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有理财标志</b> <code>601</code> = 1 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有基金标志</b> <code>620</code> = 1 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>601</code></td><td>当前持有理财标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>620</code></td><td>当前持有基金标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-081" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-081" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-081" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-081" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-107">
+ <summary><b>CAL-107</b> · COMPOSITION · 显式产品占比
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM大于0，并且当前价值型保险余额除以当前时点AUM达到20%及以上；任一数据缺失就排除。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> > 0 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<code>DIV(804, 721)</code> ≥ ['0.2']</div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>804</code></td><td>当前价值型保险余额</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-107" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-107" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-107" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-107" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-094">
+ <summary><b>CAL-094</b> · COMPOSITION · 资产门槛与产品及指定风评
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM至少50万元、当前持有国债标志为否，并且当前理财风评为C3或C4。三项同时满足；这里只按我给的条件筛选。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> ≥ 500000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有国债标志</b> <code>607</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前理财风评等级</b> <code>1466</code> 属于 C3、C4 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>607</code></td><td>当前持有国债标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>1466</code></td><td>当前理财风评等级</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>C1=C1 谨慎型; C2=C2 稳健型; C3=C3 平衡型; C4=C4 成长型; C5=C5 进取型</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-094" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-094" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-094" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-094" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-121">
+ <summary><b>CAL-121</b> · CLARIFICATION · 未说明时间口径
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找持有线上工薪贷标志为是的客户，时间口径还没决定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>576</code></td><td>当前持有线上工薪贷标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>602</code></td><td>历史持有线上工薪贷标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-121" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-121" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-121" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-121" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-139">
+ <summary><b>CAL-139</b> · CLARIFICATION · 未说明时间口径
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找信用卡中收超过1000元的客户，时间口径还没决定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>743</code></td><td>上年信用卡中收</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;calendar_mode&#x27;: &#x27;CALENDAR&#x27;, &#x27;period_edge&#x27;: &#x27;WHOLE&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;上年&#x27;, &#x27;time_anchor_type&#x27;: &#x27;YEAR_OFFSET&#x27;, &#x27;time_offset_years&#x27;: 1, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>750</code></td><td>上月信用卡中收</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;calendar_mode&#x27;: &#x27;CALENDAR&#x27;, &#x27;period_edge&#x27;: &#x27;WHOLE&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;上月&#x27;, &#x27;time_anchor_type&#x27;: &#x27;MONTH_OFFSET&#x27;, &#x27;time_offset_months&#x27;: 1, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>760</code></td><td>本年信用卡中收</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;calendar_mode&#x27;: &#x27;CALENDAR&#x27;, &#x27;period_edge&#x27;: &#x27;TO_DATE&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;本年&#x27;, &#x27;time_anchor_type&#x27;: &#x27;YTD&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-139" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-139" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-139" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-139" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-116">
+ <summary><b>CAL-116</b> · CLARIFICATION · 未定义比较阈值
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找当前黄金余额比较高的客户，具体门槛还没定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>860</code></td><td>当前黄金余额</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-116" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-116" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-116" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-116" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-115">
+ <summary><b>CAL-115</b> · CLARIFICATION · 未定义比较阈值
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找当前基金余额比较高的客户，具体门槛还没定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>867</code></td><td>当前基金余额</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-115" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-115" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-115" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-115" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-120">
+ <summary><b>CAL-120</b> · CLARIFICATION · 未定义比较阈值
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找近30天APP登录天数比较高的客户，具体门槛还没定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1448</code></td><td>近30天APP登录天数</td><td>数值型</td><td>DAY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;calendar_mode&#x27;: &#x27;ROLLING&#x27;, &#x27;period_edge&#x27;: &#x27;WHOLE&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;COUNT&#x27;, &#x27;time_anchor_label&#x27;: &#x27;近30天&#x27;, &#x27;time_anchor_type&#x27;: &#x27;WINDOW&#x27;, &#x27;time_window_unit&#x27;: &#x27;DAY&#x27;, &#x27;time_window_value&#x27;: 30, &#x27;unit&#x27;: &#x27;DAY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-120" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-120" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-120" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-120" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-122">
+ <summary><b>CAL-122</b> · CLARIFICATION · 未说明时间口径
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找理财持有为是的客户，时间口径还没决定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>579</code></td><td>历史持有理财标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>601</code></td><td>当前持有理财标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-122" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-122" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-122" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-122" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-126">
+ <summary><b>CAL-126</b> · CLARIFICATION · 未说明时间口径
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找持有线上工薪贷渠道贷标志为是的客户，时间口径还没决定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>591</code></td><td>当前持有线上工薪贷渠道贷标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>625</code></td><td>历史持有线上工薪贷渠道贷标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-126" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-126" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-126" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-126" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-129">
+ <summary><b>CAL-129</b> · CLARIFICATION · 未说明时间口径
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：帮我找持有基金标志为是的客户，时间口径还没决定。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>620</code></td><td>当前持有基金标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>653</code></td><td>历史持有基金标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-129" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-129" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-129" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-129" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-153">
+ <summary><b>CAL-153</b> · BOUNDARY · 前导零码值
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：行外资产（万元KYC）按现有码表第03档筛选，不进行金额近似。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>行外资产</b> <code>534</code> = 03 <span class="unit">NONE</span> <span class="cal">[statistic=NONE]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>534</code></td><td>行外资产</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>01=50万以下; 02=50万(含)-100万; 03=100万(含)-300万; 04=300万(含)-600万; 05=600万(含)-1000万; 06=1000万及以上</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_type&#x27;: &#x27;NONE&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-153" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-153" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-153" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-153" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-158">
+ <summary><b>CAL-158</b> · BOUNDARY · 收益率单位
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前持仓基金累计收益率至少5%，百分比换成比例是0.05。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前持仓基金累计收益率</b> <code>881</code> ≥ 0.05 <span class="unit">CNY</span> <span class="cal">[statistic=SUM; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>881</code></td><td>当前持仓基金累计收益率</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;SUM&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-158" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-158" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-158" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-158" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-143">
+ <summary><b>CAL-143</b> · BOUNDARY · 半开区间
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM在20万元至100万元之间，含20万，不含100万。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> ≥ 200000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> < 1000000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-143" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-143" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-143" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-143" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-150">
+ <summary><b>CAL-150</b> · BOUNDARY · 理财风评
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前理财风评为C3、C4或C5。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前理财风评等级</b> <code>1466</code> 属于 C3、C4、C5 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1466</code></td><td>当前理财风评等级</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>C1=C1 谨慎型; C2=C2 稳健型; C3=C3 平衡型; C4=C4 成长型; C5=C5 进取型</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-150" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-150" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-150" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-150" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-156">
+ <summary><b>CAL-156</b> · BOUNDARY · 到期闭区间
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：最近一笔定期到期日在2026年9月19日至9月25日之间，两个日期都包含。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>未来定期存款最近一次到期日期</b> <code>858</code> 介于 2026-09-19、2026-09-25 <span class="unit">NONE</span> <span class="cal">[statistic=LATEST]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>858</code></td><td>未来定期存款最近一次到期日期</td><td>日期型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;LATEST&#x27;, &#x27;time_anchor_type&#x27;: &#x27;NONE&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-156" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-156" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-156" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-156" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-151">
+ <summary><b>CAL-151</b> · BOUNDARY · 基金风评
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前基金风评为C1或C2。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前基金风评等级</b> <code>1477</code> 属于 C1、C2 <span class="unit">NONE</span> <span class="cal">[statistic=NONE; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1477</code></td><td>当前基金风评等级</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>C1=C1 谨慎型; C2=C2 稳健型; C3=C3 平衡型; C4=C4 成长型; C5=C5 进取型</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-151" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-151" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-151" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-151" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-162">
+ <summary><b>CAL-162</b> · MULTITURN · 追加产品空白
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：帮我先筛出当前时点AUM不低于20万元的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li>在刚才的基础上，再要求当前持有基金标志为否。</li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前时点AUM</b> <code>721</code> ≥ 200000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>620</code></td><td>当前持有基金标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>REVISE</b> — 多轮母案例首轮话术与同批其他题完全同文（REQUIREMENT_TEXT_REUSED），改写为语义等价（当前时点AUM≥20万元）的不同表达；标准树与后续轮次不变。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-162" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-162" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-162" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-162" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-169">
+ <summary><b>CAL-169</b> · MULTITURN · 修改阈值保留条件
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM至少20万元，当前持有理财标志为否。</div>
+ <div class="turn"><b>后续轮次</b><ul><li>资产条件改为严格超过50万元，其余保持。</li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> ≥ 200000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有理财标志</b> <code>601</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>601</code></td><td>当前持有理财标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-169" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-169" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-169" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-169" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-176">
+ <summary><b>CAL-176</b> · MULTITURN · 删除指定条件
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：当前时点AUM至少20万元，且当前持有有效个人养老金账户标志为否。</div>
+ <div class="turn"><b>后续轮次</b><ul><li>去掉当前持有有效个人养老金账户标志这个条件，只保留刚才的资产门槛。</li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b> 且 </b><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前时点AUM</b> <code>721</code> ≥ 200000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>当前持有有效个人养老金账户标志</b> <code>613</code> = 0 <span class="unit">NONE</span> <span class="cal">[statistic=FLAG; time_anchor_label=当前]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>613</code></td><td>当前持有有效个人养老金账户标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-176" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-176" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-176" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-176" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-161">
+ <summary><b>CAL-161</b> · MULTITURN · 追加产品空白
+   <span class="outcome">READY</span></summary>
+ <div class="req">原话：先圈一批当前时点AUM至少20万元的客户。</div>
+ <div class="turn"><b>后续轮次</b><ul><li>在刚才的基础上，再要求当前持有理财标志为否。</li></ul></div>
+ <div class="tree"><b>标准语义</b><br><b>当前时点AUM</b> <code>721</code> ≥ 200000 <span class="unit">CNY</span> <span class="cal">[statistic=EOP; time_anchor_label=当前时点]</span></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>601</code></td><td>当前持有理财标志</td><td>布尔型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>1=是; 0=否</td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;FLAG&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr><tr><td><code>721</code></td><td>当前时点AUM</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前时点&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>REVISE</b> — 多轮母案例首轮话术与同批其他题完全同文（REQUIREMENT_TEXT_REUSED），改写为语义等价（当前时点AUM≥20万元）的不同表达；标准树与后续轮次不变。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-161" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-161" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-161" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-161" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-180">
+ <summary><b>CAL-180</b> · MULTITURN · 回答阈值澄清
+   <span class="outcome">NEEDS_USER_INPUT</span></summary>
+ <div class="req">原话：找当前基金余额较高的客户，门槛等我确认。</div>
+ <div class="turn"><b>后续轮次</b><ul><li>这里较高明确指大于等于50万元。</li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>867</code></td><td>当前基金余额</td><td>数值型</td><td>CNY</td><td>VERIFIED_SOURCE</td><td></td><td>{&#x27;period_edge&#x27;: &#x27;END&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;当前&#x27;, &#x27;time_anchor_type&#x27;: &#x27;POINT&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-180" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-180" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-180" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-180" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-198">
+ <summary><b>CAL-198</b> · GAP · 码值分档无法精确表达
+   <span class="outcome">CAPABILITY_GAP</span></summary>
+ <div class="req">原话：行外资产（运营KYC）在55万至90万元之间，只接受精确筛选，不能用整个50至100万档替代。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>535</code></td><td>行外资产（运营KYC）</td><td>选项型</td><td>NONE</td><td>VERIFIED_SOURCE</td><td>01=50万以下; 02=50万(含)-100万; 03=100万(含)-300万; 04=300万(含)-600万; 05=600万(含)-1000万; 06=1000万及以上</td><td>{&#x27;boundary_semantics&#x27;: &#x27;inclusive_lower&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;source_system&#x27;: &#x27;OPS_KYC&#x27;, &#x27;statistic&#x27;: &#x27;NONE&#x27;, &#x27;time_anchor_type&#x27;: &#x27;NONE&#x27;, &#x27;unit&#x27;: &#x27;NONE&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-198" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-198" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-198" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-198" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-195">
+ <summary><b>CAL-195</b> · GAP · 资金续存明细
+   <span class="outcome">CAPABILITY_GAP</span></summary>
+ <div class="req">原话：找历史定期到期后实际续存比例至少70%的客户，需要逐笔到期去向。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-195" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-195" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-195" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-195" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-185">
+ <summary><b>CAL-185</b> · GAP · 元数据口径冲突
+   <span class="outcome">CAPABILITY_GAP</span></summary>
+ <div class="req">原话：请按本年同名跨行转入金额筛选客户；先核实这个指标的定义是否一致，存在冲突就停止，不要自行选一种解释。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1282</code></td><td>本年同名跨行转入金额</td><td>数值型</td><td>CNY</td><td>UNRESOLVED</td><td></td><td>{&#x27;calendar_mode&#x27;: &#x27;CALENDAR&#x27;, &#x27;period_edge&#x27;: &#x27;TO_DATE&#x27;, &#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;EOP&#x27;, &#x27;time_anchor_label&#x27;: &#x27;本年&#x27;, &#x27;time_anchor_type&#x27;: &#x27;YTD&#x27;, &#x27;unit&#x27;: &#x27;CNY&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-185" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-185" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-185" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-185" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-190">
+ <summary><b>CAL-190</b> · GAP · 年龄明细
+   <span class="outcome">CAPABILITY_GAP</span></summary>
+ <div class="req">原话：找55岁及以上的客户，必须按实际年龄，不使用客户等级代替。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-190" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-190" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-190" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-190" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<details class="case" data-case="CAL-183">
+ <summary><b>CAL-183</b> · GAP · 元数据口径冲突
+   <span class="outcome">CAPABILITY_GAP</span></summary>
+ <div class="req">原话：请按历史个贷免息券使用张数（固定利率券）筛选客户；先核实这个指标的定义是否一致，存在冲突就停止，不要自行选一种解释。</div>
+ <div class="turn"><b>后续轮次</b><ul><li><i>无后续轮次</i></li></ul></div>
+ <div class="tree"><b>标准语义</b><br><i>（本题无标准树）</i></div>
+ <table><tr><th>标签</th><th>名称</th><th>类型</th><th>单位</th><th>事实状态</th><th>码值</th><th>口径</th></tr><tr><td><code>1076</code></td><td>历史个贷免息券使用张数（固定利率券）</td><td>数值型</td><td>RATIO</td><td>UNRESOLVED</td><td></td><td>{&#x27;scope&#x27;: &#x27;ALL&#x27;, &#x27;statistic&#x27;: &#x27;COUNT&#x27;, &#x27;time_anchor_label&#x27;: &#x27;历史&#x27;, &#x27;time_anchor_type&#x27;: &#x27;HIST&#x27;, &#x27;unit&#x27;: &#x27;RATIO&#x27;, &#x27;unit_scale&#x27;: 1}</td></tr></table>
+ <div class="ind">独立复核：<b>ACCEPT</b> — 独立复核通过：标签重绑定、字段/单位/口径、阈值与码值出现在原话中、资格与未解决事实边界均由确定性证据核对一致。</div>
+ 
+ <div class="decide">
+  <label><input type="radio" name="CAL-183" value="ACCEPT"> 接受</label>
+  <label><input type="radio" name="CAL-183" value="REJECT"> 拒绝</label>
+  <label><input type="radio" name="CAL-183" value="ACCEPT_WITH_COMMENT"> 接受但需修订</label>
+  <input class="comment" data-case="CAL-183" placeholder="原因/修订建议（拒绝或需修订时必填）">
+ </div>
+</details>
+<h2>导出的结论</h2><textarea id="out" placeholder="点击上方“生成结论”"></textarea>
+<script>
+function collect(){
+ var out=[]; var missing=0;
+ document.querySelectorAll('.case').forEach(function(c){
+   var id=c.dataset.case; var sel=c.querySelector('input[type=radio]:checked');
+   var comment=c.querySelector('.comment').value.trim();
+   if(!sel){missing++; return;}
+   if(sel.value!=='ACCEPT' && !comment){missing++; return;}
+   out.push({case_id:id, decision:sel.value, comment:comment||null});
+ });
+ document.getElementById('out').value=JSON.stringify(out,null,1);
+ document.getElementById('done').textContent='已生成 '+out.length+' 条'+(missing?('；'+missing+' 题未完成（需选择，拒绝/需修订须填原因）'):'');
+}
+</script></html>
