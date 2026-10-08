@@ -180,23 +180,23 @@ export default {
   align-items: center;
   min-height: 100%;
   padding: 32px 20px;
-  background: #b8cbd8 url("../assets/images/tagpilot-login-background.jpg") center / cover no-repeat;
-  color: #24434a;
+  background: #edf4ff url("../assets/images/tagpilot-login-background.jpg") center / cover no-repeat;
+  color: #303133;
 }
 .login-form {
   width: 432px;
   max-width: 100%;
   padding: 36px;
   border-radius: 16px;
-  background: #f9fbfc;
-  box-shadow: 0 20px 56px rgba(32, 64, 78, 0.16);
+  background: #ffffff;
+  box-shadow: 0 20px 56px rgba(31, 66, 119, 0.12);
 
   ::v-deep .el-form-item {
     margin-bottom: 22px;
   }
   ::v-deep .el-form-item__label {
     padding: 0 0 8px;
-    color: #344f56;
+    color: #606266;
     font-size: 13px;
     font-weight: 500;
     line-height: 20px;
@@ -205,36 +205,36 @@ export default {
     height: 48px;
     padding-left: 40px;
     padding-right: 44px;
-    border-color: #c8d6db;
+    border-color: #dcdfe6;
     border-radius: 8px;
-    background: #f2f6f7;
-    color: #24434a;
+    background: #f7f9fc;
+    color: #303133;
     font-size: 14px;
-    caret-color: #23545b;
+    caret-color: #1677d2;
     transition: border-color 160ms ease, background-color 160ms ease;
 
     &::placeholder {
-      color: #647b83;
+      color: #687181;
     }
     &:hover {
-      border-color: #9eb6bf;
+      border-color: #a8c7ee;
     }
     &:focus {
-      border-color: #23545b;
+      border-color: #1677d2;
       background: #fff;
-      outline: 2px solid rgba(35, 84, 91, 0.18);
+      outline: 2px solid rgba(64, 158, 255, 0.2);
       outline-offset: 2px;
     }
     &::selection {
-      background: #c8e2e3;
-      color: #24434a;
+      background: #d9ecff;
+      color: #303133;
     }
   }
   ::v-deep .el-input__prefix {
     left: 14px;
     display: flex;
     align-items: center;
-    color: #647b83;
+    color: #687181;
   }
   ::v-deep .el-input__suffix {
     right: 4px;
@@ -249,19 +249,19 @@ export default {
     padding-top: 5px;
   }
   ::v-deep .el-checkbox__label {
-    color: #49636b;
+    color: #606266;
     font-size: 13px;
   }
   ::v-deep .el-checkbox__inner {
-    border-color: #9fb4bd;
+    border-color: #b5c4d7;
     border-radius: 3px;
   }
   ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner {
-    border-color: #23545b;
-    background-color: #23545b;
+    border-color: #1677d2;
+    background-color: #1677d2;
   }
   ::v-deep .el-checkbox__input.is-focus .el-checkbox__inner {
-    outline: 2px solid #23545b;
+    outline: 2px solid #1677d2;
     outline-offset: 3px;
   }
 }
@@ -272,7 +272,7 @@ export default {
 
   h1 {
     margin: 0;
-    color: #24434a;
+    color: #303133;
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
     font-size: 26px;
     font-weight: 600;
@@ -294,12 +294,12 @@ export default {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #5a727c;
+  color: #606266;
   cursor: pointer;
 
   &:hover {
-    background: #e1ebee;
-    color: #23545b;
+    background: #ecf5ff;
+    color: #1677d2;
   }
 }
 .captcha-row {
@@ -322,9 +322,9 @@ export default {
   height: 48px;
   padding: 4px;
   overflow: hidden;
-  border: 1px solid #c8d6db;
+  border: 1px solid #dcdfe6;
   border-radius: 8px;
-  background: #eef3f4;
+  background: #f5f7fa;
   cursor: pointer;
 
   img {
@@ -333,12 +333,12 @@ export default {
     max-height: 100%;
   }
   &:hover {
-    border-color: #23545b;
+    border-color: #1677d2;
   }
 }
 .password-toggle:focus-visible,
 .captcha-refresh:focus-visible {
-  outline: 2px solid #23545b;
+  outline: 2px solid #1677d2;
   outline-offset: 3px;
 }
 .login-options {
@@ -349,7 +349,7 @@ export default {
   margin: 4px 0 24px;
 
   span {
-    color: #5a727c;
+    color: #606266;
     font-size: 12px;
     line-height: 20px;
   }
@@ -358,9 +358,9 @@ export default {
   width: 100%;
   height: 48px;
   padding: 0 20px;
-  border-color: #23545b;
+  border-color: #1677d2;
   border-radius: 8px;
-  background: #23545b;
+  background: #1677d2;
   color: #fff;
   font-size: 15px;
   font-weight: 500;
@@ -371,15 +371,15 @@ export default {
   }
   &:hover,
   &:focus {
-    border-color: #1b444a;
-    background: #1b444a;
+    border-color: #1268bc;
+    background: #1268bc;
   }
   &:focus-visible {
-    outline: 2px solid #23545b;
+    outline: 2px solid #1677d2;
     outline-offset: 3px;
   }
   &.is-loading {
-    background: #23545b;
+    background: #1677d2;
   }
 }
 .login-register {
