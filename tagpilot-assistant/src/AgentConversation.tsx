@@ -13,6 +13,7 @@ import { busy, clauses, stateText, degradedOf, degradedMessage, degradedText, ru
 import { slashQuery, type AgentSkill } from "./skillApi";
 import { RunTimeline } from "./RunTimeline.tsx";
 import { stagedQuestions } from "./clarification";
+import { conversationRuns, reportMessageId } from "./conversationRuns";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
@@ -97,6 +98,7 @@ export function AgentConversation({
   skillChips,
   skillRunDisabled = false,
   insightSummary,
+  insightRunId,
   composerRequest,
   contextTags = [],
   onRemoveContextTag,
@@ -122,6 +124,7 @@ export function AgentConversation({
   skillChips?: ReactNode;
   skillRunDisabled?: boolean;
   insightSummary?: ReactNode;
+  insightRunId?: string;
   composerRequest?: { text: string; id: number; focusOnly?: boolean };
   contextTags?: ContextTag[];
   onRemoveContextTag?: (id: number) => void;
@@ -139,6 +142,16 @@ export function AgentConversation({
     if (slash && filteredSkills.length) document.getElementById(`composer-skill-${Math.min(activeSkill, filteredSkills.length - 1)}`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [activeSkill, slash?.query, filteredSkills.length]);
   const degraded = degradedOf(thread);
+  const runs = conversationRuns(thread);
+  const summaryMessage = reportMessageId(thread, insightRunId);
+  const renderRun = (run: ReturnType<typeof conversationRuns>[number]) => (
+    <RunTimeline key={run.run_id} runId={run.run_id} skillMode={run.profile === "skill"}
+      events={run.events} running={run.current && busy(thread)} label={run.label}
+      plan={run.current ? thread?.live_plan || thread?.plan : undefined}
+      status={run.current ? thread?.status : undefined} questions={run.current ? thread?.questions : undefined} onReveal={onReveal}>
+      {run.current && thread?.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} onCancel={onCancel} /> : null}
+    </RunTimeline>
+  );
   const composerInput = useRef<HTMLTextAreaElement>(null);
   const runtime = useExternalStoreRuntime<AgentMessage>({
     messages: thread?.messages || [],
@@ -213,6 +226,7 @@ export function AgentConversation({
             </ThreadPrimitive.Empty>
             <ThreadPrimitive.Messages>
               {({ message }) => (
+                <div className="conversation-turn" data-message-id={message.id}>
                 <MessagePrimitive.Root
                   className={`message ${
                     message.role === "user" ? "user-message" : "assistant-message"
@@ -226,19 +240,13 @@ export function AgentConversation({
                     <MessagePrimitive.Parts />
                   </div>
                 </MessagePrimitive.Root>
+                {runs.filter((run) => run.afterMessageId === message.id).map(renderRun)}
+                {summaryMessage === message.id ? insightSummary : null}
+                </div>
               )}
             </ThreadPrimitive.Messages>
-            {insightSummary}
-            {thread?.run_history?.map((r, i) => (
-              <RunTimeline key={r.run_id} runId={r.run_id} skillMode={r.profile === "skill"} events={r.events} running={false} label={`第 ${i + 1} 轮处理记录`} onReveal={onReveal} />
-            ))}
-            {thread && (thread.events.length || busy(thread) || thread.status === "WAITING") ? (
-              <RunTimeline key={`${thread.thread_id}:${thread.run_id || "current"}`} runId={thread.run_id || thread.thread_id}
-                events={thread.events} skillMode={thread.run_profile === "skill"} running={busy(thread)} plan={thread.live_plan || thread.plan}
-                status={thread.status} questions={thread.questions} onReveal={onReveal}>
-                {thread.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} onCancel={onCancel} /> : null}
-              </RunTimeline>
-            ) : null}
+            {runs.filter((run) => !run.afterMessageId).map(renderRun)}
+            {!summaryMessage ? insightSummary : null}
             {thread && runNotice(thread) === "partial" && degraded ? (
               <div className="run-degraded" role="status">
                 <strong>{degraded.kept_clauses.length ? `已保留 ${degraded.kept_clauses.length}/${clauses(thread.plan?.tree).length} 项条件` : "尚未形成可用条件"}</strong>

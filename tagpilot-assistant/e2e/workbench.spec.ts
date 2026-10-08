@@ -424,6 +424,8 @@ test("library picker sits in the composer and opens above its trigger", async ({
 test("return to latest stays fixed while browsing older messages", async ({
   page,
 }) => {
+  // 本项验证滚动定位几何；缓动与快速切换另有专门的动效用例。
+  await page.emulateMedia({ reducedMotion: "reduce" });
   t.messages = Array.from({ length: 30 }, (_, index) => ({
     id: `long-message-${index}`,
     role: index % 2 === 0 ? "user" : "assistant",
@@ -449,6 +451,9 @@ test("return to latest stays fixed while browsing older messages", async ({
   await page.setViewportSize({ width: 596, height: 773 });
   await expectDocumentToFit();
   await expect(returnButton).toBeHidden();
+  await expect.poll(() => viewport.evaluate((element) =>
+    element.scrollHeight - element.clientHeight - element.scrollTop
+  )).toBeLessThan(2);
   await viewport.evaluate((element) => {
     element.scrollTop = 0;
     element.dispatchEvent(new Event("scroll"));
@@ -458,6 +463,9 @@ test("return to latest stays fixed while browsing older messages", async ({
   await expectDocumentToFit();
 
   const settledBox = async () => {
+    await expect.poll(() => returnButton.evaluate((element) =>
+      new DOMMatrixReadOnly(getComputedStyle(element).transform).m42
+    )).toBe(0);
     let previous = await returnButton.boundingBox();
     for (let attempt = 0; attempt < 40; attempt += 1) {
       await page.waitForTimeout(25);
@@ -822,7 +830,7 @@ test("streaming timeline paces updates, replays history, and highlights changed 
   t.run_history = [{ run_id: "old-run", events: [{ seq: -1, type: "run.cancelled" }, { seq: -1, type: "run.cancelled" }] }];
   await page.route("**/dev-api/**/events", (route) => route.fulfill({ contentType: "text/event-stream", body: `event: state\ndata: ${JSON.stringify(t)}\n\n` }));
   await page.goto("/agent-ui/?threadId=test-thread");
-  const current = page.getByRole("region", { name: "处理记录", exact: true });
+  const current = page.getByRole("region", { name: "第 2 轮处理记录", exact: true });
   await expect(current.locator(".run-content")).toBeVisible();
   await expect(page.getByRole("region", { name: "第 1 轮处理记录" }).locator(".run-content")).toHaveCount(0);
   t.events = [{ seq: 1, type: "narration", text: "先核对转入金额与客户状态的口径", occurred_at: now },
@@ -861,7 +869,7 @@ test("waiting questions stay inside the timeline and reduced motion preserves re
   t.status = "WAITING"; t.run_id = "waiting-run"; t.interrupt_id = "choice";
   t.questions = [{ clause_id: "a", prompt: "转入统计口径采用哪个时间范围？", options: ["近30天", "上个自然月"] }]; t.plan.valid = false;
   await page.goto("/agent-ui/?threadId=test-thread");
-  const current = page.getByRole("region", { name: "处理记录", exact: true });
+  const current = page.getByRole("region", { name: "第 1 轮处理记录", exact: true });
   await expect(current.locator(".ask-card")).toBeVisible();
   await expect(current.locator('.run-todos [data-status="blocked"]')).not.toHaveCount(0);
   await expect(current.locator(".run-caret")).toHaveCount(0);
@@ -874,7 +882,7 @@ test("waiting questions stay inside the timeline and reduced motion preserves re
 test("cancelled and failed operations stop spinning and keep their replay", async ({ page }) => {
   t.status = "CANCELLED"; t.events = [{ seq: 1, type: "tool.started", tool: "find_tags" }, { seq: -1, type: "run.cancelled" }];
   await page.goto("/agent-ui/?threadId=test-thread");
-  const current = page.getByRole("region", { name: "处理记录", exact: true });
+  const current = page.getByRole("region", { name: "第 1 轮处理记录", exact: true });
   await expect(current.locator(".run-content")).toHaveCount(0); await current.locator(".run-heading").click();
   await expect(current.locator(".marker-active")).toHaveCount(0);
   await expect(current.locator(".run-entries")).toContainText("本次操作未完成");

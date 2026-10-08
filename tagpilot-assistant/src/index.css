@@ -1347,6 +1347,13 @@ textarea {
 @media (max-width: 760px) {
   .history-rail {
     display: none;
+    position: absolute;
+    top: 103px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 2;
   }
   .body {
     position: relative;
@@ -1427,13 +1434,6 @@ textarea {
 @media (max-width: 760px) {
   .mobile-history .history-rail {
     display: flex;
-    position: absolute;
-    top: 103px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    z-index: 2;
   }
   .mobile-history .thread,
   .mobile-history .plan-panel {
