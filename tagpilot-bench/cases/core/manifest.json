@@ -1,0 +1,18 @@
+{
+ "case_count": 161,
+ "oracle_count": 117,
+ "by_source": {
+  "scenario-61": 61,
+  "demo-100": 100,
+  "patch": 0,
+  "guard": 0
+ },
+ "by_difficulty": {
+  "明细": 17,
+  "直达": 124,
+  "需澄清": 15,
+  "需组合": 5
+ },
+ "cases_sha256": "17542186506460c0c0bccd8b1706e8c6b27b7acb0cc3a2f97159a44f38a68a5f",
+ "oracle_sha256": "bee633461c05a4e38276630576fbda57f74a637313367a186e2d021d19d8f2eb"
+}

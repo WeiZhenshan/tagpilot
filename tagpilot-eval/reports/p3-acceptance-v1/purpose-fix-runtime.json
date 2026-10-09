@@ -1,8 +1,0 @@
-{
-  "prompt_file_sha256": "6def66b20ee4f164e32f0910af2f520514e64a8a7f364e00d1f0b0acbb79751a",
-  "loaded": true,
-  "changed_files": [
-    "agent/system_prompt.py"
-  ],
-  "basis": "CAL-8062用途误作客户条件；不修改冻结守卫或目标树"
-}

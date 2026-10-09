@@ -1,0 +1,289 @@
+{
+  "G02": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "COUNT_POSITIVE", "args": [
+         {"kind": "TAG", "tag_id": 813, "field_name": "CUR_DEPOSIT_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 918, "field_name": "CUR_WMP_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 860, "field_name": "CUR_GOLD_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1006, "field_name": "CUR_TREASURY_BOND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 994, "field_name": "CUR_TRUST_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 804, "field_name": "CUR_VALUE_TYPE_INSURANCE_BALANCE", "unit": "CNY"}
+       ]},
+       "operator": "<=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "COUNT_POSITIVE", "args": [
+         {"kind": "TAG", "tag_id": 813, "field_name": "CUR_DEPOSIT_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 918, "field_name": "CUR_WMP_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 860, "field_name": "CUR_GOLD_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1006, "field_name": "CUR_TREASURY_BOND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 994, "field_name": "CUR_TRUST_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 804, "field_name": "CUR_VALUE_TYPE_INSURANCE_BALANCE", "unit": "CNY"}
+       ]},
+       "operator": ">=", "values": ["4"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "G03": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "COUNT_POSITIVE", "args": [
+         {"kind": "TAG", "tag_id": 813, "field_name": "CUR_DEPOSIT_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 918, "field_name": "CUR_WMP_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 860, "field_name": "CUR_GOLD_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1006, "field_name": "CUR_TREASURY_BOND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 994, "field_name": "CUR_TRUST_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 804, "field_name": "CUR_VALUE_TYPE_INSURANCE_BALANCE", "unit": "CNY"}
+       ]},
+       "operator": ">=", "values": ["4"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "COUNT_POSITIVE", "args": [
+         {"kind": "TAG", "tag_id": 813, "field_name": "CUR_DEPOSIT_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 918, "field_name": "CUR_WMP_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 860, "field_name": "CUR_GOLD_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1006, "field_name": "CUR_TREASURY_BOND_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 994, "field_name": "CUR_TRUST_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 804, "field_name": "CUR_VALUE_TYPE_INSURANCE_BALANCE", "unit": "CNY"}
+       ]},
+       "operator": "<=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "G04": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1288, "field_name": "CUR_MONTH_TRANSFER_OUT_OB_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"}
+       ]},
+       "operator": ">=", "values": ["0.1"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1288, "field_name": "CUR_MONTH_TRANSFER_OUT_OB_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"}
+       ]},
+       "operator": "<", "values": ["0.1"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "G05": {
+    "target": {"kind": "GROUP", "logic": "OR", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 874, "field_name": "CUR_PB_SEP_ACCT_FUND_BALANCE", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 872, "field_name": "CUR_TOF_FUND_BALANCE", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["6000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 874, "field_name": "CUR_PB_SEP_ACCT_FUND_BALANCE", "unit": "CNY"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 872, "field_name": "CUR_TOF_FUND_BALANCE", "unit": "CNY"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "H01": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9003, "field_name": "CONVERSION_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9003, "field_name": "CONVERSION_DATE", "unit": "DATE"},
+       "operator": "is_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]}
+  },
+  "H02": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9003, "field_name": "CONVERSION_DATE", "unit": "DATE"},
+       "operator": "is_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9003, "field_name": "CONVERSION_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]}
+  },
+  "H03": {
+    "target": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+      "operator": "is_null", "values": [], "data_kind": "DATE",
+      "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}},
+    "contrast": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+      "operator": "is_not_null", "values": [], "data_kind": "DATE",
+      "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+  },
+  "H04": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9002, "field_name": "PARTICIPATION_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9003, "field_name": "CONVERSION_DATE", "unit": "DATE"},
+       "operator": "is_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9002, "field_name": "PARTICIPATION_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9003, "field_name": "CONVERSION_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]}
+  },
+  "H05": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+       "operator": "is_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9001, "field_name": "TOUCH_DATE", "unit": "DATE"},
+       "operator": "is_not_null", "values": [], "data_kind": "DATE",
+       "caliber": {"source_table": "SIM_CAMPAIGN_RESULT", "activity_code": "SIM_2026_JUL_WMP"}}
+    ]}
+  },
+  "I01": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9005, "field_name": "COUNTER_TXN_COUNT_30D", "unit": "COUNT"},
+       "operator": ">=", "values": ["3"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CHANNEL_DAY"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9006, "field_name": "ELECTRONIC_TXN_COUNT_30D", "unit": "COUNT"},
+       "operator": "<=", "values": ["1"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CHANNEL_DAY"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "<=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9006, "field_name": "ELECTRONIC_TXN_COUNT_30D", "unit": "COUNT"},
+       "operator": ">=", "values": ["3"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CHANNEL_DAY"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">=", "values": ["5"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "I02": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9006, "field_name": "ELECTRONIC_TXN_COUNT_30D", "unit": "COUNT"},
+       "operator": ">=", "values": ["3"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CHANNEL_DAY"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">=", "values": ["5"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9005, "field_name": "COUNTER_TXN_COUNT_30D", "unit": "COUNT"},
+       "operator": ">=", "values": ["3"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CHANNEL_DAY"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9006, "field_name": "ELECTRONIC_TXN_COUNT_30D", "unit": "COUNT"},
+       "operator": "<=", "values": ["1"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CHANNEL_DAY"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "<=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "I03": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9004, "field_name": "AGE", "unit": "YEAR"},
+       "operator": ">=", "values": ["55"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CUSTOMER_PROFILE"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "<=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9004, "field_name": "AGE", "unit": "YEAR"},
+       "operator": ">=", "values": ["55"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CUSTOMER_PROFILE"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">=", "values": ["5"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "I04": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9004, "field_name": "AGE", "unit": "YEAR"},
+       "operator": "between", "values": ["20", "34"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CUSTOMER_PROFILE"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "<=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 9004, "field_name": "AGE", "unit": "YEAR"},
+       "operator": "between", "values": ["20", "34"], "data_kind": "NUMBER", "caliber": {"source_table": "SIM_CUSTOMER_PROFILE"}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">=", "values": ["5"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  }
+}

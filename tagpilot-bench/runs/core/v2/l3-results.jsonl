@@ -1,0 +1,234 @@
+{"case_id": "DM-8001", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "DM-8001", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "DM-8002", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "DM-8002", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "DM-8003", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "DM-8003", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8005", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 22, "oracle_count": 23, "full_id_set_equal": false}
+{"case_id": "DM-8005", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 22, "oracle_count": 23, "full_id_set_equal": false}
+{"case_id": "DM-8006", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8006", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8007", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8007", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8008", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 25, "oracle_count": 25, "full_id_set_equal": true}
+{"case_id": "DM-8008", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 25, "oracle_count": 25, "full_id_set_equal": true}
+{"case_id": "DM-8010", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 21, "oracle_count": 22, "full_id_set_equal": false}
+{"case_id": "DM-8010", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 21, "oracle_count": 22, "full_id_set_equal": false}
+{"case_id": "DM-8011", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8011", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8012", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8012", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 37, "oracle_count": 37, "full_id_set_equal": true}
+{"case_id": "DM-8013", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 21, "oracle_count": 21, "full_id_set_equal": true}
+{"case_id": "DM-8013", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 21, "oracle_count": 21, "full_id_set_equal": true}
+{"case_id": "DM-8015", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 18, "oracle_count": 19, "full_id_set_equal": false}
+{"case_id": "DM-8015", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 18, "oracle_count": 19, "full_id_set_equal": false}
+{"case_id": "DM-8016", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 21, "oracle_count": 21, "full_id_set_equal": true}
+{"case_id": "DM-8016", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 21, "oracle_count": 21, "full_id_set_equal": true}
+{"case_id": "DM-8017", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 22, "oracle_count": 22, "full_id_set_equal": true}
+{"case_id": "DM-8017", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 22, "oracle_count": 22, "full_id_set_equal": true}
+{"case_id": "DM-8018", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 28, "oracle_count": 28, "full_id_set_equal": true}
+{"case_id": "DM-8018", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8020", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 20, "oracle_count": 22, "full_id_set_equal": false}
+{"case_id": "DM-8020", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 20, "oracle_count": 22, "full_id_set_equal": false}
+{"case_id": "DM-8021", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 18, "oracle_count": 18, "full_id_set_equal": true}
+{"case_id": "DM-8021", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 18, "oracle_count": 18, "full_id_set_equal": true}
+{"case_id": "DM-8022", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 20, "oracle_count": 20, "full_id_set_equal": true}
+{"case_id": "DM-8022", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 20, "oracle_count": 20, "full_id_set_equal": true}
+{"case_id": "DM-8023", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 25, "oracle_count": 25, "full_id_set_equal": true}
+{"case_id": "DM-8023", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 25, "oracle_count": 25, "full_id_set_equal": true}
+{"case_id": "DM-8025", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 17, "oracle_count": 19, "full_id_set_equal": false}
+{"case_id": "DM-8025", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 17, "oracle_count": 19, "full_id_set_equal": false}
+{"case_id": "DM-8026", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 15, "oracle_count": 15, "full_id_set_equal": true}
+{"case_id": "DM-8026", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 15, "oracle_count": 15, "full_id_set_equal": true}
+{"case_id": "DM-8027", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 15, "oracle_count": 15, "full_id_set_equal": true}
+{"case_id": "DM-8027", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 15, "oracle_count": 15, "full_id_set_equal": true}
+{"case_id": "DM-8028", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 22, "oracle_count": 22, "full_id_set_equal": true}
+{"case_id": "DM-8028", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 22, "oracle_count": 22, "full_id_set_equal": true}
+{"case_id": "DM-8030", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 17, "oracle_count": 18, "full_id_set_equal": false}
+{"case_id": "DM-8030", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 17, "oracle_count": 18, "full_id_set_equal": false}
+{"case_id": "DM-8031", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8031", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8032", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8032", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8033", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8033", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8035", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8035", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8036", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8036", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8037", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8037", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8038", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8038", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8040", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8040", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8041", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8041", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8042", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8042", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8043", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8043", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8045", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8045", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 197, "oracle_count": 197, "full_id_set_equal": true}
+{"case_id": "DM-8047", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8047", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 151, "oracle_count": 151, "full_id_set_equal": true}
+{"case_id": "DM-8049", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 94, "oracle_count": 98, "full_id_set_equal": false}
+{"case_id": "DM-8049", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 94, "oracle_count": 98, "full_id_set_equal": false}
+{"case_id": "DM-8050", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 161, "oracle_count": 161, "full_id_set_equal": true}
+{"case_id": "DM-8050", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 161, "oracle_count": 161, "full_id_set_equal": true}
+{"case_id": "DM-8052", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 136, "oracle_count": 136, "full_id_set_equal": true}
+{"case_id": "DM-8052", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 136, "oracle_count": 136, "full_id_set_equal": true}
+{"case_id": "DM-8054", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 90, "oracle_count": 94, "full_id_set_equal": false}
+{"case_id": "DM-8054", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 90, "oracle_count": 94, "full_id_set_equal": false}
+{"case_id": "DM-8055", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 144, "oracle_count": 144, "full_id_set_equal": true}
+{"case_id": "DM-8055", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 144, "oracle_count": 144, "full_id_set_equal": true}
+{"case_id": "DM-8057", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 129, "oracle_count": 129, "full_id_set_equal": true}
+{"case_id": "DM-8057", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 129, "oracle_count": 129, "full_id_set_equal": true}
+{"case_id": "DM-8059", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 251, "oracle_count": 251, "full_id_set_equal": true}
+{"case_id": "DM-8059", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 251, "oracle_count": 251, "full_id_set_equal": true}
+{"case_id": "DM-8060", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 189, "oracle_count": 189, "full_id_set_equal": true}
+{"case_id": "DM-8060", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 189, "oracle_count": 189, "full_id_set_equal": true}
+{"case_id": "DM-8061", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 65, "oracle_count": 65, "full_id_set_equal": true}
+{"case_id": "DM-8061", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8063", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 102, "oracle_count": 105, "full_id_set_equal": false}
+{"case_id": "DM-8063", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 102, "oracle_count": 105, "full_id_set_equal": false}
+{"case_id": "DM-8064", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 187, "oracle_count": 187, "full_id_set_equal": true}
+{"case_id": "DM-8064", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8065", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 168, "oracle_count": 168, "full_id_set_equal": true}
+{"case_id": "DM-8065", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 168, "oracle_count": 168, "full_id_set_equal": true}
+{"case_id": "DM-8066", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 55, "oracle_count": 55, "full_id_set_equal": true}
+{"case_id": "DM-8066", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 55, "oracle_count": 55, "full_id_set_equal": true}
+{"case_id": "DM-8068", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 95, "oracle_count": 98, "full_id_set_equal": false}
+{"case_id": "DM-8068", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 95, "oracle_count": 98, "full_id_set_equal": false}
+{"case_id": "DM-8069", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 163, "oracle_count": 163, "full_id_set_equal": true}
+{"case_id": "DM-8069", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 163, "oracle_count": 163, "full_id_set_equal": true}
+{"case_id": "DM-8070", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 157, "oracle_count": 157, "full_id_set_equal": true}
+{"case_id": "DM-8070", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 157, "oracle_count": 157, "full_id_set_equal": true}
+{"case_id": "DM-8071", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 48, "oracle_count": 48, "full_id_set_equal": true}
+{"case_id": "DM-8071", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 48, "oracle_count": 48, "full_id_set_equal": true}
+{"case_id": "DM-8073", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8073", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8074", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8074", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8075", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8075", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8077", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8077", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8078", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8078", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8079", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8079", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8080", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8080", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8082", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8082", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8083", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8083", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8084", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8084", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8085", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8085", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "DM-8087", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 94, "oracle_count": 94, "full_id_set_equal": true}
+{"case_id": "DM-8087", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 94, "oracle_count": 94, "full_id_set_equal": true}
+{"case_id": "DM-8088", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 88, "oracle_count": 88, "full_id_set_equal": true}
+{"case_id": "DM-8088", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 88, "oracle_count": 88, "full_id_set_equal": true}
+{"case_id": "DM-8089", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 83, "oracle_count": 83, "full_id_set_equal": true}
+{"case_id": "DM-8089", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 83, "oracle_count": 83, "full_id_set_equal": true}
+{"case_id": "DM-8091", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 57, "oracle_count": 59, "full_id_set_equal": false}
+{"case_id": "DM-8091", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 57, "oracle_count": 59, "full_id_set_equal": false}
+{"case_id": "DM-8092", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 77, "oracle_count": 77, "full_id_set_equal": true}
+{"case_id": "DM-8092", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 77, "oracle_count": 77, "full_id_set_equal": true}
+{"case_id": "DM-8093", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 82, "oracle_count": 82, "full_id_set_equal": true}
+{"case_id": "DM-8093", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 82, "oracle_count": 82, "full_id_set_equal": true}
+{"case_id": "DM-8094", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "DM-8094", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 74, "oracle_count": 74, "full_id_set_equal": true}
+{"case_id": "DM-8096", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 55, "oracle_count": 57, "full_id_set_equal": false}
+{"case_id": "DM-8096", "rep": 1, "status": "FAIL", "authority": "JAVA", "java_count": 55, "oracle_count": 57, "full_id_set_equal": false}
+{"case_id": "DM-8097", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 74, "oracle_count": 74, "full_id_set_equal": true}
+{"case_id": "DM-8097", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 74, "oracle_count": 74, "full_id_set_equal": true}
+{"case_id": "DM-8098", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 76, "oracle_count": 76, "full_id_set_equal": true}
+{"case_id": "DM-8098", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 76, "oracle_count": 76, "full_id_set_equal": true}
+{"case_id": "DM-8099", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 71, "oracle_count": 71, "full_id_set_equal": true}
+{"case_id": "DM-8099", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 71, "oracle_count": 71, "full_id_set_equal": true}
+{"case_id": "SC-A01", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 2000, "oracle_count": 2000, "full_id_set_equal": true}
+{"case_id": "SC-A01", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 2000, "oracle_count": 2000, "full_id_set_equal": true}
+{"case_id": "SC-A02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 203, "oracle_count": 203, "full_id_set_equal": true}
+{"case_id": "SC-A02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 203, "oracle_count": 203, "full_id_set_equal": true}
+{"case_id": "SC-A03", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 179, "oracle_count": 179, "full_id_set_equal": true}
+{"case_id": "SC-A03", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 179, "oracle_count": 179, "full_id_set_equal": true}
+{"case_id": "SC-A04", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 256, "oracle_count": 256, "full_id_set_equal": true}
+{"case_id": "SC-A04", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-A05", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-A05", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-A06", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-A06", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-A07", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 157, "oracle_count": 157, "full_id_set_equal": true}
+{"case_id": "SC-A07", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 157, "oracle_count": 157, "full_id_set_equal": true}
+{"case_id": "SC-B01", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 120, "oracle_count": 120, "full_id_set_equal": true}
+{"case_id": "SC-B01", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 120, "oracle_count": 120, "full_id_set_equal": true}
+{"case_id": "SC-B02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "SC-B02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "SC-B03", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-B03", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-B04", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-B04", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-B05", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-B05", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-C01", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-C01", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-C02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 36, "oracle_count": 36, "full_id_set_equal": true}
+{"case_id": "SC-C02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 36, "oracle_count": 36, "full_id_set_equal": true}
+{"case_id": "SC-C03", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-C03", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-D01", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-D01", "rep": 1, "status": "SKIP", "reason": "agent_outcome=CAPABILITY_GAP"}
+{"case_id": "SC-D02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 137, "oracle_count": 137, "full_id_set_equal": true}
+{"case_id": "SC-D02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 137, "oracle_count": 137, "full_id_set_equal": true}
+{"case_id": "SC-D03", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-D03", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-D04", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 3, "oracle_count": 3, "full_id_set_equal": true}
+{"case_id": "SC-D04", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-D05", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 31, "oracle_count": 31, "full_id_set_equal": true}
+{"case_id": "SC-D05", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 31, "oracle_count": 31, "full_id_set_equal": true}
+{"case_id": "SC-E01", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 249, "oracle_count": 249, "full_id_set_equal": true}
+{"case_id": "SC-E01", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 249, "oracle_count": 249, "full_id_set_equal": true}
+{"case_id": "SC-E04", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 151, "oracle_count": 151, "full_id_set_equal": true}
+{"case_id": "SC-E04", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 151, "oracle_count": 151, "full_id_set_equal": true}
+{"case_id": "SC-F01", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 976, "oracle_count": 976, "full_id_set_equal": true}
+{"case_id": "SC-F01", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 976, "oracle_count": 976, "full_id_set_equal": true}
+{"case_id": "SC-F02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 502, "oracle_count": 502, "full_id_set_equal": true}
+{"case_id": "SC-F02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 502, "oracle_count": 502, "full_id_set_equal": true}
+{"case_id": "SC-G01", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 66, "oracle_count": 66, "full_id_set_equal": true}
+{"case_id": "SC-G01", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 66, "oracle_count": 66, "full_id_set_equal": true}
+{"case_id": "SC-G02", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-G02", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-G03", "rep": 0, "status": "SKIP", "reason": "agent_outcome=CAPABILITY_GAP"}
+{"case_id": "SC-G03", "rep": 1, "status": "SKIP", "reason": "agent_outcome=CAPABILITY_GAP"}
+{"case_id": "SC-G04", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-G04", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "SC-G05", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 22, "oracle_count": 22, "full_id_set_equal": true}
+{"case_id": "SC-G05", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 22, "oracle_count": 22, "full_id_set_equal": true}
+{"case_id": "SC-I05", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 212, "oracle_count": 212, "full_id_set_equal": true}
+{"case_id": "SC-I05", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 212, "oracle_count": 212, "full_id_set_equal": true}
+{"case_id": "SC-J04", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-J04", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-J05", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 5, "oracle_count": 5, "full_id_set_equal": true}
+{"case_id": "SC-J05", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 5, "oracle_count": 5, "full_id_set_equal": true}
+{"case_id": "SC-J06", "rep": 0, "status": "FAIL", "authority": "JAVA", "java_count": 0, "oracle_count": 65, "full_id_set_equal": false}
+{"case_id": "SC-J06", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-K01", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 58, "oracle_count": 58, "full_id_set_equal": true}
+{"case_id": "SC-K01", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 58, "oracle_count": 58, "full_id_set_equal": true}
+{"case_id": "SC-K02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 15, "oracle_count": 15, "full_id_set_equal": true}
+{"case_id": "SC-K02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 15, "oracle_count": 15, "full_id_set_equal": true}
+{"case_id": "SC-K03", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "SC-K03", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 0, "oracle_count": 0, "full_id_set_equal": true}
+{"case_id": "SC-K04", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 7, "oracle_count": 7, "full_id_set_equal": true}
+{"case_id": "SC-K04", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 7, "oracle_count": 7, "full_id_set_equal": true}
+{"case_id": "SC-K05", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-K05", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-K06", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-K06", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-K07", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 483, "oracle_count": 483, "full_id_set_equal": true}
+{"case_id": "SC-K07", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 483, "oracle_count": 483, "full_id_set_equal": true}
+{"case_id": "SC-K08", "rep": 0, "status": "SKIP", "reason": "agent_outcome=CAPABILITY_GAP"}
+{"case_id": "SC-K08", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}

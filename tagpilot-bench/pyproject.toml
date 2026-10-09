@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tagpilot-bench"
+version = "0.1.0"
+description = "TagPilot 分层评测与差分体系（重建，取代 tagpilot-eval）"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.10,<3"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "jsonschema>=4,<5"]
+db = ["PyMySQL>=1.1"]
+
+[project.scripts]
+tagpilot-bench = "tagpilot_bench.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tagpilot_bench*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

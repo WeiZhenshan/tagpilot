@@ -1,0 +1,329 @@
+{
+  "D01": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "between", "values": ["0.8", "1.2"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.7"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1036, "field_name": "PREV_6_MONTHS_AVG_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.85"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "D02": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.7"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1036, "field_name": "PREV_6_MONTHS_AVG_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.85"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "between", "values": ["0.8", "1.2"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "D03": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.7"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1036, "field_name": "PREV_6_MONTHS_AVG_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.85"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1457, "field_name": "PREV_3_MONTHS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">=", "values": ["6"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "MUL", "args": [
+           {"kind": "TAG", "tag_id": 1459, "field_name": "CUR_MONTH_APP_LOGIN_DAYS", "unit": "DAY"},
+           {"kind": "CONST", "value": "92"}]},
+         {"kind": "MUL", "args": [
+           {"kind": "TAG", "tag_id": 1457, "field_name": "PREV_3_MONTHS_APP_LOGIN_DAYS", "unit": "DAY"},
+           {"kind": "CONST", "value": "10.8"}]}]},
+       "operator": "<", "values": ["1"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "between", "values": ["0.8", "1.2"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "D04": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1036, "field_name": "PREV_6_MONTHS_AVG_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">=", "values": ["20000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1288, "field_name": "CUR_MONTH_TRANSFER_OUT_OB_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1036, "field_name": "PREV_6_MONTHS_AVG_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": ">=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1036, "field_name": "PREV_6_MONTHS_AVG_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">=", "values": ["20000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1288, "field_name": "CUR_MONTH_TRANSFER_OUT_OB_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1036, "field_name": "PREV_6_MONTHS_AVG_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "<", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "D05": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 1033, "field_name": "CUR_MONTH_PAYROLL_AMT", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 1043, "field_name": "LAST_MONTH_PAYROLL_AMT", "unit": "CNY"}]},
+       "operator": "between", "values": ["0.8", "1.2"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "E02": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["50000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["50000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "E03": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "E04": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 579, "field_name": "HIST_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 601, "field_name": "CUR_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 579, "field_name": "HIST_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 601, "field_name": "CUR_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "F01": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1477, "field_name": "CUR_FUND_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "in", "values": ["C3", "C4", "C5"], "data_kind": "STRING", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 620, "field_name": "CUR_HOLDING_FUND_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1477, "field_name": "CUR_FUND_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "in", "values": ["C3", "C4", "C5"], "data_kind": "STRING", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 620, "field_name": "CUR_HOLDING_FUND_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "F02": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1477, "field_name": "CUR_FUND_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "in", "values": ["C1", "C2"], "data_kind": "STRING", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 813, "field_name": "CUR_DEPOSIT_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"}]},
+       "operator": ">=", "values": ["0.8"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1477, "field_name": "CUR_FUND_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "in", "values": ["C1", "C2"], "data_kind": "STRING", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 813, "field_name": "CUR_DEPOSIT_BALANCE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.8"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "F03": {
+    "target": {"kind": "PREDICATE",
+      "expression": {"kind": "COUNT_POSITIVE", "args": [
+        {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 865, "field_name": "CUR_BOND_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 866, "field_name": "CUR_MONEY_MARKET_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 868, "field_name": "CUR_HYBRID_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 886, "field_name": "CUR_QDII_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 885, "field_name": "CUR_AM_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 879, "field_name": "CUR_AM_PB_FUND_MARKET_VALUE", "unit": "CNY"}]},
+      "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+    "contrast": {"kind": "PREDICATE",
+      "expression": {"kind": "COUNT_POSITIVE", "args": [
+        {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 865, "field_name": "CUR_BOND_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 866, "field_name": "CUR_MONEY_MARKET_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 868, "field_name": "CUR_HYBRID_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 886, "field_name": "CUR_QDII_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 885, "field_name": "CUR_AM_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 879, "field_name": "CUR_AM_PB_FUND_MARKET_VALUE", "unit": "CNY"}]},
+      "operator": ">=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}}
+  },
+  "F04": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 620, "field_name": "CUR_HOLDING_FUND_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"}]},
+       "operator": ">=", "values": ["0.8"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 620, "field_name": "CUR_HOLDING_FUND_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.8"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "F05": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "COUNT_POSITIVE", "args": [
+        {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 865, "field_name": "CUR_BOND_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 866, "field_name": "CUR_MONEY_MARKET_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 868, "field_name": "CUR_HYBRID_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 886, "field_name": "CUR_QDII_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 885, "field_name": "CUR_AM_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 879, "field_name": "CUR_AM_PB_FUND_MARKET_VALUE", "unit": "CNY"}]},
+       "operator": ">=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"}]},
+       "operator": ">=", "values": ["0.8"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "COUNT_POSITIVE", "args": [
+        {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 865, "field_name": "CUR_BOND_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 866, "field_name": "CUR_MONEY_MARKET_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 868, "field_name": "CUR_HYBRID_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 886, "field_name": "CUR_QDII_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 885, "field_name": "CUR_AM_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+        {"kind": "TAG", "tag_id": 879, "field_name": "CUR_AM_PB_FUND_MARKET_VALUE", "unit": "CNY"}]},
+       "operator": ">=", "values": ["2"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "DIV", "args": [
+         {"kind": "TAG", "tag_id": 864, "field_name": "CUR_EQUITY_FUND_MARKET_VALUE", "unit": "CNY"},
+         {"kind": "TAG", "tag_id": 867, "field_name": "CUR_FUND_BALANCE", "unit": "CNY"}]},
+       "operator": "<", "values": ["0.8"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "F06": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 620, "field_name": "CUR_HOLDING_FUND_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1477, "field_name": "CUR_FUND_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "is_not_null", "values": [], "data_kind": "STRING", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 620, "field_name": "CUR_HOLDING_FUND_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1477, "field_name": "CUR_FUND_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "is_null", "values": [], "data_kind": "STRING", "caliber": {}}
+    ]}
+  }
+}

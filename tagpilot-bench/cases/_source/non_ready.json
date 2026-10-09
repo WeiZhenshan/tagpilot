@@ -1,0 +1,22 @@
+{
+  "C04": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "历史到期转出率：宽表无此明细字段，不得用主表『转入他行』冒充"},
+  "C05": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "历史到期续存率：宽表无此明细字段"},
+  "E02": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "近90天 APP+柜面+电子+联系 合计：宽表无 90 天活动字段"},
+  "E03": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "严格 90 天无活动：宽表无 90 天活动字段"},
+  "F03": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "基金持有只数：宽表无此字段，不得用『持有基金标志』代替"},
+  "F04": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "最大单只基金占比：宽表无持仓明细"},
+  "F05": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "只数≥2 且集中度：宽表无持仓明细"},
+  "F06": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "产品风险等级 > 客户风评：宽表无持仓产品风险明细"},
+  "J01": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "理财机会分：宽表无 opportunity 评分字段"},
+  "J02": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "理财机会分区间：宽表无 opportunity 评分字段"},
+  "J03": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "理财机会分：宽表无 opportunity 评分字段"},
+  "I03": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "年龄：宽表无年龄字段（属明细），不得代理"},
+  "I04": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "年龄区间：宽表无年龄字段（属明细），不得代理"},
+  "I01": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "柜面/电子交易笔数：宽表无渠道交易明细字段"},
+  "I02": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "电子交易笔数：宽表无渠道交易明细字段"},
+  "H01": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "指定活动触达/转化日期：宽表无活动明细字段"},
+  "H02": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "指定活动触达/转化日期：宽表无活动明细字段"},
+  "H03": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "指定活动触达日期为空：宽表无活动明细字段"},
+  "H04": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "指定活动参与/转化日期：宽表无活动明细字段"},
+  "H05": {"outcomes": ["NEEDS_USER_INPUT", "CAPABILITY_GAP"], "note": "指定活动触达日期：宽表无活动明细字段"}
+}

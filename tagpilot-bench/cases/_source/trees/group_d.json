@@ -1,0 +1,1776 @@
+{
+  "J01": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1466,
+            "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+            "unit": "CODE"
+          },
+          "operator": "in",
+          "values": [
+            "C2",
+            "C3",
+            "C4",
+            "C5"
+          ],
+          "data_kind": "STRING",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1466,
+            "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+            "unit": "CODE"
+          },
+          "operator": "in",
+          "values": [
+            "C2",
+            "C3",
+            "C4",
+            "C5"
+          ],
+          "data_kind": "STRING",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "J02": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1466,
+            "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+            "unit": "CODE"
+          },
+          "operator": "in",
+          "values": [
+            "C2",
+            "C3",
+            "C4",
+            "C5"
+          ],
+          "data_kind": "STRING",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1466,
+            "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+            "unit": "CODE"
+          },
+          "operator": "in",
+          "values": [
+            "C2",
+            "C3",
+            "C4",
+            "C5"
+          ],
+          "data_kind": "STRING",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "J03": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1466,
+            "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+            "unit": "CODE"
+          },
+          "operator": "in",
+          "values": [
+            "C2",
+            "C3",
+            "C4",
+            "C5"
+          ],
+          "data_kind": "STRING",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1466,
+            "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+            "unit": "CODE"
+          },
+          "operator": "in",
+          "values": [
+            "C2",
+            "C3",
+            "C4",
+            "C5"
+          ],
+          "data_kind": "STRING",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "J04": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "OR",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 1466,
+                "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+                "unit": "CODE"
+              },
+              "operator": "is_null",
+              "values": [],
+              "data_kind": "STRING",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 1466,
+                "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+                "unit": "CODE"
+              },
+              "operator": "in",
+              "values": [
+                "C1"
+              ],
+              "data_kind": "STRING",
+              "caliber": {}
+            }
+          ]
+        },
+        {
+          "kind": "GROUP",
+          "logic": "AND",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "0"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 662,
+            "field_name": "CUR_MARKETING_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 536,
+            "field_name": "DO_NOT_DISTURB_CUST_WECOM_TAG_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 661,
+            "field_name": "CUR_AML_BLACKLIST_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 665,
+            "field_name": "CUR_CUST_LEVEL_SMART_SUSPEND_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1466,
+            "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL",
+            "unit": "CODE"
+          },
+          "operator": "in",
+          "values": [
+            "C2",
+            "C3",
+            "C4",
+            "C5"
+          ],
+          "data_kind": "STRING",
+          "caliber": {}
+        },
+        {
+          "kind": "GROUP",
+          "logic": "OR",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 568,
+                "field_name": "CUR_MOBILE_NUMBER_NORMAL_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 691,
+                "field_name": "CUR_WECOM_AUTH_FLAG",
+                "unit": "FLAG"
+              },
+              "operator": "=",
+              "values": [
+                "1"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "J05": {
+    "target": {
+      "kind": "PREDICATE",
+      "expression": {
+        "kind": "TAG",
+        "tag_id": 1320,
+        "field_name": "LAST_7_DAYS_PHONE_FACE_VISIT_COUNT",
+        "unit": "NONE"
+      },
+      "operator": ">=",
+      "values": [
+        "3"
+      ],
+      "data_kind": "NUMBER",
+      "caliber": {}
+    },
+    "contrast": {
+      "kind": "PREDICATE",
+      "expression": {
+        "kind": "TAG",
+        "tag_id": 1320,
+        "field_name": "LAST_7_DAYS_PHONE_FACE_VISIT_COUNT",
+        "unit": "NONE"
+      },
+      "operator": "<",
+      "values": [
+        "3"
+      ],
+      "data_kind": "NUMBER",
+      "caliber": {}
+    }
+  },
+  "K01": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 580,
+            "field_name": "CUR_HOLDING_CC_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1243,
+            "field_name": "CUR_MONTH_CC_CONSUMPTION_AMT",
+            "unit": "CNY"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 580,
+            "field_name": "CUR_HOLDING_CC_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1243,
+            "field_name": "CUR_MONTH_CC_CONSUMPTION_AMT",
+            "unit": "CNY"
+          },
+          "operator": ">",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    }
+  },
+  "K03": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 974,
+            "field_name": "CUR_PERSONAL_BUSINESS_LOAN_LIMIT",
+            "unit": "CNY"
+          },
+          "operator": ">",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "DIV",
+            "args": [
+              {
+                "kind": "TAG",
+                "tag_id": 984,
+                "field_name": "CUR_PERSONAL_BUSINESS_LOAN_BALANCE",
+                "unit": "CNY"
+              },
+              {
+                "kind": "TAG",
+                "tag_id": 974,
+                "field_name": "CUR_PERSONAL_BUSINESS_LOAN_LIMIT",
+                "unit": "CNY"
+              }
+            ],
+            "unit": "NONE"
+          },
+          "operator": "<",
+          "values": [
+            "0.3"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 974,
+            "field_name": "CUR_PERSONAL_BUSINESS_LOAN_LIMIT",
+            "unit": "CNY"
+          },
+          "operator": ">",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "DIV",
+            "args": [
+              {
+                "kind": "TAG",
+                "tag_id": 984,
+                "field_name": "CUR_PERSONAL_BUSINESS_LOAN_BALANCE",
+                "unit": "CNY"
+              },
+              {
+                "kind": "TAG",
+                "tag_id": 974,
+                "field_name": "CUR_PERSONAL_BUSINESS_LOAN_LIMIT",
+                "unit": "CNY"
+              }
+            ],
+            "unit": "NONE"
+          },
+          "operator": ">=",
+          "values": [
+            "0.3"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    }
+  },
+  "K04": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1472,
+            "field_name": "CUR_OVERDUE_AMT",
+            "unit": "CNY"
+          },
+          "operator": ">",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 984,
+            "field_name": "CUR_PERSONAL_BUSINESS_LOAN_BALANCE",
+            "unit": "CNY"
+          },
+          "operator": ">",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 660,
+            "field_name": "CUR_OUR_BANK_LOAN_OVERDUE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    }
+  },
+  "K05": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1484,
+            "field_name": "LATEST_CIR_UPDATE_DATE",
+            "unit": "DATE"
+          },
+          "operator": "is_not_null",
+          "values": [],
+          "data_kind": "DATE",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1492,
+            "field_name": "LATEST_CIR_OB_CC_LIMIT",
+            "unit": "CNY"
+          },
+          "operator": ">",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "DIV",
+            "args": [
+              {
+                "kind": "TAG",
+                "tag_id": 1489,
+                "field_name": "LATEST_CIR_OB_CC_BALANCE",
+                "unit": "CNY"
+              },
+              {
+                "kind": "TAG",
+                "tag_id": 1492,
+                "field_name": "LATEST_CIR_OB_CC_LIMIT",
+                "unit": "CNY"
+              }
+            ],
+            "unit": "NONE"
+          },
+          "operator": ">=",
+          "values": [
+            "0.7"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1484,
+            "field_name": "LATEST_CIR_UPDATE_DATE",
+            "unit": "DATE"
+          },
+          "operator": "is_not_null",
+          "values": [],
+          "data_kind": "DATE",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1492,
+            "field_name": "LATEST_CIR_OB_CC_LIMIT",
+            "unit": "CNY"
+          },
+          "operator": ">",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "DIV",
+            "args": [
+              {
+                "kind": "TAG",
+                "tag_id": 1489,
+                "field_name": "LATEST_CIR_OB_CC_BALANCE",
+                "unit": "CNY"
+              },
+              {
+                "kind": "TAG",
+                "tag_id": 1492,
+                "field_name": "LATEST_CIR_OB_CC_LIMIT",
+                "unit": "CNY"
+              }
+            ],
+            "unit": "NONE"
+          },
+          "operator": "<",
+          "values": [
+            "0.7"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    }
+  },
+  "K06": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "GROUP",
+          "logic": "AND",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 1043,
+                "field_name": "LAST_MONTH_PAYROLL_AMT",
+                "unit": "CNY"
+              },
+              "operator": ">",
+              "values": [
+                "0"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "DIV",
+                "args": [
+                  {
+                    "kind": "TAG",
+                    "tag_id": 1033,
+                    "field_name": "CUR_MONTH_PAYROLL_AMT",
+                    "unit": "CNY"
+                  },
+                  {
+                    "kind": "TAG",
+                    "tag_id": 1043,
+                    "field_name": "LAST_MONTH_PAYROLL_AMT",
+                    "unit": "CNY"
+                  }
+                ],
+                "unit": "NONE"
+              },
+              "operator": "between",
+              "values": [
+                "0.8",
+                "1.2"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 613,
+            "field_name": "CUR_HOLDING_VALID_PP_ACCT_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "GROUP",
+          "logic": "AND",
+          "children": [
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "TAG",
+                "tag_id": 1043,
+                "field_name": "LAST_MONTH_PAYROLL_AMT",
+                "unit": "CNY"
+              },
+              "operator": ">",
+              "values": [
+                "0"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            },
+            {
+              "kind": "PREDICATE",
+              "expression": {
+                "kind": "DIV",
+                "args": [
+                  {
+                    "kind": "TAG",
+                    "tag_id": 1033,
+                    "field_name": "CUR_MONTH_PAYROLL_AMT",
+                    "unit": "CNY"
+                  },
+                  {
+                    "kind": "TAG",
+                    "tag_id": 1043,
+                    "field_name": "LAST_MONTH_PAYROLL_AMT",
+                    "unit": "CNY"
+                  }
+                ],
+                "unit": "NONE"
+              },
+              "operator": "between",
+              "values": [
+                "0.8",
+                "1.2"
+              ],
+              "data_kind": "NUMBER",
+              "caliber": {}
+            }
+          ]
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 613,
+            "field_name": "CUR_HOLDING_VALID_PP_ACCT_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    }
+  },
+  "K07": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 721,
+            "field_name": "CUR_POINT_AUM",
+            "unit": "CNY"
+          },
+          "operator": ">=",
+          "values": [
+            "200000"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 587,
+            "field_name": "CUR_HOLDING_PROTECTION_PROPERTY_INSURANCE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "0"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 721,
+            "field_name": "CUR_POINT_AUM",
+            "unit": "CNY"
+          },
+          "operator": ">=",
+          "values": [
+            "200000"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 587,
+            "field_name": "CUR_HOLDING_PROTECTION_PROPERTY_INSURANCE_FLAG",
+            "unit": "FLAG"
+          },
+          "operator": "=",
+          "values": [
+            "1"
+          ],
+          "data_kind": "NUMBER",
+          "caliber": {}
+        }
+      ]
+    }
+  },
+  "K08": {
+    "target": {
+      "kind": "GROUP",
+      "logic": "AND",
+      "children": [
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1484,
+            "field_name": "LATEST_CIR_UPDATE_DATE",
+            "unit": "DATE"
+          },
+          "operator": "is_not_null",
+          "values": [],
+          "data_kind": "DATE",
+          "caliber": {}
+        },
+        {
+          "kind": "PREDICATE",
+          "expression": {
+            "kind": "TAG",
+            "tag_id": 1484,
+            "field_name": "LATEST_CIR_UPDATE_DATE",
+            "unit": "DATE"
+          },
+          "operator": "<",
+          "values": [
+            "2026-03-22"
+          ],
+          "data_kind": "DATE",
+          "caliber": {}
+        }
+      ]
+    },
+    "contrast": {
+      "kind": "PREDICATE",
+      "expression": {
+        "kind": "TAG",
+        "tag_id": 1484,
+        "field_name": "LATEST_CIR_UPDATE_DATE",
+        "unit": "DATE"
+      },
+      "operator": "between",
+      "values": [
+        "2026-03-22",
+        "2026-09-18"
+      ],
+      "data_kind": "DATE",
+      "caliber": {}
+    }
+  }
+}

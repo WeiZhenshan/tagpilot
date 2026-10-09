@@ -1,0 +1,10 @@
+{
+ "snapshot_id": "L107-20260928-006",
+ "build_id": "b-6dc6db72-3247-4498-a067-7af1a659a8d7",
+ "artifact_hash": "741ead87004bcdc553eb97e66f359305987a307d343b773897dac77a70566282",
+ "library_id": 107,
+ "eligible_count": 968,
+ "agent_url": "http://127.0.0.1:8092",
+ "reps": 3,
+ "ceiling_s": 180.0
+}

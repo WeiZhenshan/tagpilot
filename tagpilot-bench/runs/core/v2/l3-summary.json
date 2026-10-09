@@ -1,0 +1,12 @@
+{
+ "layer": "L3",
+ "cases": 234,
+ "pass": 164,
+ "rate": 0.7009,
+ "authority": "JAVA",
+ "statuses": {
+  "SKIP": 45,
+  "PASS": 164,
+  "FAIL": 25
+ }
+}

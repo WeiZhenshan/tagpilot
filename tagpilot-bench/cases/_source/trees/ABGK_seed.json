@@ -1,0 +1,134 @@
+{
+  "A01": {
+    "target": {"kind": "SCOPE_ALL"},
+    "contrast": null
+  },
+  "A02": {
+    "target": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+      "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+    "contrast": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+      "operator": "<", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}}
+  },
+  "G01": {
+    "target": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+      "operator": ">=", "values": ["6000000"], "data_kind": "NUMBER", "caliber": {}},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["1000000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": "<", "values": ["6000000"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "B01": {
+    "target": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 1291, "field_name": "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT", "unit": "CNY"},
+      "operator": ">=", "values": ["500000"], "data_kind": "NUMBER", "caliber": {}},
+    "contrast": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 1291, "field_name": "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT", "unit": "CNY"},
+      "operator": "<", "values": ["500000"], "data_kind": "NUMBER", "caliber": {}}
+  },
+  "B02": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1291, "field_name": "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT", "unit": "CNY"},
+       "operator": ">=", "values": ["500000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 601, "field_name": "CUR_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1466, "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "in", "values": ["C3", "C4", "C5"], "data_kind": "STRING", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1291, "field_name": "LAST_30_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT", "unit": "CNY"},
+       "operator": ">=", "values": ["500000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 601, "field_name": "CUR_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1466, "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+       "operator": "in", "values": ["C3", "C4", "C5"], "data_kind": "STRING", "caliber": {}}
+    ]}
+  },
+  "B05": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1305, "field_name": "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT", "unit": "CNY"},
+       "operator": ">=", "values": ["100000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 601, "field_name": "CUR_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1305, "field_name": "LAST_7_DAYS_DIFF_NAME_INTERBANK_TRANSFER_IN_AMT", "unit": "CNY"},
+       "operator": ">=", "values": ["100000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 601, "field_name": "CUR_HOLDING_WMP_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "E01": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["50000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 721, "field_name": "CUR_POINT_AUM", "unit": "CNY"},
+       "operator": ">=", "values": ["50000"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">=", "values": ["5"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "I05": {
+    "target": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 656, "field_name": "CUR_MOBILE_BANKING_OPENED_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": "=", "values": ["0"], "data_kind": "NUMBER", "caliber": {}}
+    ]},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 656, "field_name": "CUR_MOBILE_BANKING_OPENED_FLAG", "unit": "FLAG"},
+       "operator": "=", "values": ["1"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1448, "field_name": "LAST_30_DAYS_APP_LOGIN_DAYS", "unit": "DAY"},
+       "operator": ">=", "values": ["5"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "K02": {
+    "target": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 1243, "field_name": "CUR_MONTH_CC_CONSUMPTION_AMT", "unit": "CNY"},
+      "operator": ">=", "values": ["10000"], "data_kind": "NUMBER", "caliber": {}},
+    "contrast": {"kind": "GROUP", "logic": "AND", "children": [
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1243, "field_name": "CUR_MONTH_CC_CONSUMPTION_AMT", "unit": "CNY"},
+       "operator": ">", "values": ["0"], "data_kind": "NUMBER", "caliber": {}},
+      {"kind": "PREDICATE",
+       "expression": {"kind": "TAG", "tag_id": 1243, "field_name": "CUR_MONTH_CC_CONSUMPTION_AMT", "unit": "CNY"},
+       "operator": "<", "values": ["10000"], "data_kind": "NUMBER", "caliber": {}}
+    ]}
+  },
+  "J06": {
+    "target": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 1466, "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+      "operator": "is_null", "values": [], "data_kind": "STRING", "caliber": {}},
+    "contrast": {"kind": "PREDICATE",
+      "expression": {"kind": "TAG", "tag_id": 1466, "field_name": "CUR_WMP_RISK_ASSESSMENT_LEVEL", "unit": "CODE"},
+      "operator": "is_not_null", "values": [], "data_kind": "STRING", "caliber": {}}
+  }
+}
