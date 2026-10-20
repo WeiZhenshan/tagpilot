@@ -66,6 +66,31 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
         row=lookup(rid,owner_id)
         return {'run_id':rid,'status':row['status'],'result':row['result'],'error':row['error'],'events':runtime()['store'].events(rid,after)}
 
+    from pydantic import BaseModel, ConfigDict, Field
+    class AnalysisReply(BaseModel):
+        model_config=ConfigDict(extra='forbid')
+        owner_id:str=Field(min_length=1,max_length=64)
+        request_id:str=Field(pattern=r'^[a-f0-9]{32}$')
+        result:dict
+
+    @app.post('/agent/v2/runs/{rid}/analysis-results',dependencies=[Depends(authenticate)])
+    async def analysis_reply(rid:str,request:AnalysisReply):
+        row=lookup(rid,request.owner_id)
+        if row['payload'].get('profile')!='conversation':raise HTTPException(409,'运行不支持分析回执')
+        import json
+        if len(json.dumps(request.result,ensure_ascii=False))>500000:raise HTTPException(413,'回执过大')
+        import hashlib
+        digest=hashlib.sha256(json.dumps(request.result,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+        receipts=row['payload'].get('_analysis_receipts',{})
+        if request.request_id in receipts:
+            if receipts[request.request_id]!=digest:raise HTTPException(409,'重复回执内容不同')
+            return {'ok':True}
+        try:runtime()['manager'].analysis_reply(rid,request.owner_id,request.request_id,request.result)
+        except ValueError as exc:raise HTTPException(409,str(exc))
+        receipts[request.request_id]=digest;row['payload']['_analysis_receipts']=receipts
+        runtime()['store'].update_payload(rid,row['payload'])
+        return {'ok':True}
+
     @app.delete('/agent/v2/threads/{thread_id}',dependencies=[Depends(authenticate)])
     async def delete(thread_id:str,owner_id:str):
         try:ids=runtime()['store'].delete_thread(thread_id,owner_id)

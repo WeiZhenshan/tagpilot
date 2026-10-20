@@ -1,6 +1,7 @@
 package com.ruoyi.taglibrary.service;
 
 import java.util.Map;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -28,6 +29,7 @@ public class TsAgentClient {
             return response;
         } catch (org.springframework.web.client.HttpStatusCodeException e) {
             if(e.getRawStatusCode()==429)throw new ServiceException("当前使用人数较多，请稍后重试",429);
+            if(Arrays.asList(401,403,409).contains(e.getRawStatusCode()))throw new ServiceException("编排层拒绝请求，请重新核验会话状态",e.getRawStatusCode());
             throw new ServiceException("编排层拒绝请求，请重新核验会话状态");
         } catch (org.springframework.web.client.RestClientException e) {
             throw new ServiceException("编排层暂不可用或拒绝请求，请检查语义引擎与编排层日志");

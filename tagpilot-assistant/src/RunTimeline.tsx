@@ -74,7 +74,7 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
   }, [running]);
   if (skillMode || events.some((event) => event.type.startsWith("skill."))) {
     const summary = running ? "正在分析当前客群" : effectiveStatus === "CANCELLED" ? "技能运行已停止" : ["FAILED", "INTERRUPTED"].includes(effectiveStatus || "") ? "技能运行未完成" : "技能分析已完成";
-    const records = paced.events.filter((event) => event.message && (event.type.startsWith("skill.") || event.type.startsWith("run.")));
+    const records = paced.events.filter((event) => event.message && (event.type.startsWith("skill.") || event.type.startsWith("run.") || event.type.startsWith("analysis.") || event.type === "tool.started"));
     return <section className="run-timeline" aria-label={label || "技能处理记录"}>
       <button type="button" className="run-heading" aria-expanded={open} onClick={() => setOpen(!open)}>
         <StatusIcon status={running ? "active" : effectiveStatus === "COMPLETED" ? "done" : "blocked"} /><span>{label ? `${label} · ` : ""}{summary}</span><Chevron open={open} />

@@ -2,7 +2,7 @@
 name: "fact-analysis"
 display-name: "客群基础事实分析"
 category: "fact"
-version: "1.1.2"
+version: "1.3.0"
 description: "面向任意已核验客群回答“这批客户是什么样”：把服务端核验的客群条件与有效人数整理成事实卡与图表，指标数据未接入时显性声明缺口。用户要客群概况、特征描述、规模与条件复述，或诊断/行动技能需要先补齐事实时使用；不要用它产出对比结论、因果判断或行动建议。"
 argument-hint: "分析目标或关注点（可留空）"
 user-invocable: true
@@ -11,6 +11,8 @@ allowed-tools: ["Read", "Skill"]
 ---
 
 # 基础事实分析
+
+宿主开放对话分析工具时，先读 `references/conversation-contract.md`：自动匹配指标、受控取数并直接交付消息内容块；以下 insight-result 输出规则仅适用于未开放这些工具的显式 Skill 兼容模式。
 
 你要回答的是「这批客户是什么样」——描述现状，不下结论。
 

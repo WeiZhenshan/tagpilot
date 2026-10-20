@@ -9,7 +9,7 @@ export function chartExplanation(spec: ChartSpec): string {
     : "";
 }
 
-export function toEChartsOption(spec: ChartSpec, facts: Fact[], reducedMotion = false): EChartsCoreOption {
+export function toEChartsOption(spec: ChartSpec, facts: Fact[], reducedMotion = false, width = 720): EChartsCoreOption {
   validateChartSpec(spec, facts);
   if (spec.kind === "kpi" || spec.kind === "table") throw new Error("KPI 和表格使用语义 HTML 渲染");
   const labels = [...new Set(spec.series.flatMap((s) => s.points.map((p) => p.category)))];
@@ -39,15 +39,19 @@ export function toEChartsOption(spec: ChartSpec, facts: Fact[], reducedMotion = 
     const min = Math.min(0, ...numericValues), max = Math.max(1, ...numericValues);
     return { ...base, title: { text: `${spec.metric_label}（${spec.unit}）`, left: 8, top: 0, textStyle: { fontSize: 12, fontWeight: "normal" } },
       legend: { show: false }, grid: { top: 45, left: 12, right: 24, bottom: 65, containLabel: true },
-      xAxis: { type: "category", data: columns, axisLabel: { interval: 0, width: 100, overflow: "break" } },
-      yAxis: { type: "category", data: labels },
+      xAxis: { type: "category", data: columns, axisLabel: { interval: 0, width: Math.max(16, Math.min(100, (width - 130) / columns.length - 6)), overflow: "truncate" } },
+      yAxis: { type: "category", data: labels, axisLabel: { width: 90, overflow: "truncate" } },
       visualMap: { min, max, text: [`${max}${spec.unit}`, `${min}${spec.unit}`], orient: "horizontal", bottom: 0, left: "center", calculable: false, inRange: { color: ["#edf0f4", "#9fb3c7", "#365e85"] } },
       series: [{ name: `${spec.metric_label}（${spec.unit}）`, type: "heatmap", label: { show: true, formatter: `{@[2]}${spec.unit}` },
         data: visible.map((p) => [columns.indexOf(p.column!), labels.indexOf(p.category), p.value]), emphasis: { itemStyle: { borderColor: "#24272c", borderWidth: 1 } } }],
     };
   }
   const horizontal = spec.orientation === "horizontal";
-  const categoryAxis = { type: "category", data: labels, axisLabel: { interval: 0, width: horizontal ? 90 : 110, overflow: "break" }, axisTick: { show: false } };
+  const crowded = !horizontal && labels.length > 5;
+  const labelWidth = horizontal ? Math.min(140, width * .32) : crowded ? 90 : Math.max(16, Math.min(110, (width - 90) / labels.length - 8));
+  // 长机构名通常共享银行前缀，保留末尾的分支机构名；tooltip和数据表仍使用完整分类。
+  const categoryAxis = { type: "category", data: labels, axisLabel: { interval: 0, width: labelWidth, overflow: "truncate", rotate: crowded ? 55 : 0,
+    formatter: (value: string) => value.length * 12 > labelWidth ? `…${value.slice(-Math.max(1, Math.floor(labelWidth / 12) - 1))}` : value }, axisTick: { show: false } };
   const valueAxis = { type: "value", min: Math.min(0, ...numericValues), ...(spec.unit === "%" ? { max: 100 } : {}), name: `${spec.metric_label}（${spec.unit}）`, nameLocation: "middle", nameGap: 28, splitLine: { lineStyle: { color: "#e7e9ed" } } };
   return { ...base, grid: { left: 12, right: 28, top: footnotes ? 55 : 24, bottom: 66, containLabel: true },
     xAxis: horizontal ? valueAxis : categoryAxis, yAxis: horizontal ? { ...categoryAxis, inverse: true } : valueAxis,

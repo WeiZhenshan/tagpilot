@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import {
   AssistantRuntimeProvider,
   ComposerPrimitive,
@@ -14,6 +14,8 @@ import { slashQuery, type AgentSkill } from "./skillApi";
 import { RunTimeline } from "./RunTimeline.tsx";
 import { stagedQuestions } from "./clarification";
 import { conversationRuns, reportMessageId } from "./conversationRuns";
+import { AnalysisMessageParts } from "./insight/AnalysisMessageParts";
+import type { ArtifactReference } from "./insight/analysisTypes";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
@@ -108,6 +110,9 @@ export function AgentConversation({
   onRetry,
   onEdit,
   onReveal,
+  analysisTarget,
+  onRemoveAnalysisTarget,
+  onContinueAnalysis,
 }: {
   thread: Thread | null;
   disabled: boolean;
@@ -134,6 +139,9 @@ export function AgentConversation({
   onRetry: () => void;
   onEdit: () => void;
   onReveal: (ids: string[]) => void;
+  analysisTarget?: ArtifactReference | null;
+  onRemoveAnalysisTarget?: () => void;
+  onContinueAnalysis?: (target: ArtifactReference, text?: string) => void;
 }) {
   const [slash, setSlash] = useState<ReturnType<typeof slashQuery>>(null);
   const [activeSkill, setActiveSkill] = useState(0);
@@ -145,7 +153,7 @@ export function AgentConversation({
   const runs = conversationRuns(thread);
   const summaryMessage = reportMessageId(thread, insightRunId);
   const renderRun = (run: ReturnType<typeof conversationRuns>[number]) => (
-    <RunTimeline key={run.run_id} runId={run.run_id} skillMode={run.profile === "skill"}
+    <RunTimeline key={run.run_id} runId={run.run_id} skillMode={run.profile === "skill" || run.profile === "conversation"}
       events={run.events} running={run.current && busy(thread)} label={run.label}
       plan={run.current ? thread?.live_plan || thread?.plan : undefined}
       status={run.current ? thread?.status : undefined} questions={run.current ? thread?.questions : undefined} onReveal={onReveal}>
@@ -153,6 +161,29 @@ export function AgentConversation({
     </RunTimeline>
   );
   const composerInput = useRef<HTMLTextAreaElement>(null);
+  const viewport = useRef<HTMLDivElement>(null);
+  const followLatest = useRef(true);
+  const scrollThread = useRef<string | undefined>(undefined);
+  const [atBottom, setAtBottom] = useState(true);
+  useLayoutEffect(() => {
+    const element = viewport.current;
+    if (!element) return;
+    if (scrollThread.current !== thread?.thread_id) {
+      scrollThread.current = thread?.thread_id; followLatest.current = true;
+    }
+    const nearBottom = () => element.scrollHeight - element.clientHeight - element.scrollTop < 8;
+    // 用户上翻后立即取消跟随；新图表载入和内容扩高只能在仍跟随时调整滚动。
+    const onScroll = () => { followLatest.current = nearBottom(); setAtBottom(nearBottom()); };
+    const onResize = () => {
+      if (followLatest.current) element.scrollTop = element.scrollHeight;
+      setAtBottom(nearBottom());
+    };
+    element.addEventListener("scroll", onScroll, { passive: true });
+    const observer = new ResizeObserver(onResize); observer.observe(element);
+    for (const child of element.children) observer.observe(child);
+    onResize();
+    return () => { element.removeEventListener("scroll", onScroll); observer.disconnect(); };
+  }, [thread?.thread_id, thread?.messages]);
   const runtime = useExternalStoreRuntime<AgentMessage>({
     messages: thread?.messages || [],
     convertMessage,
@@ -201,16 +232,17 @@ export function AgentConversation({
     <AssistantRuntimeProvider runtime={runtime}>
       <ThreadPrimitive.Root className="thread">
         <div className="thread-stage">
-          <ThreadPrimitive.Viewport className="thread-viewport">
+          <ThreadPrimitive.Viewport ref={viewport} className="thread-viewport" autoScroll={false} scrollToBottomOnInitialize={false} scrollToBottomOnThreadSwitch={false} scrollToBottomOnRunStart={false}>
             <ThreadPrimitive.Empty>
               <div className="welcome">
-                <h1>找到你要经营的客户</h1>
-                <p>描述客户特征，逐步核对标签与口径，形成可执行的圈选方案。</p>
+                <h1>找到客户，也看懂客户</h1>
+                <p>描述圈选条件，或直接提出分析问题。图表和发现会出现在对话中。</p>
                 <div className="suggestions">
                   {[
                     "近30天有异名跨行转入的客户",
                     "上月借记卡消费金额超过5000元的客户",
                     "帮我梳理高价值客户的圈选口径",
+                    "分析当前授权范围内客户的资产结构",
                   ].map((s) => (
                     <button
                       key={s}
@@ -233,15 +265,18 @@ export function AgentConversation({
                   }`}
                 >
                   <span className="speaker">
-                    {message.role === "user" ? "你" : "圈选助手"}
+                    {message.role === "user" ? "你" : "TagPilot"}
                   </span>
                   {thread?.messages.find((m) => m.id === message.id)?.context_tags?.length ? <TagChips tags={thread.messages.find((m) => m.id === message.id)!.context_tags!} /> : null}
                   <div className="message-text">
                     <MessagePrimitive.Parts />
                   </div>
+                  {thread?.messages.find((m) => m.id === message.id)?.parts?.length ? <AnalysisMessageParts
+                    parts={thread.messages.find((m) => m.id === message.id)!.parts!} artifacts={thread.analysis_artifacts} revision={thread.revision}
+                    disabled={disabled || pending || busy(thread)} onContinue={(target, text) => onContinueAnalysis?.(target, text)} onAnswer={(text) => { void onSend(text); }} /> : null}
                 </MessagePrimitive.Root>
                 {runs.filter((run) => run.afterMessageId === message.id).map(renderRun)}
-                {summaryMessage === message.id ? insightSummary : null}
+                {summaryMessage === message.id && !thread?.messages.find((m) => m.id === message.id)?.parts?.length ? insightSummary : null}
                 </div>
               )}
             </ThreadPrimitive.Messages>
@@ -268,15 +303,18 @@ export function AgentConversation({
               </div>
             ) : null}
           </ThreadPrimitive.Viewport>
-          <ThreadPrimitive.ScrollToBottom
+          <button type="button" aria-label="回到最新消息" disabled={atBottom} onClick={() => {
+            followLatest.current = true;
+            viewport.current?.scrollTo({ top: viewport.current.scrollHeight, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+          }}
             className="scroll-bottom"
-            behavior="smooth"
           >
             <DownIcon />
             <span>回到最新消息</span>
-          </ThreadPrimitive.ScrollToBottom>
+          </button>
         </div>
         <div className="composer-wrap">
+          {analysisTarget && <div className="analysis-reference"><span>继续分析：{analysisTarget.title || "已选图表"}</span><button type="button" onClick={onRemoveAnalysisTarget}>移除引用</button></div>}
           {slash ? <div className="skill-menu" aria-label="选择技能">
             <div className="skill-menu-heading"><strong>调用技能</strong><button type="button" className="text-button" onClick={onManageSkills}>管理技能</button></div>
             <p className="skill-menu-context">{skillContext}</p>
@@ -323,7 +361,7 @@ export function AgentConversation({
                   : disabled ? "请先选择标签库"
                   : thread?.status === "WAITING"
                   ? "请先回答待补充的问题"
-                  : selectedSkill ? `补充${selectedSkill.display_name}的分析目标，或直接发送运行…` : "描述客户条件，输入 / 调用技能…"
+                  : selectedSkill ? `补充${selectedSkill.display_name}的分析目标，或直接发送运行…` : "描述客户条件，或直接提问、分析与改图…"
               }
             />
             <div className="composer-footer">
@@ -332,7 +370,7 @@ export function AgentConversation({
               ) : null}
               {thread || !disabled ? (
                 <span className="composer-hint">
-                  {selectedSkill ? "携带当前客群上下文" : "输入 / 调用技能"}
+                  {selectedSkill ? "携带当前客群上下文" : "直接对话分析 · / 选择技能"}
                 </span>
               ) : null}
               {busy(thread) ? (

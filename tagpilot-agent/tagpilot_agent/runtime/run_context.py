@@ -29,6 +29,10 @@ class RunContext:
     budget: Budget = field(default_factory=Budget.from_env)
     lean: bool = False
     convergence_pending: bool = False
+    analysis_pending: dict = field(default_factory=dict)
+    analysis_receipts: dict = field(default_factory=dict)
+    analysis_complete: bool = False
+    conversation_intent: str | None = None
 
     @property
     def eligible(self):return set(self.request['eligible_tag_ids'])

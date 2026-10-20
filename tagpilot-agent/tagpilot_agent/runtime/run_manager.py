@@ -39,8 +39,24 @@ class RunManager:
 
     async def cancel(self,rid):
         ctx=self.contexts.get(rid)
-        if ctx:ctx.submitted.set()
+        if ctx:
+            ctx.submitted.set()
+            for future in ctx.analysis_pending.values():
+                if not future.done():future.set_result({'ok':False,'message':'运行已取消'})
         async with self.condition:self.condition.notify_all()
+
+    def analysis_reply(self,rid,owner,request_id,result):
+        ctx=self.contexts.get(rid)
+        if not ctx or ctx.request['owner_id']!=owner or ctx.cancelled() or ctx.analysis_complete:
+            # 已确认的最终回执可幂等重传，不能恢复结束的运行。
+            if ctx and ctx.request['owner_id']==owner and ctx.analysis_receipts.get(request_id)==result:return
+            raise ValueError('分析请求已结束或不存在')
+        if request_id in ctx.analysis_receipts:
+            if ctx.analysis_receipts[request_id]!=result:raise ValueError('重复回执内容不同')
+            return
+        future=ctx.analysis_pending.get(request_id)
+        if future is None or future.done():raise ValueError('分析请求已过期')
+        ctx.analysis_receipts[request_id]=result;future.set_result(result)
 
     async def close(self):
         for task in list(self.tasks.values()):task.cancel()
@@ -72,9 +88,19 @@ class RunManager:
             previous=progress(request.get('previous_plan'))
             loaded=len(self.waiters)>=max(1,int(os.getenv('TAG_AGENT_LEAN_QUEUE_DEPTH',str(self.limit))))
             ctx.lean=previous.get('reason') in LEAN_REASONS or loaded
-            ctx.budget=Budget.from_env(lean=ctx.lean,skill=request.get('profile')=='skill')
+            ctx.budget=Budget.from_env(lean=ctx.lean,skill=request.get('profile') in {'skill','conversation'})
+            if request.get('profile')=='conversation':ctx.budget.max_tools=max(ctx.budget.max_tools,32)
             ctx.stats['lean']=ctx.lean
-            ctx.emit({'type':'run.started','message':'正在运行客群技能' if request.get('profile')=='skill' else '正在理解圈选需求'})
+            ctx.emit({'type':'run.started','message':'正在运行客群技能' if request.get('profile')=='skill' else '正在理解你的需求' if request.get('profile')=='conversation' else '正在理解圈选需求'})
+            if request.get('profile')=='conversation':
+                async with asyncio.timeout(ctx.budget.hard+5):await self.runner.run_conversation(ctx)
+                if ctx.cancelled():return
+                if ctx.analysis_complete:
+                    self.store.status(rid,'COMPLETED',{'analysis_complete':True})
+                    ctx.emit({'type':'run.completed','message':'分析与图表已核验保存'})
+                elif ctx.accepted:self.finish(ctx,classify(ctx))
+                else:raise RuntimeError('对话未提交核验结果')
+                return
             if request.get('profile')=='skill':
                 async with asyncio.timeout(ctx.budget.hard+5):
                     output=await self.runner.run_skill(ctx)
@@ -112,14 +138,21 @@ class RunManager:
             if ctx.stats.get('fatal_status'):raise SemanticRetrieveError(ctx.stats['fatal_status'],'权限或发布版本发生变化')
             self.finish(ctx,classify(ctx))
         except asyncio.CancelledError:
-            self.store.status(rid,'INTERRUPTED',{'skill_output':'技能运行中断，请重新选择技能后重试。'} if request.get('profile')=='skill' else self.fallback(ctx,'服务重启，已保存进度'))
+            self.store.status(rid,'INTERRUPTED',{'analysis_complete':True} if request.get('profile')=='conversation' else {'skill_output':'技能运行中断，请重新选择技能后重试。'} if request.get('profile')=='skill' else self.fallback(ctx,'服务重启，已保存进度'),error='服务重启，已核验内容保留' if request.get('profile')=='conversation' else None)
             raise
         except SemanticRetrieveError as exc:
             if exc.status_code in {401,403,409}:
                 self.store.status(rid,'FAILED',error='权限或发布版本发生变化，请重新核验')
                 ctx.emit({'type':'run.failed','message':'权限或发布版本发生变化，请重新核验'})
+            elif request.get('profile')=='conversation':self.store.status(rid,'FAILED',error='语义服务暂不可用，已核验分析内容保留')
             else:self.finish(ctx,classify(ctx,exc,admitted))
         except Exception as exc:
+            if request.get('profile')=='conversation':
+                if not ctx.cancelled():
+                    logger.exception('对话分析未完成 run=%s',rid)
+                    self.store.status(rid,'FAILED',error='本轮未完成，已核验内容保留，可继续补充或重试')
+                    ctx.emit({'type':'run.failed','message':'本轮未完成，已核验内容保留'})
+                return
             if request.get('profile')=='skill':
                 if not ctx.cancelled():
                     logger.exception('技能运行失败 run=%s stop_reason=%s stats=%s', rid, ctx.stats.get('stop_reason'),

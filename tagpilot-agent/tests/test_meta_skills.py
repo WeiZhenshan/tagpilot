@@ -22,6 +22,9 @@ EXPECTED = {
     'chart-atomic': ('chart', False),
     'chart-intent': ('chart', False),
     'chart-compose': ('chart', False),
+    'analysis-context': ('general', False),
+    'data-quality-review': ('general', False),
+    'analysis-validation': ('general', False),
 }
 
 
@@ -30,7 +33,7 @@ def packs():
     return {pack['name']: pack for pack in seed.collect()}
 
 
-def test_six_meta_skills_are_valid(packs):
+def test_six_entry_skills_and_three_internal_skills_are_valid(packs):
     assert set(packs) == set(EXPECTED)
     for name, (category, invocable) in EXPECTED.items():
         pack = packs[name]
@@ -39,7 +42,8 @@ def test_six_meta_skills_are_valid(packs):
         assert pack['disable_model_invocation'] is False
         assert pack['allowed_tools'] == ['Read', 'Skill']
         assert re.fullmatch(r'\d+\.\d+\.\d+', pack['version']), f'{name} 版本号须为三段数字'
-        assert pack['resources'], f'{name} 缺少参考资料'
+        if category != 'general':
+            assert pack['resources'], f'{name} 缺少参考资料'
         for resource in pack['resources']:
             assert resource['path'].startswith('references/')
             assert resource['content'].strip()

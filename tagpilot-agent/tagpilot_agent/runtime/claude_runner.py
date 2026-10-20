@@ -28,6 +28,58 @@ async def allow_tool(name,args,context):
     return PermissionResultDeny(message='仅允许圈选领域工具')
 
 class ClaudeRunner:
+    async def run_conversation(self,ctx):
+        from tagpilot_agent.agent.context_builder import build_context
+        from tagpilot_agent.agent.conversation_prompt import conversation_system_prompt
+        from tagpilot_agent.skills.packages import materialize, permitted
+        from tagpilot_agent.tools.analysis import create_server as analysis_server, MODELS as ANALYSIS_MODELS
+        base=os.getenv('ANTHROPIC_BASE_URL','')
+        key=os.getenv('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_AUTH_TOKEN') or os.getenv('TAG_LLM_API_KEY','')
+        if not base or not key:raise RuntimeError('请配置 Anthropic 兼容端点及密钥')
+        packages=ctx.request.get('skill_packages',[])
+        model=os.getenv('ANTHROPIC_MODEL') or os.getenv('TAG_LLM_MODEL','deepseek-chat')
+        names={'mcp__tagpilot__'+n for n in MODELS}|{'mcp__insight__'+n for n in ANALYSIS_MODELS}
+        with tempfile.TemporaryDirectory(prefix='tagpilot-conversation-') as directory:
+            root=materialize(directory,packages)
+            def allowed(name,args):
+                return name in names or permitted(name,args,root,packages,None)
+            async def permission(name,args,context):
+                return PermissionResultAllow(updated_input=args) if allowed(name,args) else PermissionResultDeny(message='仅允许发布技能与受控领域工具')
+            async def before(data,tool_use_id,context):
+                name=data.get('tool_name');args=data.get('tool_input',{})
+                if ctx.conversation_intent is None and name!='mcp__insight__route_request':
+                    return {'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':'deny','permissionDecisionReason':'本轮先调用route_request明确是圈选、分析、先圈选再分析还是改图'}}
+                if name in {'Read','Skill'}:ctx.stats['tools']+=1
+                if not allowed(name,args) or ctx.stats['tools']>ctx.budget.max_tools or ctx.analysis_complete or ctx.cancelled():
+                    return {'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':'deny','permissionDecisionReason':'工具未授权、运行已结束或预算耗尽'}}
+                return {}
+            async def after(data,tool_use_id,context):
+                return {'continue_':False,'stopReason':'结果已核验提交'} if ctx.analysis_complete or ctx.accepted else {}
+            async with model_transport(ctx,base,key,custom_headers()) as observed_base:
+                env={'CLAUDE_CONFIG_DIR':str(Path(directory)/'config'),'ANTHROPIC_BASE_URL':observed_base,'ANTHROPIC_API_KEY':key,'ANTHROPIC_AUTH_TOKEN':key,
+                     'ANTHROPIC_MODEL':model,'ANTHROPIC_SMALL_FAST_MODEL':model,'CLAUDECODE':'','ANTHROPIC_MAX_RETRIES':'0','API_TIMEOUT_MS':'60000',
+                     'CLAUDE_CODE_DISABLE_AUTO_MEMORY':'1','CLAUDE_CODE_DISABLE_BACKGROUND_TASKS':'1','CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC':'1','DISABLE_TELEMETRY':'1'}
+                if custom_headers():env['ANTHROPIC_CUSTOM_HEADERS']=custom_headers()
+                options=ClaudeAgentOptions(tools=['Read','Skill'],allowed_tools=sorted(names),disallowed_tools=[n for n in DENIED if n not in {'Read','Skill'}],
+                    mcp_servers={'tagpilot':create_server(ctx),'insight':analysis_server(ctx)},can_use_tool=permission,
+                    hooks={'PreToolUse':[HookMatcher(hooks=[before])],'PostToolUse':[HookMatcher(hooks=[after])]},setting_sources=['project'],cwd=directory,env=env,
+                    extra_args={'strict-mcp-config':None,'no-session-persistence':None},system_prompt=conversation_system_prompt(),
+                    model=model,max_turns=ctx.budget.max_turns,max_budget_usd=float(os.getenv('TAG_AGENT_MAX_BUDGET_USD','1')),thinking={'type':'disabled'},stderr=lambda _:None)
+                async with ClaudeSDKClient(options=options) as client:
+                    monitor=asyncio.create_task(self.watch(client,ctx))
+                    try:
+                        prompt={'requirement':ctx.request['requirement'],'intent':ctx.request.get('intent','auto'),
+                            'analysis_context':ctx.request.get('analysis_context',{}),'history':ctx.request.get('history',[])[-12:],
+                            'reference_date':ctx.request.get('reference_date'),'timezone':ctx.request.get('timezone'),
+                            'selection_context':json.loads(await build_context(ctx))}
+                        await client.query(json.dumps(prompt,ensure_ascii=False))
+                        async for message in client.receive_response():
+                            if isinstance(message,AssistantMessage):ctx.stats['llm_turns']+=1
+                            if isinstance(message,ResultMessage) and message.is_error and not (ctx.analysis_complete or ctx.accepted):raise RuntimeError('对话 SDK 未成功结束')
+                    finally:
+                        monitor.cancel()
+                        with contextlib.suppress(asyncio.CancelledError):await monitor
+
     async def run(self,ctx,prompt):
         base=os.getenv('ANTHROPIC_BASE_URL','')
         key=os.getenv('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_AUTH_TOKEN') or os.getenv('TAG_LLM_API_KEY','')
@@ -152,7 +204,7 @@ class ClaudeRunner:
             reason=None
             # 技能会话里 AssistantMessage 可能按内容块拆分，逐条计数会远高于真实轮次；
             # 观测转发记录的模型请求数才是准确的轮次口径。
-            turns=len(ctx.stats.get('model_requests') or []) if ctx.request.get('profile')=='skill' else ctx.stats['llm_turns']
+            turns=len(ctx.stats.get('model_requests') or []) if ctx.request.get('profile') in {'skill','conversation'} else ctx.stats['llm_turns']
             if ctx.submitted.is_set():reason='submitted'
             elif ctx.cancelled():reason='cancelled'
             elif ctx.budget.elapsed(ctx)>=ctx.budget.salvage_at():reason=Reason.TIMEOUT
@@ -175,7 +227,7 @@ class ClaudeRunner:
                 if reason=='submitted':await asyncio.sleep(.05)
                 with contextlib.suppress(Exception):await asyncio.wait_for(client.interrupt(),5)
                 return
-            if ctx.request.get('profile')!='skill' and ctx.budget.converging(ctx) and not ctx.accepted and 'convergence_interrupt_at' not in ctx.stats:
+            if ctx.request.get('profile') not in {'skill','conversation'} and ctx.budget.converging(ctx) and not ctx.accepted and 'convergence_interrupt_at' not in ctx.stats:
                 ctx.stats['convergence_interrupt_at']=round(ctx.budget.elapsed(ctx),3)
                 ctx.convergence_pending=True
                 with contextlib.suppress(Exception):await asyncio.wait_for(client.interrupt(),5)

@@ -16,6 +16,8 @@ import {
 import * as api from "./agentApi";
 import { AgentConversation } from "./AgentConversation";
 import { InsightSummary } from "./insight/InsightSummary";
+import type { ArtifactReference } from "./insight/analysisTypes";
+import { AnalysisMessageParts } from "./insight/AnalysisMessageParts";
 import { availableSkills, type AgentSkill } from "./skillApi";
 import { runInsight, editInsight, insightFeedback } from "./insight/insightApi";
 import "./insight/workbench-insight.css";
@@ -67,6 +69,8 @@ export function App() {
   const [skillsLoading, setSkillsLoading] = useState(false);
   const [skillsError, setSkillsError] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<AgentSkill | null>(null);
+  const [analysisTarget, setAnalysisTarget] = useState<ArtifactReference | null>(null);
+  useEffect(() => { setAnalysisTarget(null); }, [thread?.thread_id]);
   const [baselineGroups, setBaselineGroups] = useState<api.BaselineGroup[]>([]);
   const [baselineGroupId, setBaselineGroupId] = useState<number | null>(null);
   useEffect(() => {
@@ -175,10 +179,18 @@ export function App() {
   const inflight = useRef(false);
   const initialLoad = useRef<Promise<Thread> | null>(null);
   const shownSkillReport = useRef<string | null>(null);
+  const shownInlineAnalysis = useRef<string | null>(null);
+  useEffect(() => {
+    if (thread?.run_profile !== "conversation" || !thread.run_id || shownInlineAnalysis.current === thread.run_id) return;
+    if (!thread.messages.some((message) => message.run_id === thread.run_id && message.parts?.length)) return;
+    shownInlineAnalysis.current = thread.run_id;
+    setRightPanelOpen(false);
+  }, [thread?.run_id, thread?.messages, thread?.run_profile]);
   useEffect(() => {
     const reportId = thread?.run_profile === "skill" ? thread?.skill_report?.run_id : undefined;
     if (reportId && shownSkillReport.current !== reportId) {
       shownSkillReport.current = reportId;
+      if (thread?.messages.some((m) => m.run_id === reportId && m.parts?.length)) return;
       setRightTab("insight");
       setRightPanelOpen(true);
     }
@@ -386,8 +398,9 @@ export function App() {
       let t = current.current;
       if (!t) t = await api.createThread(library);
       update(t);
-      update(await api.startRun(t, text, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), contextOnly));
+      update(await api.startRun(t, text, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), contextOnly, undefined, undefined, analysisTarget || undefined));
       sent = true;
+      setAnalysisTarget(null);
       setContextTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
       setSelectedTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
       setTab("chat");
@@ -521,7 +534,8 @@ export function App() {
     return sent;
   }
   const skillReport = thread?.skill_report;
-  const insightPanelReport = skillReport ?? thread?.insight_report;
+  const activeAnalysisMessage = thread?.run_profile === "conversation" ? thread.messages.filter((message) => message.role === "assistant" && message.parts?.length).at(-1) : undefined;
+  const insightPanelReport = activeAnalysisMessage ? undefined : skillReport ?? thread?.insight_report;
   const rightPanelVisible = rightPanelOpen && (!mobile || tab === "plan");
   return (
     <div
@@ -855,6 +869,12 @@ export function App() {
             disabled={!library || !!thread?.archived}
             pending={pending}
             composerRequest={composerRequest}
+            analysisTarget={analysisTarget}
+            onRemoveAnalysisTarget={() => setAnalysisTarget(null)}
+            onContinueAnalysis={(target, text) => {
+              setSelectedSkill(null); setAnalysisTarget(target); setTab("chat");
+              setComposerRequest({ text: text || "", id: Date.now(), focusOnly: !text });
+            }}
             contextControl={
               <LibraryPicker
                 libraries={libraries}
@@ -904,7 +924,7 @@ export function App() {
             }}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
-            onRetry={() => { if(thread?.run_profile === "skill"){setTab("chat");setComposerRequest({text:"/",id:Date.now()});}else void act((t) => api.resumeRun(t)); }}
+            onRetry={() => { if(thread?.run_profile === "skill"){setTab("chat");setComposerRequest({text:"/",id:Date.now()});}else if(thread?.run_profile === "conversation"){setTab("chat");setComposerRequest({text:thread.messages.filter((m) => m.role === "user").at(-1)?.text || "请继续分析",id:Date.now()});}else void act((t) => api.resumeRun(t)); }}
             onEdit={() => {
               openRightPanel("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
@@ -933,7 +953,7 @@ export function App() {
             });
           }}
           onOpenGroup={openGroup}
-        /> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
+        /> : activeAnalysisMessage ? <div className="insight-report"><header className="insight-report-header"><h2>本轮分析</h2><p>与对话中的结果使用同一份证据和图表版本。</p></header><AnalysisMessageParts parts={activeAnalysisMessage.parts!} artifacts={thread!.analysis_artifacts} revision={thread!.revision} disabled={pending || busy(thread)} onContinue={(target, text) => { setAnalysisTarget(target); setSelectedSkill(null); setTab("chat"); setComposerRequest({ text: text || "", id: Date.now(), focusOnly: !text }); }} onAnswer={(text) => { void send(text); }} /></div> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
             if (inflight.current) throw new Error("当前操作尚未完成，请稍后重试");
             const source = thread; let changed: Awaited<ReturnType<typeof editInsight>> | undefined;
             const ok = await operation(async () => {
