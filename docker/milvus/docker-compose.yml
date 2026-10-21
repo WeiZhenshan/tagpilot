@@ -1,4 +1,4 @@
-# 与本机 OrbStack 项目 `milvus` 使用同一份 Compose。
+# 本机 OrbStack 项目 `milvus` 的恢复配置。
 # 实际运行：milvusdb/milvus:v3.0.1 + etcd v3.5.25 + minio 2024-12-18。
 # 数据目录默认 /Users/wzs/milvus/volumes，避免 IDEA 从本目录启动时另起一套空库。
 # 覆盖：DOCKER_VOLUME_DIRECTORY=/other/path docker compose up -d
@@ -24,7 +24,9 @@ services:
 
   minio:
     container_name: milvus-minio
-    image: quay.io/minio/minio:RELEASE.2024-12-18T13-15-44Z
+    # 原 Quay 地址已不可拉取；使用 OpenEBS 发布的同版本镜像，固定多架构摘要。
+    # 来源：https://github.com/openebs/openebs/pull/4337
+    image: docker.io/openebs/minio:RELEASE.2024-12-18T13-15-44Z@sha256:bb04e41fc1b876c5f752ea3c5957a73db73a1fb7df49ce6bb95f722f0abfb1ba
     environment:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
