@@ -237,8 +237,9 @@ test("技能运行可选择对照客群并随请求发出，未选择时不携�
   // 选中技能后出现对照客群选择器，默认不使用对照
   const picker = page.getByLabel("对照客群");
   await expect(picker).toBeVisible();
-  await expect(picker).toHaveValue("");
-  await picker.selectOption("128");
+  await expect(picker).toContainText("不使用对照");
+  await picker.click();
+  await page.getByRole("option", { name: "全量客户（资产结构基准）（2,000 人）" }).click();
   await page.locator(".composer-input").fill("和全量客户比一比资产结构");
   await page.getByRole("button", { name: "发送需求" }).click();
   await expect.poll(() => requests.length).toBeGreaterThan(0);
@@ -258,7 +259,7 @@ test("技能运行不带对照客群时不发送 baseline_group_id", async ({ pa
   const option = page.getByRole("option", { name: /客群基础事实分析/ });
   await expect(option).toBeVisible();
   await option.click();
-  await expect(page.getByLabel("对照客群")).toHaveValue("");
+  await expect(page.getByLabel("对照客群")).toContainText("不使用对照");
   await page.locator(".composer-input").fill("只看当前客群的结构");
   await page.getByRole("button", { name: "发送需求" }).click();
   await expect.poll(() => requests.length).toBeGreaterThan(0);

@@ -170,7 +170,7 @@ def build_sql(packs):
 
 def collect():
     packs = []
-    for group in ('analysis', 'charts'):
+    for group in ('analysis', 'charts', 'internal'):
         base = SKILLS_DIR / group
         if not base.is_dir():
             continue

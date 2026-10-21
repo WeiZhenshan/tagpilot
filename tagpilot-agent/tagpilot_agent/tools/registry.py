@@ -53,6 +53,8 @@ async def dispatch(ctx,name,args):
     result={'ok':False}
     try:
         args=MODELS[name].model_validate(args).model_dump(exclude_none=True)
+        if name=='submit_result' and ctx.request.get('profile')=='conversation' and ctx.conversation_intent not in {'audience','audience_then_analysis','clarify'}:
+            return respond({'ok':False,'message':'本轮需要分析或改图，不能以圈选提交结束，请使用submit_insight_result'},True)
         ctx.emit({'type':'tool.started','call_id':call_id,'tool':name,'message':MESSAGES[name],**started_fields(ctx,name,args)})
         if ctx.stats['tools']>ctx.budget.max_tools:
             ctx.stats['tool_budget_hit']=True
@@ -66,6 +68,13 @@ async def dispatch(ctx,name,args):
             result={'ok':False,'code':'BUDGET_CONVERGE','message':'预算进入收敛期，请提交当前最佳方案或 PARTIAL'}
             return respond(result,True)
         result=await HANDLERS[name](ctx,args)
+        if name=='submit_result' and ctx.request.get('profile')=='conversation' and ctx.conversation_intent=='audience_then_analysis' and ctx.accepted and ctx.accepted['outcome']=='READY':
+            from tagpilot_agent.domain.normalize import input_plan
+            from tagpilot_agent.tools.analysis import dispatch as analysis_dispatch
+            selected=input_plan(ctx.accepted['plan'])
+            ctx.accepted=None;ctx.submitted.clear()
+            observation_result=await analysis_dispatch(ctx,'get_analysis_context',{'scope':'selection','plan':selected})
+            return observation_result
         ctx.budget.announce(ctx)
         return respond(result,result.get('ok') is False)
     except SemanticRetrieveError as exc:

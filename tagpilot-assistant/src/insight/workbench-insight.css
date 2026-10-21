@@ -4,23 +4,31 @@
 .insight-entry, .insight-summary { padding: 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
 .insight-entry p, .insight-summary p { margin: 0 0 8px; }
 .insight-right { display: flex; flex-direction: column; width: 370px; min-width: 0; flex-shrink: 0; border-left: 1px solid var(--border); background: #fcfcfd; }
-.insight-sidebar-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.insight-sidebar-heading { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.insight-sidebar-heading > button { white-space: nowrap; }
+.report-panel-toggle { margin-left: auto; }
+.topbar-status + .report-panel-toggle { margin-left: 0; }
+.right-panel-collapsed .insight-right { display: none; }
+.insight-right--report { width: clamp(370px, 44vw, 620px); }
 .insight-sidebar-heading button[aria-pressed="true"] { background: #e8ecf2; color: #17243a; }
 .insight-right .plan-panel { border-left: 0; width: 100%; flex: 1; }
-.insight-right .insight-report { width: 100%; padding: 16px; overflow-y: auto; }
+.insight-right .insight-report { width: 100%; padding: 24px; overflow-y: auto; min-height: 0; flex: 1; }
+.insight-right .insight-report-header h1 { font-size: 20px; line-height: 1.55; }
+.insight-right .insight-findings dl { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.insight-right .insight-findings dd { margin-bottom: 12px; font-size: 13px; }
+.insight-right .insight-skill-header { flex-wrap: wrap; gap: 4px 12px; }
 .insight-right .insight-kpis { grid-template-columns: 1fr; }
-.insight-wide .insight-right { width: min(720px, 58vw); }
-.insight-wide .history-rail { display: none; }
 .insight-right .insight-kpi:not(:first-child) { border-left: 0; }
 .insight-right .insight-kpi { border-bottom: 1px solid var(--border); }
 .insight-empty { padding: 20px; font-size: 13px; color: var(--muted); }
 .insight-feedback { display: grid; gap: 8px; padding: 16px; font-size: 13px; }
 .insight-feedback textarea { resize: vertical; min-height: 60px; }
 @media (max-width: 760px) {
-  .insight-right, .insight-wide .insight-right { position: absolute; top: 103px; bottom: 0; left: 0; right: 0; width: auto; border-left: 0; z-index: 2; }
+  .insight-right { position: absolute; top: 103px; bottom: 0; left: 0; right: 0; width: auto; border-left: 0; z-index: 2; }
   .mobile-chat .insight-right, .mobile-history .insight-right { display: none; }
-  .mobile-plan .insight-right .plan-panel { position: static; top: auto; }
-  .insight-wide .history-rail { display: flex; }
+  .workbench .insight-right .plan-panel { position: static; inset: auto; display: flex; width: 100%; }
+  .topbar-status + .report-panel-toggle { margin-left: auto; }
+  .insight-right .insight-report { padding: 20px 16px; }
 }
 
 .insight-route-notice { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; color: var(--muted); }
@@ -44,11 +52,27 @@
 .skill-menu-empty { padding: 12px 16px; margin: 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
 .skill-menu-empty button { margin-left: 10px; }
 .skill-menu-hint { border-top: 1px solid var(--border); padding-top: 8px; }
-.skill-selection { display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
-.skill-selection p { margin: 0; font-size: 12px; color: var(--muted); }
-.baseline-picker { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
-.baseline-picker select { max-width: 260px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: inherit; font-size: 12px; }
-@media (min-width: 761px) and (max-width: 1150px) { .insight-right { width: 300px; } }
+.skill-selection { display: flex; gap: 8px 14px; flex-wrap: wrap; align-items: center; padding: 10px 12px; margin: 0 0 4px; border-bottom: 1px solid var(--border); background: var(--soft); border-radius: 10px 10px 0 0; min-width: 0; }
+.skill-selection p { flex-basis: 100%; margin: 0; font-size: 12px; color: var(--muted); line-height: 1.6; }
+.selected-skill-control { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; background: #fff; border: 1px solid #d9dde3; border-radius: 6px; }
+.selected-skill-control .skill-switcher { min-width: 0; }
+.skill-selection .library-select-trigger { width: auto; max-width: 100%; min-height: 30px; padding: 4px 8px; border: 1px solid #d9dde3; border-radius: 6px; background: #fff; color: #24272c; font-size: 12px; font-weight: 500; gap: 8px; }
+.selected-skill-control .library-select-trigger { border: 0; border-radius: 5px 0 0 5px; }
+.skill-selection .library-select-trigger svg { width: 12px; height: 12px; flex-shrink: 0; }
+.selected-skill-control .remove-skill { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; padding: 6px; margin-right: 1px; border: 0; border-left: 1px solid var(--border); border-radius: 0 5px 5px 0; color: var(--muted); background: transparent; }
+.remove-skill svg { width: 14px; height: 14px; }
+.baseline-picker { display: flex; gap: 8px; align-items: center; min-width: 0; max-width: 100%; font-size: 12px; color: var(--muted); }
+.baseline-picker > span { flex-shrink: 0; }
+.baseline-picker .library-select { min-width: 0; max-width: 240px; }
+.skill-selection .library-options { min-width: 220px; max-width: min(320px, calc(100vw - 48px)); max-height: min(280px, 38dvh); left: 0; right: auto; }
+.skill-selection .library-option { white-space: normal; align-items: flex-start; font-size: 12px; line-height: 1.65; padding: 8px; }
+.skill-selection .library-option > span:last-child { overflow: visible; overflow-wrap: anywhere; }
+.baseline-picker .library-options { left: auto; right: 0; }
+.conversation-turn { min-width: 0; }
+.conversation-turn > .run-timeline { margin: -4px 0 20px; padding: 8px 0; }
+.conversation-turn > .insight-summary { margin: -8px 0 24px; padding: 12px 0 16px; }
+@media (min-width: 761px) and (max-width: 1150px) { .insight-right:not(.insight-right--report) { width: 300px; } }
+@media (min-width: 761px) and (max-width: 900px) { .insight-right--report { width: 340px; } }
 @media (max-width: 760px) { .skill-menu { left: 12px; right: 12px; bottom: calc(100% - 8px); } .skill-menu-heading { padding: 10px 12px 4px; } }
 .skill-run-records { padding-left: 20px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
 .skill-run-records li + li { margin-top: 8px; }

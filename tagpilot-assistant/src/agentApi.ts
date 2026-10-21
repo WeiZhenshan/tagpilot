@@ -35,7 +35,8 @@ export const startRun = (
   contextTagIds: number[] = [],
   contextOnly = false,
   skillName?: string,
-  baselineGroupId?: number
+  baselineGroupId?: number,
+  analysisTarget?: import("./insight/analysisTypes").ArtifactReference
 ) =>
   data<Thread>(`${prefix}/${t.thread_id}/runs`, "POST", {
     client_request_id: requestId,
@@ -48,6 +49,9 @@ export const startRun = (
     skill_name: skillName,
     baseline_group_id: skillName ? baselineGroupId : undefined,
     plan_hash: skillName ? t.plan?.hash : undefined,
+    intent: !skillName && !plan && !contextOnly ? "auto" : "audience",
+    target_artifact_id: analysisTarget?.target_artifact_id,
+    target_artifact_version: analysisTarget?.target_artifact_version,
   });
 export const resumeRun = (t: Thread, answer?: unknown) =>
   data<Thread>(`${prefix}/${t.thread_id}/resume`, "POST", {

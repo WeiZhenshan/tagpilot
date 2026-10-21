@@ -1,0 +1,54 @@
+/* 工作栏只移动一小段距离，内容不缩放；桌面和覆盖面板共用进出节奏。 */
+.workbench {
+  overflow-x: clip;
+  --motion-panel-enter: 200ms;
+  --motion-panel-exit: 120ms;
+  --motion-panel-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-panel-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-panel-distance: clamp(12px, 6%, 32px);
+}
+
+/* 保留 display 的退出阶段；不支持离散过渡的浏览器直接切换。 */
+@supports (transition-behavior: allow-discrete) {
+  .workbench .history-rail,
+  .workbench .insight-right {
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      transform var(--motion-panel-enter) var(--motion-panel-ease-enter),
+      opacity var(--motion-panel-enter) var(--motion-panel-ease-enter),
+      display var(--motion-panel-enter) allow-discrete;
+  }
+
+  .workbench .history-rail[inert],
+  .workbench .insight-right[inert] {
+    opacity: 0;
+    transition-duration: var(--motion-panel-exit);
+    transition-timing-function: var(--motion-panel-ease-exit);
+  }
+  .workbench .history-rail[inert] {
+    transform: translateX(calc(-1 * var(--motion-panel-distance)));
+  }
+  .workbench .insight-right[inert] {
+    transform: translateX(var(--motion-panel-distance));
+  }
+
+  @starting-style {
+    .workbench .history-rail:not([inert]) {
+      opacity: 0;
+      transform: translateX(calc(-1 * var(--motion-panel-distance)));
+    }
+    .workbench .insight-right:not([inert]) {
+      opacity: 0;
+      transform: translateX(var(--motion-panel-distance));
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workbench .history-rail,
+  .workbench .insight-right {
+    transition: none !important;
+    transform: none !important;
+  }
+}

@@ -101,6 +101,7 @@ export type AgentMessage = {
   run_id?: string;
   created_at: string;
   context_tags?: ContextTag[];
+  parts?: import("./insight/analysisTypes").AnalysisPart[];
 };
 export type ContextTag = { id: number; name: string };
 export type TagTreeNode = { id: string; label: string; tagId?: number; tagType?: string; dirPath?: string; children?: TagTreeNode[] };
@@ -117,8 +118,9 @@ export type Thread = {
   live_plan?: Plan;
   versions: Plan[];
   events: RunEvent[];
-  run_profile?: "audience" | "skill";
+  run_profile?: "audience" | "skill" | "conversation";
   run_history?: { profile?: string; run_id: string; events: RunEvent[] }[];
+  analysis_artifacts?: Record<string, import("./insight/analysisTypes").AnalysisArtifact>;
   run_id?: string;
   questions?: { clause_id?: string; requirement_id?: string; prompt: string; options?: string[]; reason?: string }[];
   interrupt_id?: string;

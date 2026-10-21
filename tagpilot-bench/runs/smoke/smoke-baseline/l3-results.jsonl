@@ -1,0 +1,24 @@
+{"case_id": "SC-A01", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 2000, "oracle_count": 2000, "full_id_set_equal": true}
+{"case_id": "SC-A01", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 2000, "oracle_count": 2000, "full_id_set_equal": true}
+{"case_id": "SC-A01", "rep": 2, "status": "PASS", "authority": "JAVA", "java_count": 2000, "oracle_count": 2000, "full_id_set_equal": true}
+{"case_id": "SC-A02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 203, "oracle_count": 203, "full_id_set_equal": true}
+{"case_id": "SC-A02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 203, "oracle_count": 203, "full_id_set_equal": true}
+{"case_id": "SC-A02", "rep": 2, "status": "PASS", "authority": "JAVA", "java_count": 203, "oracle_count": 203, "full_id_set_equal": true}
+{"case_id": "SC-B02", "rep": 0, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "SC-B02", "rep": 1, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "SC-B02", "rep": 2, "status": "PASS", "authority": "JAVA", "java_count": 39, "oracle_count": 39, "full_id_set_equal": true}
+{"case_id": "SC-B04", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-B04", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-B04", "rep": 2, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-C03", "rep": 0, "status": "SKIP", "reason": "agent_outcome=CAPABILITY_GAP"}
+{"case_id": "SC-C03", "rep": 1, "status": "SKIP", "reason": "agent_outcome=CAPABILITY_GAP"}
+{"case_id": "SC-C03", "rep": 2, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-D03", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-D03", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-D03", "rep": 2, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-G02", "rep": 0, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-G02", "rep": 1, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-G02", "rep": 2, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-J04", "rep": 0, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}
+{"case_id": "SC-J04", "rep": 1, "status": "SKIP", "reason": "agent_outcome=NEEDS_USER_INPUT"}
+{"case_id": "SC-J04", "rep": 2, "status": "SKIP", "reason": "agent_outcome=PARTIAL"}

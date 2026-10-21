@@ -37,6 +37,69 @@ class TsTagStatsServiceTest {
     private static final Long VERSION = 7L;
     private static final Long COHORT = 240L;
 
+    @SuppressWarnings("unchecked")
+    @Test void conversationBatchRunsRealAggregatesAndTwoDimensionsInOneSnapshot() throws Exception {
+        tag(812L,"总资产","数值型","aum");unit(812L,"CNY");
+        tag(813L,"风险等级","选项型","risk_level");tag(814L,"渠道","选项型","channel");
+        try(Statement st=keeper.createStatement()){st.executeUpdate("update customer set channel='branch' where customer_count<=120");}
+        Map<String,RulePayload> populations=new LinkedHashMap<>();populations.put("target",new RulePayload());
+        Map<String,Object> result=service.analysisBatch(LIBRARY,populations,Arrays.asList(
+            com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id","aum","tag_id",812L,"operation","avg","dimensions",Arrays.asList(813L,814L))),new HashSet<>(Arrays.asList(812L,813L,814L)));
+        List<Map<String,Object>> qs=(List<Map<String,Object>>)result.get("queries");
+        List<Map<String,Object>> rows=(List<Map<String,Object>>)qs.get(0).get("rows");
+        assertEquals(2,rows.size());
+        Set<Double> values=new HashSet<>();for(Map<String,Object> row:rows)values.add(((Number)row.get("value")).doubleValue());
+        assertEquals(new HashSet<>(Arrays.asList(200000d,800000d)),values);
+        assertNotNull(result.get("snapshot_id"));assertNull(result.get("data_as_of"));
+        assertEquals(true,((Map)result.get("quality")).get("consistent_batch"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test void conversationDistributionUsesRealDenominatorAndSuppressesComplement() throws Exception {
+        tag(814L,"渠道","选项型","channel");
+        try(Statement st=keeper.createStatement()){st.executeUpdate("update customer set channel='branch' where customer_count<=40");}
+        Map<String,RulePayload> populations=new LinkedHashMap<>();populations.put("target",new RulePayload());
+        List<Map<String,Object>> queries=Arrays.asList(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id","channel","tag_id",814L,"operation","distribution"));
+        Map<String,Object> bundle=service.analysisBatch(LIBRARY,populations,queries,new HashSet<>(Arrays.asList(814L)));
+        List<Map<String,Object>> facts=(List<Map<String,Object>>)bundle.get("facts");
+        assertTrue(facts.stream().anyMatch(f->"%".equals(f.get("unit"))&&Math.abs(((Number)f.get("value")).doubleValue()-16.67)<.001));
+        assertTrue(facts.stream().filter(f->"%".equals(f.get("unit"))).allMatch(f->"f-channel-total".equals(f.get("denominator_id"))));
+        try(Statement st=keeper.createStatement()){st.executeUpdate("update customer set channel='app' where customer_count>10");}
+        bundle=service.analysisBatch(LIBRARY,populations,queries,new HashSet<>(Arrays.asList(814L)));
+        Map<String,Object> query=((List<Map<String,Object>>)bundle.get("queries")).get(0);
+        assertEquals("SUPPRESSED",query.get("status"));assertTrue(((List)bundle.get("facts")).isEmpty());assertTrue(((List)query.get("rows")).isEmpty());
+    }
+
+    @Test void conversationRejectsDuplicateCustomerKeysAndRawSql() throws Exception {
+        Map<String,RulePayload> populations=new LinkedHashMap<>();populations.put("target",new RulePayload());
+        List<Map<String,Object>> queries=Arrays.asList(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id","count","operation","count"));
+        try(Statement st=keeper.createStatement()){st.executeUpdate("update customer set customer_key='duplicate' where customer_count<=2");}
+        assertThrows(IllegalArgumentException.class,()->service.analysisBatch(LIBRARY,populations,queries,Collections.emptySet()));
+        queries.get(0).put("sql","select * from customer");
+        assertThrows(IllegalArgumentException.class,()->service.analysisBatch(LIBRARY,populations,queries,Collections.emptySet()));
+    }
+    @SuppressWarnings("unchecked")
+    @Test void conversationDistinguishesEmptyPopulationFromSuppressedOrMissing() throws Exception {
+        try(Statement st=keeper.createStatement()){st.executeUpdate("delete from customer");}
+        Map<String,RulePayload> populations=new LinkedHashMap<>();populations.put("target",new RulePayload());
+        Map<String,Object> result=service.analysisBatch(LIBRARY,populations,Arrays.asList(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id","empty","operation","count")),Collections.emptySet());
+        assertEquals("EMPTY",((List<Map<String,Object>>)result.get("queries")).get(0).get("status"));
+        assertEquals(0,((Number)((List<Map<String,Object>>)result.get("facts")).get(0).get("value")).intValue());
+    }
+    @SuppressWarnings("unchecked")
+    @Test void absentPublishedCategoryIsStructuralZeroWithPopulationSample() {
+        tag(814L,"渠道","选项型","channel");
+        TsPublishedAnalysisCatalog published=(TsPublishedAnalysisCatalog)ReflectionTestUtils.getField(service,"publishedAnalysis");
+        com.fasterxml.jackson.databind.ObjectMapper mapper=new com.fasterxml.jackson.databind.ObjectMapper();
+        when(published.tags(eq(LIBRARY),anySet())).thenReturn(Collections.singletonMap(814L,mapper.valueToTree(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("_code_labels",com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("app","手机银行","branch","网点")))));
+        Map<String,RulePayload> populations=new LinkedHashMap<>();populations.put("target",new RulePayload());
+        Map<String,Object> result=service.analysisBatch(LIBRARY,populations,Arrays.asList(com.ruoyi.taglibrary.service.TsSnapshotAssembler.map("id","channel","operation","distribution","tag_id",814L)),Collections.singleton(814L));
+        List<Map<String,Object>> facts=(List<Map<String,Object>>)result.get("facts");
+        Map<String,Object> zero=facts.stream().filter(f->String.valueOf(f.get("label")).endsWith("网点")&&"人".equals(f.get("unit"))).findFirst().get();
+        assertEquals(0,((Number)zero.get("value")).intValue());assertEquals(240,((Number)zero.get("sample_size")).intValue());
+        assertEquals("AVAILABLE",zero.get("status"));
+    }
+
     @BeforeEach
     void setup() throws Exception {
         url = "jdbc:h2:mem:tagstats" + UUID.randomUUID() + ";MODE=MySQL;DATABASE_TO_LOWER=TRUE";
@@ -76,6 +139,17 @@ class TsTagStatsServiceTest {
         ReflectionTestUtils.setField(service, "connections", connections);
         ReflectionTestUtils.setField(service, "crypto", crypto);
         ReflectionTestUtils.setField(service, "json", new com.fasterxml.jackson.databind.ObjectMapper());
+        TsPublishedAnalysisCatalog published=mock(TsPublishedAnalysisCatalog.class);
+        ReflectionTestUtils.setField(service,"publishedAnalysis",published);
+        when(published.tags(eq(LIBRARY),anySet())).thenAnswer(call->{
+            Map<Long,com.fasterxml.jackson.databind.JsonNode> out=new LinkedHashMap<>();
+            for(Long id:(Set<Long>)call.getArgument(1)) {
+                TsTagSemantic semantic=semantics.selectByTagId(id);Map<String,Object> definition=new LinkedHashMap<>();
+                definition.put("unit",semantic==null?null:semantic.getUnit());definition.put("unit_scale",semantic==null||semantic.getUnitScale()==null?BigDecimal.ONE:semantic.getUnitScale());
+                out.put(id,new com.fasterxml.jackson.databind.ObjectMapper().valueToTree(definition));
+            }
+            return out;
+        });
         DpResolvedVersion version = new DpResolvedVersion();
         version.setVersionId(VERSION);
         when(versions.resolve(1L)).thenReturn(version);

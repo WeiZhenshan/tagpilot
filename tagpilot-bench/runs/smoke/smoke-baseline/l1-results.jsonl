@@ -1,0 +1,7 @@
+{"case_id": "SC-A02", "conditions": 1, "phrases": ["当前时点AUM至少100万元"], "recalled": [true], "ranks": [1], "all_conditions_covered": true, "atomic_recall": 1.0}
+{"case_id": "SC-B02", "conditions": 3, "phrases": ["近30天异名跨行转入金额至少50万元", "当前持有理财标志等于0", "当前理财风评等级属于C3、C4、C5"], "recalled": [true, true, true], "ranks": [1, 1, 1], "all_conditions_covered": true, "atomic_recall": 1.0}
+{"case_id": "SC-B04", "conditions": 2, "phrases": ["近30天异名跨行转入金额至少50万元", "当前持有理财标志等于1"], "recalled": [true, true], "ranks": [1, 1], "all_conditions_covered": true, "atomic_recall": 1.0}
+{"case_id": "SC-C03", "conditions": 4, "phrases": ["未来定期存款最近一次到期日期在2026-09-19到2026-10-18之间", "未来定期存款最近一次到期金额至少10万元", "当前持有理财标志等于0", "当前理财风评等级属于C3、C4、C5"], "recalled": [true, true, true, true], "ranks": [1, 1, 1, 1], "all_conditions_covered": true, "atomic_recall": 1.0}
+{"case_id": "SC-D03", "conditions": 2, "phrases": ["上月代发金额超过0", "上3个月APP登录天数至少6"], "recalled": [true, true], "ranks": [1, 1], "all_conditions_covered": true, "atomic_recall": 1.0}
+{"case_id": "SC-G02", "conditions": 1, "phrases": ["当前时点AUM至少100万元"], "recalled": [true], "ranks": [1], "all_conditions_covered": true, "atomic_recall": 1.0}
+{"case_id": "SC-J04", "conditions": 9, "phrases": ["当前营销黑名单标志等于1", "勿扰客户（企微标签）等于1", "当前反洗钱黑名单标志等于1", "当前客户级智能止付标志等于1", "当前我行贷款逾期标志等于1", "当前理财风评等级为空", "当前理财风评等级属于C1", "当前手机号码正常标志等于0", "当前企微认证标志等于0"], "recalled": [true, true, true, true, true, true, true, true, true], "ranks": [1, 1, 1, 1, 1, 1, 1, 1, 1], "all_conditions_covered": true, "atomic_recall": 1.0}

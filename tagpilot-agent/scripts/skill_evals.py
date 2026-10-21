@@ -34,6 +34,8 @@ UNITS = {'人', '元', '%', 'pp', '分'}
 STATUSES = {'COMPLETE', 'PARTIAL', 'BLOCKED'}
 BASIS = {'RULE', 'STAT', 'HYPOTHESIS'}
 PRIORITIES = {'HIGH', 'MEDIUM', 'LOW', 'NONE'}
+SESSION_HEADER = 'x-opencode-session'
+DEFAULT_SESSION = 'tagpilot-insight'
 
 SYSTEM_PROMPT = ('你是TagPilot客群分析助手。客群上下文由服务端核验注入，不能更改条件、人数、版本或创建客群。'
                  '仅有上下文中的条件和有效人数是事实证据；没有指标数据时明确说明缺失，不能编造数值、图表或因果结论。'
@@ -115,11 +117,20 @@ def llm_env():
         raise SystemExit('缺少模型配置：请在仓库根目录提供 .tag-llm-config 或设置 TAG_LLM_BASE_URL/TAG_LLM_API_KEY')
     if base == 'https://api.deepseek.com':
         base = 'https://api.deepseek.com/anthropic'
+    # 第三方 Anthropic 网关（OpenCode）要求会话头，缺失即 400 MissingSessionID；
+    # 与 bin/tagpilot-agent.sh、model_health.py 注入逻辑保持一致。
+    custom_headers = values.get('ANTHROPIC_CUSTOM_HEADERS', '')
+    if 'opencode.ai' in base and not any(
+            line.partition(':')[0].strip().lower() == SESSION_HEADER for line in custom_headers.splitlines()):
+        session = os.environ.get('TAG_OPENCODE_SESSION') or DEFAULT_SESSION
+        custom_headers = (custom_headers + '\n' if custom_headers else '') + f'{SESSION_HEADER}: {session}'
     environ = {name: value for name, value in os.environ.items() if not name.startswith('ANTHROPIC_')}
     environ.update(ANTHROPIC_BASE_URL=base, ANTHROPIC_API_KEY=key, ANTHROPIC_AUTH_TOKEN=key, ANTHROPIC_MODEL=model,
                    ANTHROPIC_SMALL_FAST_MODEL=model, CLAUDECODE='', ANTHROPIC_MAX_RETRIES='0',
                    CLAUDE_CODE_DISABLE_AUTO_MEMORY='1', CLAUDE_CODE_DISABLE_BACKGROUND_TASKS='1',
                    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC='1', DISABLE_TELEMETRY='1')
+    if custom_headers:
+        environ['ANTHROPIC_CUSTOM_HEADERS'] = custom_headers
     # 默认按生产预算评估；只有显式给出 EVAL_* 时才覆盖，避免评测口径掩盖预算问题。
     for source, target in (('EVAL_HARD_TIMEOUT', 'TAG_AGENT_HARD_TIMEOUT'), ('EVAL_SOFT_TIMEOUT', 'TAG_AGENT_SOFT_TIMEOUT'),
                            ('EVAL_MAX_TURNS', 'TAG_AGENT_MAX_TURNS'), ('EVAL_MAX_TOOLS', 'TAG_AGENT_MAX_TOOLS')):

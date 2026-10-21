@@ -41,6 +41,7 @@ public class TsAgentWorkbenchService {
     @Autowired private TsInsightRegistryService insightRegistry;
     @Autowired private TsAgentSkillService agentSkills;
     @Autowired private TsTagStatsService tagStats;
+    @Autowired private TsConversationAnalysisService analysis;
 
     private Long uid() { return SecurityUtils.getUserId(); }
     private String id() { return UUID.randomUUID().toString(); }
@@ -72,6 +73,7 @@ public class TsAgentWorkbenchService {
             throw new ServiceException("请先完成或停止当前运行",409);
     }
     private void applyPlan(Map<String,Object> state,Map<String,Object> plan) {
+        state.remove("analysis_state");
         long next=number(state.get("revision"))+1;
         plan.remove("hash");plan.put("revision",next);plan.put("hash",TsSnapshotCanonicalizer.sha256(encode(plan)));
         state.put("revision",next);state.put("plan",plan);state.remove("live_plan");state.remove("count");state.remove("execution");
@@ -87,7 +89,24 @@ public class TsAgentWorkbenchService {
         out.putAll(map("thread_id",row.getThreadId(),"library_id",row.getLibraryId(),"title",row.getTitle(),"archived","1".equals(row.getArchived()),"pinned","1".equals(row.getPinned()),
             "capabilities",map("insight",permissions.hasPermi("taglibrary:insight:run"),"count",permissions.hasPermi("objectgroup:group:run"),"create",permissions.hasPermi("objectgroup:group:add"),"update",permissions.hasPermi("objectgroup:group:edit"),"preview",permissions.hasPermi("objectgroup:group:preview"))));
         if(!permissions.hasPermi("taglibrary:insight:run") || (out.get("insight_report") instanceof Map && !insightRegistry.reportVisible(row.getLibraryId(),obj(out.get("insight_report")))))out.remove("insight_report");
-        out.remove("run_request");out.remove("source_plan"); return out;
+        out.remove("run_request");out.remove("source_plan");out.remove("analysis_session");out.remove("analysis_state");
+        Map<String,Object> safeArtifacts=new LinkedHashMap<>();
+        for(Map.Entry<String,Object> entry:obj(state.get("analysis_artifacts")).entrySet()) {
+            Map<String,Object> artifact=new LinkedHashMap<>(obj(entry.getValue())),bundle=obj(artifact.get("bundle"));
+            artifact.remove("plan");artifact.remove("query_plan");
+            artifact.put("bundle",map("queried_at",bundle.get("queried_at"),"data_as_of",bundle.get("data_as_of"),"source_version",bundle.get("source_version"),"quality",bundle.get("quality")));
+            safeArtifacts.put(entry.getKey(),artifact);
+        }
+        if(!safeArtifacts.isEmpty())out.put("analysis_artifacts",safeArtifacts);
+        if(!permissions.hasPermi("taglibrary:insight:run")) {
+            out.remove("skill_report");out.remove("analysis_artifacts");
+            List<Map<String,Object>> safeMessages=new ArrayList<>();
+            for(Map<String,Object> message:list(out.get("messages"))) {
+                Map<String,Object> safe=new LinkedHashMap<>(message);if(safe.containsKey("parts")){safe.remove("parts");safe.put("text","洞察内容需要相应查看权限");}safeMessages.add(safe);
+            }
+            out.put("messages",safeMessages);
+        }
+        return out;
     }
     /** 仅暴露当前发布且仍可执行的轻量标签树，不要求标签管理权限。 */
     public List<Map<String,Object>> tagTree(Long library) {
@@ -145,23 +164,53 @@ public class TsAgentWorkbenchService {
     private void sync(TsAgentThread row,Map<String,Object> state) {
         String run=(String)state.get("run_id");
         if(run==null || Arrays.asList("COMPLETED","CANCELLED","IDLE").contains(String.valueOf(state.get("status"))))return;
+        Map<String,Object> session=obj(state.get("analysis_session"));
+        for(Map<String,Object> pending:list(session.get("outbox"))) {
+            try {agent.post("/agent/v2/runs/"+run+"/analysis-results",pending);}
+            catch(ServiceException e){if(!Integer.valueOf(409).equals(e.getCode()))throw e;}
+        }
+        session.remove("outbox");
         Map<String,Object> remote=agent.get("/agent/v2/runs/"+run+"?owner_id="+uid()+"&after="+number(state.get("cursor")));
         List<Map<String,Object>> events=list(state.get("events"));
         for(Map<String,Object> event:list(remote.get("events"))) {
+            if(event.get("seq") instanceof Number && number(event.get("seq"))<=number(state.get("cursor")))continue;
+            if("analysis.request".equals(event.get("type"))) {
+                if(!"conversation".equals(obj(state.get("run_request")).get("profile")) || !"RUNNING".equals(state.get("status")))continue;
+                if(!"RUNNING".equals(remote.get("status")) || event.get("expires_at") instanceof Number && ((Number)event.get("expires_at")).longValue()<System.currentTimeMillis()) {state.put("cursor",event.get("seq"));continue;}
+                Map<String,Object> response;
+                try {response=analysis.handle(row,state,String.valueOf(event.get("tool")),obj(event.get("args")));}
+                catch(ServiceException|IllegalArgumentException e) {response=map("ok",false,"message",e.getMessage());}
+                Map<String,Object> reply=map("owner_id",String.valueOf(uid()),"request_id",event.get("request_id"),"result",response);
+                List<Map<String,Object>> outbox=new ArrayList<>(list(session.get("outbox")));outbox.add(reply);session.put("outbox",outbox);
+                state.put("cursor",event.get("seq"));
+                if(response.get("selection_plan") instanceof Map)applyPlan(state,obj(response.get("selection_plan")));
+                if(Boolean.TRUE.equals(response.get("ok")) && response.get("parts") instanceof List)appendAnalysisParts(state,run,list(response.get("parts")));
+                save(row,state);
+                replyAfterCommit(run,reply); // 数据库提交后才解锁模型下一步，网络失败保留outbox供重传。
+                events.add(map("seq",event.get("seq"),"type","analysis.completed","tool",event.get("tool"),"message",Boolean.TRUE.equals(response.get("ok"))?"分析结果已核验":"分析请求需要调整"));
+                continue;
+            }
             events.add(event); state.put("cursor",event.get("seq"));
             if(event.get("plan") instanceof Map)state.put("live_plan",event.get("plan"));
         }
         state.put("events",events);state.put("status",remote.get("status"));state.put("error",remote.get("error"));
         Map<String,Object> result=obj(remote.get("result"));
         String resultKey=run+":"+remote.get("status")+":"+TsSnapshotCanonicalizer.sha256(encode(result));
+        if("conversation".equals(obj(state.get("run_request")).get("profile")) && Arrays.asList("FAILED","INTERRUPTED").contains(remote.get("status"))) {
+            state.put("applied_result",resultKey);if(state.get("error")==null)state.put("error","本轮分析未完成，已核验内容保留，请重新发送需求");
+            appendAnalysisParts(state,run,Arrays.asList(map("id","status-"+run,"type","status","version",1,"status","PARTIAL","text",state.get("error"))));save(row,state);return;
+        }
         if(!"RUNNING".equals(remote.get("status")) && !result.isEmpty() && !resultKey.equals(state.get("applied_result"))) {
+            if(Boolean.TRUE.equals(result.get("analysis_complete"))) {
+                state.put("applied_result",resultKey);save(row,state);return;
+            }
             if("skill".equals(obj(state.get("run_request")).get("profile"))) {
                 List<Map<String,Object>> messages=list(state.get("messages"));
                 String answer=String.valueOf(result.getOrDefault("skill_output","技能运行结束，请查看处理记录。"));
                 messages.add(map("id",id(),"role","assistant","text",answer,"revision",state.get("revision"),"run_id",run,"created_at",Instant.now().toString()));
                 state.put("messages",messages);
                 Map<String,Object> report=skillReport(row,state,result,run);
-                if(report!=null)state.put("skill_report",report);
+                if(report!=null){state.put("skill_report",report);inlineSkillReport(state,run,report);}
                 state.put("applied_result",resultKey);save(row,state);return;
             }
             Map<String,Object> plan=obj(result.get("plan"));
@@ -194,6 +243,37 @@ public class TsAgentWorkbenchService {
                 "revision",state.get("revision"),"run_id",run,"created_at",Instant.now().toString()));state.put("messages",messages);
         }
         save(row,state);
+    }
+    private void replyAfterCommit(String run,Map<String,Object> reply) {
+        Runnable deliver=()->{
+            try {agent.post("/agent/v2/runs/"+run+"/analysis-results",reply);}
+            catch(ServiceException e){log.warn("分析回执稍后重传 run={}",run);}
+        };
+        if(org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive())
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(new org.springframework.transaction.support.TransactionSynchronization(){@Override public void afterCommit(){deliver.run();}});
+        else deliver.run();
+    }
+    private void appendAnalysisParts(Map<String,Object> state,String run,List<Map<String,Object>> parts) {
+        List<Map<String,Object>> messages=list(state.get("messages"));Map<String,Object> target=null;
+        for(Map<String,Object> message:messages)if(("analysis-"+run).equals(message.get("id")))target=message;
+        if(target==null){target=map("id","analysis-"+run,"role","assistant","text","","parts",new ArrayList<>(),"run_id",run,"created_at",Instant.now().toString());messages.add(target);}
+        List<Map<String,Object>> existing=list(target.get("parts"));
+        List<Map<String,Object>> added=new ArrayList<>();
+        for(Map<String,Object> part:parts)if(existing.stream().noneMatch(p->Objects.equals(p.get("id"),part.get("id")))){existing.add(part);added.add(part);}
+        target.put("parts",existing);state.put("messages",messages);
+        List<Map<String,Object>> events=list(state.get("events"));
+        for(Map<String,Object> part:added)for(String kind:Arrays.asList("content.block.created","content.block.completed"))events.add(map("seq",state.get("cursor"),"type",kind,"run_id",run,"message_id",target.get("id"),"block_id",part.get("id"),"version",part.get("version"),"message","分析内容已核验"));
+        state.put("events",events);
+    }
+    private void inlineSkillReport(Map<String,Object> state,String run,Map<String,Object> report) {
+        Map<String,Object> artifacts=obj(state.get("analysis_artifacts"));List<Map<String,Object>> parts=new ArrayList<>();
+        for(Map<String,Object> result:list(report.get("results")))for(Map<String,Object> spec:list(result.get("charts"))) {
+            String artifactId="legacy-"+run+"-"+artifacts.size();
+            artifacts.put(artifactId+"@1",map("id",artifactId,"version",1,"spec",spec,"facts",result.get("facts"),"snapshot_id",obj(report.get("cohort")).get("snapshot_id"),"created_at",Instant.now().toString(),"context",obj(report.get("cohort")).get("audience_name")));
+            parts.add(map("id",artifactId,"type","chart","artifact_id",artifactId,"artifact_version",1,"status","COMPLETE","version",1));
+        }
+        state.put("analysis_artifacts",artifacts);
+        for(Map<String,Object> message:list(state.get("messages")))if(run.equals(message.get("run_id")) && "assistant".equals(message.get("role"))) {message.put("parts",parts);break;}
     }
     private static final List<String> SKILL_STATUSES=Arrays.asList("COMPLETE","PARTIAL","BLOCKED");
     private static final List<String> SKILL_UNITS=Arrays.asList("人","元","%","pp","分");
@@ -373,6 +453,10 @@ public class TsAgentWorkbenchService {
                 || !Objects.equals(contextIds(map("context_tag_ids",original.get("pinned_tag_ids"))),pinned)
                 || !Objects.equals(original.getOrDefault("pinned_only",false),Boolean.TRUE.equals(request.get("context_only")))
                 || !Objects.equals(original.get("skill_name"),request.get("skill_name"))
+                || !Objects.equals(original.getOrDefault("intent","audience"),request.getOrDefault("intent","audience"))
+                || !Objects.equals(original.get("target_artifact_id"),request.get("target_artifact_id"))
+                || !Objects.equals(original.get("target_artifact_version"),request.get("target_artifact_version"))
+                || !Objects.equals(original.get("reply_to_message_id"),request.get("reply_to_message_id"))
                 || !Objects.equals(baselineOf(original),baselineOf(request)))
                 throw new ServiceException("重复请求内容不一致",409);
             return view(row,state);
@@ -432,6 +516,15 @@ public class TsAgentWorkbenchService {
         if(state.containsKey("source_plan"))req.put("source_plan",state.get("source_plan"));
         req.put("timezone","Asia/Shanghai");
         if(skillName!=null)req.putAll(map("profile","skill","skill_name",skillName,"skill_packages",skillPackages,"cohort_context",cohort));
+        String intent=String.valueOf(request.getOrDefault("intent","audience"));
+        if(!Arrays.asList("auto","analysis","audience").contains(intent))throw new ServiceException("对话意图非法");
+        req.put("intent",intent);
+        if(skillName==null && request.get("plan")==null && !Boolean.TRUE.equals(request.get("context_only")) && !"audience".equals(intent) && permissions.hasPermi("taglibrary:insight:run")) {
+            req.put("profile","conversation");req.put("skill_packages",agentSkills.published());
+            for(String key:Arrays.asList("target_artifact_id","target_artifact_version","reply_to_message_id"))if(request.get(key)!=null)req.put(key,request.get(key));
+            state.put("analysis_session",analysis.begin(state,request));
+            req.put("analysis_context",map("plan",obj(state.get("analysis_session")).get("plan"),"artifact_choices",obj(state.get("analysis_session")).get("artifact_choices"),"target",obj(state.get("analysis_session")).get("target")));
+        }
         if(state.get("clarification_state") instanceof Map)req.put("clarification_state",state.get("clarification_state"));
         if(state.get("run_id")!=null)req.put("continuation_of",state.get("run_id"));
         List<Map<String,Object>> priorRuns=list(state.get("run_history"));
@@ -441,9 +534,9 @@ public class TsAgentWorkbenchService {
         agent.post("/agent/v2/runs",req);
         List<Map<String,Object>> messages=new ArrayList<>(history);messages.add(map("id",id(),"role","user","text",text,"context_tags",contextTags,"run_id",client,"created_at",Instant.now().toString()));
         if("新的圈选".equals(row.getTitle()))row.setTitle(text.substring(0,Math.min(40,text.length())));
-        state.putAll(map("run_id",client,"run_profile",skillName==null?"audience":"skill","run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
+        state.putAll(map("run_id",client,"run_profile",req.getOrDefault("profile","audience"),"run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
         state.remove("error");state.remove("authority_repairs");state.remove("live_plan");
-        if(skillName==null){state.remove("count");state.remove("execution");}else{state.remove("outcome");state.remove("interrupt_id");}
+        if(skillName==null && !"conversation".equals(req.get("profile"))){state.remove("count");state.remove("execution");}else{state.remove("outcome");state.remove("interrupt_id");}
         save(row,state);return view(row,state);
     }
     @Transactional

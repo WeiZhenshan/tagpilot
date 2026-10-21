@@ -16,9 +16,12 @@ import {
 import * as api from "./agentApi";
 import { AgentConversation } from "./AgentConversation";
 import { InsightSummary } from "./insight/InsightSummary";
+import type { ArtifactReference } from "./insight/analysisTypes";
+import { AnalysisMessageParts } from "./insight/AnalysisMessageParts";
 import { availableSkills, type AgentSkill } from "./skillApi";
 import { runInsight, editInsight, insightFeedback } from "./insight/insightApi";
 import "./insight/workbench-insight.css";
+import "./panel-motion.css";
 const InsightReportPanel = lazy(() => import("./insight/InsightReportPanel").then((m) => ({ default: m.InsightReportPanel })));
 import { PlanPanel } from "./PlanPanel";
 import { TagTree, TagChips } from "./TagTree";
@@ -66,6 +69,8 @@ export function App() {
   const [skillsLoading, setSkillsLoading] = useState(false);
   const [skillsError, setSkillsError] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<AgentSkill | null>(null);
+  const [analysisTarget, setAnalysisTarget] = useState<ArtifactReference | null>(null);
+  useEffect(() => { setAnalysisTarget(null); }, [thread?.thread_id]);
   const [baselineGroups, setBaselineGroups] = useState<api.BaselineGroup[]>([]);
   const [baselineGroupId, setBaselineGroupId] = useState<number | null>(null);
   useEffect(() => {
@@ -84,8 +89,26 @@ export function App() {
   }, []);
   useEffect(() => { if (thread?.capabilities.insight) void refreshSkills(); else setSkills([]); }, [thread?.thread_id, thread?.capabilities.insight, refreshSkills]);
   const [rightTab, setRightTab] = useState<"plan" | "insight">("plan");
-  const [insightWide, setInsightWide] = useState(false);
-  useEffect(() => { setSelectedSkill(null); setBaselineGroupId(null); setRightTab("plan"); }, [library, thread?.thread_id]);
+  const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [reportReveal, setReportReveal] = useState(0);
+  const handledReportReveal = useRef(0);
+  const rightPanel = useRef<HTMLElement>(null);
+  const rightToggle = useRef<HTMLButtonElement>(null);
+  const openRightPanel = (section: "plan" | "insight") => {
+    setRightTab(section); setRightPanelOpen(true); setTab("plan");
+    if (section === "insight") setReportReveal((value) => value + 1);
+  };
+  const closeRightPanel = () => {
+    setRightPanelOpen(false); setTab("chat"); rightToggle.current?.focus();
+  };
+  useEffect(() => {
+    if (reportReveal === handledReportReveal.current || !rightPanelOpen || rightTab !== "insight") return;
+    handledReportReveal.current = reportReveal;
+    const panel = rightPanel.current;
+    panel?.querySelector(".insight-report")?.scrollTo({ top: 0 });
+    panel?.focus();
+  }, [reportReveal, rightPanelOpen, rightTab]);
+  useEffect(() => { setSelectedSkill(null); setBaselineGroupId(null); setRightTab("plan"); setRightPanelOpen(true); }, [library, thread?.thread_id]);
   const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
   const [contextTags, setContextTags] = useState<ContextTag[]>([]);
   const [tagConfirm, setTagConfirm] = useState(false);
@@ -110,6 +133,12 @@ export function App() {
   const [mobile, setMobile] = useState(() =>
     window.matchMedia("(max-width: 760px)").matches
   );
+  const historyRail = useRef<HTMLElement>(null);
+  const historyToggle = useRef<HTMLButtonElement>(null);
+  const historyPanelVisible = mobile ? tab === "history" : !sidebarCollapsed;
+  useEffect(() => {
+    if (!historyPanelVisible && historyRail.current?.contains(document.activeElement)) historyToggle.current?.focus();
+  }, [historyPanelVisible]);
   const [profile, setProfile] = useState<UserIdentity | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
   const [editingThreadId, setEditingThreadId] = useState<string | null>(null);
@@ -150,11 +179,20 @@ export function App() {
   const inflight = useRef(false);
   const initialLoad = useRef<Promise<Thread> | null>(null);
   const shownSkillReport = useRef<string | null>(null);
+  const shownInlineAnalysis = useRef<string | null>(null);
+  useEffect(() => {
+    if (thread?.run_profile !== "conversation" || !thread.run_id || shownInlineAnalysis.current === thread.run_id) return;
+    if (!thread.messages.some((message) => message.run_id === thread.run_id && message.parts?.length)) return;
+    shownInlineAnalysis.current = thread.run_id;
+    setRightPanelOpen(false);
+  }, [thread?.run_id, thread?.messages, thread?.run_profile]);
   useEffect(() => {
     const reportId = thread?.run_profile === "skill" ? thread?.skill_report?.run_id : undefined;
     if (reportId && shownSkillReport.current !== reportId) {
       shownSkillReport.current = reportId;
+      if (thread?.messages.some((m) => m.run_id === reportId && m.parts?.length)) return;
       setRightTab("insight");
+      setRightPanelOpen(true);
     }
   }, [thread?.run_profile, thread?.skill_report?.run_id]);
   const update = useCallback((value: Thread) => {
@@ -360,8 +398,9 @@ export function App() {
       let t = current.current;
       if (!t) t = await api.createThread(library);
       update(t);
-      update(await api.startRun(t, text, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), contextOnly));
+      update(await api.startRun(t, text, undefined, crypto.randomUUID(), tags.map((tag) => tag.id), contextOnly, undefined, undefined, analysisTarget || undefined));
       sent = true;
+      setAnalysisTarget(null);
       setContextTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
       setSelectedTags((items) => items.filter((tag) => !tags.some((t) => t.id === tag.id)));
       setTab("chat");
@@ -494,11 +533,13 @@ export function App() {
     });
     return sent;
   }
-  const skillReport = thread?.run_profile === "skill" ? thread?.skill_report : undefined;
-  const insightPanelReport = skillReport ?? thread?.insight_report;
+  const skillReport = thread?.skill_report;
+  const activeAnalysisMessage = thread?.run_profile === "conversation" ? thread.messages.filter((message) => message.role === "assistant" && message.parts?.length).at(-1) : undefined;
+  const insightPanelReport = activeAnalysisMessage ? undefined : skillReport ?? thread?.insight_report;
+  const rightPanelVisible = rightPanelOpen && (!mobile || tab === "plan");
   return (
     <div
-      className={`workbench mobile-${tab} ${insightWide ? "insight-wide" : ""} ${
+      className={`workbench mobile-${tab} ${rightPanelOpen ? "" : "right-panel-collapsed"} ${
         sidebarCollapsed ? "sidebar-collapsed" : ""
       }`}
     >
@@ -521,6 +562,7 @@ export function App() {
         </button>
         <button
           className="sidebar-toggle"
+          ref={historyToggle}
           onClick={toggleSidebar}
           aria-label={
             mobile
@@ -554,9 +596,19 @@ export function App() {
             ? (thread.status === "COMPLETED" && degradedOf(thread) ? "部分完成" : thread.status === "COMPLETED" && thread.plan?.plan_status ? planStateText[thread.plan.plan_status] : stateText[thread.status])
             : "准备就绪"}
         </span>
+        <button ref={rightToggle} type="button" className="sidebar-toggle report-panel-toggle"
+          aria-label={rightPanelVisible ? "隐藏右侧面板" : "展开右侧面板"}
+          title={rightPanelVisible ? "隐藏右侧面板" : "展开右侧面板"}
+          aria-expanded={rightPanelVisible} aria-controls="agent-right-panel"
+          onClick={() => {
+            if (rightPanelVisible) closeRightPanel();
+            else { setRightPanelOpen(true); setTab("plan"); }
+          }}>
+          <SidebarIcon collapsed={!rightPanelVisible} side="right" />
+        </button>
       </header>
       <div className="body">
-        <aside className="history-rail">
+        <aside ref={historyRail} className="history-rail" inert={!historyPanelVisible} aria-hidden={!historyPanelVisible}>
           <button
             className="new-thread"
             disabled={pending || !library}
@@ -793,11 +845,11 @@ export function App() {
             <button
               role="tab"
               aria-selected={tab === "plan" && rightTab === "plan"}
-              onClick={() => { setTab("plan"); setRightTab("plan"); }}
+              onClick={() => openRightPanel("plan")}
             >
               圈选方案
             </button>
-            <button role="tab" aria-selected={tab === "plan" && rightTab === "insight"} onClick={() => { setTab("plan"); setRightTab("insight"); }}>洞察</button>
+            <button role="tab" aria-selected={tab === "plan" && rightTab === "insight"} onClick={() => openRightPanel("insight")}>洞察</button>
           </div>
           {error || (thread && ["CANCELLED", "FAILED", "INTERRUPTED"].includes(thread.status) && thread.error) ? (
             <div className="banner error" role="alert">
@@ -817,6 +869,12 @@ export function App() {
             disabled={!library || !!thread?.archived}
             pending={pending}
             composerRequest={composerRequest}
+            analysisTarget={analysisTarget}
+            onRemoveAnalysisTarget={() => setAnalysisTarget(null)}
+            onContinueAnalysis={(target, text) => {
+              setSelectedSkill(null); setAnalysisTarget(target); setTab("chat");
+              setComposerRequest({ text: text || "", id: Date.now(), focusOnly: !text });
+            }}
             contextControl={
               <LibraryPicker
                 libraries={libraries}
@@ -825,7 +883,8 @@ export function App() {
                 onChange={fresh}
               />
             }
-            insightSummary={insightPanelReport ? <InsightSummary report={insightPanelReport} revision={thread!.revision} hash={thread!.plan?.hash || ""} onExpand={() => { setRightTab("insight"); setTab("plan"); }} /> : undefined}
+            insightRunId={insightPanelReport?.run_id}
+            insightSummary={insightPanelReport ? <InsightSummary report={insightPanelReport} revision={thread!.revision} hash={thread!.plan?.hash || ""} onExpand={() => openRightPanel("insight")} /> : undefined}
             skills={skills}
             skillsLoading={skillsLoading}
             skillsError={skillsError}
@@ -834,17 +893,22 @@ export function App() {
             onSelectSkill={setSelectedSkill}
             onManageSkills={() => requestBackToWorkbench("/taglibrary/insight-skill")}
             skillContext={skillContext}
-            skillChips={selectedSkill ? <div className="skill-selection"><span className="insight-chip">{selectedSkill.display_name}<button type="button" aria-label="移除技能" onClick={() => { setSelectedSkill(null); setBaselineGroupId(null); }}>移除</button></span>{baselineGroups.length ? <label className="baseline-picker">对照客群
-              <select aria-label="对照客群" value={baselineGroupId ?? ""} onChange={(event) => setBaselineGroupId(event.target.value ? Number(event.target.value) : null)}>
-                <option value="">不使用对照</option>
-                {baselineGroups.map((group) => <option key={group.group_id} value={group.group_id}>{group.group_name}{group.user_count ? `（${group.user_count} 人）` : ""}</option>)}
-              </select>
-            </label> : null}<p>{skillContext}</p></div> : undefined}
+            skillChips={selectedSkill ? <div className="skill-selection">
+              <div className="selected-skill-control"><ListboxSelect ariaLabel="当前技能" listboxLabel="切换技能" placement="top"
+                className="skill-switcher" value={selectedSkill.name} onChange={(name) => { setSelectedSkill(skills.find((skill) => skill.name === name) || null); setBaselineGroupId(null); }}
+                disabled={pending || busy(thread)} options={skills.map((skill) => ({ value: skill.name, label: skill.display_name }))} />
+                <button type="button" className="remove-skill" aria-label="移除技能" title="移除技能" onClick={() => { setSelectedSkill(null); setBaselineGroupId(null); }}><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8" /></svg></button>
+              </div>
+              {baselineGroups.length ? <div className="baseline-picker"><span>对照客群</span><ListboxSelect ariaLabel="对照客群" placement="top" value={baselineGroupId?.toString() || ""}
+                disabled={pending || busy(thread)} onChange={(value) => setBaselineGroupId(value ? Number(value) : null)}
+                options={[{ value: "", label: "不使用对照" }, ...baselineGroups.map((group) => ({ value: String(group.group_id), label: `${group.group_name}${group.user_count != null ? `（${group.user_count.toLocaleString("zh-CN")} 人）` : ""}` }))]} /></div> : null}
+              <p>{skillContext}</p>
+            </div> : undefined}
             contextTags={contextTags}
             onRemoveContextTag={(id) => setContextTags((items) => items.filter((t) => t.id !== id))}
             onReveal={(ids) => {
               setHighlightedClauses(ids);
-              setTab("plan");
+              openRightPanel("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
             skillRunDisabled={!skillReady}
@@ -860,14 +924,15 @@ export function App() {
             }}
             onCancel={() => void act(api.cancelRun)}
             onAnswer={(a) => void act((t) => api.resumeRun(t, a))}
-            onRetry={() => { if(thread?.run_profile === "skill"){setTab("chat");setComposerRequest({text:"/",id:Date.now()});}else void act((t) => api.resumeRun(t)); }}
+            onRetry={() => { if(thread?.run_profile === "skill"){setTab("chat");setComposerRequest({text:"/",id:Date.now()});}else if(thread?.run_profile === "conversation"){setTab("chat");setComposerRequest({text:thread.messages.filter((m) => m.role === "user").at(-1)?.text || "请继续分析",id:Date.now()});}else void act((t) => api.resumeRun(t)); }}
             onEdit={() => {
-              setTab("plan");
+              openRightPanel("plan");
               requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
             }}
           />
         </main>
-        <aside className="insight-right"><div className="insight-sidebar-heading"><button type="button" aria-pressed={rightTab === "plan"} onClick={() => setRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} onClick={() => setRightTab("insight")}>洞察</button>{rightTab === "insight" && <button type="button" aria-pressed={insightWide} onClick={() => setInsightWide(!insightWide)}>{insightWide ? "收起宽模式" : "宽模式"}</button>}</div>
+        <aside ref={rightPanel} id="agent-right-panel" tabIndex={-1} inert={!rightPanelVisible} aria-hidden={!rightPanelVisible} aria-label={rightTab === "insight" ? "洞察报告面板" : "工作台右侧面板"} className={`insight-right ${rightTab === "insight" ? "insight-right--report" : ""}`} onKeyDown={(event) => { if (event.key === "Escape" && !event.defaultPrevented && !(event.target as Element).closest('dialog, [aria-expanded="true"], .library-options, .plan-menu')) { event.stopPropagation(); closeRightPanel(); } }}>
+          <div className="insight-sidebar-heading"><button type="button" aria-pressed={rightTab === "plan"} onClick={() => setRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} onClick={() => openRightPanel("insight")}>洞察</button></div>
         {rightTab === "plan" ? <PlanPanel
           highlightedClauses={highlightedClauses}
           thread={thread}
@@ -888,7 +953,7 @@ export function App() {
             });
           }}
           onOpenGroup={openGroup}
-        /> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
+        /> : activeAnalysisMessage ? <div className="insight-report"><header className="insight-report-header"><h2>本轮分析</h2><p>与对话中的结果使用同一份证据和图表版本。</p></header><AnalysisMessageParts parts={activeAnalysisMessage.parts!} artifacts={thread!.analysis_artifacts} revision={thread!.revision} disabled={pending || busy(thread)} onContinue={(target, text) => { setAnalysisTarget(target); setSelectedSkill(null); setTab("chat"); setComposerRequest({ text: text || "", id: Date.now(), focusOnly: !text }); }} onAnswer={(text) => { void send(text); }} /></div> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
             if (inflight.current) throw new Error("当前操作尚未完成，请稍后重试");
             const source = thread; let changed: Awaited<ReturnType<typeof editInsight>> | undefined;
             const ok = await operation(async () => {
@@ -1059,7 +1124,7 @@ export function App() {
   );
 }
 
-function SidebarIcon({ collapsed }: { collapsed: boolean }) {
+function SidebarIcon({ collapsed, side = "left" }: { collapsed: boolean; side?: "left" | "right" }) {
   return (
     <svg
       width="18"
@@ -1072,9 +1137,11 @@ function SidebarIcon({ collapsed }: { collapsed: boolean }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <rect x="3.5" y="4" width="17" height="16" rx="2" />
-      <path d="M9 4v16" />
-      <path d={collapsed ? "m14 9 3 3-3 3" : "m17 9-3 3 3 3"} />
+      <g transform={side === "right" ? "translate(24 0) scale(-1 1)" : undefined}>
+        <rect x="3.5" y="4" width="17" height="16" rx="2" />
+        <path d="M9 4v16" />
+        <path d={collapsed ? "m14 9 3 3-3 3" : "m17 9-3 3 3 3"} />
+      </g>
     </svg>
   );
 }

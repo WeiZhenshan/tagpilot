@@ -53,9 +53,160 @@ public class TsTagStatsService {
     @Autowired private JdbcConnectionFactory connections;
     @Autowired private DataBrokerCryptoService crypto;
     @Autowired private ObjectMapper json;
+    @Autowired private TsPublishedAnalysisCatalog publishedAnalysis;
     @Value("${tagpilot.agent.tag-stats-seconds:20}") private long budgetSeconds = 20;
 
     private final ThreadLocal<Long> deadline = new ThreadLocal<>();
+
+    /** 对话分析的活动查询计划在同一个短 RR 事务中重算；不把发布版本冒充数据快照。 */
+    @SuppressWarnings("unchecked")
+    public Map<String,Object> analysisBatch(Long library, Map<String,RulePayload> populations,
+            List<Map<String,Object>> queries, Set<Long> eligible) {
+        if (queries.isEmpty() || queries.size()>12) throw new IllegalArgumentException("每批须包含1至12个分析节点");
+        Long dataset=ext.selectDatasetIdByLibrary(library);
+        DpResolvedVersion resolved=dataset==null?null:versions.resolve(dataset);
+        if(resolved==null) throw new IllegalArgumentException("数据集没有在线版本");
+        Long version=resolved.getVersionId();
+        DpDataSource source=ext.selectDataSourceByDataset(dataset);
+        if(source==null) throw new IllegalArgumentException("数据源不可用");
+        Set<Long> used=new LinkedHashSet<>();Set<String> ids=new HashSet<>();
+        Map<Long,TlTag> verified=new LinkedHashMap<>();
+        for(Map<String,Object> q:queries) {
+            if(!new HashSet<>(Arrays.asList("id","population","tag_id","operation","dimensions")).containsAll(q.keySet()))throw new IllegalArgumentException("查询包含未开放字段");
+            String id=String.valueOf(q.get("id")),op=String.valueOf(q.get("operation"));
+            if(!id.matches("[a-z][a-z0-9-]{0,30}") || !ids.add(id))throw new IllegalArgumentException("查询标识非法或重复");
+            if(!Arrays.asList("count","sum","avg","min","max","median","distribution").contains(op))throw new IllegalArgumentException("聚合操作未开放");
+            if(!populations.containsKey(String.valueOf(q.getOrDefault("population","target"))))throw new IllegalArgumentException("分析对象不可用");
+            Object raw=q.getOrDefault("dimensions",Collections.emptyList());
+            if(!(raw instanceof List) || ((List<?>)raw).size()>2)throw new IllegalArgumentException("最多按两个维度分组");
+            for(Object v:(List<?>)raw)used.add(analysisTagId(v));
+            if(q.get("tag_id")!=null)used.add(analysisTagId(q.get("tag_id")));
+            if(!"count".equals(op) && q.get("tag_id")==null)throw new IllegalArgumentException("此操作需要指标");
+        }
+        if(used.size()>5)throw new IllegalArgumentException("本轮最多分析5个标签");
+        for(Long tid:used)verified.put(tid,verifiedTag(tid,library,version,eligible));
+        Map<Long,JsonNode> definitions=publishedAnalysis.tags(library,used);
+        Map<String,String> populationSql=new LinkedHashMap<>();
+        for(Map.Entry<String,RulePayload> p:populations.entrySet()) {
+            ruleValidator.validateRule(library,version,p.getValue());ruleValidator.validateCodeValues(library,p.getValue());
+            populationSql.put(p.getKey(),rules.buildSql(version,p.getValue(),IRuleSqlBuilder.MODE_IDS));
+        }
+        String key=quote(rules.resolveObjectKeyColumn(version,populations.values().iterator().next()));
+        String table=quote(tableName(version));
+        deadline.set(System.nanoTime()+15_000_000_000L);
+        try(Connection connection=open(source)) {
+            connection.setReadOnly(true);connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);connection.setAutoCommit(false);
+            try {
+                try(Statement st=connection.createStatement()) {
+                    st.setQueryTimeout(timeout());
+                    try(ResultSet rs=st.executeQuery("select count(*) n,count(distinct "+key+") k from "+table)) {
+                        if(!rs.next() || rs.getLong("n")!=rs.getLong("k"))throw new IllegalArgumentException("客户键存在空值或重复，不能按客户分析");
+                    }
+                }
+                List<Map<String,Object>> facts=new ArrayList<>(),results=new ArrayList<>();
+                Map<String,Long> counts=new LinkedHashMap<>();
+                for(Map.Entry<String,String> p:populationSql.entrySet())counts.put(p.getKey(),cohortCount(connection,p.getValue()));
+                boolean differencingRisk=false;
+                for(long a:counts.values())for(long b:counts.values())if(Math.abs(a-b)>0 && Math.abs(a-b)<SUPPRESS_BELOW)differencingRisk=true;
+                for(Map<String,Object> q:queries) {
+                    String qid=String.valueOf(q.get("id")),op=String.valueOf(q.get("operation")),population=String.valueOf(q.getOrDefault("population","target"));
+                    long total=counts.get(population);String cohort=populationSql.get(population);
+                    List<Long> dims=new ArrayList<>();for(Object d:(List<?>)q.getOrDefault("dimensions",Collections.emptyList()))dims.add(analysisTagId(d));
+                    TlTag metric=q.get("tag_id")==null?null:verified.get(analysisTagId(q.get("tag_id")));
+                    if("distribution".equals(op)) {
+                        if(!dims.isEmpty())throw new IllegalArgumentException("分布查询不另带分组，请使用count交叉统计");
+                        dims.add(metric.getTagId());
+                    }
+                    List<String> columns=new ArrayList<>();List<Translate> labels=new ArrayList<>();
+                    for(Long dim:dims) {
+                        TlTag tag=verified.get(dim);if(!isCategory(tag))throw new IllegalArgumentException("分组维度须为已发布的选项型或布尔型标签");
+                        columns.add(column(version,tag));Map<String,String> codeLabels=new LinkedHashMap<>();definitions.get(dim).path("_code_labels").fields().forEachRemaining(e->codeLabels.put(e.getKey(),e.getValue().asText()));labels.add(new Translate(codeLabels));
+                    }
+                    JsonNode definition=metric==null?null:definitions.get(metric.getTagId());
+                    Governed unit=metric==null?new Governed("人",1):governed(definition.path("unit").isNull()?null:definition.path("unit").asText(null),new BigDecimal(definition.path("unit_scale").asText("1")));
+                    boolean counting=Arrays.asList("count","distribution").contains(op);
+                    Map<String,String> operationLabels=new HashMap<>();operationLabels.put("sum","合计");operationLabels.put("avg","均值");operationLabels.put("min","最小值");operationLabels.put("max","最大值");operationLabels.put("median","中位数");
+                    String metricLabel=counting?"客户数":metric.getTagName()+" · "+operationLabels.get(op);
+                    String factUnit=counting?"人":unit.unit;
+                    List<Map<String,Object>> rows=new ArrayList<>();
+                    String status="AVAILABLE",reason="";
+                    if(total==0){status="EMPTY";reason="当前条件下没有客户，不能计算分布或比例";}
+                    else if(total<SUPPRESS_BELOW||differencingRisk){status="SUPPRESSED";reason="客群不足20人或关联范围存在小差分，统计已抑制";}
+                    else if(!counting && (!isNumeric(metric)||unit.unit==null)){status="MISSING";reason="指标不是数值型或没有登记可用单位";}
+                    else {
+                        if("%".equals(unit.unit)&&"sum".equals(op))throw new IllegalArgumentException("比例不能直接求和，请使用均值或核验分子分母");
+                        String expr=counting?"count(*)":op+"("+column(version,metric)+")";
+                        if("median".equals(op) && !dims.isEmpty())throw new IllegalArgumentException("中位数暂不支持交叉分组");
+                        String prefix=columns.isEmpty()?"":String.join(",",columns)+",";
+                        String sql="select "+prefix+"count(*) n,"+(counting?"count(*)":"count("+column(version,metric)+")")+" nn,"+expr+" v from "+table+" where "+key+" in ("+cohort+")"+(columns.isEmpty()?"":" group by "+String.join(",",columns));
+                        if("median".equals(op)) {
+                            long valid;
+                            try(Statement st=connection.createStatement()) {st.setQueryTimeout(timeout());try(ResultSet rs=st.executeQuery("select count("+column(version,metric)+") n from "+table+" where "+key+" in ("+cohort+")")){rs.next();valid=rs.getLong(1);}}
+                            Double value=median(connection,table,key,cohort,column(version,metric));
+                            if(valid<SUPPRESS_BELOW){status="SUPPRESSED";reason="有效样本不足20人";}
+                            rows.add(map("category",metric.getTagName(),"column",null,"dimension_values",new LinkedHashMap<>(),"n",total,"value",value==null?null:scaled(value,unit.factor)));
+                        } else try(Statement st=connection.createStatement()) {
+                            st.setQueryTimeout(timeout());st.setMaxRows(145);
+                            try(ResultSet rs=st.executeQuery(sql)) {
+                                Set<String> first=new HashSet<>(),second=new HashSet<>();
+                                while(rs.next()) {
+                                    Map<String,Object> values=new LinkedHashMap<>();List<String> names=new ArrayList<>();
+                                    for(int i=0;i<dims.size();i++) {Object v=rs.getObject(i+1);String code=v==null?null:String.valueOf(v);values.put(String.valueOf(dims.get(i)),code);names.add(code==null?"未登记":labels.get(i).label(code));}
+                                    String category=names.isEmpty()?metricLabel:names.get(0),col=names.size()>1?names.get(1):null;
+                                    first.add(category);if(col!=null)second.add(col);
+                                    if(first.size()>12||second.size()>12||rows.size()>=144){status="MISSING";reason="分类超过图表上限，请使用已治理的分组";break;}
+                                    long n=rs.getLong("n"),nn=rs.getLong("nn");Object value=rs.getObject("v");
+                                    if(n<SUPPRESS_BELOW || (!counting&&nn<SUPPRESS_BELOW) || (!dims.isEmpty() && total-n>0 && total-n<SUPPRESS_BELOW)){status="SUPPRESSED";reason="存在小样本、有效样本不足或互补小格，整组统计已抑制";}
+                                    rows.add(map("category",category,"column",col,"dimension_values",values,"n",n,"missing",n-nn,"value",counting?value:scaled(value,unit.factor)));
+                                }
+                            }
+                        }
+                    }
+                    if("AVAILABLE".equals(status)&&counting&&dims.size()==1) {
+                        JsonNode domain=definitions.get(dims.get(0)).path("_code_labels");
+                        if(domain.size()<=12) {
+                            Set<String> observed=new HashSet<>();for(Map<String,Object> row:rows)observed.add(String.valueOf(((Map<?,?>)row.get("dimension_values")).get(String.valueOf(dims.get(0)))));
+                            domain.fields().forEachRemaining(e->{if(!observed.contains(e.getKey()))rows.add(map("category",e.getValue().asText(),"column",null,"dimension_values",map(String.valueOf(dims.get(0)),e.getKey()),"n",0L,"value",0L,"structural_zero",true));});
+                            if(rows.size()>12){status="MISSING";reason="完整分类超过上限，请使用已治理的分组";}
+                        }
+                    }
+                    if(!"AVAILABLE".equals(status))rows.clear();
+                    List<String> fids=new ArrayList<>();String totalId="f-"+qid+"-total";
+                    if("EMPTY".equals(status)){Map<String,Object> emptyFact=analysisFact(totalId,"客群规模",0,"人",0,"analysis."+qid+".total",population,null,Collections.emptyList());emptyFact.put("definition_key","customer_count");facts.add(emptyFact);}
+                    if("AVAILABLE".equals(status)) {
+                        Map<String,Object> totalFact=analysisFact(totalId,"客群规模",total,"人",total,"analysis."+qid+".total",population,null,Collections.emptyList());totalFact.put("definition_key","customer_count");facts.add(totalFact);
+                        int i=0;
+                        for(Map<String,Object> row:rows) {
+                            if(row.get("value")==null)continue;
+                            String fid="f-"+qid+"-"+i++;row.put("fact_id",fid);fids.add(fid);
+                            Map<String,Object> fact=analysisFact(fid,metricLabel+" · "+row.get("category"),row.get("value"),factUnit,counting?total:((Number)row.get("n")).longValue(),"analysis."+qid+"."+i,population,"%".equals(factUnit)?totalId:null,Collections.emptyList());
+                            if(Boolean.TRUE.equals(row.get("structural_zero")))fact.put("evidence",Arrays.asList("已发布分类在完整分组结果中无观测，属于结构零而非缺失或抑制"));
+                            fact.put("definition_key",json.writeValueAsString(map("tag_id",q.get("tag_id"),"operation",op,"dimensions",dims,"values",row.get("dimension_values"))));
+                            fact.put("dimension_values",row.get("dimension_values"));facts.add(fact);
+                            if(counting && !dims.isEmpty()) {
+                                String shareId=fid+"-share";double share=Math.round(((Number)row.get("value")).doubleValue()/total*10000d)/100d;
+                                row.put("share_fact_id",shareId);Map<String,Object> shareFact=analysisFact(shareId,metricLabel+"占比 · "+row.get("category"),share,"%",total,"analysis."+qid+".share."+i,population,totalId,Arrays.asList(fid));shareFact.put("definition_key",fact.get("definition_key")+"|share");facts.add(shareFact);
+                            }
+                        }
+                    }
+                    results.add(map("id",qid,"population",population,"operation",op,"tag_id",q.get("tag_id"),"dimensions",dims,"unit",factUnit,"metric_label",metricLabel,"status",status,"reason",reason,"rows",rows,"fact_ids",fids,"total_fact_id",totalId));
+                }
+                if(facts.size()>300)throw new IllegalArgumentException("事实数量超过上限，请减少查询或使用更粗的分组");
+                return map("snapshot_id",UUID.randomUUID().toString(),"source_version",version,"data_as_of",null,"queried_at",java.time.Instant.now().toString(),"facts",facts,"queries",results,
+                    "quality",map("customer_key_unique",true,"consistent_batch",true,"data_date_known",false,"note","数据日期未知；查询时间不代表业务数据日期"));
+            } finally {connection.rollback();}
+        } catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalArgumentException("聚合取数失败或超过查询预算，请稍后重试");}
+        finally {deadline.remove();}
+    }
+
+    private Long analysisTagId(Object value) {
+        if(!(value instanceof Number)||!String.valueOf(value).matches("[1-9][0-9]*"))throw new IllegalArgumentException("分析标签编号非法");
+        return ((Number)value).longValue();
+    }
+    private Map<String,Object> analysisFact(String id,String label,Object value,String unit,long n,String query,String population,String denominator,List<String> from) {
+        return map("id",id,"metric",query,"label",label,"value",value,"unit",unit,"sample_size",n,"status","AVAILABLE","query_id",query,"evidence",Arrays.asList("来自服务端同批只读聚合；数据日期未知"),
+            "role","target".equals(population)?"OBSERVED":"BENCHMARK","denominator_id",denominator,"derived_from",from,"exclusions_applied",Collections.emptyList());
+    }
 
     /**
      * @param verifiedCount 服务端已核验的客群人数；取数前后都比对，漂移则不产出任何统计
@@ -266,6 +417,9 @@ public class TsTagStatsService {
         TsTagSemantic semantic = semantics.selectByTagId(tagId);
         String unit = semantic == null ? null : semantic.getUnit();
         BigDecimal scale = semantic == null || semantic.getUnitScale() == null ? BigDecimal.ONE : semantic.getUnitScale();
+        return governed(unit,scale);
+    }
+    private Governed governed(String unit,BigDecimal scale) {
         if (unit == null) return new Governed(null, 1d);
         double factor = scale.doubleValue();
         switch (unit) {

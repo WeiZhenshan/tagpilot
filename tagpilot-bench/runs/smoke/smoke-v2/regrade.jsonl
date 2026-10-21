@@ -1,0 +1,39 @@
+{"case_id": "GD-01", "rep": 0, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "GD-01", "rep": 1, "status": "WAITING", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "clarify": true}, "failures": []}
+{"case_id": "GD-01", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-A01", "rep": 0, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-A01", "rep": 1, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-A01", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-A02", "rep": 0, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-A02", "rep": 1, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-A02", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-B02", "rep": 0, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-B02", "rep": 1, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-B02", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "tree": true, "idset": true, "caliber": true, "clarify": true}, "failures": []}
+{"case_id": "SC-B04", "rep": 0, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-B04", "rep": 1, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-B04", "rep": 2, "status": "COMPLETED", "verdict": "RUN_INVALID", "grade": null, "dims": {}, "failures": ["EVIDENCE_INVALID"]}
+{"case_id": "SC-C03", "rep": 0, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-C03", "rep": 1, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-C03", "rep": 2, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-D03", "rep": 0, "status": "WAITING", "verdict": "FAIL", "grade": false, "dims": {"outcome": false, "clarify": true}, "failures": ["outcome"]}
+{"case_id": "SC-D03", "rep": 1, "status": "WAITING", "verdict": "FAIL", "grade": false, "dims": {"outcome": false, "clarify": true}, "failures": ["outcome"]}
+{"case_id": "SC-D03", "rep": 2, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-E03", "rep": 0, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-E03", "rep": 1, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-E03", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-F03", "rep": 0, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-F03", "rep": 1, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-F03", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-G02", "rep": 0, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-G02", "rep": 1, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-G02", "rep": 2, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false, "gap": true}, "failures": ["outcome"]}
+{"case_id": "SC-H01", "rep": 0, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-H01", "rep": 1, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-H01", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-I01", "rep": 0, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-I01", "rep": 1, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-I01", "rep": 2, "status": "COMPLETED", "verdict": "PASS", "grade": true, "dims": {"outcome": true, "gap": true}, "failures": []}
+{"case_id": "SC-J04", "rep": 0, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": false}, "failures": ["outcome"]}
+{"case_id": "SC-J04", "rep": 1, "status": "COMPLETED", "verdict": "FAIL", "grade": false, "dims": {"outcome": true, "tree": false}, "failures": ["INVALID_PLAN:unknown_policy 必须为 EXCLUDE"]}
+{"case_id": "SC-J04", "rep": 2, "status": "WAITING", "verdict": "FAIL", "grade": false, "dims": {"outcome": false, "clarify": true}, "failures": ["outcome"]}

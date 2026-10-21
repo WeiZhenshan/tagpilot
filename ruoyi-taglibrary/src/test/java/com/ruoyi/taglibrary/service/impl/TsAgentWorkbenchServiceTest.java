@@ -37,9 +37,32 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     @Mock ITlTagService tags;
     @Mock TsAgentSkillService agentSkills;
     @Mock TsTagStatsService tagStats;
+    @Mock TsConversationAnalysisService analysis;
     @Mock TsCatalogSnapshotMapper saveSnapshots;
     @InjectMocks TsAgentWorkbenchService service;
     TsAgentThread row;
+    @Test void autoConversationUsesServerContextAndPersistsValidatedPartsBeforeReply() throws Exception {
+        activeTags();Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot");
+        state(map("revision",2,"status","COMPLETED","plan",plan,"messages",new ArrayList<>()));
+        when(analysis.begin(anyMap(),anyMap())).thenReturn(map("plan",plan));
+        when(agentSkills.published()).thenReturn(new ArrayList<>());
+        service.start("owned",map("base_revision",2,"client_request_id","auto-request-0001","intent","auto","message","分析资产结构"));
+        ArgumentCaptor<Map> request=ArgumentCaptor.forClass(Map.class);verify(agent).post(eq("/agent/v2/runs"),request.capture());
+        assertEquals("conversation",request.getValue().get("profile"));assertTrue(request.getValue().containsKey("analysis_context"));
+        clearInvocations(agent);
+        Map<String,Object> part=map("id","part-one","type","text","text","已核验的回答","version",1,"status","COMPLETE");
+        when(agent.get(anyString())).thenReturn(map("status","RUNNING","events",Arrays.asList(map("seq",1,"type","analysis.request","request_id","nonce","tool","submit_insight_result","args",map())),"result",map()));
+        when(analysis.handle(any(),anyMap(),eq("submit_insight_result"),anyMap())).thenReturn(map("ok",true,"parts",Arrays.asList(part),"complete",false));
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            Map<String,Object> result=service.get("owned");
+            assertFalse(result.containsKey("analysis_session"));
+            assertTrue(((List<Map<String,Object>>)result.get("messages")).stream().anyMatch(m->m.get("parts") instanceof List));
+            verify(agent,never()).post(contains("analysis-results"),any());
+            for(org.springframework.transaction.support.TransactionSynchronization callback:org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations())callback.afterCommit();
+            verify(agent).post(contains("analysis-results"),argThat(body->"2".equals(((Map)body).get("owner_id"))));
+        } finally {org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();}
+    }
     @BeforeEach void setup() throws Exception {
         lenient().when(saveSnapshots.lockLibrary(107L)).thenReturn(107L);
         ((LoginUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).setUserId(2L);

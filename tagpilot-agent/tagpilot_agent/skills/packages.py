@@ -28,7 +28,7 @@ def extract_result(text):
     return data, (text[:match.start()] + text[match.end():]).strip()
 
 
-def materialize(directory, packages, selected):
+def materialize(directory, packages, selected=None):
     root = Path(directory).resolve() / '.claude' / 'skills'
     names = set()
     for skill in packages:
@@ -64,7 +64,7 @@ def materialize(directory, packages, selected):
             target.parent.mkdir(parents=True,exist_ok=True)
             target.write_text(resource['content'],encoding='utf-8')
     entry=next((s for s in packages if s['name']==selected),None)
-    if not entry or not entry.get('user_invocable',True):
+    if selected is not None and (not entry or not entry.get('user_invocable',True)):
         raise ValueError('技能不可手动调用')
     return root
 

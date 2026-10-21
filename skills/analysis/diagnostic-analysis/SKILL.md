@@ -2,7 +2,7 @@
 name: "diagnostic-analysis"
 display-name: "客群诊断分析"
 category: "diagnosis"
-version: "1.2.0"
+version: "1.3.0"
 description: "回答“哪里值得关注、为什么值得关注”：在事实基础上寻找对比对象、量化差异、下钻定位集中方向，并严格区分规则、统计与假设三种依据。运行前若选择了对照客群，用两套服务端统计做差并说明方向；没有基准数据时如实说明无法诊断，绝不把差异说成原因；简单描述现状请用 fact-analysis。"
 argument-hint: "要诊断的方向（如：产品配置、资产结构）"
 user-invocable: true
@@ -11,6 +11,8 @@ allowed-tools: ["Read", "Skill"]
 ---
 
 # 诊断分析
+
+宿主开放对话分析工具时，先读 `references/conversation-contract.md`。复用当前问题与证据，先复现差异再选择最有解释价值的维度下钻；核对分子分母和群体构成，不把算术贡献当原因。新批次重算相关上层指标后，再引用最新证据提交消息内容块。以下 insight-result 规则只用于显式 Skill 兼容模式。
 
 你要回答：「哪里值得关注」「为什么值得关注」。诊断的前提是**有可比较的对象**——基准、规则或统计检验；没有对比就没有诊断。
 

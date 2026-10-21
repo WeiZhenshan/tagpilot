@@ -95,9 +95,11 @@ exports[`ECharts 适配器稳定输出 > asset_structure_profile/asset_mix snaps
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -193,9 +195,11 @@ exports[`ECharts 适配器稳定输出 > asset_structure_profile/aum_bands snaps
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -280,9 +284,11 @@ exports[`ECharts 适配器稳定输出 > asset_structure_profile/holder_mix snap
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -379,9 +385,11 @@ exports[`ECharts 适配器稳定输出 > opportunity_priority/channels snapshot 
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -536,9 +544,11 @@ exports[`ECharts 适配器稳定输出 > opportunity_priority/contributions snap
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -623,9 +633,11 @@ exports[`ECharts 适配器稳定输出 > opportunity_priority/exclusions snapsho
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -771,9 +783,11 @@ exports[`ECharts 适配器稳定输出 > opportunity_priority/tier_counts snapsh
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -871,9 +885,11 @@ exports[`ECharts 适配器稳定输出 > product_holding_gap/coverage snapshot 1
   },
   "yAxis": {
     "axisLabel": {
+      "formatter": [Function],
       "interval": 0,
-      "overflow": "break",
-      "width": 90,
+      "overflow": "truncate",
+      "rotate": 0,
+      "width": 140,
     },
     "axisTick": {
       "show": false,
@@ -991,7 +1007,7 @@ exports[`ECharts 适配器稳定输出 > product_holding_gap/gap_matrix snapshot
   "xAxis": {
     "axisLabel": {
       "interval": 0,
-      "overflow": "break",
+      "overflow": "truncate",
       "width": 100,
     },
     "data": [
@@ -1001,6 +1017,10 @@ exports[`ECharts 适配器稳定输出 > product_holding_gap/gap_matrix snapshot
     "type": "category",
   },
   "yAxis": {
+    "axisLabel": {
+      "overflow": "truncate",
+      "width": 90,
+    },
     "data": [
       "理财",
       "基金",

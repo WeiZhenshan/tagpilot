@@ -79,9 +79,7 @@ export function ListboxSelect(props: SingleProps | MultiProps) {
 
   const selectedValues = multiple
     ? props.value
-    : props.value
-      ? [props.value]
-      : [];
+    : [props.value];
   const selectedIndex = multiple
     ? -1
     : options.findIndex((item) => item.value === props.value);

@@ -2,7 +2,7 @@
 name: "chart-intent"
 display-name: "图表意图层"
 category: "chart"
-version: "1.0.0"
+version: "1.1.0"
 description: "为分析结果自动配图：读取数据画像，先判断“要表达什么”（意图），再决定画不画、画哪张，并调用 chart-atomic 产出合法图表 spec。分析技能产出事实卡后需要配图时使用；数据不足时应输出空图表列表并说明原因，不要为凑图而画。用户不应直接调用本技能。"
 argument-hint: "事实列表与想表达的重点（可留空）"
 user-invocable: false
@@ -11,6 +11,8 @@ allowed-tools: ["Read", "Skill"]
 ---
 
 # 图表意图层
+
+对话模式按当前问题选择图型，短回答无需固定图数。宿主提供 submit_insight_result 时，图表用 query_ids 引用已核验查询，不填写数值或 ECharts 配置；二维查询选 heatmap/table，无历史数据不选趋势图。仅视图调整使用 view_only，不能重复取数。
 
 图表不是"美化"，是表达。"选图"的本质是先定**意图**（想说什么），再交给 chart-atomic 实现。
 

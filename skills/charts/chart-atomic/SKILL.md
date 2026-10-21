@@ -2,7 +2,7 @@
 name: "chart-atomic"
 display-name: "图表原子层"
 category: "chart"
-version: "1.0.0"
+version: "1.1.0"
 description: "把一组已核验事实编译为一张符合平台图表协议的 InsightChartSpec（kpi/table/bar/stacked_bar/heatmap/funnel）。当图表意图已明确、需要产出或修订具体图表 spec 时使用；字段规则与对账要求见技能内参考资料，任何字段都不能自行发明。用户不应直接调用本技能。"
 argument-hint: "数据画像、图表意图与事实 id 列表"
 user-invocable: false
@@ -11,6 +11,8 @@ allowed-tools: ["Read", "Skill"]
 ---
 
 # 图表原子层
+
+宿主提供对话工具时，通过 submit_insight_result 的 chart/table 内容块引用 query_ids，由服务端编译 InsightChartSpec；不手写数值。默认支持 kpi/bar/table/heatmap，引用查询须同一批次、单位兼容。占比用 share=true，方向用 orientation；只调整已有图时用 view_only。未开放这些工具时沿用下列 spec 协议。
 
 输入：一组已核验事实、一个图表意图（`intent`）、以及要表达的取数结构；输出：**一张** `InsightChartSpec`。spec 是声明式协议（不是 ECharts option），由平台前端渲染、校验并导出。
 

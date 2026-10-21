@@ -55,4 +55,4 @@ class Budget:
     def announce(self,ctx):
         if self.converging(ctx) and 'converging_at' not in ctx.stats:
             ctx.stats['converging_at']=round(self.elapsed(ctx),3)
-            ctx.emit({'type':'budget.converging','message':'正在整理已确认的条件'})
+            ctx.emit({'type':'budget.converging','message':'正在整理已核验的分析结果' if ctx.request.get('profile') in {'skill','conversation'} else '正在整理已确认的条件'})

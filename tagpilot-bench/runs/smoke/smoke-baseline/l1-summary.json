@@ -1,0 +1,12 @@
+{
+ "layer": "L1",
+ "k": 20,
+ "build_id": "b-6dc6db72-3247-4498-a067-7af1a659a8d7",
+ "cases": 7,
+ "conditions": 22,
+ "atomic_recall_at_k": 1.0,
+ "case_macro_atomic_recall": 1.0,
+ "all_conditions_covered_at_k": 7,
+ "failures": [],
+ "mode": "fast(no-rerank) deterministic"
+}

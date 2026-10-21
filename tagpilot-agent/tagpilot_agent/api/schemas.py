@@ -13,7 +13,12 @@ class ClarificationState(BaseModel):
 
 class RunRequest(BaseModel):
     model_config=ConfigDict(extra='forbid')
-    profile: str = Field(default='audience',pattern=r'^(audience|skill)$')
+    profile: str = Field(default='audience',pattern=r'^(audience|skill|conversation)$')
+    intent: str = Field(default='audience',pattern=r'^(auto|analysis|audience)$')
+    analysis_context: dict = Field(default_factory=dict)
+    reply_to_message_id: str | None = Field(default=None,max_length=100)
+    target_artifact_id: str | None = Field(default=None,max_length=120)
+    target_artifact_version: int | None = Field(default=None,gt=0)
     skill_name: str | None = Field(default=None,pattern=r'^[a-z0-9]+(?:-[a-z0-9]+)*$',max_length=64)
     skill_packages: list[dict] = Field(default_factory=list,max_length=60)
     cohort_context: dict = Field(default_factory=dict)
@@ -47,7 +52,12 @@ class RunRequest(BaseModel):
         if self.profile == 'skill':
             if not self.skill_name or not self.cohort_context.get('plan',{}).get('valid') or self.edited_plan or self.pinned_only:
                 raise ValueError('技能运行需要当前已核验客群上下文')
-        elif self.skill_packages or self.skill_name or self.cohort_context:
+        elif self.profile == 'conversation':
+            if self.skill_name or self.cohort_context or self.edited_plan or self.pinned_only:
+                raise ValueError('自动对话不能伪造技能或客群上下文')
+            if bool(self.target_artifact_id) != bool(self.target_artifact_version):
+                raise ValueError('图表引用须同时包含编号与版本')
+        elif self.skill_packages or self.skill_name or self.cohort_context or self.analysis_context:
             raise ValueError('圈选运行不能注入技能上下文')
         return self
 

@@ -2,6 +2,8 @@
 
 本目录是 TagPilot「分析元 Skill + 图表元 Skill」的**内容源码**。技能内容通过登记台（`/taglibrary/insight-skill`）保存草稿、发布后由工作台原生加载运行；本目录不直接参与运行，只作为版本管理与再制种的来源。
 
+对话分析保留六个顶层元 Skill；`internal/` 增加 analysis-context、data-quality-review、analysis-validation 三个模型内部支撑 Skill（general、user-invocable=false），不增加用户 `/` 入口。自然对话由宿主自动路由，不要求先选技能或标签。见[对话式洞察实施记录](../docs/development/对话式洞察AgenticUI实施记录.md)。
+
 ## 目录结构
 
 ```
@@ -45,6 +47,8 @@ skills/
 约束（由 `TsAgentSkillService.validate` 与 `skills/packages.py` 双重校验）：指令 ≤60000 字；资源仅 `references/`、`scripts/`、`assets/` 下的文本文件，单文件 ≤60000 字、总计 ≤200000 字、≤30 项；不支持命令预处理（`` !`cmd` ``）与脚本执行。
 
 ## 输出契约
+
+`profile=conversation` 使用 `shared/conversation-contract.md`：通过宿主工具发布核验后的消息内容块，不输出另一份未经核验的最终正文。Skill仍只声明Read/Skill，分析MCP工具由宿主独立授权。下面的围栏协议用于显式 `profile=skill` 兼容入口。三个内部Skill是自包含短指令，不要求填充参考文件。
 
 三个分析技能以一条约定收尾：正文之后以 ```insight-result 围栏块输出一个 JSON 对象（status / reasons / facts / cards / charts / followups）。Python 侧抽取该块，Java 侧校验并组装成工作台「洞察」面板可渲染的报告；块缺失或校验失败时降级为纯文本消息。图表 spec 的字段约束见 `charts/chart-atomic/references/spec-guard.md`。
 

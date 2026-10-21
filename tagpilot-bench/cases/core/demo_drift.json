@@ -1,0 +1,62 @@
+[
+ {
+  "case_id": "DM-8005",
+  "p3": 22,
+  "recount": 23
+ },
+ {
+  "case_id": "DM-8010",
+  "p3": 21,
+  "recount": 22
+ },
+ {
+  "case_id": "DM-8015",
+  "p3": 18,
+  "recount": 19
+ },
+ {
+  "case_id": "DM-8020",
+  "p3": 20,
+  "recount": 22
+ },
+ {
+  "case_id": "DM-8025",
+  "p3": 17,
+  "recount": 19
+ },
+ {
+  "case_id": "DM-8030",
+  "p3": 17,
+  "recount": 18
+ },
+ {
+  "case_id": "DM-8049",
+  "p3": 94,
+  "recount": 98
+ },
+ {
+  "case_id": "DM-8054",
+  "p3": 90,
+  "recount": 94
+ },
+ {
+  "case_id": "DM-8063",
+  "p3": 102,
+  "recount": 105
+ },
+ {
+  "case_id": "DM-8068",
+  "p3": 95,
+  "recount": 98
+ },
+ {
+  "case_id": "DM-8091",
+  "p3": 57,
+  "recount": 59
+ },
+ {
+  "case_id": "DM-8096",
+  "p3": 55,
+  "recount": 57
+ }
+]

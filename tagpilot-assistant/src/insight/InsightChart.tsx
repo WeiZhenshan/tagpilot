@@ -10,7 +10,7 @@ import { chartExplanation, toEChartsOption } from "./echartsAdapter";
 
 echarts.use([BarChart, HeatmapChart, FunnelChart, AriaComponent, DatasetComponent, GridComponent, LegendComponent, TitleComponent, TooltipComponent, VisualMapComponent, SVGRenderer, CanvasRenderer]);
 
-type Props = { spec: ChartSpec; facts: Fact[]; context: string; stale?: boolean };
+type Props = { spec: ChartSpec; facts: Fact[]; context: string; stale?: boolean; onSelectCategory?: (category: string) => void };
 const escapeXml = (value: string) => value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c]!);
 
 function nativeSvg(spec: ChartSpec, facts: Fact[], context: string): string {
@@ -47,7 +47,7 @@ async function svgToPng(svg: string): Promise<string> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-export function InsightChart({ spec, facts, context, stale = false }: Props) {
+export function InsightChart({ spec, facts, context, stale = false, onSelectCategory }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const instance = useRef<echarts.EChartsType | null>(null);
   const [renderError, setRenderError] = useState("");
@@ -68,13 +68,16 @@ export function InsightChart({ spec, facts, context, stale = false }: Props) {
       const media = window.matchMedia("(prefers-reduced-motion: reduce)");
       const chart = echarts.init(host.current, undefined, { renderer: "svg" });
       instance.current = chart;
-      const update = () => chart.setOption(toEChartsOption(spec, facts, media.matches), { notMerge: true });
+      const update = () => chart.setOption(toEChartsOption(spec, facts, media.matches, chart.getWidth()), { notMerge: true });
       update();
-      const observer = new ResizeObserver(() => chart.resize()); observer.observe(host.current);
+      if (onSelectCategory && !stale) chart.on("click", (event) => {
+        if (typeof event.name === "string" && spec.series.some((series) => series.points.some((point) => point.category === event.name))) onSelectCategory(event.name);
+      });
+      const observer = new ResizeObserver(() => { chart.resize(); update(); }); observer.observe(host.current);
       media.addEventListener("change", update);
       return () => { observer.disconnect(); media.removeEventListener("change", update); chart.dispose(); instance.current = null; };
     } catch (e) { setRenderError(e instanceof Error ? e.message : "图表校验失败"); }
-  }, [spec, facts, native, validationError]);
+  }, [spec, facts, native, validationError, onSelectCategory, stale]);
 
   async function exportChart(type: "svg" | "png") {
     if (stale || exporting) return;
@@ -89,9 +92,10 @@ export function InsightChart({ spec, facts, context, stale = false }: Props) {
         dataUrl = type === "svg" ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}` : await svgToPng(svg);
       } else {
         detached = document.createElement("div");
-        detached.style.cssText = "position:fixed;left:-10000px;width:720px;height:420px";
+        const height = spec.orientation === "horizontal" ? Math.max(420, new Set(spec.series.flatMap((s) => s.points.map((p) => p.category))).size * 42 + 140) : 420;
+        detached.style.cssText = `position:fixed;left:-10000px;width:720px;height:${height}px`;
         document.body.append(detached);
-        chart = echarts.init(detached, undefined, { renderer: type === "svg" ? "svg" : "canvas", width: 720, height: 420 });
+        chart = echarts.init(detached, undefined, { renderer: type === "svg" ? "svg" : "canvas", width: 720, height });
         const option = toEChartsOption(spec, facts, true);
         const explanation = chartExplanation(spec);
         chart.setOption({ ...option, backgroundColor: "#fff", title: { text: `${spec.title}（${spec.unit}）`, subtext: [context, explanation].filter(Boolean).join("\n"), left: 12, top: 8, textStyle: { fontSize: 14 }, subtextStyle: { fontSize: 11 } },
@@ -113,14 +117,14 @@ export function InsightChart({ spec, facts, context, stale = false }: Props) {
   const rows = spec.series.flatMap((series) => series.points.map((point) => ({ series: series.name, ...point })));
   const table = <div className="insight-table-scroll"><table><caption>{spec.title} · 数值与事实登记表一致</caption>
     <thead><tr><th scope="col">类别</th>{spec.kind === "heatmap" && <th scope="col">层级</th>}<th scope="col">系列</th><th scope="col">{spec.metric_label}（{spec.unit}）</th></tr></thead>
-    <tbody>{rows.map((row) => <tr key={`${row.series}-${row.category}-${row.column}`}><th scope="row">{row.category}</th>{spec.kind === "heatmap" && <td>{row.column}</td>}<td>{row.series}</td><td>{index.has(row.fact_id) ? formatFact(index.get(row.fact_id)!) : "事实缺失"}</td></tr>)}</tbody>
+    <tbody>{rows.map((row) => <tr key={`${row.series}-${row.category}-${row.column}`}><th scope="row">{onSelectCategory && !stale ? <button type="button" onClick={() => onSelectCategory(row.category)}>{row.category}</button> : row.category}</th>{spec.kind === "heatmap" && <td>{row.column}</td>}<td>{row.series}</td><td>{index.has(row.fact_id) ? formatFact(index.get(row.fact_id)!) : "事实缺失"}</td></tr>)}</tbody>
   </table></div>;
   return <section className={`insight-chart insight-chart--${spec.kind}`} aria-label={spec.title}>
     <header><h3>{spec.title}</h3></header>
     {chartExplanation(spec) && <p className="insight-chart-explanation">{chartExplanation(spec)}</p>}
     {validationError || renderError ? <p role="alert" className="insight-error">图表已阻断：{validationError || renderError}</p> : <>
       {spec.kind === "kpi" ? <p className="insight-kpi">{formatFact(index.get(rows[0].fact_id)!)}</p> : native ? table : <>
-        <div ref={host} className="insight-chart-canvas" role="img" aria-label={`${spec.title}，详见下方数据表`} />
+        <div ref={host} className="insight-chart-canvas" style={spec.orientation === "horizontal" ? { minHeight: new Set(rows.map((r) => r.category)).size * 42 + 100 } : undefined} role="img" aria-label={`${spec.title}，详见下方数据表`} />
         <details><summary>查看图表数据与抑制状态</summary>{table}</details>
       </>}
       <div className="insight-chart-actions"><button type="button" disabled={stale || exporting} onClick={() => void exportChart("svg")}>导出 SVG</button><button type="button" disabled={stale || exporting} onClick={() => void exportChart("png")}>导出 PNG</button></div>
