@@ -153,8 +153,8 @@ export function AgentConversation({
   const runs = conversationRuns(thread);
   const summaryMessage = reportMessageId(thread, insightRunId);
   const renderRun = (run: ReturnType<typeof conversationRuns>[number]) => (
-    <RunTimeline key={run.run_id} runId={run.run_id} skillMode={run.profile === "skill" || run.profile === "conversation"}
-      events={run.events} running={run.current && busy(thread)} label={run.label}
+    <RunTimeline key={run.id} runId={run.id} skillMode={run.profile === "skill" || run.profile === "conversation"}
+      events={run.events} running={run.current && busy(thread)} continued={run.continued} label={run.label}
       plan={run.current ? thread?.live_plan || thread?.plan : undefined}
       status={run.current ? thread?.status : undefined} questions={run.current ? thread?.questions : undefined} onReveal={onReveal}>
       {run.current && thread?.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} onCancel={onCancel} /> : null}

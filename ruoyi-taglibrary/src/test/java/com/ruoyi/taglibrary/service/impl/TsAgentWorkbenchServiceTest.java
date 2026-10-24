@@ -480,6 +480,17 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         assertEquals(91L,service.createGroup("owned",confirmation()).get("group_id"));
         verify(threads).executionInsert(anyString(),eq("owned"),eq(2L),eq(2L),eq("h"),eq(91L));
     }
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({"2,h,32", "1,h,0", "2,stale,0"})
+    void createdGroupKeepsOnlyCurrentVerifiedCount(int countedRevision,String countedHash,long expected) throws Exception {
+        when(threads.execution("owned",2L,2L)).thenReturn(null);
+        state(map("revision",2,"status","COMPLETED","plan",map("valid",true,"hash","h"),
+            "count",map("revision",countedRevision,"plan_hash",countedHash,"value",32),"messages",new ArrayList<>()));
+        when(compiler.compileForSave(eq(107L),any())).thenReturn(new RulePayload());
+        doAnswer(i->{((TlObjectGroup)i.getArgument(0)).setGroupId(91L);return 1;}).when(groups).insertObjectGroup(any());
+        service.createGroup("owned",confirmation());
+        verify(groups).insertObjectGroup(argThat(group->group.getUserCount()==expected));
+    }
     @Test void cancelledPartialPlanGetsNewVersionAndInvalidatesCount() throws Exception {
         state(map("revision",2,"status","RUNNING","run_id","r","count",map("value",100),"live_plan",map("tree",map("clause_id","a")),"versions",new ArrayList<>()));
         Map<String,Object> result=service.cancel("owned");

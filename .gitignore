@@ -73,11 +73,9 @@ skills-lock.json
 # 项目参考文档（本地资料，不提交）
 docs/项目参考文档/
 
-# 交付文档的构建中间产物（构建脚本、中间稿与页码映射，不提交）
-docs/交付文档/_build/
-
-# 仍在修订的交付文档，定稿前不纳入版本库
-docs/交付文档/基于标签智能圈客洞察智能体的DataAgent搭建最佳实践-v1.0.docx
+# 本地交付文档与演示验证资料（不提交）
+/docs/交付文档/
+/docs/validation/callback-demo-20261023/
 
 !*/build/*.java
 !*/build/*.html

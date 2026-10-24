@@ -64,6 +64,17 @@ describe("ECharts 适配器稳定输出", () => {
     expect(rows).toEqual([[0, 0, 50], [0, 1, 12.5], [0, 2, -2.5]]);
     expect(rows).toHaveLength(3);
   });
+  it("同客群独立金额指标紧凑展示，跨客群对照保留分组", () => {
+    const facts = asset.facts.filter((f) => ["liquid_amount", "fixed_amount", "investment_amount"].includes(f.id));
+    const spec: ChartSpec = { ...structuredClone(asset.charts[0]), kind: "bar", intent: "compare_categories", unit: "元", orientation: "horizontal", reconcile: [],
+      series: facts.map((f, index) => ({ name: `当前客群 · ${["活期存款", "定期存款", "投资资产"][index]}`, fact_ids: [f.id], points: [{ category: ["活期存款", "定期存款", "投资资产"][index], column: null, fact_id: f.id, value: f.value }] })) };
+    const option = toEChartsOption(spec, facts, true);
+    expect((option.series as { data: unknown[] }[])).toHaveLength(1);
+    expect((option.series as { data: unknown[] }[])[0].data).toEqual(facts.map((f) => f.value));
+    expect((option.xAxis as { name: string }).name).toBe("金额（元）");
+    spec.series[1].name = `全量客户 · ${facts[1].label}`;
+    expect((toEChartsOption(spec, facts, true).series as unknown[])).toHaveLength(3);
+  });
   it("负分贡献不被零下限裁切，轴仍包含零基线", () => {
     const option = toEChartsOption(priority.charts.find((s) => s.id === "contributions")!, priority.facts, true);
     expect((option.xAxis as { min: number }).min).toBe(-10);

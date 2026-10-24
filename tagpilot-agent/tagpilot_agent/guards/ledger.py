@@ -107,6 +107,9 @@ def frozen_errors(previous, proposed, utterance, authorized_requirements=None, b
     if not previous.get('tree'):return []
     old={n['clause_id']:n for n in leaves(input_plan(previous)['tree'])}
     new={n['clause_id']:n for n in leaves(input_plan(proposed)['tree'])}
+    pending={n['clause_id'] for n in leaves(previous['tree']) if n.get('status') in {'NEEDS_DECISION','ASSUMED'} or (
+        n.get('kind','TAG_PREDICATE')=='TAG_PREDICATE' and
+        (not n.get('tag_id') or not n.get('operator') or (n.get('operator') not in {'is_null','is_not_null'} and not n.get('values'))))}
     allowed={cid for cid,n in old.items() if set(n.get('requirement_ids') or [cid]) & set(authorized_requirements or [])}
     removed=set(); errors=[]; replace=False
     old_requirements={r['requirement_id']:r for r in previous.get('intent_plan',{}).get('requirements',[])}
@@ -123,7 +126,10 @@ def frozen_errors(previous, proposed, utterance, authorized_requirements=None, b
         # 澄清问题的回答已经授权修改该需求；“30万”无需再含“改为”。
         # 仅限 MODIFY 且全部目标属于实际提问的旧叶子，不能借此删除或替换其它要求。
         clarification=operation=='MODIFY' and bool(ids) and ids<=allowed
-        if not span.strip() or span not in utterance or (operation!='ADD' and not clarification and not re.search(verbs,span)):
+        # 中断后的普通对话也可以补充未完成条件；只解锁明确指向的待定叶子。
+        supplement=operation=='MODIFY' and bool(ids) and ids<=pending and bool(re.search(r'补充|确认|明确',utterance)) and all(
+            cid in new and new[cid].get('source_span')==span for cid in ids)
+        if not span.strip() or span not in utterance or (operation!='ADD' and not clarification and not supplement and not re.search(verbs,span)):
             errors.append(diagnostic('FROZEN_CLAUSE_CHANGED','变更须引用本轮明确修改或删除的原话'));continue
         if operation=='REPLACE_ALL':replace=True;ids=set(old)
         if operation in {'MODIFY','REMOVE','REPLACE_ALL'}:allowed.update(ids)
