@@ -28,6 +28,9 @@ public class TsConversationAnalysisService {
     private List<Map<String,Object>> rows(Object raw){return raw instanceof List?(List<Map<String,Object>>)raw:new ArrayList<>();}
     private String encode(Object raw){try{return json.writeValueAsString(raw);}catch(Exception e){throw new IllegalArgumentException("分析内容格式错误");}}
     private Map<String,Object> copy(Map<String,Object> raw){try{return json.readValue(encode(raw),Map.class);}catch(Exception e){throw new IllegalArgumentException("分析内容格式错误");}}
+    private boolean stale(Map<String,Object> artifact,Map<String,Object> state) {
+        return artifact.get("base_revision")!=null && !String.valueOf(artifact.get("base_revision")).equals(String.valueOf(state.get("revision")));
+    }
 
     public Map<String,Object> begin(Map<String,Object> state,Map<String,Object> request) {
         Map<String,Object> session=map("queries",new ArrayList<>(),"query_calls",0,"query_ms",0,"blocks",new ArrayList<>(),"started_at",System.currentTimeMillis());
@@ -46,7 +49,9 @@ public class TsConversationAnalysisService {
                 if(reply!=null&&!reply.equals(message.get("id")))continue;
                 List<Map<String,Object>> charts=new ArrayList<>();
                 for(Map<String,Object> part:rows(message.get("parts")))if("chart".equals(part.get("type"))) {
-                    Map<String,Object> a=obj(artifacts.get(part.get("artifact_id")+"@"+part.get("artifact_version")));if(!a.isEmpty())charts.add(a);
+                    Map<String,Object> a=obj(artifacts.get(part.get("artifact_id")+"@"+part.get("artifact_version")));
+                    // 客群已重新核验时，旧图只是历史证据；新问题按当前客群重新分析，不能因自动引用历史图而阻断。
+                    if(!a.isEmpty() && !stale(a,state))charts.add(a);
                 }
                 if(charts.size()==1)session.put("target",copy(charts.get(0)));
                 if(!charts.isEmpty()){session.put("artifact_choices",charts.stream().map(a->map("id",a.get("id"),"version",a.get("version"),"title",obj(a.get("spec")).get("title"))).collect(java.util.stream.Collectors.toList()));break;}
@@ -59,7 +64,7 @@ public class TsConversationAnalysisService {
         if(Boolean.TRUE.equals(scope.get("valid")))session.put("plan",copy(scope));
         Map<String,Object> target=obj(session.get("target"));
         if(!target.isEmpty()) {
-            if(target.get("base_revision")!=null&&!String.valueOf(target.get("base_revision")).equals(String.valueOf(state.get("revision"))))throw new ServiceException("当前客群已变化，请重新分析后再调整图表",409);
+            if(stale(target,state))throw new ServiceException("当前客群已变化，请重新分析后再调整图表",409);
             if(!obj(target.get("plan")).isEmpty())session.put("plan",copy(obj(target.get("plan"))));
             if(!obj(target.get("bundle")).isEmpty())session.put("bundle",copy(obj(target.get("bundle"))));
             if(target.get("query_plan") instanceof List)session.put("queries",copy(map("v",target.get("query_plan"))).get("v"));

@@ -97,4 +97,20 @@ class TsConversationAnalysisServiceTest {
         Map<String,Object> artifact=(Map<String,Object>)((Map)state.get("analysis_artifacts")).values().iterator().next();state.put("revision",3);
         assertThrows(com.ruoyi.common.exception.ServiceException.class,()->service.begin(state,map("target_artifact_id",artifact.get("id"),"target_artifact_version",1)));
     }
+    @Test void latestChartOnCurrentRevisionStaysAvailableAsImplicitTarget() {
+        query();service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(chart())));
+        Map<String,Object> artifact=(Map<String,Object>)((Map)state.get("analysis_artifacts")).values().iterator().next();
+        state.put("messages",Arrays.asList(map("id","a1","role","assistant","parts",Arrays.asList(map("id","p1","type","chart","artifact_id",artifact.get("id"),"artifact_version",artifact.get("version"))))));
+        Map<String,Object> session=service.begin(state,map());
+        assertFalse(((Map<String,Object>)session.get("target")).isEmpty());
+    }
+    @Test void newQuestionAfterCohortRevalidationSkipsStaleChartInsteadOfFailing() {
+        query();service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(chart())));
+        Map<String,Object> artifact=(Map<String,Object>)((Map)state.get("analysis_artifacts")).values().iterator().next();
+        state.put("messages",Arrays.asList(map("id","a1","role","assistant","parts",Arrays.asList(map("id","p1","type","chart","artifact_id",artifact.get("id"),"artifact_version",artifact.get("version"))))));
+        state.put("revision",3);
+        Map<String,Object> session=service.begin(state,map());
+        assertFalse(session.containsKey("target"));
+        assertFalse(session.containsKey("artifact_choices"));
+    }
 }

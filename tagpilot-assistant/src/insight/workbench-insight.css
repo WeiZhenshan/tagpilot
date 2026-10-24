@@ -3,13 +3,13 @@
 .insight-chips { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 8px; }
 .insight-entry, .insight-summary { padding: 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
 .insight-entry p, .insight-summary p { margin: 0 0 8px; }
-.insight-right { display: flex; flex-direction: column; width: 370px; min-width: 0; flex-shrink: 0; border-left: 1px solid var(--border); background: #fcfcfd; }
+.insight-right { display: flex; flex-direction: column; width: var(--right-width, 370px); min-width: 0; flex-shrink: 0; border-left: 0; background: #fcfcfd; container-type: inline-size; container-name: rightpanel; }
 .insight-sidebar-heading { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
 .insight-sidebar-heading > button { white-space: nowrap; }
 .report-panel-toggle { margin-left: auto; }
 .topbar-status + .report-panel-toggle { margin-left: 0; }
 .right-panel-collapsed .insight-right { display: none; }
-.insight-right--report { width: clamp(370px, 44vw, 620px); }
+.insight-right--report { width: var(--right-width, clamp(370px, 44vw, 620px)); }
 .insight-sidebar-heading button[aria-pressed="true"] { background: #e8ecf2; color: #17243a; }
 .insight-right .plan-panel { border-left: 0; width: 100%; flex: 1; }
 .insight-right .insight-report { width: 100%; padding: 24px; overflow-y: auto; min-height: 0; flex: 1; }
@@ -71,11 +71,25 @@
 .conversation-turn { min-width: 0; }
 .conversation-turn > .run-timeline { margin: -4px 0 20px; padding: 8px 0; }
 .conversation-turn > .insight-summary { margin: -8px 0 24px; padding: 12px 0 16px; }
-@media (min-width: 761px) and (max-width: 1150px) { .insight-right:not(.insight-right--report) { width: 300px; } }
-@media (min-width: 761px) and (max-width: 900px) { .insight-right--report { width: 340px; } }
+@media (min-width: 761px) and (max-width: 1150px) { .insight-right:not(.insight-right--report) { width: var(--right-width, 300px); } }
+@media (min-width: 761px) and (max-width: 900px) { .insight-right--report { width: var(--right-width, 340px); } }
 @media (max-width: 760px) { .skill-menu { left: 12px; right: 12px; bottom: calc(100% - 8px); } .skill-menu-heading { padding: 10px 12px 4px; } }
 .skill-run-records { padding-left: 20px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
 .skill-run-records li + li { margin-top: 8px; }
 .insight-followups { margin-top: 16px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
 .insight-followups h3 { margin: 0 0 8px; font-size: 13px; }
 .insight-followups ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; color: var(--muted); }
+
+/* 右侧面板拖窄时收紧留白；拖宽时把报表摘要还原成两列，利用多出来的横向空间。 */
+@container rightpanel (max-width: 330px) {
+  .insight-sidebar-heading { padding: 10px 12px; gap: 6px; }
+  .insight-right .insight-report { padding: 18px 14px; }
+  .insight-right .insight-report-header h1 { font-size: 17px; }
+  .panel-heading { padding: 14px 14px; }
+  .plan-scroll { padding: 14px 12px; }
+}
+@container rightpanel (min-width: 540px) {
+  .insight-right .insight-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .insight-right .insight-kpi:not(:first-child) { border-left: 1px solid var(--border); }
+  .insight-right .insight-findings dl { grid-template-columns: 110px minmax(0, 1fr); gap: 8px 14px; }
+}
