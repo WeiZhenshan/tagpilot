@@ -879,6 +879,32 @@ test("waiting questions stay inside the timeline and reduced motion preserves re
   await expect(current.getByRole("button", { name: "提交并继续" })).toBeEnabled();
 });
 
+test("completed analysis shows the saved plan instead of an intermediate draft", async ({ page }) => {
+  t.run_profile = "conversation";
+  t.live_plan = structuredClone(t.plan);
+  t.live_plan.valid = false;
+  t.live_plan.diagnostics = [{ code: "FROZEN_CLAUSE_CHANGED", clause_id: "a", message: "本轮未授权修改该条件，请恢复原值" }];
+  await page.goto("/agent-ui/?threadId=test-thread");
+  await expect(page.getByRole("complementary", { name: "圈选方案", exact: true })).toContainText("已核验");
+  await expect(page.getByRole("button", { name: "统计人数", exact: true })).toBeEnabled();
+  await expect(page.getByText("本轮未授权修改该条件，请恢复原值")).toHaveCount(0);
+});
+
+test("auto-routed conversation keeps business questions available", async ({ page }) => {
+  t.status = "WAITING"; t.run_profile = "conversation"; t.run_id = "auto-audience"; t.interrupt_id = "choice";
+  t.questions = [{ clause_id: "a", prompt: "资金流入采用哪个口径？", options: ["异名跨行转入", "全部跨行转入"] }];
+  t.events.push({ seq: 4, type: "run.waiting", message: "等待业务选择" });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const current = page.getByRole("region", { name: "第 1 轮处理记录", exact: true });
+  await expect(current.locator(".run-heading")).toContainText("等待业务选择");
+  await expect(current.locator(".ask-card")).toBeVisible();
+  await current.getByRole("button", { name: "异名跨行转入", exact: true }).click();
+  await expect(current.getByRole("button", { name: "提交并继续" })).toBeEnabled();
+  await page.reload();
+  await page.getByRole("button", { name: "在对话中确认" }).click();
+  await expect(current.getByRole("button", { name: "异名跨行转入", exact: true })).toBeFocused();
+});
+
 test("cancelled and failed operations stop spinning and keep their replay", async ({ page }) => {
   t.status = "CANCELLED"; t.events = [{ seq: 1, type: "tool.started", tool: "find_tags" }, { seq: -1, type: "run.cancelled" }];
   await page.goto("/agent-ui/?threadId=test-thread");

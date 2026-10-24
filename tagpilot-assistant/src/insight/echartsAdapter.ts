@@ -47,15 +47,21 @@ export function toEChartsOption(spec: ChartSpec, facts: Fact[], reducedMotion = 
     };
   }
   const horizontal = spec.orientation === "horizontal";
+  // 同一客群的独立指标各有一个点，合并展示以免产生空柱位与 NaN 朗读。
+  const population = spec.series[0].name.split(" · ")[0];
+  const independent = spec.kind === "bar" && spec.series.length > 1 && labels.length === spec.series.length && spec.series.every((s) =>
+    s.points.length === 1 && s.name.startsWith(`${population} · `));
   const crowded = !horizontal && labels.length > 5;
-  const labelWidth = horizontal ? Math.min(140, width * .32) : crowded ? 90 : Math.max(16, Math.min(110, (width - 90) / labels.length - 8));
+  const labelWidth = horizontal ? Math.min(independent ? 240 : 140, width * .32) : crowded ? 90 : Math.max(16, Math.min(110, (width - 90) / labels.length - 8));
   // 长机构名通常共享银行前缀，保留末尾的分支机构名；tooltip和数据表仍使用完整分类。
   const categoryAxis = { type: "category", data: labels, axisLabel: { interval: 0, width: labelWidth, overflow: "truncate", rotate: crowded ? 55 : 0,
     formatter: (value: string) => value.length * 12 > labelWidth ? `…${value.slice(-Math.max(1, Math.floor(labelWidth / 12) - 1))}` : value }, axisTick: { show: false } };
-  const valueAxis = { type: "value", min: Math.min(0, ...numericValues), ...(spec.unit === "%" ? { max: 100 } : {}), name: `${spec.metric_label}（${spec.unit}）`, nameLocation: "middle", nameGap: 28, splitLine: { lineStyle: { color: "#e7e9ed" } } };
-  return { ...base, grid: { left: 12, right: 28, top: footnotes ? 55 : 24, bottom: 66, containLabel: true },
+  const metricLabel = independent ? (["元", "CNY"].includes(spec.unit) ? "金额" : "指标值") : spec.metric_label;
+  const valueAxis = { type: "value", min: Math.min(0, ...numericValues), ...(spec.unit === "%" ? { max: 100 } : {}), name: `${metricLabel}（${spec.unit}）`, nameLocation: "middle", nameGap: 28, splitLine: { lineStyle: { color: "#e7e9ed" } } };
+  return { ...base, ...(independent ? { legend: { show: false } } : {}), grid: { left: 12, right: 28, top: footnotes ? 55 : 24, bottom: 66, containLabel: true },
     xAxis: horizontal ? valueAxis : categoryAxis, yAxis: horizontal ? { ...categoryAxis, inverse: true } : valueAxis,
-    series: spec.series.map((s) => ({ name: s.name, type: "bar", ...(spec.kind === "stacked_bar" ? { stack: "composition" } : {}),
+    series: independent ? [{ name: population, type: "bar", barMaxWidth: 32,
+      data: labels.map((category) => spec.series.find((s) => s.points[0].category === category)!.points[0].value), emphasis: { focus: "series" } }] : spec.series.map((s) => ({ name: s.name, type: "bar", ...(spec.kind === "stacked_bar" ? { stack: "composition" } : {}),
       barMaxWidth: 32, data: labels.map((category) => s.points.find((p) => p.category === category)?.value ?? null),
       emphasis: { focus: "series" } })),
   };

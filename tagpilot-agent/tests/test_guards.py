@@ -156,6 +156,27 @@ def test_modify_requires_verbatim_current_utterance():
     assert not frozen_errors(old, new, '金额改为60万')
 
 
+def test_supplement_after_interruption_only_unlocks_named_pending_clause():
+    old = {'tree': {'logic': 'AND', 'children': [
+        {'kind': 'TAG_PREDICATE', 'clause_id': 'a', 'source_span': '大额转入', 'status': 'NEEDS_DECISION',
+         'tag_id': 1, 'values': []},
+        {'kind': 'TAG_PREDICATE', 'clause_id': 'b', 'source_span': '未持有理财', 'status': 'BOUND',
+         'tag_id': 2, 'operator': '=', 'values': ['0']}]}}
+    new = copy.deepcopy(old)
+    new['tree']['children'][0].update(source_span='近30天转入至少50万元', operator='>=', values=['500000'])
+    new['intent_changes'] = [{'operation': 'MODIFY', 'clause_ids': ['a'], 'source_span': '近30天转入至少50万元'}]
+    utterance = '补充确认：近30天转入至少50万元，未持有理财。'
+    assert not frozen_errors(old, new, utterance)
+    assert frozen_errors(old, new, '请继续')
+    new['tree']['children'][1].update(source_span='当前持有理财', values=['1'])
+    new['intent_changes'].append({'operation': 'MODIFY', 'clause_ids': ['b'], 'source_span': '当前持有理财'})
+    assert any(e['clause_id'] == 'b' for e in frozen_errors(old, new, utterance+'当前持有理财'))
+    new = copy.deepcopy(old)
+    new['tree']['children'].pop()
+    new['intent_changes'] = [{'operation': 'REMOVE', 'clause_ids': ['b'], 'source_span': '近30天转入至少50万元'}]
+    assert frozen_errors(old, new, utterance)
+
+
 def test_remove_requires_removal_wording_and_current_utterance():
     old = {'tree': {'logic': 'AND', 'children': [
         {'kind': 'TAG_PREDICATE', 'clause_id': 'a', 'source_span': '金额50万', 'tag_id': 1, 'operator': '>', 'values': ['500000']},

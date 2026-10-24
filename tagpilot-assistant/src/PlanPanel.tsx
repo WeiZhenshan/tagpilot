@@ -19,7 +19,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   onDiscuss: (message: string) => void; onCancel: () => void; onCount: () => void; onCreate: (name: string) => void;
   onPreview: () => void; onOpenGroup: (id: number) => void;
 }) {
-  const active = thread?.live_plan || thread?.plan;
+  const active = busy(thread) ? thread?.live_plan || thread?.plan : thread?.plan;
   const [draft, setDraft] = useState<Plan>();
   const [dirty, setDirty] = useState(false);
   const [version, setVersion] = useState<number>();

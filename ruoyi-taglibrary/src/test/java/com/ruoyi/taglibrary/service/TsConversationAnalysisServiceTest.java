@@ -50,6 +50,17 @@ class TsConversationAnalysisServiceTest {
         assertEquals("资产均值为200000元。",((List<Map<String,Object>>)result.get("parts")).get(0).get("text"));
         assertEquals(false,result.get("complete"));assertEquals(1,((Map)state.get("analysis_artifacts")).size());
     }
+    @Test void verifiedMetricWindowCanBeNamedWithoutAllowingUnboundValues() {
+        ((List<Map<String,Object>>)bundle.get("facts")).get(1).put("label","近30天异名跨行转入金额 · 均值");
+        query();
+        Map<String,Object> result=service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(
+            map("type","text","text","近30天异名跨行转入金额均值为{fact:f-a-0}。")),"complete",false));
+        assertEquals("近30天异名跨行转入金额均值为200000元。",((List<Map<String,Object>>)result.get("parts")).get(0).get("text"));
+        assertThrows(IllegalArgumentException.class,()->service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(
+            map("type","text","text","近30天异名跨行转入金额为999万元")))));
+        assertThrows(IllegalArgumentException.class,()->service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(
+            map("type","text","text","近7天异名跨行转入金额为{fact:f-a-0}")))));
+    }
     @Test void chartViewChangeKeepsEvidenceAndOriginalVersionWithoutQuerying() {
         query();service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(chart())));
         Map<String,Object> artifacts=(Map<String,Object>)state.get("analysis_artifacts");Map<String,Object> original=(Map<String,Object>)artifacts.values().iterator().next();

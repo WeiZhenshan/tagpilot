@@ -212,7 +212,13 @@ public class TsConversationAnalysisService {
             match.appendReplacement(out,Matcher.quoteReplacement(value+(suppliedUnit?"":unit)));
         }
         match.appendTail(out);
-        if(Pattern.compile("[0-9０-９]|[零一二三四五六七八九十百千万亿两]+(?:成|人|元|万元|亿元)").matcher(REF.matcher(text).replaceAll("")).find())throw new IllegalArgumentException("业务数字必须使用{fact:id}引用");
+        String unbound=REF.matcher(text).replaceAll("");
+        // 已核验指标名中的“近30天”等数字属于口径，不能迫使模型改写为“近一个月”。
+        Set<String> metricNames=new TreeSet<>((a,b)->a.length()==b.length()?a.compareTo(b):Integer.compare(b.length(),a.length()));
+        for(Map<String,Object> fact:facts.values())if(Arrays.asList("OBSERVED","BENCHMARK").contains(fact.get("role")) && fact.get("label") instanceof String)
+            for(String name:((String)fact.get("label")).split("\\s*·\\s*"))if(name.length()>=4)metricNames.add(name);
+        for(String name:metricNames)unbound=unbound.replace(name,"");
+        if(Pattern.compile("[0-9０-９]|[零一二三四五六七八九十百千万亿两]+(?:成|人|元|万元|亿元)").matcher(unbound).find())throw new IllegalArgumentException("业务数字必须使用{fact:id}引用");
         return out.toString();
     }
     private Map<String,Object> submit(TsAgentThread row,Map<String,Object> state,Map<String,Object> session,Map<String,Object> args) {

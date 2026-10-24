@@ -43,4 +43,61 @@ describe("对话轮次归属", () => {
     thread.messages = [];
     expect(conversationRuns(thread).every((run) => !run.afterMessageId)).toBe(true);
   });
+  it("同一运行多次确认时按输入拆分步骤，只有最后一段承接当前交互", () => {
+    const thread = fixture();
+    thread.status = "WAITING";
+    thread.events = [
+      { seq: 1, type: "run.started" }, { seq: 2, type: "run.waiting" },
+      { seq: 3, type: "run.started" }, { seq: 4, type: "run.waiting" },
+      { seq: 5, type: "run.started" }, { seq: 6, type: "run.waiting" },
+    ];
+    thread.messages.push(
+      { id: "a2", role: "assistant", run_id: "skill", text: "请选择指标", created_at: "" },
+      { id: "u3", role: "user", text: "最高客户等级", created_at: "" },
+      { id: "a3", role: "assistant", run_id: "skill", text: "请选择档位", created_at: "" },
+      { id: "u4", role: "user", run_id: "skill", text: "A和B", created_at: "" },
+    );
+    const runs = conversationRuns(thread);
+    expect(runs.map((run) => run.afterMessageId)).toEqual(["u1", "u2", "u3", "u4"]);
+    expect(runs.map((run) => run.events.map((event) => event.seq))).toEqual([[], [1, 2], [3, 4], [5, 6]]);
+    expect(runs.map((run) => run.current)).toEqual([false, false, false, true]);
+    expect(new Set(runs.map((run) => run.id)).size).toBe(4);
+    thread.status = "COMPLETED";
+    thread.run_history!.push({ run_id: "skill", events: thread.events });
+    thread.run_id = "next"; thread.events = [];
+    expect(conversationRuns(thread).map((run) => run.afterMessageId)).toEqual(["u1", "u2", "u3", "u4"]);
+  });
+  it("恢复后新事件尚未到达时仍在补充输入下方显示当前处理记录", () => {
+    const thread = fixture();
+    thread.events = [{ seq: 1, type: "run.waiting" }];
+    thread.messages.push(
+      { id: "a2", role: "assistant", run_id: "skill", text: "请确认", created_at: "" },
+      { id: "answer", role: "user", text: "已确认", created_at: "" },
+    );
+    const runs = conversationRuns(thread);
+    expect(runs.at(-2)?.events).toEqual(thread.events);
+    expect(runs.at(-1)).toMatchObject({ afterMessageId: "answer", current: true, events: [] });
+  });
+  it("旧事件缺少终止标记时使用补充消息的时间划分记录", () => {
+    const thread = fixture();
+    thread.events = [
+      { seq: 1, type: "tool.started", occurred_at: Date.parse("2026-09-30T00:00:03Z") / 1000 },
+      { seq: 2, type: "tool.completed", occurred_at: Date.parse("2026-09-30T00:00:06Z") / 1000 },
+    ];
+    thread.messages.push({ id: "answer", role: "user", text: "继续核对", created_at: "2026-09-30T00:00:05Z" });
+    const runs = conversationRuns(thread);
+    expect(runs.at(-2)?.events.map((event) => event.seq)).toEqual([1]);
+    expect(runs.at(-1)?.events.map((event) => event.seq)).toEqual([2]);
+  });
+  it("没有分段信息的旧长对话不生成空白历史记录", () => {
+    const thread = fixture();
+    thread.run_history = [];
+    thread.messages = Array.from({ length: 30 }, (_, index) => ({
+      id: `old-${index}`, role: index % 2 === 0 ? "user" : "assistant",
+      text: "旧对话", created_at: "2026-09-30T00:00:00Z",
+    }));
+    const runs = conversationRuns(thread);
+    expect(runs).toHaveLength(1);
+    expect(runs[0]).toMatchObject({ afterMessageId: "old-28", events: thread.events, current: true });
+  });
 });

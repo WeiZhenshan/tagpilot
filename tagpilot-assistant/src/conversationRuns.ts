@@ -1,4 +1,22 @@
-import { busy, type Thread } from "./agentTypes";
+import { busy, type AgentMessage, type RunEvent, type Thread } from "./agentTypes";
+
+function turnEvents(events: RunEvent[], inputs: AgentMessage[]) {
+  let start = 0;
+  return inputs.map((_, index) => {
+    if (index === inputs.length - 1) return events.slice(start);
+    // resume 沿用 run_id；等待/失败事件是前一次输入的结束位置。
+    const stop = events.findIndex((event, position) => position >= start &&
+      ["run.waiting", "run.failed", "run.interrupted", "run.cancelled"].includes(event.type));
+    const nextTime = Date.parse(inputs[index + 1].created_at) / 1000;
+    const timed = events.findIndex((event, position) => position >= start &&
+      event.occurred_at !== undefined && event.occurred_at >= nextTime);
+    // 兼容没有终止事件的旧记录；无法分段时让记录跟随最新输入。
+    const end = stop >= 0 ? stop + 1 : timed >= 0 ? timed : start;
+    const result = events.slice(start, end);
+    start = end;
+    return result;
+  });
+}
 
 export function conversationRuns(thread: Thread | null) {
   if (!thread) return [];
@@ -17,17 +35,20 @@ export function conversationRuns(thread: Thread | null) {
     // 兼容早期未保存 run_id 的消息；不影响有明确归属的新消息。
     return response >= 0 ? users.filter((position) => position < response).at(-1) ?? response : users[index] ?? -1;
   });
-  return runs.map((run, index) => {
-    let anchor = anchors[index];
+  return runs.flatMap((run, index) => {
+    const anchor = anchors[index];
     const end = anchors.slice(index + 1).find((position) => position > anchor) ?? messages.length;
-    // 同一次运行的业务补充属于本轮，记录跟随最后一次补充，仍在答复之前。
-    for (let position = anchor + 1; anchor >= 0 && position < end; position++) {
-      const message = messages[position];
-      if (message.role === "assistant") break;
-      if (message.role === "user" && (!message.run_id || message.run_id === run.run_id)) anchor = position;
-    }
-    return { ...run, afterMessageId: messages[anchor]?.id };
-  });
+    const inputs = anchor < 0 ? [] : messages.slice(anchor, end).filter((message) =>
+      message.role === "user" && (!message.run_id || message.run_id === run.run_id));
+    if (!inputs.length) return [{ ...run, id: run.run_id, continued: false, afterMessageId: messages[anchor]?.id }];
+    const events = turnEvents(run.events, inputs);
+    // 旧快照可能只有整段事件；不为无法还原步骤的历史输入生成空记录。
+    return inputs.map((message, turn) => ({
+      ...run, id: `${run.run_id}:${message.id}`, afterMessageId: message.id,
+      events: events[turn], continued: turn < inputs.length - 1,
+      current: run.current && turn === inputs.length - 1,
+    })).filter((turn) => !turn.continued || turn.events.length > 0);
+  }).map((run, index) => ({ ...run, label: `第 ${index + 1} 轮处理记录` }));
 }
 
 export function reportMessageId(thread: Thread | null, runId?: string) {
