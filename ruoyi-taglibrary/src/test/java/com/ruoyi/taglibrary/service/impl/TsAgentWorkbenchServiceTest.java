@@ -564,6 +564,28 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         assertEquals(true,archived.get("archived"));
         assertEquals(false,archived.get("pinned"));
     }
+    @Test void firstMessageAsksAgentForConciseTitle() {
+        activeTags();row.setTitle("新的圈选");
+        when(agent.postWithTimeout(eq("/agent/v2/title"),any(),eq(5000))).thenReturn(map("title","跨行资金转入客户"));
+        Map<String,Object> result=service.start("owned",map("base_revision",2,"client_request_id","title-request-0001","message","帮我圈选近30天有跨行资金转入的客户"));
+        assertEquals("跨行资金转入客户",result.get("title"));
+        assertEquals("跨行资金转入客户",row.getTitle());
+        verify(agent).postWithTimeout(eq("/agent/v2/title"),argThat(body->"帮我圈选近30天有跨行资金转入的客户".equals(((Map)body).get("message"))),eq(5000));
+    }
+    @Test void firstMessageFallsBackWhenTitleEndpointFails() {
+        activeTags();row.setTitle("新的圈选");
+        when(agent.postWithTimeout(eq("/agent/v2/title"),any(),eq(5000))).thenThrow(new ServiceException("编排层暂不可用"));
+        Map<String,Object> result=service.start("owned",map("base_revision",2,"client_request_id","title-request-0002","message","帮我圈选高净值客户"));
+        assertEquals("帮我圈选高净值客户",result.get("title"));
+        verify(agent).post(eq("/agent/v2/runs"),any());
+    }
+    @Test void laterMessagesDoNotRegenerateTitle() throws Exception {
+        activeTags();row.setTitle("已有标题");
+        state(map("revision",2,"status","COMPLETED","messages",Arrays.asList(map("id","m1","role","user","text","首条")),"events",new ArrayList<>()));
+        Map<String,Object> result=service.start("owned",map("base_revision",2,"client_request_id","title-request-0003","message","继续补充条件"));
+        assertEquals("已有标题",result.get("title"));
+        verify(agent,never()).postWithTimeout(eq("/agent/v2/title"),any(),anyInt());
+    }
     @Test void deleteRequiresArchivedIdleConversation() throws Exception {
         assertThrows(ServiceException.class,()->service.delete("owned"));
         verify(agent,never()).delete(anyString());

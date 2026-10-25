@@ -14,14 +14,16 @@ import com.ruoyi.common.exception.ServiceException;
 public class TsAgentClient {
     @Value("${tag.agent-url:http://127.0.0.1:8092}") private String baseUrl;
     @Value("${tag.runtime-token:}") private String token;
-    public Map<String, Object> get(String path) { return exchange(path, HttpMethod.GET, null); }
-    public Map<String, Object> post(String path, Object body) { return exchange(path, HttpMethod.POST, body); }
-    public Map<String, Object> delete(String path) { return exchange(path, HttpMethod.DELETE, null); }
+    public Map<String, Object> get(String path) { return exchange(path, HttpMethod.GET, null, 3000, 60000); }
+    public Map<String, Object> post(String path, Object body) { return exchange(path, HttpMethod.POST, body, 3000, 60000); }
+    /** 短读超时调用（如首条消息标题总结），避免拖慢主流程过久。 */
+    public Map<String, Object> postWithTimeout(String path, Object body, int readTimeoutMs) { return exchange(path, HttpMethod.POST, body, 3000, readTimeoutMs); }
+    public Map<String, Object> delete(String path) { return exchange(path, HttpMethod.DELETE, null, 3000, 60000); }
     @SuppressWarnings("unchecked")
-    private Map<String, Object> exchange(String path, HttpMethod method, Object body) {
+    private Map<String, Object> exchange(String path, HttpMethod method, Object body, int connectTimeoutMs, int readTimeoutMs) {
         if (token == null || token.isEmpty()) throw new ServiceException("编排层服务认证未配置");
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(3000); factory.setReadTimeout(60000);
+        factory.setConnectTimeout(connectTimeoutMs); factory.setReadTimeout(readTimeoutMs);
         HttpHeaders headers = new HttpHeaders(); headers.setContentType(MediaType.APPLICATION_JSON); headers.setBearerAuth(token);
         try {
             Map<String, Object> response = new RestTemplate(factory).exchange(baseUrl + path, method, new HttpEntity<>(body, headers), Map.class).getBody();
