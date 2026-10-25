@@ -42,6 +42,12 @@ class TsConversationAnalysisServiceTest {
     Map<String,Object> query(){return service.handle(row,state,"query_aggregates",map("queries",Arrays.asList(map("id","a","tag_id",1,"operation","avg"))));}
     Map<String,Object> chart(){return map("type","chart","title","机构资产均值","query_ids",Arrays.asList("a"),"kind","bar");}
 
+    @Test void bindsWanYuanAndCountLiteralsToFactReferences() {
+        query();
+        Map<String,Object> result=service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(
+            map("type","text","text","资产均值为20万元，覆盖240名客户。")),"complete",false));
+        assertEquals("资产均值为200000元，覆盖240人客户。",((List<Map<String,Object>>)result.get("parts")).get(0).get("text"));
+    }
     @Test void publishesValidatedBlocksAndRejectsUnboundNumbersWithoutPartialMutation() {
         query();
         assertThrows(IllegalArgumentException.class,()->service.handle(row,state,"submit_insight_result",map("blocks",Arrays.asList(chart(),map("type","text","text","共999人")))));
