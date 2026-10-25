@@ -8,6 +8,29 @@ from tagpilot_agent.tools.analysis import QueryAggregates, dispatch
 from tests.test_sdk_integration import gateway, manager_for, request_for
 
 
+def test_analysis_dispatch_reads_wait_cap_env_without_import_error(monkeypatch):
+    from tagpilot_agent.runtime.budget import Budget
+    from tagpilot_agent.runtime.run_context import RunContext
+    import time
+
+    monkeypatch.setenv('TAG_AGENT_ANALYSIS_WAIT_S', '88')
+
+    async def scenario():
+        request = request_for('analysis-os-import', profile='conversation')
+        ctx = RunContext(request, None, lambda e: None, lambda: False)
+        ctx.started = time.monotonic()
+        ctx.budget = Budget.from_env(skill=True)
+        pending = asyncio.create_task(dispatch(ctx, 'get_analysis_context', {}))
+        await asyncio.sleep(0.02)
+        for future in ctx.analysis_pending.values():
+            if not future.done():
+                future.set_result({'ok': True, 'scope_ready': False})
+        result = await asyncio.wait_for(pending, 1)
+        assert json.loads(result['content'][0]['text'])['ok'] is True
+
+    asyncio.run(scenario())
+
+
 def test_analysis_query_rejects_sql_and_extra_fields():
     with pytest.raises(ValidationError):
         QueryAggregates.model_validate({'queries': [{'id': 'aum', 'operation': 'sum', 'tag_id': 1, 'sql': 'select *'}]})
