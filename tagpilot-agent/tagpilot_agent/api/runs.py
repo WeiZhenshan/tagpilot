@@ -44,6 +44,18 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
         try:return runtime()['store'].get(rid,owner)
         except KeyError:raise HTTPException(404,'运行不存在')
 
+    from pydantic import BaseModel, ConfigDict, Field
+    from tagpilot_agent.runtime import title_model
+
+    class TitleRequest(BaseModel):
+        model_config=ConfigDict(extra='forbid')
+        message:str=Field(min_length=1,max_length=2000)
+
+    @app.post('/agent/v2/title',dependencies=[Depends(authenticate)])
+    async def title(request:TitleRequest):
+        """首条用户消息后生成会话标题；失败时由实现层回退到截断原文。"""
+        return {'title':await title_model.summarize_title(request.message)}
+
     @app.post('/agent/v2/runs',dependencies=[Depends(authenticate)])
     async def create(request:RunRequest):
         res=runtime();payload=request.model_dump()
@@ -66,7 +78,6 @@ def register_workbench(app,authenticate,retriever_for,secret,storage_path=None,r
         row=lookup(rid,owner_id)
         return {'run_id':rid,'status':row['status'],'result':row['result'],'error':row['error'],'events':runtime()['store'].events(rid,after)}
 
-    from pydantic import BaseModel, ConfigDict, Field
     class AnalysisReply(BaseModel):
         model_config=ConfigDict(extra='forbid')
         owner_id:str=Field(min_length=1,max_length=64)

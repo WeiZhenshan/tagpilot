@@ -533,11 +533,33 @@ public class TsAgentWorkbenchService {
         List<Map<String,Object>> history=list(state.get("messages"));req.put("history",history.subList(Math.max(0,history.size()-12),history.size()));
         agent.post("/agent/v2/runs",req);
         List<Map<String,Object>> messages=new ArrayList<>(history);messages.add(map("id",id(),"role","user","text",text,"context_tags",contextTags,"run_id",client,"created_at",Instant.now().toString()));
-        if("新的圈选".equals(row.getTitle()))row.setTitle(text.substring(0,Math.min(40,text.length())));
+        // 仅在默认标题且尚无用户消息时调用大模型总结标题；失败回退截断原文或「新对话」。
+        if("新的圈选".equals(row.getTitle()) && history.stream().noneMatch(m->"user".equals(m.get("role"))))
+            row.setTitle(suggestTitle(text));
         state.putAll(map("run_id",client,"run_profile",req.getOrDefault("profile","audience"),"run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
         state.remove("error");state.remove("authority_repairs");state.remove("live_plan");
         if(skillName==null && !"conversation".equals(req.get("profile"))){state.remove("count");state.remove("execution");}else{state.remove("outcome");state.remove("interrupt_id");}
         save(row,state);return view(row,state);
+    }
+    /** 首条消息标题：优先编排层大模型总结，失败时截断原文，空则「新对话」。 */
+    private String suggestTitle(String text) {
+        String fallback=fallbackTitle(text);
+        try {
+            Map<String,Object> response=agent.postWithTimeout("/agent/v2/title",map("message",text),5000);
+            Object raw=response==null?null:response.get("title");
+            if(raw instanceof String) {
+                String title=((String)raw).trim().replaceAll("\\s+"," ");
+                if(!title.isEmpty() && title.length()<=120)return title.length()>40?title.substring(0,40):title;
+            }
+        } catch(ServiceException e) {
+            log.warn("会话标题生成失败，使用回退标题: {}",e.getMessage());
+        }
+        return fallback;
+    }
+    private String fallbackTitle(String text) {
+        String trimmed=text==null?"":text.trim().replaceAll("\\s+"," ");
+        if(trimmed.isEmpty())return "新对话";
+        return trimmed.substring(0,Math.min(40,trimmed.length()));
     }
     @Transactional
     public Map<String,Object> resume(String thread,Map<String,Object> request) {
