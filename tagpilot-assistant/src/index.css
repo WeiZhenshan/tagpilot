@@ -312,15 +312,17 @@ textarea {
   min-height: 0;
 }
 .history-rail {
-  width: 224px;
+  width: var(--rail-width, 224px);
   flex-shrink: 0;
   background: var(--soft);
-  border-right: 1px solid var(--border);
+  border-right: 0;
   padding: 16px 10px 10px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   position: relative;
+  container-type: inline-size;
+  container-name: rail;
 }
 .new-thread {
   background: white;
@@ -614,6 +616,8 @@ textarea {
   min-width: 340px;
   display: flex;
   flex-direction: column;
+  container-type: inline-size;
+  container-name: chat;
 }
 .conversation-heading {
   height: 52px;
@@ -1296,7 +1300,7 @@ textarea {
     width: 420px;
   }
   .history-rail {
-    width: 240px;
+    width: var(--rail-width, 240px);
   }
 }
 @media (min-width: 761px) {
@@ -1306,7 +1310,7 @@ textarea {
 }
 @media (max-width: 1150px) {
   .history-rail {
-    width: 175px;
+    width: var(--rail-width, 175px);
   }
   .plan-panel {
     width: 330px;
@@ -1329,7 +1333,7 @@ textarea {
 }
 @media (max-width: 900px) {
   .history-rail {
-    width: 145px;
+    width: var(--rail-width, 145px);
   }
   .plan-panel {
     width: 300px;
@@ -1453,3 +1457,136 @@ textarea {
 .condition p { overflow-wrap: anywhere; }
 
 .clause-row[data-highlighted="true"] { background: var(--choice-bg, #f0f6fb); outline: 1px solid var(--choice-border, #79a4cc); outline-offset: 2px; }
+
+/* 三栏分隔条：拖拽调宽，双击或 Home 恢复各断点的默认宽度。 */
+.split-handle {
+  flex: 0 0 9px;
+  position: relative;
+  z-index: 4;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+  outline: none;
+}
+.split-handle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 1px;
+  background: var(--border);
+  transition: background 0.15s ease-out, width 0.15s ease-out, left 0.15s ease-out;
+}
+.split-handle:hover::before,
+.split-handle:focus-visible::before,
+.split-handle:active::before {
+  left: 3px;
+  width: 3px;
+  background: #9aa7b8;
+}
+.split-handle:focus-visible {
+  background: #eef2f7;
+}
+.split-handle-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: #a9b4c2;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+.split-handle:hover .split-handle-grip,
+.split-handle:focus-visible .split-handle-grip,
+.split-handle:active .split-handle-grip {
+  opacity: 1;
+}
+body.split-resizing,
+body.split-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+body.split-resizing iframe {
+  pointer-events: none;
+}
+.sidebar-collapsed .split-handle--left,
+.right-panel-collapsed .split-handle--right {
+  display: none;
+}
+
+/* 分栏变窄时逐级收紧内边距与文字尺幅，避免内容被挤压换行错乱。 */
+@container rail (max-width: 200px) {
+  .new-thread {
+    padding: 9px 8px;
+    font-size: 13px;
+  }
+  .rail-tabs button {
+    padding: 5px 4px;
+  }
+  .history-select {
+    padding: 8px 58px 8px 8px;
+  }
+  .history-actions {
+    right: 2px;
+  }
+  .tag-node-label {
+    font-size: 11px;
+  }
+  .tag-type,
+  .tag-used {
+    display: none;
+  }
+}
+@container rail (min-width: 300px) {
+  .history-select {
+    padding-right: 86px;
+  }
+}
+
+@container chat (max-width: 620px) {
+  .conversation-heading {
+    padding: 0 18px;
+  }
+  .thread-viewport {
+    padding: 22px 18px;
+  }
+  .composer-wrap {
+    padding: 10px 16px 14px;
+  }
+  .message {
+    max-width: 100%;
+  }
+  .welcome h1 {
+    font-size: 23px;
+  }
+}
+@container chat (max-width: 460px) {
+  .conversation-heading {
+    padding: 0 12px;
+  }
+  .thread-viewport {
+    padding: 18px 12px;
+  }
+  .composer-wrap {
+    padding: 8px 10px 12px;
+  }
+  .composer-hint {
+    display: none;
+  }
+  .composer-footer {
+    gap: 4px;
+  }
+  .user-message {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .split-handle {
+    display: none;
+  }
+}

@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
 } from "react";
 import {
   listLibraries,
@@ -18,6 +19,8 @@ import { AgentConversation } from "./AgentConversation";
 import { InsightSummary } from "./insight/InsightSummary";
 import type { ArtifactReference } from "./insight/analysisTypes";
 import { AnalysisMessageParts } from "./insight/AnalysisMessageParts";
+import { SplitHandle } from "./SplitHandle";
+import { SPLIT_LIMITS, readSplitWidths, writeSplitWidths, type SplitSide, type SplitWidths } from "./splitResize";
 import { availableSkills, type AgentSkill } from "./skillApi";
 import { runInsight, editInsight, insightFeedback } from "./insight/insightApi";
 import "./insight/workbench-insight.css";
@@ -70,7 +73,7 @@ export function App() {
   const [skillsError, setSkillsError] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<AgentSkill | null>(null);
   const [analysisTarget, setAnalysisTarget] = useState<ArtifactReference | null>(null);
-  useEffect(() => { setAnalysisTarget(null); }, [thread?.thread_id]);
+  useEffect(() => { setAnalysisTarget(null); }, [thread?.thread_id, thread?.revision]);
   const [baselineGroups, setBaselineGroups] = useState<api.BaselineGroup[]>([]);
   const [baselineGroupId, setBaselineGroupId] = useState<number | null>(null);
   useEffect(() => {
@@ -100,6 +103,40 @@ export function App() {
   };
   const closeRightPanel = () => {
     setRightPanelOpen(false); setTab("chat"); rightToggle.current?.focus();
+  };
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [splitWidths, setSplitWidths] = useState<SplitWidths>(() => readSplitWidths(window.localStorage));
+  const [panelWidths, setPanelWidths] = useState({ left: 0, right: 0 });
+  const splitWidthKey = rightTab;
+  const splitMax = (side: SplitSide) => {
+    const total = bodyRef.current?.clientWidth ?? window.innerWidth;
+    const left = !sidebarCollapsed && historyRail.current ? historyRail.current.getBoundingClientRect().width : 0;
+    const right = rightPanelOpen && rightPanel.current ? rightPanel.current.getBoundingClientRect().width : 0;
+    const handles = (left > 0 ? 1 : 0) + (right > 0 ? 1 : 0);
+    const limits = side === "left" ? SPLIT_LIMITS.left : SPLIT_LIMITS.right;
+    const available = total - (side === "left" ? right : left) - handles * SPLIT_LIMITS.handle - SPLIT_LIMITS.center;
+    return Math.max(limits.min, Math.min(limits.max, available));
+  };
+  const previewSplit = (side: SplitSide, value: number) => {
+    bodyRef.current?.style.setProperty(side === "left" ? "--rail-width" : "--right-width", `${value}px`);
+  };
+  const commitSplit = (side: SplitSide, value: number) => {
+    bodyRef.current?.style.removeProperty(side === "left" ? "--rail-width" : "--right-width");
+    setSplitWidths((prev) => {
+      const next = { ...prev };
+      next[side === "left" ? "left" : splitWidthKey] = value;
+      writeSplitWidths(window.localStorage, next);
+      return next;
+    });
+  };
+  const resetSplit = (side: SplitSide) => {
+    bodyRef.current?.style.removeProperty(side === "left" ? "--rail-width" : "--right-width");
+    setSplitWidths((prev) => {
+      const next = { ...prev };
+      delete next[side === "left" ? "left" : splitWidthKey];
+      writeSplitWidths(window.localStorage, next);
+      return next;
+    });
   };
   useEffect(() => {
     if (reportReveal === handledReportReveal.current || !rightPanelOpen || rightTab !== "insight") return;
@@ -133,6 +170,42 @@ export function App() {
   const [mobile, setMobile] = useState(() =>
     window.matchMedia("(max-width: 760px)").matches
   );
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!body) return;
+    const sync = () => {
+      const total = body.clientWidth;
+      const left = !sidebarCollapsed && historyRail.current ? historyRail.current.getBoundingClientRect().width : 0;
+      const right = rightPanelOpen && rightPanel.current ? rightPanel.current.getBoundingClientRect().width : 0;
+      setPanelWidths((prev) => Math.round(prev.left) === Math.round(left) && Math.round(prev.right) === Math.round(right) ? prev : { left, right });
+      setSplitWidths((prev) => {
+        const handles = (left > 0 ? 1 : 0) + (right > 0 ? 1 : 0);
+        const available = total - handles * SPLIT_LIMITS.handle - SPLIT_LIMITS.center;
+        const leftWidth = left > 0 ? (prev.left ?? left) : 0;
+        const rightWidth = right > 0 ? (prev[splitWidthKey] ?? right) : 0;
+        let over = leftWidth + rightWidth - available;
+        if (over <= 0) return prev;
+        const next = { ...prev };
+        if (right > 0 && prev[splitWidthKey] != null && over > 0) {
+          const shrunk = Math.round(Math.max(SPLIT_LIMITS.right.min, rightWidth - over));
+          over -= rightWidth - shrunk;
+          if (shrunk !== prev[splitWidthKey]) next[splitWidthKey] = shrunk;
+        }
+        if (left > 0 && prev.left != null && over > 0) {
+          const shrunk = Math.round(Math.max(SPLIT_LIMITS.left.min, leftWidth - over));
+          if (shrunk !== prev.left) next.left = shrunk;
+        }
+        if (next.left === prev.left && next[splitWidthKey] === prev[splitWidthKey]) return prev;
+        writeSplitWidths(window.localStorage, next);
+        return next;
+      });
+    };
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(body);
+    window.addEventListener("resize", sync);
+    return () => { observer.disconnect(); window.removeEventListener("resize", sync); };
+  }, [sidebarCollapsed, rightPanelOpen, splitWidthKey, mobile]);
   const historyRail = useRef<HTMLElement>(null);
   const historyToggle = useRef<HTMLButtonElement>(null);
   const historyPanelVisible = mobile ? tab === "history" : !sidebarCollapsed;
@@ -542,6 +615,10 @@ export function App() {
       className={`workbench mobile-${tab} ${rightPanelOpen ? "" : "right-panel-collapsed"} ${
         sidebarCollapsed ? "sidebar-collapsed" : ""
       }`}
+      style={{
+        ...(splitWidths.left != null ? { "--rail-width": `${splitWidths.left}px` } : {}),
+        ...(splitWidths[splitWidthKey] != null ? { "--right-width": `${splitWidths[splitWidthKey]}px` } : {}),
+      } as CSSProperties}
     >
       <header className="topbar">
         <button
@@ -607,7 +684,7 @@ export function App() {
           <SidebarIcon collapsed={!rightPanelVisible} side="right" />
         </button>
       </header>
-      <div className="body">
+      <div className="body" ref={bodyRef}>
         <aside ref={historyRail} className="history-rail" inert={!historyPanelVisible} aria-hidden={!historyPanelVisible}>
           <button
             className="new-thread"
@@ -823,6 +900,16 @@ export function App() {
             </button>
           </div>
         </aside>
+        <SplitHandle
+          side="left"
+          label="调整左侧栏宽度"
+          width={splitWidths.left ?? panelWidths.left}
+          max={splitMax("left")}
+          disabled={sidebarCollapsed || mobile}
+          onPreview={(value) => previewSplit("left", value)}
+          onCommit={(value) => commitSplit("left", value)}
+          onReset={() => resetSplit("left")}
+        />
         <main className="conversation">
           <div className="conversation-heading">
             <span>{thread?.title || "新的圈选"}</span>
@@ -931,6 +1018,16 @@ export function App() {
             }}
           />
         </main>
+        <SplitHandle
+          side="right"
+          label="调整右侧面板宽度"
+          width={splitWidths[splitWidthKey] ?? panelWidths.right}
+          max={splitMax("right")}
+          disabled={!rightPanelOpen || mobile}
+          onPreview={(value) => previewSplit("right", value)}
+          onCommit={(value) => commitSplit("right", value)}
+          onReset={() => resetSplit("right")}
+        />
         <aside ref={rightPanel} id="agent-right-panel" tabIndex={-1} inert={!rightPanelVisible} aria-hidden={!rightPanelVisible} aria-label={rightTab === "insight" ? "洞察报告面板" : "工作台右侧面板"} className={`insight-right ${rightTab === "insight" ? "insight-right--report" : ""}`} onKeyDown={(event) => { if (event.key === "Escape" && !event.defaultPrevented && !(event.target as Element).closest('dialog, [aria-expanded="true"], .library-options, .plan-menu')) { event.stopPropagation(); closeRightPanel(); } }}>
           <div className="insight-sidebar-heading"><button type="button" aria-pressed={rightTab === "plan"} onClick={() => setRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} onClick={() => openRightPanel("insight")}>洞察</button></div>
         {rightTab === "plan" ? <PlanPanel
