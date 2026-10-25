@@ -21,9 +21,6 @@
 .analysis-source { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 10px 16px; font-size: 14px; }
 .analysis-source dt { color: var(--muted, #68717d); }
 .analysis-source dd { margin: 0; overflow-wrap: anywhere; }
-.analysis-reference { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; margin-bottom: 8px; background: var(--soft, #f6f7f9); border-radius: 6px; font-size: 13px; }
-.analysis-reference span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.analysis-reference button { flex: 0 0 auto; }
 .analysis-chart-block .insight-table-scroll td { font-variant-numeric: tabular-nums; }
 @media (max-width: 600px) {
   .analysis-chart-block .insight-chart-canvas { height: 290px; }

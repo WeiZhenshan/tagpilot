@@ -748,6 +748,52 @@ textarea {
 .composer:focus-within {
   border-color: #8896a8;
 }
+.composer-editor {
+  padding: 13px 15px 8px;
+  min-width: 0;
+}
+.composer-editor .composer-input {
+  padding: 0;
+}
+.composer-editor .analysis-cite + .composer-input {
+  margin-top: 4px;
+}
+.analysis-cite {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 1px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink, #24272c);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.7;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  vertical-align: baseline;
+}
+.analysis-cite:hover {
+  color: var(--ink, #24272c);
+  background: var(--hover, #f0f2f5);
+}
+.analysis-cite:focus,
+.analysis-cite.is-selected {
+  outline: none;
+  color: var(--ink, #24272c);
+  background: #dbe4f0;
+  text-decoration-thickness: 1.5px;
+}
+.analysis-cite:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #8896a8;
+}
 .composer-input {
   display: block;
   border: 0;
