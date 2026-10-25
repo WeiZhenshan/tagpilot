@@ -9,6 +9,8 @@ public interface TsAgentThreadMapper {
     List<TsAgentThread> list(@Param("uid") Long uid, @Param("archived") String archived);
     @Select("select "+COLUMNS+",payload from ts_agent_thread where thread_id=#{id} and user_id=#{uid} for update")
     TsAgentThread lock(@Param("id") String id, @Param("uid") Long uid);
+    @Select("select "+COLUMNS+",payload from ts_agent_thread where thread_id=#{id} for update")
+    TsAgentThread lockByThreadId(@Param("id") String id);
     @Insert("insert into ts_agent_thread(thread_id,user_id,library_id,title,archived,pinned,row_version,payload) values(#{threadId},#{userId},#{libraryId},#{title},'0','0',0,#{payload})")
     int insert(TsAgentThread row);
     @Update("update ts_agent_thread set title=#{title},archived=#{archived},pinned=#{pinned},payload=#{payload},row_version=row_version+1,update_time=now() where thread_id=#{threadId} and user_id=#{userId} and row_version=#{rowVersion}")

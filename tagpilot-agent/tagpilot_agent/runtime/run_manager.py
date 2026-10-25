@@ -99,7 +99,13 @@ class RunManager:
                     self.store.status(rid,'COMPLETED',{'analysis_complete':True})
                     ctx.emit({'type':'run.completed','message':'分析与图表已核验保存'})
                 elif ctx.accepted:self.finish(ctx,classify(ctx))
-                else:raise RuntimeError('对话未提交核验结果')
+                else:
+                    message='分析服务未及时完成核验或未收到提交确认，已保留已核验内容，请重试'
+                    if not ctx.cancelled():
+                        logger.warning('对话分析未提交核验结果 run=%s stats=%s',rid,{k:v for k,v in ctx.stats.items() if k in ('tools','analysis_pending','elapsed_s')})
+                        self.store.status(rid,'FAILED',error=message)
+                        ctx.emit({'type':'run.failed','message':message})
+                    return
                 return
             if request.get('profile')=='skill':
                 async with asyncio.timeout(ctx.budget.hard+5):

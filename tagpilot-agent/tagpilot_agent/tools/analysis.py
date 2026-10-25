@@ -85,9 +85,10 @@ async def dispatch(ctx, name, raw):
         future = asyncio.get_running_loop().create_future()
         ctx.analysis_pending[call] = future
         ctx.emit({'type':'tool.started','call_id':call,'tool':name,'message':MESSAGES[name]})
+        wait_cap=float(os.getenv('TAG_AGENT_ANALYSIS_WAIT_S','90' if ctx.request.get('profile')=='conversation' else '50'))
+        remaining=min(wait_cap,max(.1,ctx.budget.salvage_at()-ctx.budget.elapsed(ctx)))
         ctx.emit({'type': 'analysis.request', 'request_id': call, 'call_id': call, 'tool': name, 'args': args,
-                  'expires_at':round((time.time()+min(50,max(.1,ctx.budget.salvage_at()-ctx.budget.elapsed(ctx))))*1000), 'message': MESSAGES[name]})
-        remaining = min(50, max(.1, ctx.budget.salvage_at() - ctx.budget.elapsed(ctx)))
+                  'expires_at':round((time.time()+remaining)*1000), 'message': MESSAGES[name]})
         result = await asyncio.wait_for(future, remaining)
         if result.get('ok') and name == 'submit_insight_result' and result.get('complete'):
             ctx.analysis_complete = True

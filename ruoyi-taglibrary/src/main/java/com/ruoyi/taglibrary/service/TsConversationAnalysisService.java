@@ -207,8 +207,42 @@ public class TsConversationAnalysisService {
         if(!(raw instanceof String)||((String)raw).trim().isEmpty()||((String)raw).length()>limit||Pattern.compile("<[a-zA-Z!/]").matcher((String)raw).find())throw new IllegalArgumentException("展示文字缺失、过长或包含未允许标记");
         return ((String)raw).trim();
     }
+    private String bindLiteralFacts(String text,Map<String,Map<String,Object>> facts) {
+        if(text==null||text.isEmpty())return text;
+        String out=text;
+        List<Map.Entry<String,Map<String,Object>>> ordered=new ArrayList<>(facts.entrySet());
+        ordered.sort((a,b)->Integer.compare(replacementPriority(b.getValue()),replacementPriority(a.getValue())));
+        for(Map.Entry<String,Map<String,Object>> entry:ordered) {
+            Map<String,Object> fact=entry.getValue();
+            if(!"AVAILABLE".equals(fact.get("status"))||!(fact.get("value") instanceof Number))continue;
+            String id=entry.getKey(),placeholder="{fact:"+id+"}";
+            if(out.contains(placeholder))continue;
+            double raw=((Number)fact.get("value")).doubleValue();
+            String unit=String.valueOf(fact.get("unit"));
+            String plain=new java.math.BigDecimal(String.valueOf(fact.get("value"))).stripTrailingZeros().toPlainString();
+            LinkedHashSet<String> literals=new LinkedHashSet<>();
+            literals.add(plain+unit);literals.add(plain);
+            if("人".equals(unit)) {literals.add(plain+"名");literals.add(plain+"人");}
+            if("元".equals(unit)&&raw>=10000) {
+                long wan=Math.round(raw/10000d);
+                if(Math.abs(wan*10000-raw)<1)literals.add(wan+"万元");
+            }
+            List<String> ranked=new ArrayList<>(literals);
+            ranked.sort((a,b)->Integer.compare(b.length(),a.length()));
+            for(String literal:ranked) {
+                if(literal.length()<2||!out.contains(literal))continue;
+                out=out.replace(literal,placeholder);
+                break;
+            }
+        }
+        return out;
+    }
+    private int replacementPriority(Map<String,Object> fact) {
+        Object value=fact.get("value");
+        return value instanceof Number?String.valueOf(((Number)value).longValue()).length():0;
+    }
     private String statement(Object raw,Map<String,Map<String,Object>> facts) {
-        String text=plain(raw,3000);Matcher match=REF.matcher(text);StringBuffer out=new StringBuffer();
+        String text=bindLiteralFacts(plain(raw,3000),facts);Matcher match=REF.matcher(text);StringBuffer out=new StringBuffer();
         while(match.find()) {
             Map<String,Object> fact=facts.get(match.group(1));if(fact==null)throw new IllegalArgumentException("陈述引用了不存在的证据");
             String unit=String.valueOf(fact.get("unit"));

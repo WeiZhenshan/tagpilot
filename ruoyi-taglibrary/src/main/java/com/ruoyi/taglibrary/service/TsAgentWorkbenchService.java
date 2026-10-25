@@ -7,8 +7,15 @@ import java.time.ZoneId;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.framework.web.service.SysPermissionService;
+import com.ruoyi.system.service.ISysUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.taglibrary.domain.agent.TsPlanValidationException;
@@ -42,6 +49,9 @@ public class TsAgentWorkbenchService {
     @Autowired private TsAgentSkillService agentSkills;
     @Autowired private TsTagStatsService tagStats;
     @Autowired private TsConversationAnalysisService analysis;
+    @Autowired @org.springframework.context.annotation.Lazy private TsAgentRunSyncService runSync;
+    @Autowired private ISysUserService users;
+    @Autowired private SysPermissionService rolePermissions;
 
     private Long uid() { return SecurityUtils.getUserId(); }
     private String id() { return UUID.randomUUID().toString(); }
@@ -159,7 +169,33 @@ public class TsAgentWorkbenchService {
     @Transactional
     public Map<String,Object> get(String thread) {
         TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
-        sync(row,state);return view(row,state);
+        sync(row,state);refreshRunSync(thread,state);return view(row,state);
+    }
+    /** 后台同步：不依赖浏览器轮询；返回 false 时从跟踪集合移除。 */
+    @Transactional
+    public boolean syncBackground(String thread) {
+        TsAgentThread row=threads.lockByThreadId(thread);
+        if(row==null)return false;
+        Map<String,Object> state=data(row);
+        if(!Arrays.asList("RUNNING","WAITING","SUBMITTING").contains(String.valueOf(state.get("status"))))return false;
+        asUser(row.getUserId(),()->sync(row,state));
+        refreshRunSync(thread,state);
+        return Arrays.asList("RUNNING","WAITING","SUBMITTING").contains(String.valueOf(state.get("status")));
+    }
+    private void refreshRunSync(String thread,Map<String,Object> state) {
+        if(Arrays.asList("RUNNING","WAITING","SUBMITTING").contains(String.valueOf(state.get("status"))))runSync.track(thread);
+        else runSync.untrack(thread);
+    }
+    private void asUser(Long userId,Runnable action) {
+        SysUser user=users.selectUserById(userId);
+        if(user==null)throw new ServiceException("会话归属用户不存在",404);
+        LoginUser loginUser=new LoginUser(user.getUserId(),user.getDeptId(),user,rolePermissions.getMenuPermission(user));
+        SecurityContext context=SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(loginUser,null,loginUser.getAuthorities()));
+        SecurityContext previous=SecurityContextHolder.getContext();
+        SecurityContextHolder.setContext(context);
+        try {action.run();}
+        finally {SecurityContextHolder.setContext(previous);}
     }
     private void sync(TsAgentThread row,Map<String,Object> state) {
         String run=(String)state.get("run_id");
@@ -176,7 +212,7 @@ public class TsAgentWorkbenchService {
             if(event.get("seq") instanceof Number && number(event.get("seq"))<=number(state.get("cursor")))continue;
             if("analysis.request".equals(event.get("type"))) {
                 if(!"conversation".equals(obj(state.get("run_request")).get("profile")) || !"RUNNING".equals(state.get("status")))continue;
-                if(!"RUNNING".equals(remote.get("status")) || event.get("expires_at") instanceof Number && ((Number)event.get("expires_at")).longValue()<System.currentTimeMillis()) {state.put("cursor",event.get("seq"));continue;}
+                if(!"RUNNING".equals(remote.get("status"))) {state.put("cursor",event.get("seq"));continue;}
                 Map<String,Object> response;
                 try {response=analysis.handle(row,state,String.valueOf(event.get("tool")),obj(event.get("args")));}
                 catch(ServiceException|IllegalArgumentException e) {response=map("ok",false,"message",e.getMessage());}
@@ -197,7 +233,9 @@ public class TsAgentWorkbenchService {
         Map<String,Object> result=obj(remote.get("result"));
         String resultKey=run+":"+remote.get("status")+":"+TsSnapshotCanonicalizer.sha256(encode(result));
         if("conversation".equals(obj(state.get("run_request")).get("profile")) && Arrays.asList("FAILED","INTERRUPTED").contains(remote.get("status"))) {
-            state.put("applied_result",resultKey);if(state.get("error")==null)state.put("error","本轮分析未完成，已核验内容保留，请重新发送需求");
+            state.put("applied_result",resultKey);
+            if(state.get("error")==null)state.put("error",technicalConversationError(remote.get("error")));
+            else if(isMisleadingBusinessError(String.valueOf(state.get("error"))))state.put("error",technicalConversationError(remote.get("error")));
             appendAnalysisParts(state,run,Arrays.asList(map("id","status-"+run,"type","status","version",1,"status","PARTIAL","text",state.get("error"))));save(row,state);return;
         }
         if(!"RUNNING".equals(remote.get("status")) && !result.isEmpty() && !resultKey.equals(state.get("applied_result"))) {
@@ -243,6 +281,18 @@ public class TsAgentWorkbenchService {
                 "revision",state.get("revision"),"run_id",run,"created_at",Instant.now().toString()));state.put("messages",messages);
         }
         save(row,state);
+    }
+    private static boolean isMisleadingBusinessError(String error) {
+        if(error==null||error.isEmpty())return false;
+        return error.contains("口径")||error.contains("征信")||error.contains("业务解释");
+    }
+    private static String technicalConversationError(Object remoteError) {
+        if(remoteError instanceof String && !((String)remoteError).isEmpty()) {
+            String text=(String)remoteError;
+            if(text.contains("未提交")||text.contains("未及时")||text.contains("超时")||text.contains("应答"))return text;
+            if(text.contains("未完成")||text.contains("保留"))return text;
+        }
+        return "分析服务未及时完成核验或未收到提交确认（可能与后台处理或网络中断有关），已保留已核验内容，请重试";
     }
     private void replyAfterCommit(String run,Map<String,Object> reply) {
         Runnable deliver=()->{
@@ -539,7 +589,7 @@ public class TsAgentWorkbenchService {
         state.putAll(map("run_id",client,"run_profile",req.getOrDefault("profile","audience"),"run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
         state.remove("error");state.remove("authority_repairs");state.remove("live_plan");
         if(skillName==null && !"conversation".equals(req.get("profile"))){state.remove("count");state.remove("execution");}else{state.remove("outcome");state.remove("interrupt_id");}
-        save(row,state);return view(row,state);
+        save(row,state);refreshRunSync(thread,state);return view(row,state);
     }
     /** 首条消息标题：优先编排层大模型总结，失败时截断原文，空则「新对话」。 */
     private String suggestTitle(String text) {
@@ -586,13 +636,13 @@ public class TsAgentWorkbenchService {
             clarification.put("pending_questions",new ArrayList<>());state.put("clarification_state",clarification);
         }
         List<Map<String,Object>> messages=list(state.get("messages"));messages.add(map("id",id(),"role","user","text",answer instanceof Map?"已更新圈选条件":answer==null?"继续处理":String.valueOf(answer),"created_at",Instant.now().toString()));
-        state.put("messages",messages);state.put("status","RUNNING");state.put("questions",new ArrayList<>());state.remove("error");save(row,state);return view(row,state);
+        state.put("messages",messages);state.put("status","RUNNING");state.put("questions",new ArrayList<>());state.remove("error");save(row,state);refreshRunSync(thread,state);return view(row,state);
     }
     @Transactional
     public Map<String,Object> cancel(String thread) {
         TsAgentThread row=owned(thread);Map<String,Object> state=data(row);
         if(!Arrays.asList("RUNNING","WAITING","INTERRUPTED","FAILED").contains(state.get("status")))return view(row,state);
-        stopRun(row,state);save(row,state);return view(row,state);
+        stopRun(row,state);save(row,state);refreshRunSync(thread,state);return view(row,state);
     }
     private void stopRun(TsAgentThread row,Map<String,Object> state) {
         if(state.get("run_id")!=null) agent.post("/agent/v2/runs/"+state.get("run_id")+"/cancel",map("owner_id",String.valueOf(uid())));
@@ -600,7 +650,7 @@ public class TsAgentWorkbenchService {
             Map<String,Object> partial=obj(state.get("live_plan"));partial.put("valid",false);applyPlan(state,partial);
         }
         List<Map<String,Object>> events=list(state.get("events"));events.add(map("seq",-1,"type","run.cancelled","message","已停止；已完成条件保留"));state.put("events",events);
-        state.put("status","CANCELLED");state.put("questions",new ArrayList<>());
+        state.put("status","CANCELLED");state.put("questions",new ArrayList<>());runSync.untrack(row.getThreadId());
     }
     /** 方案中已作为条件使用的标签：这些列被条件截断，统计口径要在报告里声明。 */
     private Set<Long> planTagIds(Map<String,Object> plan) {

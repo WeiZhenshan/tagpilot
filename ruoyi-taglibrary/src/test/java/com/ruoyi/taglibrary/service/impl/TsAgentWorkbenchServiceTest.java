@@ -39,8 +39,28 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
     @Mock TsTagStatsService tagStats;
     @Mock TsConversationAnalysisService analysis;
     @Mock TsCatalogSnapshotMapper saveSnapshots;
+    @Mock TsAgentRunSyncService runSync;
+    @Mock com.ruoyi.system.service.ISysUserService users;
+    @Mock com.ruoyi.framework.web.service.SysPermissionService rolePermissions;
     @InjectMocks TsAgentWorkbenchService service;
     TsAgentThread row;
+    @Test void syncBackgroundProcessesAnalysisRequestWithoutBrowserPoll() throws Exception {
+        Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot");
+        state(map("revision",2,"status","RUNNING","run_id","run-bg","run_request",map("profile","conversation"),"analysis_session",map("outbox",new ArrayList<>()),"cursor",0,"events",new ArrayList<>(),"messages",new ArrayList<>(),"plan",plan));
+        when(threads.lockByThreadId("owned")).thenReturn(row);
+        com.ruoyi.common.core.domain.entity.SysUser user=new com.ruoyi.common.core.domain.entity.SysUser();user.setUserId(2L);user.setDeptId(1L);
+        when(users.selectUserById(2L)).thenReturn(user);
+        when(rolePermissions.getMenuPermission(user)).thenReturn(new java.util.HashSet<>(Arrays.asList("*:*:*")));
+        Map<String,Object> part=map("id","part-bg","type","text","text","已核验","version",1,"status","COMPLETE");
+        when(agent.get(anyString())).thenReturn(map("status","RUNNING","events",Arrays.asList(map("seq",2,"type","analysis.request","request_id","bg-req","tool","query_aggregates","args",map("queries",Arrays.asList(map("id","q1","tag_id",1,"operation","count"))))),"result",map()));
+        when(analysis.handle(any(),anyMap(),eq("query_aggregates"),anyMap())).thenReturn(map("ok",true,"bundle",map("facts",new ArrayList<>(),"queries",new ArrayList<>())));
+        org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+        try {
+            assertTrue(service.syncBackground("owned"));
+            verify(analysis).handle(any(),anyMap(),eq("query_aggregates"),anyMap());
+            verify(runSync).track("owned");
+        } finally {org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();}
+    }
     @Test void autoConversationUsesServerContextAndPersistsValidatedPartsBeforeReply() throws Exception {
         activeTags();Map<String,Object> plan=map("valid",true,"hash","h","build_id","build","snapshot_id","snapshot");
         state(map("revision",2,"status","COMPLETED","plan",plan,"messages",new ArrayList<>()));
