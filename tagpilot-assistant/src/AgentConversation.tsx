@@ -145,6 +145,8 @@ export function AgentConversation({
 }) {
   const [slash, setSlash] = useState<ReturnType<typeof slashQuery>>(null);
   const [activeSkill, setActiveSkill] = useState(0);
+  const [citeSelected, setCiteSelected] = useState(false);
+  const citeRef = useRef<HTMLButtonElement>(null);
   const filteredSkills = skills.filter((s) => !slash?.query || `${s.name} ${s.display_name} ${s.description}`.toLowerCase().includes(slash.query));
   useEffect(() => {
     if (slash && filteredSkills.length) document.getElementById(`composer-skill-${Math.min(activeSkill, filteredSkills.length - 1)}`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -223,11 +225,17 @@ export function AgentConversation({
     composerInput.current?.focus();
   }
   useEffect(() => { setSlash(null);setActiveSkill(0); }, [thread?.thread_id]);
+  useEffect(() => { setCiteSelected(false); }, [analysisTarget?.target_artifact_id, analysisTarget?.target_artifact_version]);
   useEffect(() => {
     const dismiss = (event: PointerEvent) => { if (!(event.target as Element).closest(".composer-wrap")) setSlash(null); };
     document.addEventListener("pointerdown", dismiss);
     return () => document.removeEventListener("pointerdown", dismiss);
   }, []);
+  function removeAnalysisCite() {
+    onRemoveAnalysisTarget?.();
+    setCiteSelected(false);
+    requestAnimationFrame(() => composerInput.current?.focus());
+  }
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <ThreadPrimitive.Root className="thread">
@@ -314,7 +322,6 @@ export function AgentConversation({
           </button>
         </div>
         <div className="composer-wrap">
-          {analysisTarget && <div className="analysis-reference"><span>继续分析：{analysisTarget.title || "已选图表"}</span><button type="button" onClick={onRemoveAnalysisTarget}>移除引用</button></div>}
           {slash ? <div className="skill-menu" aria-label="选择技能">
             <div className="skill-menu-heading"><strong>调用技能</strong><button type="button" className="text-button" onClick={onManageSkills}>管理技能</button></div>
             <p className="skill-menu-context">{skillContext}</p>
@@ -333,37 +340,83 @@ export function AgentConversation({
           }}>
             {skillChips}
             {contextTags.length ? <div className="composer-tags"><TagChips tags={contextTags} onRemove={onRemoveContextTag} /></div> : null}
-            <ComposerPrimitive.Input
-              ref={composerInput}
-              className="composer-input"
-              rows={2}
-              aria-label="圈选需求或技能调用"
-              aria-haspopup="listbox"
-              aria-expanded={!!slash}
-              aria-controls={slash && filteredSkills.length ? "composer-skills" : undefined}
-              aria-activedescendant={slash && filteredSkills.length ? `composer-skill-${Math.min(activeSkill, filteredSkills.length - 1)}` : undefined}
-              onChange={(event) => {
-                const next = slashQuery(event.currentTarget.value, event.currentTarget.selectionStart);
-                if (next && !slash) onRefreshSkills?.();
-                setSlash(next);setActiveSkill(0);
-              }}
-              onKeyDownCapture={(event) => {
-                if (!slash || event.nativeEvent.isComposing) return;
-                if (event.key === "Escape") { event.preventDefault();event.stopPropagation();setSlash(null); }
-                else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                  event.preventDefault();event.stopPropagation();setActiveSkill((index) => (index + (event.key === "ArrowDown" ? 1 : -1) + Math.max(1,filteredSkills.length)) % Math.max(1,filteredSkills.length));
-                } else if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();event.stopPropagation();if (filteredSkills.length) pickSkill(filteredSkills[Math.min(activeSkill,filteredSkills.length-1)]);
+            <div className="composer-editor">
+              {analysisTarget ? (
+                <button
+                  ref={citeRef}
+                  type="button"
+                  className={`analysis-cite${citeSelected ? " is-selected" : ""}`}
+                  aria-label={`引用图表：继续分析 ${analysisTarget.title || "已选图表"}，按删除键整块移除`}
+                  aria-pressed={citeSelected}
+                  onClick={() => { setCiteSelected(true); citeRef.current?.focus(); }}
+                  onFocus={() => setCiteSelected(true)}
+                  onBlur={() => setCiteSelected(false)}
+                  onKeyDown={(event) => {
+                    if (event.nativeEvent.isComposing) return;
+                    if (event.key === "Backspace" || event.key === "Delete") {
+                      event.preventDefault();
+                      removeAnalysisCite();
+                    } else if (event.key === "ArrowRight" || event.key === "ArrowDown" || event.key === "Enter") {
+                      event.preventDefault();
+                      setCiteSelected(false);
+                      composerInput.current?.focus();
+                    } else if (event.key === "Escape") {
+                      event.preventDefault();
+                      setCiteSelected(false);
+                      composerInput.current?.focus();
+                    }
+                  }}
+                >
+                  继续分析：{analysisTarget.title || "已选图表"}
+                </button>
+              ) : null}
+              <ComposerPrimitive.Input
+                ref={composerInput}
+                className="composer-input"
+                rows={2}
+                aria-label="圈选需求或技能调用"
+                aria-haspopup="listbox"
+                aria-expanded={!!slash}
+                aria-controls={slash && filteredSkills.length ? "composer-skills" : undefined}
+                aria-activedescendant={slash && filteredSkills.length ? `composer-skill-${Math.min(activeSkill, filteredSkills.length - 1)}` : undefined}
+                onChange={(event) => {
+                  const next = slashQuery(event.currentTarget.value, event.currentTarget.selectionStart);
+                  if (next && !slash) onRefreshSkills?.();
+                  setSlash(next);setActiveSkill(0);
+                }}
+                onKeyDownCapture={(event) => {
+                  if (event.nativeEvent.isComposing) return;
+                  const input = event.currentTarget;
+                  if (analysisTarget && event.key === "Backspace" && input.selectionStart === 0 && input.selectionEnd === 0) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    removeAnalysisCite();
+                    return;
+                  }
+                  if (analysisTarget && event.key === "ArrowLeft" && input.selectionStart === 0 && input.selectionEnd === 0) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setCiteSelected(true);
+                    citeRef.current?.focus();
+                    return;
+                  }
+                  if (!slash) return;
+                  if (event.key === "Escape") { event.preventDefault();event.stopPropagation();setSlash(null); }
+                  else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                    event.preventDefault();event.stopPropagation();setActiveSkill((index) => (index + (event.key === "ArrowDown" ? 1 : -1) + Math.max(1,filteredSkills.length)) % Math.max(1,filteredSkills.length));
+                  } else if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();event.stopPropagation();if (filteredSkills.length) pickSkill(filteredSkills[Math.min(activeSkill,filteredSkills.length-1)]);
+                  }
+                }}
+                placeholder={
+                  thread?.archived ? "会话已归档，请先恢复"
+                    : disabled ? "请先选择标签库"
+                    : thread?.status === "WAITING"
+                    ? "请先回答待补充的问题"
+                    : selectedSkill ? `补充${selectedSkill.display_name}的分析目标，或直接发送运行…` : "描述客户条件，或直接提问、分析与改图…"
                 }
-              }}
-              placeholder={
-                thread?.archived ? "会话已归档，请先恢复"
-                  : disabled ? "请先选择标签库"
-                  : thread?.status === "WAITING"
-                  ? "请先回答待补充的问题"
-                  : selectedSkill ? `补充${selectedSkill.display_name}的分析目标，或直接发送运行…` : "描述客户条件，或直接提问、分析与改图…"
-              }
-            />
+              />
+            </div>
             <div className="composer-footer">
               {contextControl ? (
                 <div className="composer-context">{contextControl}</div>

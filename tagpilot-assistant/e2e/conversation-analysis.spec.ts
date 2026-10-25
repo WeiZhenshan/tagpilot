@@ -54,7 +54,20 @@ for (const width of [1440, 390]) test(`对话分析 ${width}：消息内图表�
   await original.getByRole("button", { name: "放大查看" }).click(); await expect(page.getByRole("dialog").locator("svg")).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "关闭", exact: true }).click();
   await original.getByRole("button", { name: "继续分析此图" }).click();
-  await expect(page.locator(".analysis-reference")).toContainText("机构资产均值"); await expect(composer).toBeFocused();
+  const cite = page.locator(".composer .analysis-cite");
+  await expect(cite).toContainText("机构资产均值");
+  await expect(cite).toBeVisible();
+  await expect(composer).toBeFocused();
+  // 引用落在输入框内：下划线文字令牌，而非输入框外的整行引用条。
+  await expect(page.locator(".composer-wrap > .analysis-reference, .analysis-reference")).toHaveCount(0);
+  await expect(cite).toHaveCSS("text-decoration-line", "underline");
+  await expect(cite).toBeVisible();
+  await cite.click();
+  await expect(cite).toHaveClass(/is-selected/);
+  await page.keyboard.press("Backspace");
+  await expect(page.locator(".composer .analysis-cite")).toHaveCount(0);
+  await original.getByRole("button", { name: "继续分析此图" }).click();
+  await expect(page.locator(".composer .analysis-cite")).toContainText("机构资产均值");
   await composer.fill("改成横向条形图，按金额排序"); await page.getByRole("button", { name: "发送需求" }).click();
   await expect(page.getByText("已保留原数据，调整为横向条形图。")).toBeVisible();
   expect(requests[1].target_artifact_id).toBe("synthetic-chart"); expect(requests[1].target_artifact_version).toBe(1);
@@ -64,5 +77,5 @@ for (const width of [1440, 390]) test(`对话分析 ${width}：消息内图表�
   expect(thread.analysis_artifacts!["synthetic-chart@1"].spec.orientation).toBe("vertical");
   expect(thread.analysis_artifacts!["synthetic-chart@2"].spec.orientation).toBe("horizontal");
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.screenshot({ path: `/private/tmp/tagpilot-conversation-${width}.png`, fullPage: true });
+  if (process.env.CAPTURE_DIR) await page.screenshot({ path: `${process.env.CAPTURE_DIR}/tagpilot-conversation-${width}.png`, fullPage: true });
 });
