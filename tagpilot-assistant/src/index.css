@@ -1801,3 +1801,302 @@ body.split-resizing iframe {
     display: none;
   }
 }
+
+/* ---- 批次 2：结构变化、浮层与跨栏接力 ---- */
+/* 折叠容器：保持挂载，用 grid-rows 过渡高度；关闭期间内容 inert。 */
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-standard),
+    opacity var(--duration-fast) linear;
+}
+.collapse[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.collapse > .collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.collapse-in {
+  display: grid;
+  grid-template-rows: 1fr;
+  animation: collapse-in var(--duration-base) var(--ease-standard);
+}
+.collapse-in > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@keyframes pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes menu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes chart-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes tree-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+@keyframes collapse-in {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+@keyframes panel-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes panel-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}
+
+/* 浮层：统一 elevation-2，并从触发点方向弹入。 */
+.account-menu,
+.plan-menu-options,
+.skill-menu {
+  box-shadow: var(--elevation-2);
+  animation: menu-pop 160ms var(--ease-enter);
+}
+.clause-info {
+  box-shadow: var(--elevation-2);
+}
+.clause-info:popover-open {
+  animation: menu-pop 160ms var(--ease-enter);
+}
+.account-menu {
+  transform-origin: bottom left;
+}
+.plan-menu-options {
+  transform-origin: top right;
+}
+.skill-menu {
+  transform-origin: bottom center;
+}
+.library-options {
+  box-shadow: var(--elevation-2);
+  transform-origin: top left;
+  animation: menu-pop 160ms var(--ease-enter);
+}
+.library-options--up {
+  transform-origin: bottom left;
+}
+.chevron-icon {
+  transition: transform 160ms var(--ease-standard);
+}
+.chevron-icon[data-open="true"] {
+  transform: rotate(180deg);
+}
+
+/* 右栏两个 tab：选中项下方生长出指示条。 */
+.insight-sidebar-heading {
+  position: relative;
+}
+.insight-sidebar-heading button {
+  position: relative;
+}
+.insight-sidebar-heading button::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: -12px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.insight-sidebar-heading button[aria-pressed="true"]::after {
+  transform: scaleX(1);
+}
+
+/* 左栏 rail-tabs：白色滑块在两项之间平移。 */
+.rail-tabs {
+  position: relative;
+}
+.rail-tabs::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 10px) / 2);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: var(--elevation-1);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.rail-tabs[data-rail-tab="tags"]::after {
+  transform: translateX(calc(100% + 4px));
+}
+.rail-tabs button {
+  position: relative;
+  z-index: 1;
+}
+.rail-tabs button[aria-selected="true"] {
+  background: transparent;
+}
+
+/* 移动端四个分区：2px 下划线指示器。 */
+.mobile-tabs {
+  position: relative;
+}
+.mobile-tabs button {
+  position: relative;
+  z-index: 1;
+}
+.mobile-tabs button[aria-selected="true"] {
+  background: transparent;
+}
+.mobile-tabs::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  bottom: 0;
+  height: 2px;
+  width: calc((100% - 56px) / 4);
+  border-radius: 2px;
+  background: var(--accent);
+  transform: translateX(calc(var(--tab-index, 0) * (100% + 8px)));
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+/* 未读徽标：右栏开合按钮与洞察 tab。 */
+.sidebar-toggle[data-unread="true"] {
+  position: relative;
+}
+.sidebar-toggle[data-unread="true"]::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px #fff;
+}
+.insight-sidebar-heading button[data-unread="true"]::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* 跨栏回执。 */
+.workbench-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 30;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #263345;
+  color: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: var(--elevation-2);
+  animation: toast-in 160ms var(--ease-enter);
+  pointer-events: none;
+}
+
+/* 右栏内容进出。 */
+.insight-right .plan-panel[hidden] {
+  display: none;
+}
+.plan-panel:not([hidden]),
+.insight-report {
+  animation: pane-in 160ms var(--ease-standard);
+}
+.rail-content:not([hidden]) {
+  animation: pane-in 160ms var(--ease-standard);
+}
+
+/* 标签树展开与图表入场。 */
+.tag-expand svg {
+  transition: transform 160ms var(--ease-standard);
+}
+.tag-tree-list .tag-tree-list {
+  animation: tree-in 140ms var(--ease-standard);
+}
+.insight-chart {
+  animation: chart-in 200ms var(--ease-standard) both;
+}
+
+@media (max-width: 760px) {
+  .mobile-plan .insight-right .plan-panel:not([hidden]),
+  .mobile-plan .insight-right .insight-report {
+    animation: panel-in-right 180ms var(--ease-enter);
+  }
+  .mobile-history .history-rail .rail-content:not([hidden]) {
+    animation: panel-in-left 180ms var(--ease-enter);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collapse {
+    transition: none !important;
+  }
+  .collapse-in,
+  .account-menu,
+  .plan-menu-options,
+  .skill-menu,
+  .clause-info:popover-open,
+  .library-options,
+  .plan-panel:not([hidden]),
+  .insight-report,
+  .rail-content:not([hidden]),
+  .tag-tree-list .tag-tree-list,
+  .insight-chart,
+  .mobile-plan .insight-right .plan-panel:not([hidden]),
+  .mobile-plan .insight-right .insight-report,
+  .mobile-history .history-rail .rail-content:not([hidden]),
+  .workbench-toast {
+    animation: none !important;
+  }
+  .chevron-icon {
+    transition: none !important;
+  }
+  .insight-sidebar-heading button::after {
+    transition: none !important;
+  }
+  .rail-tabs::after,
+  .mobile-tabs::after {
+    transition: none !important;
+  }
+}

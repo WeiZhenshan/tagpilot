@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Plan, RunEvent, Thread } from "./agentTypes";
 import { actionLabel, buildRunView, groupLabel, type Action, type TimelineItem, type TodoItem, type TodoStatus } from "./runTimeline";
 import { useEventPacer, useNarrationText, useReducedMotion } from "./useEventPacer";
+import { Presence } from "./Presence";
 
 const statusLabels: Record<TodoStatus, string> = { pending: "待办", active: "进行中", done: "完成", blocked: "受阻" };
 export function StatusIcon({ status }: { status: TodoStatus | Action["status"] }) {
@@ -80,7 +81,9 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
         <StatusIcon status={running ? "active" : continued || effectiveStatus === "COMPLETED" ? "done" : "blocked"} /><span>{label ? `${label} · ` : ""}{summary}</span><Chevron open={open} />
       </button>
       <span className="sr-only" role="status" aria-live="polite">{summary}</span>
-      {open ? <div className="run-content"><ol className="skill-run-records">{records.map((event, index) => <li key={`${event.seq}:${index}`}>{event.message}</li>)}</ol>{!records.length ? <p>等待开始分析…</p> : null}{children ? <div className="run-question">{children}</div> : null}</div> : null}
+      <Presence open={open}>
+        <div className="run-content"><ol className="skill-run-records">{records.map((event, index) => <li key={`${event.seq}:${index}`}>{event.message}</li>)}</ol>{!records.length ? <p>等待开始分析…</p> : null}{children ? <div className="run-question">{children}</div> : null}</div>
+      </Presence>
     </section>;
   }
   const view = buildRunView(paced.events, running ? initialPlan : plan, running, { runId, questions, status: effectiveStatus, now });
@@ -95,7 +98,8 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
       <small>{view.elapsedMs ? `${Math.round(view.elapsedMs / 1000)} 秒 · ` : ""}{view.stats.steps} 步 · {view.stats.conditions} 个条件</small><Chevron open={open} />
     </button>
     <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{summary}，{progress} 个阶段完成，共 {view.stats.steps} 步。</span>
-    {open ? <div className="run-content">
+    <Presence open={open}>
+      <div className="run-content">
       <div className="run-plan-heading"><span>计划</span><small>{progress}/4 完成</small></div>
       <ol className="run-todos">{view.todos.map((todo) => <Todo key={todo.id} item={todo} />)}</ol>
       <ol className="run-entries">{view.items.map((item) => <TimelineRow key={item.id} item={item}
@@ -104,6 +108,7 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
         animate={!reduced && running && item.id === narrationId && Number(item.id.split(":").at(-1)) >= paced.liveFrom}
         onReveal={onReveal} />)}</ol>
       {children ? <div className="run-question">{children}</div> : null}
-    </div> : null}
+      </div>
+    </Presence>
   </section>;
 }

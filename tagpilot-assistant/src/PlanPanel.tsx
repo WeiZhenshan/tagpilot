@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Plan, Thread, Tree } from "./agentTypes";
 import { busy, clauses, clauseChanged, clauseSentence, pendingItems } from "./agentTypes";
 import { SummaryTree } from "./ClauseSummary";
@@ -14,10 +14,10 @@ function acceptedConfirmations(thread: Thread | null, plan?: Plan): string[] {
     c.clause_id === id && c.status === "BOUND" && c.assumption_confirmed === true));
 }
 
-export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefine, onDiscuss, onCancel, onCount, onCreate, onPreview, onOpenGroup }: {
+export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefine, onDiscuss, onCancel, onCount, onCreate, onPreview, onOpenGroup, hidden }: {
   highlightedClauses?: string[]; thread: Thread | null; pending: boolean; onSave: (p: Plan) => void; onRefine: (message: string) => void;
   onDiscuss: (message: string) => void; onCancel: () => void; onCount: () => void; onCreate: (name: string) => void;
-  onPreview: () => void; onOpenGroup: (id: number) => void;
+  onPreview: () => void; onOpenGroup: (id: number) => void; hidden?: boolean;
 }) {
   const active = busy(thread) ? thread?.live_plan || thread?.plan : thread?.plan;
   const [draft, setDraft] = useState<Plan>();
@@ -34,6 +34,13 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
     fn();
   }
   const busyLabel = busyAction === "count" ? "统计中…" : busyAction === "save" ? "保存中…" : busyAction === "create" ? "创建中…" : busyAction === "preview" ? "加载中…" : null;
+  const nameInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!confirm) return;
+    // 等折叠展开动画结束再聚焦，避免输入区在动画中被滚动到视口。
+    const timer = window.setTimeout(() => nameInput.current?.focus({ preventScroll: true }), 180);
+    return () => window.clearTimeout(timer);
+  }, [confirm]);
   useEffect(() => {
     setDraft(active); setDirty(false); setConfirm(false); setVersion(undefined); setEditing(undefined);
     setConfirmedIds(acceptedConfirmations(thread, active));
@@ -88,7 +95,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
       onSave({ ...shown, confirmed_clause_ids: ids });
     } else setConfirmedIds(ids);
   }
-  return <aside id="agent-plan-editor" tabIndex={-1} className="plan-panel" aria-label="圈选方案">
+  return <aside id="agent-plan-editor" tabIndex={-1} className="plan-panel" aria-label="圈选方案" hidden={hidden} inert={hidden || undefined}>
     <div className="panel-heading plan-heading"><h2>圈选方案</h2>
       {shown || running ? <span className="plan-status" role="status">{shown?.revision ? `v${shown.revision} · ` : ""}{busyLabel || status}</span> : null}
       <PlanMenu thread={thread} plan={shown} historical={historical} dirty={dirty} onVersion={(revision) => { setVersion(revision); setEditing(undefined); setConfirm(false); }} />
@@ -120,10 +127,12 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
       {dirty ? <><p className="muted">已修改 · 原人数失效</p><button className="primary" disabled={disabled} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => draft && onSave({ ...draft, confirmed_clause_ids: confirmedIds }))}>{busyAction === "save" ? "核验中…" : "保存并核验"}</button>
         <button className="text-button" disabled={disabled} onClick={discard}>放弃修改</button></> : historical ? <><button className="primary" disabled={pending || running || thread?.status === "WAITING" || !!thread?.archived} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave(shown))}>{busyAction === "save" ? "核验中…" : "以此版本继续"}</button>
           <button className="text-button" onClick={() => setVersion(undefined)}>返回当前方案</button></> : thread?.source_requires_validation ? <button className="primary" disabled={disabled || thread?.status === "WAITING"} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave(shown))}>{busyAction === "save" ? "核验中…" : "按最新发布版本核验"}</button> : confirmNew ? <button className="primary" disabled={disabled} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave({ ...shown, confirmed_clause_ids: confirmedIds }))}>{busyAction === "save" ? "核验中…" : "确认新增条件"}</button> : queue.length ? <p className="muted">处理上方待确认事项后，可继续统计和{updating ? "更新" : "创建"}。</p> : execution ?
-            <button className="primary" disabled={disabled} onClick={() => onOpenGroup(execution.group_id)}>打开客群</button> : confirm ? <div className="create-form">
-              <label className="field-label">客群名称<input autoFocus disabled={disabled} value={name} maxLength={100} onChange={(e) => setName(e.target.value)} placeholder="输入便于识别的名称" /></label>
+            <button className="primary" disabled={disabled} onClick={() => onOpenGroup(execution.group_id)}>打开客群</button> : confirm ? <div className="create-form collapse-in">
+              <div>
+              <label className="field-label">客群名称<input ref={nameInput} disabled={disabled} value={name} maxLength={100} onChange={(e) => setName(e.target.value)} placeholder="输入便于识别的名称" /></label>
               <p>将按当前 v{thread?.revision} 的 {items.length} 项条件{updating ? "更新原客群" : "创建客群"}。</p>
               <div className="action-row"><button disabled={disabled} onClick={() => setConfirm(false)}>取消</button><button className="primary" disabled={!name.trim() || !canExecute || !savePermission} data-busy={busyAction === "create" ? "true" : undefined} aria-busy={busyAction === "create" || undefined} onClick={() => run("create", () => onCreate(name.trim()))}>{busyAction === "create" ? (updating ? "更新中…" : "创建中…") : updating ? "确认更新" : "确认创建"}</button></div>
+              </div>
             </div> : <>
               {count ? <button className="primary" disabled={!canExecute || !savePermission} onClick={() => setConfirm(true)}>{updating ? "更新客群" : "创建客群"}</button> :
                 <button className="primary" disabled={!canExecute || !thread?.capabilities.count} data-busy={busyAction === "count" ? "true" : undefined} aria-busy={busyAction === "count" || undefined} onClick={() => run("count", onCount)}>{busyAction === "count" ? "统计中…" : "统计人数"}</button>}

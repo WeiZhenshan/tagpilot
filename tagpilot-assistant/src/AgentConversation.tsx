@@ -16,6 +16,7 @@ import { stagedQuestions } from "./clarification";
 import { conversationRuns, reportMessageId } from "./conversationRuns";
 import { AnalysisMessageParts } from "./insight/AnalysisMessageParts";
 import type { ArtifactReference } from "./insight/analysisTypes";
+import { Presence } from "./Presence";
 const convertMessage = (m: AgentMessage): ThreadMessageLike => ({
   id: m.id,
   role: m.role,
@@ -162,7 +163,9 @@ export function AgentConversation({
       events={run.events} running={run.current && busy(thread)} continued={run.continued} label={run.label}
       plan={run.current ? thread?.live_plan || thread?.plan : undefined}
       status={run.current ? thread?.status : undefined} questions={run.current ? thread?.questions : undefined} onReveal={onReveal}>
-      {run.current && thread?.status === "WAITING" ? <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} onCancel={onCancel} /> : null}
+      {run.current && thread ? <Presence open={thread.status === "WAITING"}>
+        <Ask key={thread.interrupt_id} thread={thread} pending={pending} onAnswer={onAnswer} onCancel={onCancel} />
+      </Presence> : null}
     </RunTimeline>
   );
   const composerInput = useRef<HTMLTextAreaElement>(null);

@@ -5,6 +5,8 @@ export type ListboxOption = { value: string; label: string };
 export function ChevronIcon({ open }: { open: boolean }) {
   return (
     <svg
+      className="chevron-icon"
+      data-open={open || undefined}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -13,7 +15,7 @@ export function ChevronIcon({ open }: { open: boolean }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d={open ? "m7 14 5-5 5 5" : "m7 10 5 5 5-5"} />
+      <path d="m7 10 5 5 5-5" />
     </svg>
   );
 }

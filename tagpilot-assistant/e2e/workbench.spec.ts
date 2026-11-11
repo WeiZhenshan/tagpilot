@@ -859,7 +859,10 @@ test("streaming timeline paces updates, replays history, and highlights changed 
   await expect(current.locator(".run-content")).toHaveCount(0);
   await current.locator(".run-heading").click();
   await current.getByRole("button", { name: "方案变更 · 2 项" }).click();
+  await expect(page.locator('.workbench-toast')).toContainText('已定位到方案');
   await expect(page.locator('.clause-row[data-highlighted="true"]')).toHaveCount(2);
+  // 跨栏定位高亮 1.6 秒后自动清除，不能永久驻留。
+  await expect(page.locator('.clause-row[data-highlighted="true"]')).toHaveCount(0, { timeout: 3000 });
   await page.getByRole("region", { name: "第 1 轮处理记录" }).locator(".run-heading").click();
   await expect(page.getByRole("region", { name: "第 1 轮处理记录" }).locator(".run-entry-status")).toHaveCount(2);
 });
@@ -955,4 +958,18 @@ test("side panels can be dragged wider and content keeps fitting", async ({ page
   if (process.env.CAPTURE_DIR) await page.screenshot({ path: `${process.env.CAPTURE_DIR}/resized-workbench.png`, fullPage: true });
   await leftHandle.dblclick();
   await expect.poll(async () => (await rail.boundingBox())!.width).toBeLessThan(after);
+});
+
+test("切换右栏 tab 保留未保存的条件草稿", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  await page.getByRole("button", { name: "编辑条件：近30天异名跨行转入金额", exact: true }).click();
+  const value = page.getByLabel("近30天异名跨行转入金额条件值");
+  await value.fill("600000");
+  await expect(page.locator(".plan-status")).toContainText("未保存");
+  const heading = page.locator(".insight-sidebar-heading");
+  await heading.getByRole("button", { name: "洞察", exact: true }).click();
+  await heading.getByRole("button", { name: "圈选方案", exact: true }).click();
+  await expect(page.locator(".plan-status")).toContainText("未保存");
+  await expect(page.getByLabel("近30天异名跨行转入金额条件值")).toHaveValue("600000");
 });

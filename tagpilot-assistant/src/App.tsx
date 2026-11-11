@@ -3,6 +3,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -27,6 +28,7 @@ import "./insight/workbench-insight.css";
 import "./panel-motion.css";
 const InsightReportPanel = lazy(() => import("./insight/InsightReportPanel").then((m) => ({ default: m.InsightReportPanel })));
 import { PlanPanel } from "./PlanPanel";
+import { Presence } from "./Presence";
 import { TagTree, TagChips } from "./TagTree";
 import { MAX_CONTEXT_TAGS, selectionMessage, usedTagIds } from "./tagSelection";
 import { ChevronIcon, ListboxSelect } from "./ListboxSelect";
@@ -96,17 +98,35 @@ export function App() {
   useEffect(() => { if (thread?.capabilities.insight) void refreshSkills(); else setSkills([]); }, [thread?.thread_id, thread?.capabilities.insight, refreshSkills]);
   const [rightTab, setRightTab] = useState<"plan" | "insight">("plan");
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
+  const [rightUnread, setRightUnread] = useState({ plan: false, insight: false });
+  const [toast, setToast] = useState<{ id: number; text: string } | null>(null);
   const [reportReveal, setReportReveal] = useState(0);
   const handledReportReveal = useRef(0);
   const rightPanel = useRef<HTMLElement>(null);
   const rightToggle = useRef<HTMLButtonElement>(null);
+  const handoffSource = useRef<HTMLElement | null>(null);
+  const seenRight = useRef<{ threadId?: string; revision?: number; reportId?: string | null }>({});
+  const paneScroll = useRef<Record<string, number>>({});
+  const layoutTouched = useRef(false);
+  const autoReport = useRef<{ threadId?: string; reportId?: string }>({});
+  const selectRightTab = (section: "plan" | "insight") => {
+    layoutTouched.current = true;
+    setRightTab(section);
+    setRightUnread((prev) => (prev[section] ? { ...prev, [section]: false } : prev));
+  };
   const openRightPanel = (section: "plan" | "insight") => {
-    setRightTab(section); setRightPanelOpen(true); setTab("plan");
+    if (document.activeElement instanceof HTMLElement) handoffSource.current = document.activeElement;
+    setRightPanelOpen(true); setTab("plan"); selectRightTab(section);
     if (section === "insight") setReportReveal((value) => value + 1);
   };
   const closeRightPanel = () => {
-    setRightPanelOpen(false); setTab("chat"); rightToggle.current?.focus();
+    layoutTouched.current = true;
+    setRightPanelOpen(false); setTab("chat");
+    const source = handoffSource.current;
+    handoffSource.current = null;
+    (source && source.isConnected ? source : rightToggle.current)?.focus();
   };
+  const showToast = (text: string) => setToast({ id: Date.now(), text });
   const bodyRef = useRef<HTMLDivElement>(null);
   const [splitWidths, setSplitWidths] = useState<SplitWidths>(() => readSplitWidths(window.localStorage));
   const [panelWidths, setPanelWidths] = useState({ left: 0, right: 0 });
@@ -148,12 +168,22 @@ export function App() {
     panel?.querySelector(".insight-report")?.scrollTo({ top: 0 });
     panel?.focus();
   }, [reportReveal, rightPanelOpen, rightTab]);
-  useEffect(() => { setSelectedSkill(null); setBaselineGroupId(null); setRightTab("plan"); setRightPanelOpen(true); }, [library, thread?.thread_id]);
+  useEffect(() => { setSelectedSkill(null); setBaselineGroupId(null); }, [library, thread?.thread_id]);
   useEffect(() => {
     if (!tagHandoff) return;
     const timer = window.setTimeout(() => setTagHandoff(null), 800);
     return () => window.clearTimeout(timer);
   }, [tagHandoff]);
+  useEffect(() => {
+    if (!highlightedClauses.length) return;
+    const timer = window.setTimeout(() => setHighlightedClauses([]), 1600);
+    return () => window.clearTimeout(timer);
+  }, [highlightedClauses]);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 1600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
   const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
   const [contextTags, setContextTags] = useState<ContextTag[]>([]);
   const [tagConfirm, setTagConfirm] = useState(false);
@@ -259,23 +289,6 @@ export function App() {
   const generation = useRef(0);
   const inflight = useRef(false);
   const initialLoad = useRef<Promise<Thread> | null>(null);
-  const shownSkillReport = useRef<string | null>(null);
-  const shownInlineAnalysis = useRef<string | null>(null);
-  useEffect(() => {
-    if (thread?.run_profile !== "conversation" || !thread.run_id || shownInlineAnalysis.current === thread.run_id) return;
-    if (!thread.messages.some((message) => message.run_id === thread.run_id && message.parts?.length)) return;
-    shownInlineAnalysis.current = thread.run_id;
-    setRightPanelOpen(false);
-  }, [thread?.run_id, thread?.messages, thread?.run_profile]);
-  useEffect(() => {
-    const reportId = thread?.run_profile === "skill" ? thread?.skill_report?.run_id : undefined;
-    if (reportId && shownSkillReport.current !== reportId) {
-      shownSkillReport.current = reportId;
-      if (thread?.messages.some((m) => m.run_id === reportId && m.parts?.length)) return;
-      setRightTab("insight");
-      setRightPanelOpen(true);
-    }
-  }, [thread?.run_profile, thread?.skill_report?.run_id]);
   const update = useCallback((value: Thread) => {
     current.current = value;
     setThread(value);
@@ -627,6 +640,57 @@ export function App() {
   const activeAnalysisMessage = thread?.run_profile === "conversation" ? thread.messages.filter((message) => message.role === "assistant" && message.parts?.length).at(-1) : undefined;
   const insightPanelReport = activeAnalysisMessage ? undefined : skillReport ?? thread?.insight_report;
   const rightPanelVisible = rightPanelOpen && (!mobile || tab === "plan");
+  const mobileTabIndex = tab === "history" ? 0 : tab === "chat" ? 1 : rightTab === "plan" ? 2 : 3;
+  useEffect(() => {
+    const reportId = thread?.run_profile === "skill" ? thread?.skill_report?.run_id : undefined;
+    if (!reportId) return;
+    if (thread?.messages.some((m) => m.run_id === reportId && m.parts?.length)) return;
+    if (layoutTouched.current) return;
+    const previous = autoReport.current;
+    const isNewArrival = previous.threadId === thread?.thread_id && !!previous.reportId && previous.reportId !== reportId;
+    autoReport.current = { threadId: thread?.thread_id, reportId };
+    setRightTab("insight");
+    setRightPanelOpen(true);
+    if (isNewArrival) showToast("洞察报告已生成");
+  }, [thread?.thread_id, thread?.run_profile, thread?.skill_report?.run_id, thread?.messages]);
+  useEffect(() => {
+    const threadId = thread?.thread_id;
+    const revision = thread?.revision;
+    const reportId = thread?.skill_report?.run_id || thread?.insight_report?.run_id || null;
+    const seen = seenRight.current;
+    if (seen.threadId !== threadId) {
+      seenRight.current = { threadId, revision, reportId };
+      setRightUnread({ plan: false, insight: false });
+      return;
+    }
+    const planChanged = revision !== undefined && revision !== seen.revision;
+    const insightChanged = reportId !== seen.reportId;
+    if (!planChanged && !insightChanged) return;
+    if (planChanged) seen.revision = revision;
+    if (insightChanged) seen.reportId = reportId;
+    const markPlan = planChanged && !(rightPanelVisible && rightTab === "plan");
+    const markInsight = insightChanged && !(rightPanelVisible && rightTab === "insight");
+    setRightUnread((prev) => {
+      const next = { plan: prev.plan || markPlan, insight: prev.insight || markInsight };
+      return next.plan === prev.plan && next.insight === prev.insight ? prev : next;
+    });
+  }, [thread?.thread_id, thread?.revision, thread?.skill_report?.run_id, thread?.insight_report?.run_id, rightPanelVisible, rightTab]);
+  useEffect(() => {
+    if (!rightPanelVisible) return;
+    setRightUnread((prev) => (prev[rightTab] ? { ...prev, [rightTab]: false } : prev));
+  }, [rightPanelVisible, rightTab]);
+  useLayoutEffect(() => {
+    const pane = rightPanel.current;
+    if (!pane || !rightPanelVisible) return;
+    const scroller = Array.from(pane.querySelectorAll<HTMLElement>(".plan-scroll, .insight-report")).find((el) => el.offsetParent !== null);
+    if (!scroller) return;
+    const key = `${thread?.thread_id || "none"}:${rightTab}`;
+    const saved = paneScroll.current[key];
+    if (saved != null) scroller.scrollTop = saved;
+    const onScroll = () => { paneScroll.current[key] = scroller.scrollTop; };
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    return () => { paneScroll.current[key] = scroller.scrollTop; scroller.removeEventListener("scroll", onScroll); };
+  }, [rightTab, thread?.thread_id, rightPanelVisible]);
   return (
     <div
       className={`workbench mobile-${tab} ${rightPanelOpen ? "" : "right-panel-collapsed"} ${
@@ -693,12 +757,13 @@ export function App() {
             : "准备就绪"}
         </span>
         <button ref={rightToggle} type="button" className="sidebar-toggle report-panel-toggle"
-          aria-label={rightPanelVisible ? "隐藏右侧面板" : "展开右侧面板"}
-          title={rightPanelVisible ? "隐藏右侧面板" : "展开右侧面板"}
+          data-unread={!rightPanelVisible && (rightUnread.plan || rightUnread.insight) ? "true" : undefined}
+          aria-label={rightPanelVisible ? "隐藏右侧面板" : rightUnread.plan || rightUnread.insight ? "展开右侧面板（有更新）" : "展开右侧面板"}
+          title={rightPanelVisible ? "隐藏右侧面板" : rightUnread.plan || rightUnread.insight ? "展开右侧面板（有更新）" : "展开右侧面板"}
           aria-expanded={rightPanelVisible} aria-controls="agent-right-panel"
           onClick={() => {
             if (rightPanelVisible) closeRightPanel();
-            else { setRightPanelOpen(true); setTab("plan"); }
+            else { layoutTouched.current = true; setRightPanelOpen(true); setTab("plan"); selectRightTab(rightTab); }
           }}>
           <SidebarIcon collapsed={!rightPanelVisible} side="right" />
         </button>
@@ -712,7 +777,7 @@ export function App() {
           >
             新建圈选
           </button>
-          <div className="rail-tabs" role="tablist" aria-label="侧栏内容">
+          <div className="rail-tabs" role="tablist" aria-label="侧栏内容" data-rail-tab={railTab}>
             <button role="tab" aria-selected={railTab === "history"} aria-controls="rail-history" onClick={() => setRailTab("history")}>会话</button>
             <button role="tab" aria-selected={railTab === "tags"} aria-controls="rail-tags" onClick={() => setRailTab("tags")}>标签</button>
           </div>
@@ -938,7 +1003,7 @@ export function App() {
           <div className="conversation-heading">
             <span>{thread?.title || "新的圈选"}</span>
           </div>
-          <div className="mobile-tabs" role="tablist" aria-label="工作台分区">
+          <div className="mobile-tabs" role="tablist" aria-label="工作台分区" style={{ "--tab-index": mobileTabIndex } as CSSProperties}>
             <button
               role="tab"
               aria-selected={tab === "history"}
@@ -962,7 +1027,7 @@ export function App() {
             </button>
             <button role="tab" aria-selected={tab === "plan" && rightTab === "insight"} onClick={() => openRightPanel("insight")}>洞察</button>
           </div>
-          {error || (thread && ["CANCELLED", "FAILED", "INTERRUPTED"].includes(thread.status) && thread.error) ? (
+          <Presence open={!!(error || (thread && ["CANCELLED", "FAILED", "INTERRUPTED"].includes(thread.status) && thread.error))}>
             <div className="banner error" role="alert">
               <span>{error || thread?.error}</span>
               <button
@@ -974,7 +1039,7 @@ export function App() {
                 刷新状态
               </button>
             </div>
-          ) : null}
+          </Presence>
           <AgentConversation
             thread={thread}
             disabled={!library || !!thread?.archived}
@@ -996,7 +1061,7 @@ export function App() {
               />
             }
             insightRunId={insightPanelReport?.run_id}
-            insightSummary={insightPanelReport ? <InsightSummary report={insightPanelReport} revision={thread!.revision} hash={thread!.plan?.hash || ""} onExpand={() => openRightPanel("insight")} /> : undefined}
+            insightSummary={insightPanelReport ? <InsightSummary report={insightPanelReport} revision={thread!.revision} hash={thread!.plan?.hash || ""} onExpand={() => { openRightPanel("insight"); showToast("已打开洞察报告"); }} /> : undefined}
             skills={skills}
             skillsLoading={skillsLoading}
             skillsError={skillsError}
@@ -1021,7 +1086,12 @@ export function App() {
             onReveal={(ids) => {
               setHighlightedClauses(ids);
               openRightPanel("plan");
-              requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
+              showToast("已定位到方案");
+              requestAnimationFrame(() => requestAnimationFrame(() => {
+                const target = rightPanel.current?.querySelector<HTMLElement>('.clause-row[data-highlighted="true"]');
+                target?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+                document.getElementById("agent-plan-editor")?.focus({ preventScroll: true });
+              }));
             }}
             skillRunDisabled={!skillReady}
             onSend={(text) => {
@@ -1039,7 +1109,8 @@ export function App() {
             onRetry={() => { if(thread?.run_profile === "skill"){setTab("chat");setComposerRequest({text:"/",id:Date.now()});}else if(thread?.run_profile === "conversation"){setTab("chat");setComposerRequest({text:thread.messages.filter((m) => m.role === "user").at(-1)?.text || "请继续分析",id:Date.now()});}else void act((t) => api.resumeRun(t)); }}
             onEdit={() => {
               openRightPanel("plan");
-              requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus());
+              showToast("已打开方案编辑");
+              requestAnimationFrame(() => document.getElementById("agent-plan-editor")?.focus({ preventScroll: true }));
             }}
           />
         </main>
@@ -1054,8 +1125,9 @@ export function App() {
           onReset={() => resetSplit("right")}
         />
         <aside ref={rightPanel} id="agent-right-panel" tabIndex={-1} inert={!rightPanelVisible} aria-hidden={!rightPanelVisible} aria-label={rightTab === "insight" ? "洞察报告面板" : "工作台右侧面板"} data-switching={pendingThreadId ? "true" : undefined} className={`insight-right ${rightTab === "insight" ? "insight-right--report" : ""}`} onKeyDown={(event) => { if (event.key === "Escape" && !event.defaultPrevented && !(event.target as Element).closest('dialog, [aria-expanded="true"], .library-options, .plan-menu')) { event.stopPropagation(); closeRightPanel(); } }}>
-          <div className="insight-sidebar-heading"><button type="button" aria-pressed={rightTab === "plan"} onClick={() => setRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} onClick={() => openRightPanel("insight")}>洞察</button></div>
-        {rightTab === "plan" ? <PlanPanel
+          <div className="insight-sidebar-heading" data-tab={rightTab}><button type="button" aria-pressed={rightTab === "plan"} data-unread={rightUnread.plan || undefined} onClick={() => selectRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} data-unread={rightUnread.insight || undefined} onClick={() => selectRightTab("insight")}>洞察</button></div>
+        <PlanPanel
+          hidden={rightTab !== "plan"}
           highlightedClauses={highlightedClauses}
           thread={thread}
           pending={pending}
@@ -1075,7 +1147,8 @@ export function App() {
             });
           }}
           onOpenGroup={openGroup}
-        /> : activeAnalysisMessage ? <div className="insight-report"><header className="insight-report-header"><h2>本轮分析</h2><p>与对话中的结果使用同一份证据和图表版本。</p></header><AnalysisMessageParts parts={activeAnalysisMessage.parts!} artifacts={thread!.analysis_artifacts} revision={thread!.revision} disabled={pending || busy(thread)} onContinue={(target, text) => { setAnalysisTarget(target); setSelectedSkill(null); setTab("chat"); setComposerRequest({ text: text || "", id: Date.now(), focusOnly: !text }); }} onAnswer={(text) => { void send(text); }} /></div> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
+        />
+        {rightTab === "insight" ? activeAnalysisMessage ? <div className="insight-report"><header className="insight-report-header"><h2>本轮分析</h2><p>与对话中的结果使用同一份证据和图表版本。</p></header><AnalysisMessageParts parts={activeAnalysisMessage.parts!} artifacts={thread!.analysis_artifacts} revision={thread!.revision} disabled={pending || busy(thread)} onContinue={(target, text) => { setAnalysisTarget(target); setSelectedSkill(null); setTab("chat"); setComposerRequest({ text: text || "", id: Date.now(), focusOnly: !text }); }} onAnswer={(text) => { void send(text); }} /></div> : skillReport ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={skillReport} currentRevision={thread!.revision} currentPlanHash={thread!.plan?.hash || ""} /></Suspense> : thread?.insight_report ? <Suspense fallback={<p className="insight-empty">正在展开报告…</p>}><InsightReportPanel report={thread.insight_report} currentRevision={thread.revision} currentPlanHash={thread.plan?.hash || ""} onEdit={async (skill, chart, utterance) => {
             if (inflight.current) throw new Error("当前操作尚未完成，请稍后重试");
             const source = thread; let changed: Awaited<ReturnType<typeof editInsight>> | undefined;
             const ok = await operation(async () => {
@@ -1093,9 +1166,10 @@ export function App() {
               update({ ...current.current!, insight_report: report });
             });
             if (!ok) throw new Error("重跑未完成，请查看当前操作提示");
-          }} onReviewChange={(utterance) => { setRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : thread?.run_profile === "skill" && (busy(thread) || thread?.status === "WAITING") ? <div className="insight-empty insight-empty--busy" role="status">{busy(thread) ? <span className="insight-spinner" aria-hidden="true" /> : null}<p>{busy(thread) ? "正在生成洞察…" : "等待业务选择，完成后生成洞察"}</p><small>报告会在分析完成后显示在这里。</small></div> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button></div>}
+          }} onReviewChange={(utterance) => { selectRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); showToast("已填入对话"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : thread?.run_profile === "skill" && (busy(thread) || thread?.status === "WAITING") ? <div className="insight-empty insight-empty--busy" role="status">{busy(thread) ? <span className="insight-spinner" aria-hidden="true" /> : null}<p>{busy(thread) ? "正在生成洞察…" : "等待业务选择，完成后生成洞察"}</p><small>报告会在分析完成后显示在这里。</small></div> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button></div> : null}
         </aside>
       </div>
+      {toast ? <div className="workbench-toast" role="status" key={toast.id}>{toast.text}</div> : null}
       {tagConfirm ? <dialog ref={tagDialog} className="confirm-overlay tag-confirm-overlay" aria-labelledby="tag-confirm-title" onCancel={() => setTagConfirm(false)} onKeyDown={(event) => {
         if (event.key !== "Tab") return;
         const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("textarea, button:not(:disabled)"));

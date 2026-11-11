@@ -2,6 +2,7 @@ import { useId, useRef, useState } from "react";
 import type { Clause, Tree } from "./agentTypes";
 import { clauseSentence, clauseUnit, operatorNames } from "./agentTypes";
 import { ListboxSelect } from "./ListboxSelect";
+import { Presence } from "./Presence";
 
 export function PlanIcon({ kind }: { kind: "edit" | "info" | "more" | "close" }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -94,7 +95,7 @@ export function ClauseSummary({ highlighted, clause: c, number, change, open, di
       <p>{c.definition || (c.kind === "SCOPE_ALL" ? "采用当前标签库的授权客户范围。" : "核验后可查看发布口径。")}{c.time_constraint ? ` 时间范围：${c.time_constraint}。` : ""}</p>
       {["not_in", "!="].includes(c.operator || "") ? <p>排除空值；{c.unknown_policy === "INCLUDE" ? "包含" : "排除"}未知码值。</p> : null}
     </div>
-    {open ? <div id={editorId}><ClauseEditor clause={c} disabled={disabled} onChange={onChange} onDone={onDone} onRemove={onRemove} onDiscuss={onDiscuss} /></div> : null}
+    <div id={editorId}><Presence open={open}><ClauseEditor clause={c} disabled={disabled} onChange={onChange} onDone={onDone} onRemove={onRemove} onDiscuss={onDiscuss} /></Presence></div>
   </section>;
 }
 
