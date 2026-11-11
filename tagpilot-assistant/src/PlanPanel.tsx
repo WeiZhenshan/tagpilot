@@ -27,6 +27,13 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [confirmedIds, setConfirmedIds] = useState<string[]>([]);
+  const [busyAction, setBusyAction] = useState<"count" | "save" | "create" | "preview" | null>(null);
+  useEffect(() => { if (!pending) setBusyAction(null); }, [pending]);
+  function run<T extends "count" | "save" | "create" | "preview">(action: T, fn: () => void) {
+    setBusyAction(action);
+    fn();
+  }
+  const busyLabel = busyAction === "count" ? "统计中…" : busyAction === "save" ? "保存中…" : busyAction === "create" ? "创建中…" : busyAction === "preview" ? "加载中…" : null;
   useEffect(() => {
     setDraft(active); setDirty(false); setConfirm(false); setVersion(undefined); setEditing(undefined);
     setConfirmedIds(acceptedConfirmations(thread, active));
@@ -83,7 +90,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   }
   return <aside id="agent-plan-editor" tabIndex={-1} className="plan-panel" aria-label="圈选方案">
     <div className="panel-heading plan-heading"><h2>圈选方案</h2>
-      {shown || running ? <span className="plan-status" role="status">{shown?.revision ? `v${shown.revision} · ` : ""}{status}</span> : null}
+      {shown || running ? <span className="plan-status" role="status">{shown?.revision ? `v${shown.revision} · ` : ""}{busyLabel || status}</span> : null}
       <PlanMenu thread={thread} plan={shown} historical={historical} dirty={dirty} onVersion={(revision) => { setVersion(revision); setEditing(undefined); setConfirm(false); }} />
     </div>
     <div className="plan-scroll">
@@ -96,7 +103,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
         onRemove={(item) => onRefine(`请移除这项要求：${item.title}，保留其余条件，并重新核验。`)} /> : null}
       {execution ? <div className="plan-created" role="status"><strong>{updating ? "已更新客群" : "已创建客群"}{name ? `《${name}》` : ""}</strong><span>按 v{thread?.revision} 的圈选条件{updating ? "更新" : "创建"}</span></div> : null}
       {shown && !running && !historical && !execution && (!queue.length || dirty) ? <section className="plan-count" aria-label="圈选客户数">
-        <div className="plan-count-heading"><span>圈选客户数</span>{count ? <button className="text-button" disabled={!canExecute || !thread?.capabilities.count} onClick={onCount}>重新统计</button> : null}</div>
+        <div className="plan-count-heading"><span>圈选客户数</span>{count ? <button className="text-button" disabled={!canExecute || !thread?.capabilities.count} data-busy={busyAction === "count" ? "true" : undefined} aria-busy={busyAction === "count" || undefined} onClick={() => run("count", onCount)}>{busyAction === "count" ? "统计中…" : "重新统计"}</button> : null}</div>
         <strong>{count ? count.value.toLocaleString() : "—"}{count ? <small> 人</small> : null}</strong>
         <p>{count ? `${countTime(count.executed_at)} · 数据截至 ${count.data_as_of || "未提供"}` : dirty ? "修改后须重新核验和统计" : confirmNew ? "确认新增条件后可统计人数" : "条件已核验，统计后显示人数"}</p>
         {count?.warning ? <details className="evidence"><summary>统计说明</summary><p>{count.warning}</p></details> : null}
@@ -110,17 +117,17 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
       </> : !running ? <div className="plan-empty"><p>先描述你想寻找的客户</p><span>例如：近 3 个月消费至少 1 万元的金卡客户。</span></div> : null}
     </div>
     {shown && !running ? <div className="plan-actions">
-      {dirty ? <><p className="muted">已修改 · 原人数失效</p><button className="primary" disabled={disabled} onClick={() => draft && onSave({ ...draft, confirmed_clause_ids: confirmedIds })}>保存并核验</button>
-        <button className="text-button" disabled={disabled} onClick={discard}>放弃修改</button></> : historical ? <><button className="primary" disabled={pending || running || thread?.status === "WAITING" || !!thread?.archived} onClick={() => onSave(shown)}>以此版本继续</button>
-          <button className="text-button" onClick={() => setVersion(undefined)}>返回当前方案</button></> : thread?.source_requires_validation ? <button className="primary" disabled={disabled || thread?.status === "WAITING"} onClick={() => onSave(shown)}>按最新发布版本核验</button> : confirmNew ? <button className="primary" disabled={disabled} onClick={() => onSave({ ...shown, confirmed_clause_ids: confirmedIds })}>确认新增条件</button> : queue.length ? <p className="muted">处理上方待确认事项后，可继续统计和{updating ? "更新" : "创建"}。</p> : execution ?
+      {dirty ? <><p className="muted">已修改 · 原人数失效</p><button className="primary" disabled={disabled} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => draft && onSave({ ...draft, confirmed_clause_ids: confirmedIds }))}>{busyAction === "save" ? "核验中…" : "保存并核验"}</button>
+        <button className="text-button" disabled={disabled} onClick={discard}>放弃修改</button></> : historical ? <><button className="primary" disabled={pending || running || thread?.status === "WAITING" || !!thread?.archived} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave(shown))}>{busyAction === "save" ? "核验中…" : "以此版本继续"}</button>
+          <button className="text-button" onClick={() => setVersion(undefined)}>返回当前方案</button></> : thread?.source_requires_validation ? <button className="primary" disabled={disabled || thread?.status === "WAITING"} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave(shown))}>{busyAction === "save" ? "核验中…" : "按最新发布版本核验"}</button> : confirmNew ? <button className="primary" disabled={disabled} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave({ ...shown, confirmed_clause_ids: confirmedIds }))}>{busyAction === "save" ? "核验中…" : "确认新增条件"}</button> : queue.length ? <p className="muted">处理上方待确认事项后，可继续统计和{updating ? "更新" : "创建"}。</p> : execution ?
             <button className="primary" disabled={disabled} onClick={() => onOpenGroup(execution.group_id)}>打开客群</button> : confirm ? <div className="create-form">
               <label className="field-label">客群名称<input autoFocus disabled={disabled} value={name} maxLength={100} onChange={(e) => setName(e.target.value)} placeholder="输入便于识别的名称" /></label>
               <p>将按当前 v{thread?.revision} 的 {items.length} 项条件{updating ? "更新原客群" : "创建客群"}。</p>
-              <div className="action-row"><button disabled={disabled} onClick={() => setConfirm(false)}>取消</button><button className="primary" disabled={!name.trim() || !canExecute || !savePermission} onClick={() => onCreate(name.trim())}>{updating ? "确认更新" : "确认创建"}</button></div>
+              <div className="action-row"><button disabled={disabled} onClick={() => setConfirm(false)}>取消</button><button className="primary" disabled={!name.trim() || !canExecute || !savePermission} data-busy={busyAction === "create" ? "true" : undefined} aria-busy={busyAction === "create" || undefined} onClick={() => run("create", () => onCreate(name.trim()))}>{busyAction === "create" ? (updating ? "更新中…" : "创建中…") : updating ? "确认更新" : "确认创建"}</button></div>
             </div> : <>
               {count ? <button className="primary" disabled={!canExecute || !savePermission} onClick={() => setConfirm(true)}>{updating ? "更新客群" : "创建客群"}</button> :
-                <button className="primary" disabled={!canExecute || !thread?.capabilities.count} onClick={onCount}>统计人数</button>}
-              <button className="text-button" disabled={!canExecute || !thread?.capabilities.preview} onClick={onPreview}>查看样例客户</button>
+                <button className="primary" disabled={!canExecute || !thread?.capabilities.count} data-busy={busyAction === "count" ? "true" : undefined} aria-busy={busyAction === "count" || undefined} onClick={() => run("count", onCount)}>{busyAction === "count" ? "统计中…" : "统计人数"}</button>}
+              <button className="text-button" disabled={!canExecute || !thread?.capabilities.preview} data-busy={busyAction === "preview" ? "true" : undefined} aria-busy={busyAction === "preview" || undefined} onClick={() => run("preview", onPreview)}>{busyAction === "preview" ? "加载中…" : "查看样例客户"}</button>
               {count && !savePermission ? <p className="muted">当前账号暂无{updating ? "更新" : "创建"}客群权限。</p> : !count && !thread?.capabilities.count ? <p className="muted">当前账号暂无统计权限。</p> : null}
             </>}
     </div> : null}

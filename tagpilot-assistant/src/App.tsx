@@ -61,6 +61,9 @@ export function App() {
   const [thread, setThread] = useState<Thread | null>(null);
   const current = useRef<Thread | null>(null);
   const [pending, setPending] = useState(false);
+  const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
+  const [tagHandoff, setTagHandoff] = useState<number[] | null>(null);
+  const [composerPulse, setComposerPulse] = useState(0);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [archived, setArchived] = useState(false);
@@ -146,6 +149,11 @@ export function App() {
     panel?.focus();
   }, [reportReveal, rightPanelOpen, rightTab]);
   useEffect(() => { setSelectedSkill(null); setBaselineGroupId(null); setRightTab("plan"); setRightPanelOpen(true); }, [library, thread?.thread_id]);
+  useEffect(() => {
+    if (!tagHandoff) return;
+    const timer = window.setTimeout(() => setTagHandoff(null), 800);
+    return () => window.clearTimeout(timer);
+  }, [tagHandoff]);
   const [selectedTags, setSelectedTags] = useState<ContextTag[]>([]);
   const [contextTags, setContextTags] = useState<ContextTag[]>([]);
   const [tagConfirm, setTagConfirm] = useState(false);
@@ -438,16 +446,22 @@ export function App() {
     }
   }
   async function select(id: string) {
+    if (pending) return;
     const seq = ++generation.current;
-    await operation(async () => {
-      const t = await api.getThread(id);
-      if (seq === generation.current) {
-        update(t);
-        setSample(null);
-        setTab("chat");
-        setSelectedTags([]); setContextTags([]); setTagConfirm(false);
-      }
-    });
+    setPendingThreadId(id);
+    try {
+      await operation(async () => {
+        const t = await api.getThread(id);
+        if (seq === generation.current) {
+          update(t);
+          setSample(null);
+          setTab("chat");
+          setSelectedTags([]); setContextTags([]); setTagConfirm(false);
+        }
+      });
+    } finally {
+      setPendingThreadId(null);
+    }
   }
   function fresh(next = library) {
     if (!next) return;
@@ -485,7 +499,10 @@ export function App() {
   function addTagsToComposer() {
     const merged = [...new Map([...contextTags, ...selectedTags].map((t) => [t.id, t])).values()];
     if (merged.length > MAX_CONTEXT_TAGS) { setError("输入框每轮最多加入5个标签，请先移除部分标签。"); return; }
+    const added = selectedTags.map((tag) => tag.id);
     setContextTags(merged); setSelectedTags([]); setTab("chat");
+    setTagHandoff(added);
+    setComposerPulse(Date.now());
     setComposerRequest({ text: "", id: Date.now(), focusOnly: true });
   }
   const act = (fn: (t: Thread) => Promise<Thread>) =>
@@ -667,7 +684,9 @@ export function App() {
         </button>
         <strong>客群圈选</strong>
         <span className="topbar-status" role="status">
-          {pending
+          {pendingThreadId
+            ? "正在打开会话…"
+            : pending
             ? "正在保存…"
             : thread
             ? (thread.status === "COMPLETED" && degradedOf(thread) ? "部分完成" : thread.status === "COMPLETED" && thread.plan?.plan_status ? planStateText[thread.plan.plan_status] : stateText[thread.status])
@@ -699,6 +718,7 @@ export function App() {
           </div>
           <div id="rail-tags" role="tabpanel" aria-label="标签" hidden={railTab !== "tags"} className="rail-content rail-tag-content">
             <TagTree libraryId={library} selected={selectedTags} used={usedTags} blockedReason={tagBlocked}
+              handoffIds={tagHandoff ?? undefined}
               hint={selectedSkill ? `所选标签将作为「${selectedSkill.display_name}」的分析列，从当前客群取数` : undefined}
               onChange={setSelectedTags}
               onConfirm={() => { tagTrigger.current = document.activeElement as HTMLElement; setTagNote(""); setTagConfirm(true); }} onAdd={addTagsToComposer} />
@@ -729,11 +749,13 @@ export function App() {
             ) : null}
           </div>
           <nav aria-label="圈选会话">
-            {visibleHistory.map((item) => (
+            {visibleHistory.map((item) => {
+              const pendingSelect = pendingThreadId === item.threadId;
+              const selected = item.threadId === (pendingThreadId ?? thread?.thread_id);
+              return (
               <div
-                className={`history-item ${
-                  item.threadId === thread?.thread_id ? "selected" : ""
-                }`}
+                className={`history-item ${selected ? "selected" : ""}`}
+                data-pending={pendingSelect ? "true" : undefined}
                 key={item.threadId}
               >
                 {editingThreadId === item.threadId ? (
@@ -761,6 +783,7 @@ export function App() {
                   <button
                     className="history-select"
                     aria-disabled={pending}
+                    aria-busy={pendingSelect || undefined}
                     onClick={() => void select(item.threadId)}
                     onDoubleClick={(event) => {
                       event.preventDefault();
@@ -833,7 +856,8 @@ export function App() {
                   </div>
                 ) : null}
               </div>
-            ))}
+              );
+            })}
           </nav>
           {!visibleHistory.length ? (
             <p className="history-empty">
@@ -910,7 +934,7 @@ export function App() {
           onCommit={(value) => commitSplit("left", value)}
           onReset={() => resetSplit("left")}
         />
-        <main className="conversation">
+        <main className="conversation" data-switching={pendingThreadId ? "true" : undefined}>
           <div className="conversation-heading">
             <span>{thread?.title || "新的圈选"}</span>
           </div>
@@ -956,6 +980,7 @@ export function App() {
             disabled={!library || !!thread?.archived}
             pending={pending}
             composerRequest={composerRequest}
+            composerPulse={composerPulse}
             analysisTarget={analysisTarget}
             onRemoveAnalysisTarget={() => setAnalysisTarget(null)}
             onContinueAnalysis={(target, text) => {
@@ -1028,7 +1053,7 @@ export function App() {
           onCommit={(value) => commitSplit("right", value)}
           onReset={() => resetSplit("right")}
         />
-        <aside ref={rightPanel} id="agent-right-panel" tabIndex={-1} inert={!rightPanelVisible} aria-hidden={!rightPanelVisible} aria-label={rightTab === "insight" ? "洞察报告面板" : "工作台右侧面板"} className={`insight-right ${rightTab === "insight" ? "insight-right--report" : ""}`} onKeyDown={(event) => { if (event.key === "Escape" && !event.defaultPrevented && !(event.target as Element).closest('dialog, [aria-expanded="true"], .library-options, .plan-menu')) { event.stopPropagation(); closeRightPanel(); } }}>
+        <aside ref={rightPanel} id="agent-right-panel" tabIndex={-1} inert={!rightPanelVisible} aria-hidden={!rightPanelVisible} aria-label={rightTab === "insight" ? "洞察报告面板" : "工作台右侧面板"} data-switching={pendingThreadId ? "true" : undefined} className={`insight-right ${rightTab === "insight" ? "insight-right--report" : ""}`} onKeyDown={(event) => { if (event.key === "Escape" && !event.defaultPrevented && !(event.target as Element).closest('dialog, [aria-expanded="true"], .library-options, .plan-menu')) { event.stopPropagation(); closeRightPanel(); } }}>
           <div className="insight-sidebar-heading"><button type="button" aria-pressed={rightTab === "plan"} onClick={() => setRightTab("plan")}>圈选方案</button><button type="button" aria-pressed={rightTab === "insight"} onClick={() => openRightPanel("insight")}>洞察</button></div>
         {rightTab === "plan" ? <PlanPanel
           highlightedClauses={highlightedClauses}
@@ -1068,7 +1093,7 @@ export function App() {
               update({ ...current.current!, insight_report: report });
             });
             if (!ok) throw new Error("重跑未完成，请查看当前操作提示");
-          }} onReviewChange={(utterance) => { setRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button></div>}
+          }} onReviewChange={(utterance) => { setRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : thread?.run_profile === "skill" && (busy(thread) || thread?.status === "WAITING") ? <div className="insight-empty insight-empty--busy" role="status">{busy(thread) ? <span className="insight-spinner" aria-hidden="true" /> : null}<p>{busy(thread) ? "正在生成洞察…" : "等待业务选择，完成后生成洞察"}</p><small>报告会在分析完成后显示在这里。</small></div> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button></div>}
         </aside>
       </div>
       {tagConfirm ? <dialog ref={tagDialog} className="confirm-overlay tag-confirm-overlay" aria-labelledby="tag-confirm-title" onCancel={() => setTagConfirm(false)} onKeyDown={(event) => {
@@ -1080,7 +1105,11 @@ export function App() {
       }}>
         <form className="confirm-dialog" onSubmit={(event) => {
           event.preventDefault();
-          void send(selectionMessage(selectedTags, tagNote), selectedTags, !tagNote.trim()).then((sent) => { if (sent) setTagConfirm(false); });
+          void send(selectionMessage(selectedTags, tagNote), selectedTags, !tagNote.trim()).then((sent) => {
+            if (!sent) return;
+            setTagConfirm(false);
+            setTagHandoff(selectedTags.map((tag) => tag.id));
+          });
         }}>
           <h2 id="tag-confirm-title">让智能体梳理所选标签</h2>
           <TagChips tags={selectedTags} />

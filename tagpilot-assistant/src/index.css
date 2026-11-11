@@ -11,6 +11,18 @@
   --soft: #f6f7f9;
   --danger: #b42318;
   --focus: 2px solid var(--accent);
+  /* 状态层：按下 < 悬停 < 状态 < 面板，全部 ≤ 220ms */
+  --duration-press: 90ms;
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-panel: 220ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* 层级只给瞬态浮层与可操作物体，静态内容面保持零投影 */
+  --elevation-1: 0 1px 2px rgb(23 36 58 / 6%), 0 1px 1px rgb(23 36 58 / 4%);
+  --elevation-2: 0 8px 24px rgb(23 36 58 / 12%), 0 2px 6px rgb(23 36 58 / 6%);
+  --elevation-3: 0 18px 44px rgb(23 36 58 / 16%);
 }
 * {
   box-sizing: border-box;
@@ -37,15 +49,40 @@ button {
   border-radius: 6px;
   padding: 7px 12px;
   font-size: 13px;
-  transition: background 0.15s;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-press) var(--ease-standard);
 }
 button:hover:not(:disabled) {
   background: #f0f2f5;
+}
+button:not(:disabled):active {
+  transform: translateY(1px) scale(0.985);
 }
 button:disabled {
   cursor: not-allowed;
   color: #959ba4;
   background: #f5f6f8;
+}
+/* 整行元素只下沉不缩放，避免文字抖动 */
+.history-select:not(:disabled):active,
+.run-heading:not(:disabled):active,
+.run-entry-toggle:not(:disabled):active,
+.library-option:not(:disabled):active,
+.rail-tabs button:not(:disabled):active,
+.mobile-tabs button:not(:disabled):active {
+  transform: translateY(1px);
+}
+/* 图标按钮给更明确的收缩 */
+.back-button:not(:disabled):active,
+.sidebar-toggle:not(:disabled):active,
+.history-actions button:not(:disabled):active,
+.chip-remove:not(:disabled):active,
+.tag-expand:not(:disabled):active {
+  transform: scale(0.92);
 }
 button:focus-visible,
 input:focus-visible,
@@ -379,6 +416,15 @@ textarea {
 .tag-tree-list .tag-tree-list { padding-left: 8px; }
 .tag-tree-row { display: flex; align-items: center; min-height: 34px; gap: 3px; border-radius: 6px; padding: 3px 2px; }
 .tag-tree-row:hover { background: #eef0f3; }
+.tag-tree-row.tag-handoff {
+  background: #e8ecf2;
+  box-shadow: inset 2px 0 0 var(--accent);
+  animation: tag-handoff 800ms var(--ease-standard);
+}
+@keyframes tag-handoff {
+  0% { background: #dcecff; }
+  100% { background: #e8ecf2; }
+}
 .tag-expand { width: 20px; height: 26px; padding: 3px; border: 0; background: transparent; flex-shrink: 0; }
 .tag-expand svg { display: block; width: 14px; height: 14px; }
 .tag-leaf-space { width: 8px; flex-shrink: 0; }
@@ -450,6 +496,46 @@ textarea {
 .history-item.selected {
   background: #e8ecf2;
   color: #17243a;
+}
+/* 选中项悬停加深，而不是被全局 hover 冲淡 */
+.history-item.selected .history-select:hover:not(:disabled) {
+  background: #dfe6ef;
+}
+.history-item:not(.selected) .history-select:hover:not(:disabled) {
+  background: #eef1f5;
+}
+.history-select[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: progress;
+}
+.history-item.selected .history-select[aria-disabled="true"] {
+  opacity: 0.8;
+}
+/* 正在打开的会话：保持选中并给出进行中信号 */
+.history-item[data-pending="true"] .history-select {
+  background: #dfe6ef;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.history-item[data-pending="true"] .history-select::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  border: 1.5px solid #b7c0cc;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: history-spin 700ms linear infinite;
+}
+.history-item[data-pending="true"] .history-actions {
+  display: none;
+}
+@keyframes history-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .history-actions {
   position: absolute;
@@ -747,6 +833,37 @@ textarea {
 }
 .composer:focus-within {
   border-color: #8896a8;
+}
+/* 等待期间输入器真的禁用：让外观说清楚，而不是假装可输入 */
+.composer:has(.composer-input:disabled) {
+  background: #fafbfc;
+}
+.composer .composer-input:disabled {
+  color: #737d89;
+  -webkit-text-fill-color: #737d89;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.composer-tags {
+  animation: chips-in 400ms var(--ease-standard);
+}
+@keyframes chips-in {
+  0% {
+    background: #eef5fd;
+  }
+  100% {
+    background: transparent;
+  }
+}
+/* 发送中的乐观气泡，与真实消息同位替换 */
+.message.is-pending {
+  opacity: 0.72;
+}
+.message.is-pending .speaker {
+  color: var(--accent);
+}
+.message.is-pending .message-text {
+  background: #eef2f7;
 }
 .composer-editor {
   padding: 13px 15px 8px;
@@ -1113,6 +1230,44 @@ textarea {
 .primary:hover:not(:disabled) {
   background: color-mix(in srgb, var(--accent) 50%, #000);
 }
+/* 异步按钮的进行中状态：spinner + 文案由组件切换 */
+button[data-busy="true"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+button[data-busy="true"]::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.75;
+  animation: btn-spin 700ms linear infinite;
+}
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* 切换会话期间：旧内容降透明度，避免冒充新会话 */
+.thread-viewport {
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.conversation[data-switching="true"] .thread-viewport {
+  opacity: 0.55;
+}
+.plan-panel,
+.insight-report {
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.insight-right[data-switching="true"] .plan-panel,
+.insight-right[data-switching="true"] .insight-report {
+  opacity: 0.5;
+}
 .action-row {
   display: flex;
   gap: 8px;
@@ -1138,6 +1293,7 @@ textarea {
 .run-heading > span:nth-child(2) { flex: 1; min-width: 120px; }
 .run-heading small, .run-plan-heading small { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .run-heading:hover, .run-entry-toggle:hover { color: var(--ink); }
+.run-heading:hover:not(:disabled), .run-entry-toggle:hover:not(:disabled) { border-radius: 6px; }
 .run-chevron { width: 12px; height: 12px; flex-shrink: 0; align-self: center; stroke: currentColor; stroke-width: 1.5; transition: transform 160ms; }
 .run-chevron[data-open="true"] { transform: rotate(90deg); }
 .run-content { padding: 12px 0 0 6px; }
@@ -1478,6 +1634,15 @@ textarea {
   * {
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+  button:not(:disabled):active {
+    transform: none !important;
+  }
+  .composer-tags {
+    animation: none;
+  }
+  .tag-tree-row.tag-handoff {
+    animation: none;
   }
 }
 

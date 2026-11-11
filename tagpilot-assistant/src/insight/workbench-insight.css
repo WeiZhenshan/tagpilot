@@ -21,6 +21,10 @@
 .insight-right .insight-kpi:not(:first-child) { border-left: 0; }
 .insight-right .insight-kpi { border-bottom: 1px solid var(--border); }
 .insight-empty { padding: 20px; font-size: 13px; color: var(--muted); }
+.insight-empty--busy { display: grid; justify-items: center; gap: 8px; padding: 56px 20px; text-align: center; }
+.insight-empty--busy p { color: var(--ink, #24272c); font-size: 13px; }
+.insight-empty--busy small { color: var(--muted); font-size: 12px; }
+.insight-spinner { width: 18px; height: 18px; border: 2px solid #d5dbe4; border-top-color: var(--accent); border-radius: 50%; animation: btn-spin 800ms linear infinite; }
 .insight-feedback { display: grid; gap: 8px; padding: 16px; font-size: 13px; }
 .insight-feedback textarea { resize: vertical; min-height: 60px; }
 @media (max-width: 760px) {

@@ -17,9 +17,10 @@ function Check({ mixed, ...props }: React.InputHTMLAttributes<HTMLInputElement> 
   return <input {...props} ref={ref} type="checkbox" />;
 }
 
-export function TagTree({ libraryId, selected, used, blockedReason, hint, onChange, onConfirm, onAdd }: {
+export function TagTree({ libraryId, selected, used, blockedReason, hint, onChange, onConfirm, onAdd, handoffIds }: {
   libraryId?: number; selected: ContextTag[]; used: Set<number>; blockedReason: string; hint?: string;
   onChange: (tags: ContextTag[]) => void; onConfirm: () => void; onAdd: () => void;
+  handoffIds?: number[];
 }) {
   const [nodes, setNodes] = useState<TagTreeNode[]>([]);
   const [query, setQuery] = useState("");
@@ -58,7 +59,7 @@ export function TagTree({ libraryId, selected, used, blockedReason, hint, onChan
       const count = candidates.filter((t) => selectedIds.has(t.id)).length;
       const open = query.trim() ? true : expanded.has(node.id);
       return <li key={node.id}>
-        <div className={`tag-tree-row ${leaf && used.has(node.tagId!) ? "tag-in-plan" : ""}`}>
+        <div className={`tag-tree-row ${leaf && used.has(node.tagId!) ? "tag-in-plan" : ""}${leaf && handoffIds?.includes(node.tagId!) ? " tag-handoff" : ""}`}>
           {!leaf ? <button type="button" className="tag-expand" aria-label={`${open ? "收起" : "展开"}目录：${node.label}`} aria-expanded={open}
             onClick={() => setExpanded((old) => { const next = new Set(old); next.has(node.id) ? next.delete(node.id) : next.add(node.id); return next; })}>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" style={{ transform: open ? "rotate(90deg)" : undefined }}><path d="m6 3 5 5-5 5" /></svg>

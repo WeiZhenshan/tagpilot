@@ -102,6 +102,7 @@ export function AgentConversation({
   insightSummary,
   insightRunId,
   composerRequest,
+  composerPulse,
   contextTags = [],
   onRemoveContextTag,
   onSend,
@@ -131,6 +132,7 @@ export function AgentConversation({
   insightSummary?: ReactNode;
   insightRunId?: string;
   composerRequest?: { text: string; id: number; focusOnly?: boolean };
+  composerPulse?: number;
   contextTags?: ContextTag[];
   onRemoveContextTag?: (id: number) => void;
   onSend: (text: string) => Promise<boolean>;
@@ -146,6 +148,7 @@ export function AgentConversation({
   const [slash, setSlash] = useState<ReturnType<typeof slashQuery>>(null);
   const [activeSkill, setActiveSkill] = useState(0);
   const [citeSelected, setCiteSelected] = useState(false);
+  const [sending, setSending] = useState<{ text: string; id: number } | null>(null);
   const citeRef = useRef<HTMLButtonElement>(null);
   const filteredSkills = skills.filter((s) => !slash?.query || `${s.name} ${s.display_name} ${s.description}`.toLowerCase().includes(slash.query));
   useEffect(() => {
@@ -186,6 +189,21 @@ export function AgentConversation({
     onResize();
     return () => { element.removeEventListener("scroll", onScroll); observer.disconnect(); };
   }, [thread?.thread_id, thread?.messages]);
+  const submit = async (text: string) => {
+    const ghost = text.trim()
+      ? text
+      : selectedSkill
+      ? `运行${selectedSkill.display_name}`
+      : contextTags.length
+      ? `已选择 ${contextTags.length} 个标签作为圈选上下文`
+      : "发送中…";
+    setSending({ text: ghost, id: Date.now() });
+    try {
+      return await onSend(text);
+    } finally {
+      setSending(null);
+    }
+  };
   const runtime = useExternalStoreRuntime<AgentMessage>({
     messages: thread?.messages || [],
     convertMessage,
@@ -198,7 +216,7 @@ export function AgentConversation({
         .map((p) => ("text" in p ? p.text : ""))
         .join("\n");
       setSlash(null);
-      const sent = await onSend(text);
+      const sent = await submit(text);
       if (!sent) runtime.thread.composer.setText(text);
     },
     onCancel: async () => onCancel(),
@@ -255,7 +273,7 @@ export function AgentConversation({
                     <button
                       key={s}
                       disabled={disabled || pending}
-                      onClick={() => void onSend(s)}
+                      onClick={() => void submit(s)}
                     >
                       {s}
                       <span aria-hidden="true">→</span>
@@ -281,7 +299,7 @@ export function AgentConversation({
                   </div>
                   {thread?.messages.find((m) => m.id === message.id)?.parts?.length ? <AnalysisMessageParts
                     parts={thread.messages.find((m) => m.id === message.id)!.parts!} artifacts={thread.analysis_artifacts} revision={thread.revision}
-                    disabled={disabled || pending || busy(thread)} onContinue={(target, text) => onContinueAnalysis?.(target, text)} onAnswer={(text) => { void onSend(text); }} /> : null}
+                    disabled={disabled || pending || busy(thread)} onContinue={(target, text) => onContinueAnalysis?.(target, text)} onAnswer={(text) => { void submit(text); }} /> : null}
                 </MessagePrimitive.Root>
                 {runs.filter((run) => run.afterMessageId === message.id).map(renderRun)}
                 {summaryMessage === message.id && !thread?.messages.find((m) => m.id === message.id)?.parts?.length ? insightSummary : null}
@@ -290,13 +308,21 @@ export function AgentConversation({
             </ThreadPrimitive.Messages>
             {runs.filter((run) => !run.afterMessageId).map(renderRun)}
             {!summaryMessage ? insightSummary : null}
+            {sending ? (
+              <div className="conversation-turn" data-ghost="true" aria-busy="true">
+                <div className="message user-message is-pending">
+                  <span className="speaker">你 · 发送中</span>
+                  <div className="message-text">{sending.text}</div>
+                </div>
+              </div>
+            ) : null}
             {thread && runNotice(thread) === "partial" && degraded ? (
               <div className="run-degraded" role="status">
                 <strong>{degraded.kept_clauses.length ? `已保留 ${degraded.kept_clauses.length}/${clauses(thread.plan?.tree).length} 项条件` : "尚未形成可用条件"}</strong>
                 <p>{degradedMessage(degraded)}</p>
                 {degraded.level === "L3" && clauses(thread.plan?.tree).some((c) => c.candidates?.length) ? <p>已找到可能相关的标签，请在方案中选择并核验。</p> : null}
                 <div className="degraded-actions">
-                  {degraded.resumable ? <button disabled={disabled || pending} onClick={() => void onSend("请继续补全尚未确定的条件")}>补全剩余条件</button> : null}
+                  {degraded.resumable ? <button disabled={disabled || pending} onClick={() => void submit("请继续补全尚未确定的条件")}>补全剩余条件</button> : null}
                   <button disabled={disabled || pending} onClick={onEdit}>手工编辑方案</button>
                 </div>
               </div>
@@ -335,11 +361,11 @@ export function AgentConversation({
           <ComposerPrimitive.Root className="composer" onKeyDownCapture={(event) => {
             if (selectedSkill && !slash && event.target === composerInput.current && event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
               event.preventDefault();event.stopPropagation();
-              if (!disabled && !pending && !skillRunDisabled) void onSend(runtime.thread.composer.getState().text).then((sent) => { if(sent) runtime.thread.composer.setText(""); });
+              if (!disabled && !pending && !skillRunDisabled) void submit(runtime.thread.composer.getState().text).then((sent) => { if(sent) runtime.thread.composer.setText(""); });
             }
           }}>
             {skillChips}
-            {contextTags.length ? <div className="composer-tags"><TagChips tags={contextTags} onRemove={onRemoveContextTag} /></div> : null}
+            {contextTags.length ? <div className="composer-tags" key={composerPulse || 0}><TagChips tags={contextTags} onRemove={onRemoveContextTag} /></div> : null}
             <div className="composer-editor">
               {analysisTarget ? (
                 <button
@@ -423,7 +449,7 @@ export function AgentConversation({
               ) : null}
               {thread || !disabled ? (
                 <span className="composer-hint">
-                  {selectedSkill ? "携带当前客群上下文" : "直接对话分析 · / 选择技能"}
+                  {sending ? "正在发送…" : selectedSkill ? "携带当前客群上下文" : "直接对话分析 · / 选择技能"}
                 </span>
               ) : null}
               {busy(thread) ? (
@@ -437,7 +463,7 @@ export function AgentConversation({
               ) : contextTags.length || skillChips ? (
                 <button className="send-button" type="button" aria-label="发送需求" disabled={disabled || pending || (!!skillChips && skillRunDisabled)} onClick={() => {
                   const text = runtime.thread.composer.getState().text;
-                  void onSend(text).then((sent) => { if (sent) runtime.thread.composer.setText(""); });
+                  void submit(text).then((sent) => { if (sent) runtime.thread.composer.setText(""); });
                 }}>发送</button>
               ) : (
                 <ComposerPrimitive.Send
