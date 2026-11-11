@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Plan, Thread, Tree } from "./agentTypes";
-import { busy, clauses, clauseChanged, clauseSentence, pendingItems } from "./agentTypes";
+import { busy, clauses, clauseChanged, clauseSentence, pendingItems, runPhaseText } from "./agentTypes";
 import { SummaryTree } from "./ClauseSummary";
 import { PendingCard } from "./PendingCard";
 import { PlanMenu } from "./PlanMenu";
@@ -14,10 +14,10 @@ function acceptedConfirmations(thread: Thread | null, plan?: Plan): string[] {
     c.clause_id === id && c.status === "BOUND" && c.assumption_confirmed === true));
 }
 
-export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefine, onDiscuss, onCancel, onCount, onCreate, onPreview, onOpenGroup, hidden }: {
+export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefine, onDiscuss, onCancel, onCount, onCreate, onPreview, onOpenGroup, hidden, error, onDismissError, onRetryError }: {
   highlightedClauses?: string[]; thread: Thread | null; pending: boolean; onSave: (p: Plan) => void; onRefine: (message: string) => void;
   onDiscuss: (message: string) => void; onCancel: () => void; onCount: () => void; onCreate: (name: string) => void;
-  onPreview: () => void; onOpenGroup: (id: number) => void; hidden?: boolean;
+  onPreview: () => void; onOpenGroup: (id: number) => void; hidden?: boolean; error?: string; onDismissError?: () => void; onRetryError?: () => void;
 }) {
   const active = busy(thread) ? thread?.live_plan || thread?.plan : thread?.plan;
   const [draft, setDraft] = useState<Plan>();
@@ -74,7 +74,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   // 用户在右侧确认可见的新条件后走既有手工编辑核验；来源格式不再逐项追问。
   const queue = confirmNew && provenanceOnly ? [] : pendingQueue;
   const canExecute = !!thread?.plan?.valid && !!shown?.valid && !thread?.source_requires_validation && !dirty && !historical && !disabled && thread?.status !== "WAITING" && !queue.length && !confirmNew;
-  const status = running ? "整理中" : dirty ? "未保存" : historical ? "历史版本" : queue.length ? "待处理" : execution ? updating ? "已更新" : "已创建" : shown?.valid ? "已核验" : "待核验";
+  const status = running ? runPhaseText(thread) : dirty ? "未保存" : historical ? "历史版本" : queue.length ? "待处理" : execution ? updating ? "已更新" : "已创建" : shown?.valid ? "已核验" : "待核验";
   function changeTree(tree: Tree) {
     if (!shown || disabled) return;
     setConfirmedIds((ids) => ids.filter((id) => {
@@ -101,6 +101,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
       <PlanMenu thread={thread} plan={shown} historical={historical} dirty={dirty} onVersion={(revision) => { setVersion(revision); setEditing(undefined); setConfirm(false); }} />
     </div>
     <div className="plan-scroll">
+      {error ? <p className="plan-inline-error" role="alert"><span>{error}</span><span className="plan-inline-error-actions">{onRetryError ? <button type="button" className="text-button" onClick={onRetryError}>重试</button> : null}{onDismissError ? <button type="button" className="text-button" onClick={onDismissError}>关闭</button> : null}</span></p> : null}
       {thread?.archived ? <p className="plan-history-notice">会话已归档，恢复后可继续圈选。</p> : null}
       {updating ? <p className="plan-history-notice">正在编辑《{thread?.source_group_name}》。{thread?.source_requires_validation ? "已载入保存条件，须按最新发布版本重新核验。" : shown?.valid ? "已按最新发布版本重新核验。" : "条件尚待核验。"}{thread?.source_thread_reused === false ? "已建立新的编辑会话。" : ""}</p> : null}
       {historical ? <p className="plan-history-notice">你正在查看 v{version}<button className="text-button" onClick={() => setVersion(undefined)}>返回当前</button></p> : null}
@@ -124,7 +125,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
       </> : !running ? <div className="plan-empty"><p>先描述你想寻找的客户</p><span>例如：近 3 个月消费至少 1 万元的金卡客户。</span></div> : null}
     </div>
     {shown && !running ? <div className="plan-actions">
-      {dirty ? <><p className="muted">已修改 · 原人数失效</p><button className="primary" disabled={disabled} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => draft && onSave({ ...draft, confirmed_clause_ids: confirmedIds }))}>{busyAction === "save" ? "核验中…" : "保存并核验"}</button>
+      {dirty ?<><p className="muted">已修改 · 原人数失效</p><button className="primary" disabled={disabled} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => draft && onSave({ ...draft, confirmed_clause_ids: confirmedIds }))}>{busyAction === "save" ? "核验中…" : "保存并核验"}</button>
         <button className="text-button" disabled={disabled} onClick={discard}>放弃修改</button></> : historical ? <><button className="primary" disabled={pending || running || thread?.status === "WAITING" || !!thread?.archived} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave(shown))}>{busyAction === "save" ? "核验中…" : "以此版本继续"}</button>
           <button className="text-button" onClick={() => setVersion(undefined)}>返回当前方案</button></> : thread?.source_requires_validation ? <button className="primary" disabled={disabled || thread?.status === "WAITING"} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave(shown))}>{busyAction === "save" ? "核验中…" : "按最新发布版本核验"}</button> : confirmNew ? <button className="primary" disabled={disabled} data-busy={busyAction === "save" ? "true" : undefined} aria-busy={busyAction === "save" || undefined} onClick={() => run("save", () => onSave({ ...shown, confirmed_clause_ids: confirmedIds }))}>{busyAction === "save" ? "核验中…" : "确认新增条件"}</button> : queue.length ? <p className="muted">处理上方待确认事项后，可继续统计和{updating ? "更新" : "创建"}。</p> : execution ?
             <button className="primary" disabled={disabled} onClick={() => onOpenGroup(execution.group_id)}>打开客群</button> : confirm ? <div className="create-form collapse-in">

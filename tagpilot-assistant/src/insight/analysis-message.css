@@ -3,6 +3,7 @@
 .analysis-chart-block { min-width: 0; padding: 6px 0 0; }
 .analysis-chart-block .insight-chart { border: 0; padding: 0; border-radius: 0; background: transparent; }
 .analysis-chart-block .insight-chart-canvas { width: 100%; height: 330px; }
+.insight-chart-canvas.is-selectable { cursor: pointer; }
 .analysis-chart-toolbar { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 10px 0; }
 .analysis-chart-toolbar button, .analysis-selection button { background: transparent; color: var(--ink, #24272c); border: 0; border-radius: 4px; padding: 5px 2px; font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
 .analysis-chart-toolbar button:hover, .analysis-selection button:hover { background: var(--hover, #f0f2f5); }

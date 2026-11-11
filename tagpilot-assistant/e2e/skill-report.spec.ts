@@ -291,3 +291,14 @@ test('布局所有权：关闭右栏后不抢开，新报告只亮未读徽标',
   await expect(page.locator('.conversation-heading')).toHaveText('会话 B');
   await expect(page.locator('.insight-right')).not.toBeVisible();
 });
+
+test('中心区不足 420px 时收起左栏并提示', async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 900 });
+  await page.goto('/agent-ui/?libraryId=107&threadId=skill-report-fixture');
+  await expect(page.locator('.insight-report')).toBeVisible();
+  // 用户显式关闭再打开：布局规则生效，中栏不足 420px 时收起左栏。
+  await page.getByRole('button', { name: '隐藏右侧面板', exact: true }).click();
+  await page.getByRole('button', { name: '展开右侧面板', exact: true }).click();
+  await expect(page.locator('.history-rail')).not.toBeVisible();
+  await expect(page.locator('.workbench-toast')).toContainText('已收起侧栏');
+});

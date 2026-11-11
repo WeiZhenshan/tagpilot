@@ -170,6 +170,13 @@ export const stateText: Record<string, string> = {
   FAILED: "暂未完成",
   INTERRUPTED: "可恢复",
 };
+// 顶栏、方案栏与时间轴共用同一套运行阶段词，避免同一时刻出现三种说法。
+export function runPhaseText(t?: Thread | null): string {
+  if (!t) return stateText.IDLE;
+  if (t.status === "WAITING") return "等待业务选择";
+  if (t.status !== "RUNNING" && t.status !== "SUBMITTING") return stateText[t.status] || stateText.IDLE;
+  return t.live_plan || t.plan ? "正在整理条件" : "正在理解需求";
+}
 export const degradedText = {
   timeout: "处理时间较长，已保留已确认的条件",
   memory_limit: "运行资源不足，已保存进度，请手工编辑或稍后重试",

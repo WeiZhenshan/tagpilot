@@ -68,14 +68,29 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
       const media = window.matchMedia("(prefers-reduced-motion: reduce)");
       const chart = echarts.init(host.current, undefined, { renderer: "svg" });
       instance.current = chart;
-      const update = () => chart.setOption(toEChartsOption(spec, facts, media.matches, chart.getWidth()), { notMerge: true });
+      let resizeTimer = 0;
+      const update = (reducedOverride?: boolean) => chart.setOption(toEChartsOption(spec, facts, reducedOverride ?? media.matches, chart.getWidth()), { notMerge: true });
+      const onMediaChange = () => update();
       update();
-      if (onSelectCategory && !stale) chart.on("click", (event) => {
-        if (typeof event.name === "string" && spec.series.some((series) => series.points.some((point) => point.category === event.name))) onSelectCategory(event.name);
+      if (onSelectCategory && !stale) {
+        chart.getZr().setCursorStyle("pointer");
+        chart.on("click", (event) => {
+          if (typeof event.name === "string" && spec.series.some((series) => series.points.some((point) => point.category === event.name))) {
+            // 点选后先在图内高亮，确认条再出现，避免"点了柱子但柱子没反应"。
+            chart.dispatchAction({ type: "downplay" });
+            chart.dispatchAction({ type: "highlight", name: event.name });
+            onSelectCategory(event.name);
+          }
+        });
+      }
+      // 拖拽分栏时合并 resize，停止后再重设 option；重设时关闭动画，避免柱子逐帧重播。
+      const observer = new ResizeObserver(() => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => { chart.resize(); update(true); }, 120);
       });
-      const observer = new ResizeObserver(() => { chart.resize(); update(); }); observer.observe(host.current);
-      media.addEventListener("change", update);
-      return () => { observer.disconnect(); media.removeEventListener("change", update); chart.dispose(); instance.current = null; };
+      observer.observe(host.current);
+      media.addEventListener("change", onMediaChange);
+      return () => { window.clearTimeout(resizeTimer); observer.disconnect(); media.removeEventListener("change", onMediaChange); chart.dispose(); instance.current = null; };
     } catch (e) { setRenderError(e instanceof Error ? e.message : "图表校验失败"); }
   }, [spec, facts, native, validationError, onSelectCategory, stale]);
 
@@ -124,7 +139,7 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
     {chartExplanation(spec) && <p className="insight-chart-explanation">{chartExplanation(spec)}</p>}
     {validationError || renderError ? <p role="alert" className="insight-error">图表已阻断：{validationError || renderError}</p> : <>
       {spec.kind === "kpi" ? <p className="insight-kpi">{formatFact(index.get(rows[0].fact_id)!)}</p> : native ? table : <>
-        <div ref={host} className="insight-chart-canvas" style={spec.orientation === "horizontal" ? { minHeight: new Set(rows.map((r) => r.category)).size * 42 + 100 } : undefined} role="img" aria-label={`${spec.title}，详见下方数据表`} />
+        <div ref={host} className={`insight-chart-canvas${onSelectCategory && !stale ? " is-selectable" : ""}`} style={spec.orientation === "horizontal" ? { minHeight: new Set(rows.map((r) => r.category)).size * 42 + 100 } : undefined} role="img" aria-label={`${spec.title}，详见下方数据表`} />
         <details><summary>查看图表数据与抑制状态</summary>{table}</details>
       </>}
       <div className="insight-chart-actions"><button type="button" disabled={stale || exporting} onClick={() => void exportChart("svg")}>导出 SVG</button><button type="button" disabled={stale || exporting} onClick={() => void exportChart("png")}>导出 PNG</button></div>

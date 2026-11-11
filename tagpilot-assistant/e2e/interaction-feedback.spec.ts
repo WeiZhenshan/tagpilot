@@ -47,7 +47,7 @@ const makeThread = (id: string, title: string) => ({
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function setup(page: import("@playwright/test").Page, options: { threadDelay?: number; countDelay?: number; runDelay?: number } = {}) {
+async function setup(page: import("@playwright/test").Page, options: { threadDelay?: number; countDelay?: number; runDelay?: number; runWithoutReply?: boolean } = {}) {
   let t1: any = makeThread("t1", "第一个会话");
   const t2 = makeThread("t2", "第二个会话");
   await page.route("**/dev-api/**", async (route) => {
@@ -81,7 +81,7 @@ async function setup(page: import("@playwright/test").Page, options: { threadDel
       t1 = { ...t1, status: "RUNNING", run_id: "run-1", run_profile: "audience", messages: [
         ...t1.messages,
         { id: "u-new", role: "user", text: message, run_id: "run-1", created_at: "2026-09-21T01:01:00Z" },
-        { id: "a-new", role: "assistant", text: "正在整理条件。", run_id: "run-1", created_at: "2026-09-21T01:01:05Z" },
+        ...(options.runWithoutReply ? [] : [{ id: "a-new", role: "assistant", text: "正在整理条件。", run_id: "run-1", created_at: "2026-09-21T01:01:05Z" }]),
       ] };
       return route.fulfill({ json: { code: 200, data: t1 } });
     }
@@ -146,5 +146,29 @@ test("统计人数：按钮与状态胶囊显示进行中", async ({ page }) => 
   await countButton.click();
   await expect(page.locator("button[data-busy='true']")).toContainText("统计中…");
   await expect(page.locator(".plan-status")).toContainText("统计中…");
+  await expect(page.locator(".topbar-status")).toHaveText("正在统计人数…");
   await expect(page.locator(".plan-count > strong")).toContainText("1,268", { timeout: 3000 });
+});
+
+test("消息悬浮操作：引用会填入输入框", async ({ page }) => {
+  await setup(page);
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/agent-ui/?threadId=t1");
+  const message = page.locator(".message.user-message").first();
+  const actions = message.locator(".message-actions");
+  await expect(actions).toHaveCSS("opacity", "0");
+  await message.hover();
+  await expect(actions).toHaveCSS("opacity", "1");
+  await actions.getByRole("button", { name: "引用", exact: true }).click();
+  await expect(page.locator(".composer-input")).toHaveValue("近30天转入客户");
+});
+
+test("等待回复时显示分析占位", async ({ page }) => {
+  await setup(page, { runDelay: 200, runWithoutReply: true });
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.goto("/agent-ui/?threadId=t1");
+  await page.locator(".composer-input").fill("再分析一次");
+  await page.locator(".composer-input").press("Enter");
+  await expect(page.locator(".message.is-waiting")).toBeVisible({ timeout: 3000 });
+  await expect(page.locator(".message.is-pending")).toHaveCount(0);
 });

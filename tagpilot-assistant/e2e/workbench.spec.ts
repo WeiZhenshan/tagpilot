@@ -324,7 +324,7 @@ test("clarification and responsive layout remain usable", async ({ page }) => {
   await expect(
     page.getByRole("tab", { name: "圈选方案", exact: true })
   ).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByText("近30天异名跨行转入金额 大于 500000元", { exact: true })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "圈选方案" }).getByText("近30天异名跨行转入金额 大于 500000元", { exact: true })).toBeVisible();
   await expect(page.getByLabel("近30天异名跨行转入金额条件值")).toHaveCount(0);
   await page.evaluate(() => new Promise(requestAnimationFrame));
   expect(
@@ -399,6 +399,8 @@ test("new draft keeps its identity while changing libraries", async ({ page }) =
 test("library picker sits in the composer and opens above its trigger", async ({
   page,
 }) => {
+  // 几何断言在动画结束后测量，避免菜单弹入的 4px 位移造成抖动。
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/agent-ui/");
   const trigger = page
     .locator(".composer-footer")
@@ -933,7 +935,13 @@ test("side panels can be dragged wider and content keeps fitting", async ({ page
   await page.mouse.move(leftBox.x + leftBox.width / 2, leftBox.y + leftBox.height / 2);
   await page.mouse.down();
   await page.mouse.move(leftBox.x + leftBox.width / 2 + 60, leftBox.y + leftBox.height / 2, { steps: 8 });
+  // 拖拽过程中手柄与读数实时更新，而不是等松手才反馈。
+  await expect(leftHandle).toHaveAttribute("data-dragging", "true");
+  const liveWidth = Number(await leftHandle.getAttribute("aria-valuenow"));
+  expect(Math.abs(liveWidth - (await rail.boundingBox())!.width)).toBeLessThanOrEqual(1);
+  await expect(leftHandle).toHaveAttribute("data-width", `${Math.round(liveWidth)} px`);
   await page.mouse.up();
+  await expect(leftHandle).not.toHaveAttribute("data-dragging", "true");
   const after = (await rail.boundingBox())!.width;
   expect(after).toBeGreaterThan(before + 40);
   await expect(leftHandle).toHaveAttribute("aria-valuenow", String(Math.round(after)));

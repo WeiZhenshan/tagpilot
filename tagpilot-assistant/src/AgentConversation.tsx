@@ -150,7 +150,16 @@ export function AgentConversation({
   const [activeSkill, setActiveSkill] = useState(0);
   const [citeSelected, setCiteSelected] = useState(false);
   const [sending, setSending] = useState<{ text: string; id: number } | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const citeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!copiedId) return;
+    const timer = window.setTimeout(() => setCopiedId(null), 1200);
+    return () => window.clearTimeout(timer);
+  }, [copiedId]);
+  const copyMessage = async (id: string, text: string) => {
+    try { await navigator.clipboard.writeText(text); setCopiedId(id); } catch { setCopiedId(null); }
+  };
   const filteredSkills = skills.filter((s) => !slash?.query || `${s.name} ${s.display_name} ${s.description}`.toLowerCase().includes(slash.query));
   useEffect(() => {
     if (slash && filteredSkills.length) document.getElementById(`composer-skill-${Math.min(activeSkill, filteredSkills.length - 1)}`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -158,6 +167,7 @@ export function AgentConversation({
   const degraded = degradedOf(thread);
   const runs = conversationRuns(thread);
   const summaryMessage = reportMessageId(thread, insightRunId);
+  const awaitingReply = !!thread && busy(thread) && !thread.messages.some((m) => m.role === "assistant" && m.run_id === thread.run_id && (m.text?.trim() || m.parts?.length));
   const renderRun = (run: ReturnType<typeof conversationRuns>[number]) => (
     <RunTimeline key={run.id} runId={run.id} skillMode={run.profile === "skill" || run.profile === "conversation"}
       events={run.events} running={run.current && busy(thread)} continued={run.continued} label={run.label}
@@ -286,7 +296,10 @@ export function AgentConversation({
               </div>
             </ThreadPrimitive.Empty>
             <ThreadPrimitive.Messages>
-              {({ message }) => (
+              {({ message }) => {
+                const source = thread?.messages.find((m) => m.id === message.id);
+                const text = source?.text?.trim();
+                return (
                 <div className="conversation-turn" data-message-id={message.id}>
                 <MessagePrimitive.Root
                   className={`message ${
@@ -294,20 +307,25 @@ export function AgentConversation({
                   }`}
                 >
                   <span className="speaker">
-                    {message.role === "user" ? "你" : "TagPilot"}
+                    <span>{message.role === "user" ? "你" : "TagPilot"}</span>
+                    {text ? <span className="message-actions">
+                      <button type="button" onClick={() => void copyMessage(message.id, text)}>{copiedId === message.id ? "已复制" : "复制"}</button>
+                      <button type="button" onClick={() => { runtime.thread.composer.setText(text); composerInput.current?.focus(); }}>引用</button>
+                    </span> : null}
                   </span>
-                  {thread?.messages.find((m) => m.id === message.id)?.context_tags?.length ? <TagChips tags={thread.messages.find((m) => m.id === message.id)!.context_tags!} /> : null}
+                  {source?.context_tags?.length ? <TagChips tags={source.context_tags} /> : null}
                   <div className="message-text">
                     <MessagePrimitive.Parts />
                   </div>
-                  {thread?.messages.find((m) => m.id === message.id)?.parts?.length ? <AnalysisMessageParts
-                    parts={thread.messages.find((m) => m.id === message.id)!.parts!} artifacts={thread.analysis_artifacts} revision={thread.revision}
+                  {source?.parts?.length ? <AnalysisMessageParts
+                    parts={source.parts} artifacts={thread!.analysis_artifacts} revision={thread!.revision}
                     disabled={disabled || pending || busy(thread)} onContinue={(target, text) => onContinueAnalysis?.(target, text)} onAnswer={(text) => { void submit(text); }} /> : null}
                 </MessagePrimitive.Root>
                 {runs.filter((run) => run.afterMessageId === message.id).map(renderRun)}
-                {summaryMessage === message.id && !thread?.messages.find((m) => m.id === message.id)?.parts?.length ? insightSummary : null}
+                {summaryMessage === message.id && !source?.parts?.length ? insightSummary : null}
                 </div>
-              )}
+                );
+              }}
             </ThreadPrimitive.Messages>
             {runs.filter((run) => !run.afterMessageId).map(renderRun)}
             {!summaryMessage ? insightSummary : null}
@@ -316,6 +334,14 @@ export function AgentConversation({
                 <div className="message user-message is-pending">
                   <span className="speaker">你 · 发送中</span>
                   <div className="message-text">{sending.text}</div>
+                </div>
+              </div>
+            ) : null}
+            {awaitingReply ? (
+              <div className="conversation-turn" data-waiting="true">
+                <div className="message assistant-message is-waiting" role="status" aria-label="正在分析">
+                  <span className="speaker"><span>TagPilot</span></span>
+                  <div className="waiting-dots" aria-hidden="true"><span /><span /><span /></div>
                 </div>
               </div>
             ) : null}

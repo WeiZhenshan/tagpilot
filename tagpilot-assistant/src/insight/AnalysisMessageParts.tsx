@@ -19,9 +19,15 @@ function ChartBlock({ artifact, disabled, revision, onContinue }: Omit<Props, "p
   const [detail, setDetail] = useState<"chart" | "source" | null>(null);
   const [selection, setSelection] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
+  const selectionRef = useRef<HTMLDivElement>(null);
   const detailTitle = useId();
   const trigger = useRef<HTMLElement | null>(null);
   const selectCategory = useCallback((category: string) => setSelection(category), []);
+  useEffect(() => {
+    if (!selection) return;
+    // 图表较高时确认条可能在视口外，点选后将它带入视野。
+    selectionRef.current?.scrollIntoView({ block: "nearest", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [selection]);
   const target: ArtifactReference = { target_artifact_id: artifact.id, target_artifact_version: artifact.version, title: artifact.spec.title };
   const stale = artifact.base_revision !== undefined && artifact.base_revision !== revision;
   const context = artifact.context || "当前分析客群 · 数据日期未知";
@@ -41,7 +47,7 @@ function ChartBlock({ artifact, disabled, revision, onContinue }: Omit<Props, "p
       <button type="button" onClick={() => setDetail("source")}>查看来源</button>
     </div>
     {stale && <p className="analysis-scope-note">这是历史方案下的图表；当前客群已变化，请重新分析。</p>}
-    {selection && <div className="analysis-selection" role="status">
+    {selection && <div className="analysis-selection" role="status" ref={selectionRef}>
       <span>已选择：{selection}</span>
       <button type="button" disabled={disabled || stale} onClick={() => onContinue(target, `继续分析这张图中「${selection}」的客户，保留原分析范围`)}>按此分类继续分析</button>
       <button type="button" onClick={() => setSelection(null)}>取消选择</button>

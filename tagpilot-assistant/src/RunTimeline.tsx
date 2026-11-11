@@ -66,8 +66,43 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
   const effectiveStatus = status || [...events].reverse().map((e) => ({ "run.cancelled": "CANCELLED", "run.failed": "FAILED", "run.interrupted": "INTERRUPTED", "run.waiting": "WAITING", "run.degraded": "COMPLETED", "run.completed": "COMPLETED" }[e.type])).find(Boolean);
   const waiting = effectiveStatus === "WAITING" && !continued;
   const [open, setOpen] = useState(running || waiting);
+  const [finishing, setFinishing] = useState(false);
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
-  useEffect(() => { setOpen(running || waiting); setOverrides({}); }, [runId, running, waiting]);
+  const autoOpened = useRef(running || waiting);
+  const lastRun = useRef(runId);
+  useEffect(() => {
+    if (lastRun.current !== runId) {
+      lastRun.current = runId;
+      autoOpened.current = running || waiting;
+      setOpen(running || waiting);
+      setOverrides({});
+      setFinishing(false);
+      return;
+    }
+    if (running || waiting) {
+      autoOpened.current = true;
+      setOpen(true);
+      setOverrides({});
+      setFinishing(false);
+      return;
+    }
+    // 用户手动展开的已完成记录不自动收起；等事件排空后延迟 800ms 收起并短暂高亮。
+    if (!autoOpened.current) return;
+    if (paced.draining) return;
+    setFinishing(true);
+    const timer = window.setTimeout(() => {
+      setOpen(false);
+      setOverrides({});
+      setFinishing(false);
+      autoOpened.current = false;
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [runId, running, waiting, paced.draining]);
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (!running && !waiting) autoOpened.current = false;
+  };
   useEffect(() => {
     if (!running) return;
     const timer = window.setInterval(() => setNow(Date.now() / 1000), 1000);
@@ -77,7 +112,7 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
     const summary = continued ? "已继续处理" : waiting ? "等待业务选择" : running ? "正在分析当前客群" : effectiveStatus === "CANCELLED" ? "技能运行已停止" : ["FAILED", "INTERRUPTED"].includes(effectiveStatus || "") ? "技能运行未完成" : "技能分析已完成";
     const records = paced.events.filter((event) => event.message && (event.type.startsWith("skill.") || event.type.startsWith("run.") || event.type.startsWith("analysis.") || event.type === "tool.started"));
     return <section className="run-timeline" aria-label={label || "技能处理记录"}>
-      <button type="button" className="run-heading" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <button type="button" className="run-heading" data-finishing={finishing ? "true" : undefined} aria-expanded={open} onClick={toggle}>
         <StatusIcon status={running ? "active" : continued || effectiveStatus === "COMPLETED" ? "done" : "blocked"} /><span>{label ? `${label} · ` : ""}{summary}</span><Chevron open={open} />
       </button>
       <span className="sr-only" role="status" aria-live="polite">{summary}</span>
@@ -92,7 +127,7 @@ export function RunTimeline({ events, runId, running, plan, questions, status, l
   const summary = continued ? "已继续处理" : running ? `正在${view.phase}` : waiting ? "等待业务选择" : effectiveStatus === "CANCELLED" ? "已停止处理" : ["FAILED", "INTERRUPTED"].includes(effectiveStatus || "") ? "已保存处理进度" : view.degraded ? `部分完成 · 已保留 ${view.degraded.kept_clauses.length} 项条件，${view.degraded.unresolved_clause_ids.length} 项待处理` : "已处理";
   const progress = view.todos.filter((t) => t.status === "done").length;
   return <section className="run-timeline" aria-label={label || "处理记录"}>
-    <button type="button" className="run-heading" aria-expanded={open} onClick={() => setOpen(!open)}>
+    <button type="button" className="run-heading" data-finishing={finishing ? "true" : undefined} aria-expanded={open} onClick={toggle}>
       <StatusIcon status={running ? "active" : waiting || view.degraded || ["FAILED", "INTERRUPTED", "CANCELLED"].includes(effectiveStatus || "") ? "blocked" : "done"} />
       <span>{label ? `${label} · ` : ""}{view.notice || summary}</span>
       <small>{view.elapsedMs ? `${Math.round(view.elapsedMs / 1000)} 秒 · ` : ""}{view.stats.steps} 步 · {view.stats.conditions} 个条件</small><Chevron open={open} />
