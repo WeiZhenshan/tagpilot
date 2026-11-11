@@ -156,6 +156,7 @@ export function App() {
     });
   };
   const resetSplit = (side: SplitSide) => {
+    showToast("已恢复默认宽度");
     bodyRef.current?.style.removeProperty(side === "left" ? "--rail-width" : "--right-width");
     setSplitWidths((prev) => {
       const next = { ...prev };
@@ -968,13 +969,20 @@ export function App() {
             })}
           </nav>
           {!visibleHistory.length ? (
-            <p className="history-empty">
-              {search
-                ? "没有匹配的会话"
-                : archived
-                ? "没有已归档的圈选"
-                : "你的圈选任务会保存在这里"}
-            </p>
+            <div className="history-empty">
+              <p>
+                {search
+                  ? "没有匹配的会话"
+                  : archived
+                  ? "没有已归档的圈选"
+                  : "你的圈选任务会保存在这里"}
+              </p>
+              {!search && !archived ? (
+                <button type="button" className="text-button" disabled={pending || !library} onClick={() => fresh()}>
+                  开始第一次圈选 →
+                </button>
+              ) : null}
+            </div>
           ) : null}
           </div>
           <div className="account" ref={account}>
@@ -1219,7 +1227,7 @@ export function App() {
               update({ ...current.current!, insight_report: report });
             }, "正在重新运行洞察…", "insight");
             if (!ok) throw new Error("重跑未完成，请查看当前操作提示");
-          }} onReviewChange={(utterance) => { selectRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); showToast("已填入对话"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : thread?.run_profile === "skill" && (busy(thread) || thread?.status === "WAITING") ? <div className="insight-empty insight-empty--busy" role="status">{busy(thread) ? <span className="insight-spinner" aria-hidden="true" /> : null}<p>{busy(thread) ? "正在生成洞察…" : "等待业务选择，完成后生成洞察"}</p><small>报告会在分析完成后显示在这里。</small></div> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button></div> : null}
+          }} onReviewChange={(utterance) => { selectRightTab("plan"); setComposerRequest({ text: utterance, id: Date.now() }); setTab("chat"); showToast("已填入对话"); }} onFeedback={(rating,category,comment) => insightFeedback(thread.insight_report!.run_id,rating,category,comment)} /></Suspense> : thread?.run_profile === "skill" && (busy(thread) || thread?.status === "WAITING") ? <div className="insight-empty insight-empty--busy" role="status">{busy(thread) ? <span className="insight-spinner" aria-hidden="true" /> : null}<p>{busy(thread) ? "正在生成洞察…" : "等待业务选择，完成后生成洞察"}</p><small>报告会在分析完成后显示在这里。</small></div> : <div className="insight-empty"><p>在对话框输入 /，选择已发布技能并携带当前客群开始分析。</p><button type="button" className="primary" onClick={() => { setTab("chat"); setComposerRequest({text:"/",id:Date.now()}); }}>选择技能</button><small>或直接在对话里描述想分析的维度</small></div> : null}
         </aside>
       </div>
       {toast ? <div className="workbench-toast" role="status" key={toast.id}>{toast.text}</div> : null}

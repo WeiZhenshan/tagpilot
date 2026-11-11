@@ -761,6 +761,12 @@ test('嵌套条件、单项编辑、删除和放弃保持逻辑',async({page})=>
   await page.getByRole('button',{name:'删除此条件',exact:true}).click();
   await expect(page.locator('.clause-copy')).toHaveCount(2);
   await expect(page.getByRole('button',{name:'保存并核验',exact:true})).toBeVisible();
+  // 删除可以撤销，恢复后仍处于未保存状态。
+  await page.getByRole('button',{name:'撤销删除',exact:true}).click();
+  await expect(page.locator('.clause-copy')).toHaveCount(3);
+  await expect(page.getByRole('button',{name:'保存并核验',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'删除此条件',exact:true}).click();
+  await expect(page.locator('.clause-copy')).toHaveCount(2);
   await page.getByRole('button',{name:'放弃修改',exact:true}).click();
   await expect(page.locator('.clause-copy')).toHaveCount(3);
   await page.getByRole('button',{name:'编辑条件：近30天异名跨行转入金额'}).click();
@@ -965,6 +971,7 @@ test("side panels can be dragged wider and content keeps fitting", async ({ page
   expect(await page.locator(".insight-sidebar-heading").evaluate((el) => getComputedStyle(el).paddingLeft)).toBe("12px");
   if (process.env.CAPTURE_DIR) await page.screenshot({ path: `${process.env.CAPTURE_DIR}/resized-workbench.png`, fullPage: true });
   await leftHandle.dblclick();
+  await expect(page.locator('.workbench-toast')).toContainText('已恢复默认宽度');
   await expect.poll(async () => (await rail.boundingBox())!.width).toBeLessThan(after);
 });
 

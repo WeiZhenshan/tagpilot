@@ -52,7 +52,7 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
   const instance = useRef<echarts.EChartsType | null>(null);
   const [renderError, setRenderError] = useState("");
   const [exportError, setExportError] = useState("");
-  const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState<"svg" | "png" | null>(null);
   const validationError = useMemo(() => {
     try { validateChartSpec(spec, facts); return ""; }
     catch (e) { return e instanceof Error ? e.message : "图表协议非法"; }
@@ -96,7 +96,7 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
 
   async function exportChart(type: "svg" | "png") {
     if (stale || exporting) return;
-    setExportError(""); setExporting(true);
+    setExportError(""); setExporting(type);
     let detached: HTMLDivElement | null = null;
     let chart: echarts.EChartsType | null = null;
     try {
@@ -126,7 +126,7 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
       }
       download(dataUrl, `${spec.id}${context.includes("合成") ? "-synthetic" : ""}.${type}`);
     } catch (e) { setExportError(e instanceof Error ? e.message : "导出失败，请重试"); }
-    finally { chart?.dispose(); detached?.remove(); setExporting(false); }
+    finally { chart?.dispose(); detached?.remove(); setExporting(null); }
   }
 
   const rows = spec.series.flatMap((series) => series.points.map((point) => ({ series: series.name, ...point })));
@@ -142,7 +142,7 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
         <div ref={host} className={`insight-chart-canvas${onSelectCategory && !stale ? " is-selectable" : ""}`} style={spec.orientation === "horizontal" ? { minHeight: new Set(rows.map((r) => r.category)).size * 42 + 100 } : undefined} role="img" aria-label={`${spec.title}，详见下方数据表`} />
         <details><summary>查看图表数据与抑制状态</summary>{table}</details>
       </>}
-      <div className="insight-chart-actions"><button type="button" disabled={stale || exporting} onClick={() => void exportChart("svg")}>导出 SVG</button><button type="button" disabled={stale || exporting} onClick={() => void exportChart("png")}>导出 PNG</button></div>
+      <div className="insight-chart-actions"><button type="button" disabled={stale || !!exporting} data-busy={exporting === "svg" ? "true" : undefined} aria-busy={exporting === "svg" || undefined} onClick={() => void exportChart("svg")}>{exporting === "svg" ? "导出中…" : "导出 SVG"}</button><button type="button" disabled={stale || !!exporting} data-busy={exporting === "png" ? "true" : undefined} aria-busy={exporting === "png" || undefined} onClick={() => void exportChart("png")}>{exporting === "png" ? "导出中…" : "导出 PNG"}</button></div>
     </>}
     {exportError && <p role="alert" className="insight-error">{exportError}</p>}
   </section>;

@@ -622,6 +622,19 @@ button.topbar-status--action:hover:not(:disabled) {
   padding: 12px;
   font-size: 12px;
 }
+.history-empty p { margin: 0; }
+.history-empty button { margin-top: 8px; color: var(--accent); padding-left: 0; }
+/* 新建按钮悬停变亮而不是变灰，避免看起来像失活。 */
+.new-thread:hover:not(:disabled) {
+  background: #f7f8fa;
+  box-shadow: var(--elevation-1);
+}
+/* 下划线搜索框的焦点用底边加粗表达，而不是套一个矩形框。 */
+.history-search:focus-visible {
+  outline: none;
+  border-bottom-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
 .account {
   position: relative;
   padding-top: 8px;
@@ -1853,6 +1866,9 @@ body.split-resizing .split-handle-grip {
 }
 .split-handle:focus-visible {
   background: #eef2f7;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+  border-radius: 3px;
 }
 .split-handle-grip {
   position: absolute;
@@ -2254,4 +2270,18 @@ body.split-resizing iframe {
   .mobile-tabs::after {
     transition: none !important;
   }
+}
+
+/* ---- 批次 4：触控与细节 ---- */
+.undo-removal { margin: 2px 0 10px; color: var(--accent); }
+
+@media (pointer: coarse) {
+  .back-button,
+  .sidebar-toggle { min-width: 40px; min-height: 40px; }
+  .history-actions button { width: 40px; height: 40px; }
+  .chip-remove { width: 40px; height: 40px; }
+  .tag-expand { width: 32px; height: 40px; }
+  .insight-sidebar-heading button { min-height: 44px; }
+  .mobile-tabs button { min-height: 44px; }
+  .split-handle-grip { height: 40px; }
 }

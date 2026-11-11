@@ -28,6 +28,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   const [confirm, setConfirm] = useState(false);
   const [confirmedIds, setConfirmedIds] = useState<string[]>([]);
   const [busyAction, setBusyAction] = useState<"count" | "save" | "create" | "preview" | null>(null);
+  const undoTree = useRef<Tree | null>(null);
   useEffect(() => { if (!pending) setBusyAction(null); }, [pending]);
   function run<T extends "count" | "save" | "create" | "preview">(action: T, fn: () => void) {
     setBusyAction(action);
@@ -44,6 +45,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   useEffect(() => {
     setDraft(active); setDirty(false); setConfirm(false); setVersion(undefined); setEditing(undefined);
     setConfirmedIds(acceptedConfirmations(thread, active));
+    undoTree.current = null;
   }, [thread?.thread_id, thread?.revision, active]);
   useEffect(() => { setName(thread?.source_group_name || ""); }, [thread?.thread_id, thread?.source_group_name]);
   useEffect(() => { setConfirm(false); }, [thread?.execution?.group_id]);
@@ -77,6 +79,8 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
   const status = running ? runPhaseText(thread) : dirty ? "未保存" : historical ? "历史版本" : queue.length ? "待处理" : execution ? updating ? "已更新" : "已创建" : shown?.valid ? "已核验" : "待核验";
   function changeTree(tree: Tree) {
     if (!shown || disabled) return;
+    // 记录删除前的快照，供"撤销删除"恢复；普通修改会清掉旧的撤销点。
+    undoTree.current = clauses(tree).length < clauses(shown.tree).length ? shown.tree : null;
     setConfirmedIds((ids) => ids.filter((id) => {
       const before = items.find((c) => c.clause_id === id);
       const after = clauses(tree).find((c) => c.clause_id === id);
@@ -85,8 +89,15 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
     setDraft({ ...shown, tree, valid: false }); setDirty(true); setConfirm(false);
   }
   function discard() {
+    undoTree.current = null;
     setDraft(active); setDirty(false); setEditing(undefined); setConfirm(false); setConfirmedIds(acceptedConfirmations(thread, active));
   }
+  const undoRemoval = () => {
+    const before = undoTree.current;
+    if (!shown || !before || disabled) return;
+    undoTree.current = null;
+    setDraft({ ...shown, tree: before, valid: false }); setDirty(true); setConfirm(false);
+  };
   function confirmAssumption(id: string) {
     if (!shown || disabled) return;
     const ids = [...new Set([...confirmedIds, id])];
@@ -121,6 +132,7 @@ export function PlanPanel({ highlightedClauses, thread, pending, onSave, onRefin
         <SummaryTree highlightedClauses={highlightedClauses} tree={shown.tree} items={items} changes={changes} editing={editing} disabled={disabled} onEdit={(id) => setEditing(editing === id ? undefined : id)}
           onChange={changeTree} onDone={() => setEditing(undefined)} onDiscuss={onDiscuss} />
         {removed.map((c) => <p className="removed-clause" key={c.clause_id}><del>{clauseSentence(c)}</del><span>已删除</span></p>)}
+        {undoTree.current ? <button type="button" className="text-button undo-removal" disabled={disabled} onClick={undoRemoval}>撤销删除</button> : null}
         <button className="text-button add-condition" disabled={disabled} onClick={() => onDiscuss("在当前方案中补充一项条件，保留其余要求：")}>＋ 补充条件（在对话里说）</button>
       </> : !running ? <div className="plan-empty"><p>先描述你想寻找的客户</p><span>例如：近 3 个月消费至少 1 万元的金卡客户。</span></div> : null}
     </div>
