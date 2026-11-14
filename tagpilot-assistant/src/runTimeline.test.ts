@@ -53,7 +53,7 @@ describe("处理记录视图", () => {
   it("阶段校验需要 plan.valid，终止后不保留转圈", () => {
     const p = { ...plan, valid: false };
     const v = buildRunView([start("a"), { seq: 2, type: "plan.validated", plan: p }], p, false, { status: "FAILED" });
-    expect(v.todos.map((t) => t.status)).toEqual(["done", "done", "blocked", "done"]);
+    expect(v.todos.map((t) => t.status)).toEqual(["done", "done", "blocked", "pending", "pending"]);
     expect(v.items[0]).toMatchObject({ status: "stopped" });
   });
   it("当前方案阻断不能被旧事件快照覆盖", () => {
@@ -62,8 +62,10 @@ describe("处理记录视图", () => {
     expect(v.todos[2].status).toBe("blocked");
     expect(v.todos[1].children?.[0].status).toBe("blocked");
   });
-  it("完整运行四个阶段完成，正确统计耗时", () => {
-    const v = buildRunView([start("a"), end("a"), { seq: 3, type: "plan.validated", plan, occurred_at: 134 }], plan, false);
+  it("方案核验和人数、洞察或保存按各自证据更新", () => {
+    const v = buildRunView([start("a"), end("a"), { seq: 3, type: "plan.validated", plan, occurred_at: 134 }], plan, false, { results: { count: 0, saved: true } });
+    expect(v.todos[3].result).toBe("0 人");
+    expect(v.todos[4].result).toBe("已保存客群");
     expect(v.todos.every((t) => t.status === "done")).toBe(true);
     expect(v.elapsedMs).toBe(34000);
     expect(v.stats.conditions).toBe(2);

@@ -1,6 +1,7 @@
 import { clauses, clauseChanged, clauseSentence, degradedMessage, parseDegraded, planDiff, toolText, type Degraded, type Plan, type RunEvent, type Thread } from "./agentTypes";
 
 export type TodoStatus = "pending" | "active" | "done" | "blocked";
+export type ResultProgress = { count?: number; counting?: boolean; saving?: boolean; saved?: boolean; insights?: boolean; limited?: boolean };
 export type TodoItem = { id: string; label: string; status: TodoStatus; result?: string; children?: TodoItem[] };
 export type Action = { kind: "action"; id: string; tool: string; targets: string[]; requirementIds: string[]; status: "running" | "done" | "error" | "stopped"; summary?: string; names: string[]; ms?: number; startedAt?: number; callId?: string; depth?: string };
 export type TimelineItem = Action | { kind: "group"; id: string; tool: string; actions: Action[]; status: Action["status"] }
@@ -21,7 +22,7 @@ export function groupLabel(item: Extract<TimelineItem, { kind: "group" }>): stri
   return `${verbs[item.tool] || "处理圈选条件"} · ${item.actions.length} 次操作`;
 }
 
-export function buildRunView(events: RunEvent[], plan?: Plan, running = false, options: { runId?: string; questions?: Thread["questions"]; status?: string; now?: number } = {}): RunView {
+export function buildRunView(events: RunEvent[], plan?: Plan, running = false, options: { runId?: string; questions?: Thread["questions"]; status?: string; now?: number; results?: ResultProgress } = {}): RunView {
   const runId = options.runId || "run";
   const items: TimelineItem[] = [];
   const actions: Action[] = [];
@@ -106,14 +107,45 @@ export function buildRunView(events: RunEvent[], plan?: Plan, running = false, o
       result: matches.length ? matches.map(clauseSentence).join("；") : undefined,
       status: blocked ? "blocked" : done ? "done" : active ? "active" : "pending" };
   });
-  const validated = events.some((e) => e.type === "plan.validated");
-  const terminal = !running && options.status !== "WAITING" && (events.length > 0 || !!currentPlan);
-  const done = [events.some((e) => e.type === "intent.ready" || (e.type === "tool.started" && e.tool === "find_tags")),
-    (children.length > 0 && children.every((c) => c.status === "done")) || validated,
-    validated && !!currentPlan?.valid && !children.some((c) => c.status === "blocked"), terminal];
-  const labels = ["理解需求", "匹配标签与口径", "校验圈选方案", "整理结果"];
-  const first = done.findIndex((d) => !d);
-  const todos: TodoItem[] = labels.map((label, i) => ({ id: `phase:${i}`, label, status: done[i] ? "done" : running && i === first ? "active" : !running && i === first ? "blocked" : "pending", ...(i === 1 ? { children } : {}) }));
+  const validated = events.some((event) => event.type === "plan.validated");
+  const matched = new Set(nodes.filter((node) => node.status === "BOUND" && (node.tag_id || node.name))
+    .map((node) => node.tag_id ?? node.name)).size;
+  const waiting = options.status === "WAITING";
+  const verified = validated && !!currentPlan?.valid && !waiting && !children.some((child) => child.status === "blocked");
+  const done = [
+    events.some((event) => event.type === "intent.ready" || (event.type === "tool.started" && event.tool === "find_tags")) || validated,
+    (children.length > 0 && children.every((child) => child.status === "done")) || verified,
+    verified,
+  ];
+  const labels = ["识别业务意图", "匹配标签与语义口径", "校验筛选方案"];
+  const details = [
+    done[0] ? "已识别为客群圈选" : undefined,
+    matched ? `已匹配 ${matched} 个标签` : undefined,
+    waiting ? options.questions?.[0]?.prompt || "等待用户确认" : verified ? "方案已核验" : undefined,
+  ];
+  const first = done.indexOf(false);
+  const blocked = waiting || ["FAILED", "CANCELLED", "INTERRUPTED"].includes(options.status || "") || !!degraded || validated;
+  const todos: TodoItem[] = labels.map((label, index) => ({
+    id: `phase:${index}`,
+    label,
+    status: done[index] ? "done" : running && index === first ? "active"
+      : (waiting && index === 2) || (!running && blocked && index === first) ? "blocked" : "pending",
+    result: details[index],
+    children: index === 1 ? children : undefined,
+  }));
+  const results = options.results;
+  const counted = results?.count !== undefined;
+  todos.push({
+    id: "phase:count",
+    label: "统计命中人数",
+    status: results?.counting ? "active" : counted ? "done" : "pending",
+    result: counted ? `${results.count!.toLocaleString("zh-CN")} 人` : undefined,
+  }, {
+    id: "phase:result",
+    label: "生成洞察与保存客群",
+    status: results?.saving ? "active" : results?.saved || results?.insights ? "done" : results?.limited ? "blocked" : "pending",
+    result: [results?.insights ? "已生成洞察" : results?.limited ? "分析受限" : "", results?.saved ? "已保存客群" : ""].filter(Boolean).join(" · ") || undefined,
+  });
   const grouped: TimelineItem[] = [];
   for (const item of items) {
     const last = grouped.at(-1);
@@ -126,6 +158,6 @@ export function buildRunView(events: RunEvent[], plan?: Plan, running = false, o
   const times = events.map((e) => e.occurred_at).filter((t): t is number => typeof t === "number" && t > 0);
   const elapsedMs = times.length ? Math.max(0, ((running ? options.now || Date.now() / 1000 : Math.max(...times)) - Math.min(...times)) * 1000) : 0;
   if (actions.length) notice = undefined;
-  return { phase: running ? labels[first < 0 ? 3 : first] : options.status === "WAITING" ? "等待业务选择" : degraded ? "部分完成" : "已处理", todos, items: grouped, elapsedMs,
+  return { phase: running ? labels[first < 0 ? 2 : first] : options.status === "WAITING" ? "等待业务选择" : degraded ? "部分完成" : "已处理", todos, items: grouped, elapsedMs,
     stats: { steps: actions.length, conditions: requirements.length || nodes.length || (degraded ? degraded.kept_clauses.length + degraded.unresolved_clause_ids.length : 0) }, notice, degraded };
 }

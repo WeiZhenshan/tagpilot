@@ -1,14 +1,43 @@
 import { useId, useRef, useState } from "react";
 import type { Clause, Tree } from "./agentTypes";
-import { clauseSentence, clauseUnit, operatorNames } from "./agentTypes";
+import { expressionText, clauseSentence, clauseUnit, operatorNames } from "./agentTypes";
 import { ListboxSelect } from "./ListboxSelect";
+import { Presence } from "./Presence";
+import { ActionIcon } from "./ActionIcon";
 
 export function PlanIcon({ kind }: { kind: "edit" | "info" | "more" | "close" }) {
-  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {kind === "edit" ? <><path d="m15 4 5 5M4 20l5-1L20 8a2.1 2.1 0 0 0-4-4L5 15l-1 5Z" /></> :
-      kind === "info" ? <><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" /></> :
-      kind === "close" ? <path d="m6 6 12 12M18 6 6 18" /> : <><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>}
-  </svg>;
+  return <ActionIcon kind={kind} />;
+}
+
+export function ClauseValueFields({ clause: c, disabled, labelPrefix = "", onChange }: {
+  clause: Clause; disabled: boolean; labelPrefix?: string; onChange: (patch: Partial<Clause>) => void;
+}) {
+  const label = `${labelPrefix}${c.name || c.clause_id}`;
+  return <div className="condition-inputs">
+    <label className="field-label field-label--operator">比较方式
+      <ListboxSelect ariaLabel={`${label}比较方式`} disabled={disabled} value={c.operator || "="}
+        triggerClassName="library-select-trigger--field" onChange={(operator) => onChange({
+          operator,
+          values: ["is_null", "is_not_null"].includes(operator) ? []
+            : ["in", "not_in"].includes(operator) ? c.values : c.values?.slice(0, operator === "between" ? 2 : 1),
+        })}
+        options={[...new Set([...(c.allowed_operators || ["=", "!=", ">", ">=", "<", "<=", "between", "in", "not_in"]), c.operator || "="])].map((op) => ({ value: op, label: operatorNames[op] || op }))} />
+    </label>
+    {!["is_null", "is_not_null"].includes(c.operator || "") && !c.compare_expression ? <label className="field-label field-label--value">
+      条件值{clauseUnit(c) ? `（${clauseUnit(c)}）` : ""}
+      {c.code_options?.length && ["in", "not_in"].includes(c.operator || "") ?
+        <ListboxSelect multiple ariaLabel={`${label}条件值`} disabled={disabled} placeholder="请选择"
+          triggerClassName="library-select-trigger--field" value={c.values || []} onChange={(values) => onChange({ values })}
+          options={c.code_options.map((o) => ({ value: o.code, label: o.label || o.code }))} /> :
+        c.code_options?.length && c.operator !== "between" ?
+          <ListboxSelect ariaLabel={`${label}条件值`} disabled={disabled} placeholder="请选择"
+            triggerClassName="library-select-trigger--field" value={c.values?.[0] || ""} onChange={(value) => onChange({ values: value ? [value] : [] })}
+            options={c.code_options.map((o) => ({ value: o.code, label: o.label || o.code }))} /> :
+          <input aria-label={`${label}条件值`} disabled={disabled} value={(c.values || []).join(", ")}
+            placeholder={c.operator === "between" ? "下限, 上限" : "填写条件值"}
+            onChange={(e) => onChange({ values: e.target.value.split(/[,，]/).map((v) => v.trim()) })} />}
+    </label> : null}
+  </div>;
 }
 
 export function ClauseEditor({ clause: c, disabled, onChange, onDone, onRemove, onDiscuss }: {
@@ -30,27 +59,7 @@ export function ClauseEditor({ clause: c, disabled, onChange, onDone, onRemove, 
           triggerClassName="library-select-trigger--field" onChange={selectTag}
           options={candidates.map((x) => ({ value: String(x.tag_id), label: x.name }))} />
       </label> : candidates.length === 1 && (c.status !== "BOUND" || c.gap_reason || c.unresolved) ? <button disabled={disabled} onClick={() => selectTag(String(candidates[0].tag_id))}>采用标签：{candidates[0].name}</button> : null}
-      <div className="condition-inputs">
-        <label className="field-label field-label--operator">比较方式
-          <ListboxSelect ariaLabel={`${c.name || c.clause_id}比较方式`} disabled={disabled} value={c.operator || "="}
-            triggerClassName="library-select-trigger--field" onChange={(operator) => patch({ operator, values: ["is_null", "is_not_null"].includes(operator) ? [] : c.values })}
-            options={[...new Set([...(c.allowed_operators || ["=", "!=", ">", ">=", "<", "<=", "between", "in", "not_in"]), c.operator || "="])].map((op) => ({ value: op, label: operatorNames[op] || op }))} />
-        </label>
-        {!["is_null", "is_not_null"].includes(c.operator || "") && !c.compare_expression ? <label className="field-label field-label--value">
-          条件值{clauseUnit(c) ? `（${clauseUnit(c)}）` : ""}
-          {c.code_options?.length && ["in", "not_in"].includes(c.operator || "") ?
-            <ListboxSelect multiple ariaLabel={`${c.name || c.clause_id}条件值`} disabled={disabled} placeholder="请选择"
-              triggerClassName="library-select-trigger--field" value={c.values || []} onChange={(values) => patch({ values })}
-              options={c.code_options.map((o) => ({ value: o.code, label: o.label || o.code }))} /> :
-            c.code_options?.length && c.operator !== "between" ?
-              <ListboxSelect ariaLabel={`${c.name || c.clause_id}条件值`} disabled={disabled} placeholder="请选择"
-                triggerClassName="library-select-trigger--field" value={c.values?.[0] || ""} onChange={(value) => patch({ values: value ? [value] : [] })}
-                options={c.code_options.map((o) => ({ value: o.code, label: o.label || o.code }))} /> :
-              <input aria-label={`${c.name || c.clause_id}条件值`} disabled={disabled} value={(c.values || []).join(", ")}
-                placeholder={c.operator === "between" ? "下限, 上限" : "填写条件值"}
-                onChange={(e) => patch({ values: e.target.value.split(/[,，]/).map((v) => v.trim()) })} />}
-        </label> : null}
-      </div>
+      <ClauseValueFields clause={c} disabled={disabled} onChange={patch} />
       {c.values?.some((v) => c.code_options?.length && !c.code_options.some((o) => o.code === v)) ? <p className="field-error">条件中有未发布的码值，请重新选择。</p> : null}
       <button className="text-button clause-discuss" disabled={disabled} onClick={() => onDiscuss(`我想调整“${c.name || c.source_span || "这项条件"}”的时间或业务口径：`)}>修改时间或口径，在对话里说</button>
     </> : <p className="muted">采用当前标签库的授权客户范围。</p>}
@@ -80,22 +89,31 @@ export function ClauseSummary({ highlighted, clause: c, number, change, open, di
         {exception || change ? <div className="clause-markers">{exception ? <span className="clause-exception">{exception}</span> : null}{change ? <span className="clause-change">{change}</span> : null}</div> : null}
       </div>
       <div className="clause-tools">
-        <button className="plan-icon-button" aria-label={`${c.name || c.clause_id}口径说明`} aria-expanded={info} popoverTarget={infoId} onClick={() => {
+        <button className="plan-icon-button" title="口径说明" aria-label={`${c.name || c.clause_id}口径说明`} aria-expanded={info} popoverTarget={infoId} onClick={() => {
           const rect = row.current?.getBoundingClientRect();
           if (rect) {
             const width = Math.min(rect.width, 340, window.innerWidth - 24);
             setInfoPosition({ width, left: Math.max(12, Math.min(rect.left, window.innerWidth - width - 12)), top: Math.max(12, Math.min(rect.bottom + 4, window.innerHeight - 200)) });
           }
         }}><PlanIcon kind="info" /></button>
-        <button className="plan-icon-button" aria-label={`编辑条件：${c.name || c.clause_id}`} aria-expanded={open} aria-controls={editorId} disabled={disabled} onClick={onEdit}><PlanIcon kind="edit" /></button>
+        <button className="plan-icon-button" title="编辑条件" aria-label={`编辑条件：${c.name || c.clause_id}`} aria-expanded={open} aria-controls={editorId} disabled={disabled} onClick={onEdit}><PlanIcon kind="edit" /></button>
       </div>
     </div>
     <div id={infoId} popover="auto" className="clause-info" role="note" style={infoPosition} onToggle={(event) => setInfo(event.newState === "open")}>
-      <p>{c.definition || (c.kind === "SCOPE_ALL" ? "采用当前标签库的授权客户范围。" : "核验后可查看发布口径。")}{c.time_constraint ? ` 时间范围：${c.time_constraint}。` : ""}</p>
-      {["not_in", "!="].includes(c.operator || "") ? <p>排除空值；{c.unknown_policy === "INCLUDE" ? "包含" : "排除"}未知码值。</p> : null}
+      <ClauseDetails clause={c} />
     </div>
-    {open ? <div id={editorId}><ClauseEditor clause={c} disabled={disabled} onChange={onChange} onDone={onDone} onRemove={onRemove} onDiscuss={onDiscuss} /></div> : null}
+    <div id={editorId}><Presence open={open}><ClauseEditor clause={c} disabled={disabled} onChange={onChange} onDone={onDone} onRemove={onRemove} onDiscuss={onDiscuss} /></Presence></div>
   </section>;
+}
+
+export function ClauseDetails({ clause }: { clause: Clause }) {
+  return <>
+    <p>{clause.definition || (clause.kind === "SCOPE_ALL" ? "采用当前标签库的授权客户范围。" : "核验后可查看发布口径。")}</p>
+    {clause.time_constraint ? <p>时间范围 · {clause.time_constraint}</p> : null}
+    {clause.expression ? <p>计算口径 · {expressionText(clause.expression)}</p> : null}
+    {clause.code_options?.length ? <p>发布取值 · {clause.code_options.map((option) => option.label).join("、")}</p> : null}
+    {["not_in", "!="].includes(clause.operator || "") ? <p>排除空值；{clause.unknown_policy === "INCLUDE" ? "包含" : "排除"}未知码值。</p> : null}
+  </>;
 }
 
 export function SummaryTree({ highlightedClauses, tree, items, changes, editing, disabled, onEdit, onChange, onDone, onDiscuss, onRemove }: {

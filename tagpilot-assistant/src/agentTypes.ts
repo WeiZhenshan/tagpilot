@@ -56,7 +56,7 @@ export type Tree = Clause | Group;
 export type Plan = {
   schema_version?: number;
   plan_status?: string;
-  intent_plan?: { requirements: { requirement_id: string; business_meaning: string }[]; assumptions?: { requirement_id?: string; status: string; question?: string }[] };
+  intent_plan?: { original_request?: string; requirements: { requirement_id: string; business_meaning: string }[]; assumptions?: { requirement_id?: string; status: string; question?: string }[] };
   diagnostics?: Diagnostic[];
   tree: Tree;
   valid?: boolean;
@@ -123,6 +123,8 @@ export type Thread = {
   analysis_artifacts?: Record<string, import("./insight/analysisTypes").AnalysisArtifact>;
   run_id?: string;
   questions?: { clause_id?: string; requirement_id?: string; prompt: string; options?: string[]; reason?: string }[];
+  stopped_questions?: Thread["questions"];
+  clarification_state?: { pending_questions?: Thread["questions"] };
   interrupt_id?: string;
   error?: string;
   outcome?: { outcome: string; gaps: { requirement_id: string; reason: string; nearest_tag_ids: number[] }[]; stats?: Record<string, unknown> };
@@ -170,6 +172,13 @@ export const stateText: Record<string, string> = {
   FAILED: "暂未完成",
   INTERRUPTED: "可恢复",
 };
+// 顶栏、方案栏与时间轴共用同一套运行阶段词，避免同一时刻出现三种说法。
+export function runPhaseText(t?: Thread | null): string {
+  if (!t) return stateText.IDLE;
+  if (t.status === "WAITING") return "等待业务选择";
+  if (t.status !== "RUNNING" && t.status !== "SUBMITTING") return stateText[t.status] || stateText.IDLE;
+  return t.live_plan || t.plan ? "正在整理条件" : "正在理解需求";
+}
 export const degradedText = {
   timeout: "处理时间较长，已保留已确认的条件",
   memory_limit: "运行资源不足，已保存进度，请手工编辑或稍后重试",
@@ -298,6 +307,11 @@ export function treeSentence(tree: Tree): string {
   if (!("children" in tree)) return clauseSentence(tree);
   return `满足以下${tree.logic === "AND" ? "全部" : "任一"}条件：\n${tree.children.map((child) =>
     "children" in child ? `（${treeSentence(child)}）` : `• ${clauseSentence(child)}`).join("\n")}`;
+}
+/** 面向阅读的条件表达式；可执行客群规则仍由服务端编译。 */
+export function treeBusinessExpression(tree: Tree): string {
+  if (!("children" in tree)) return clauseSentence(tree);
+  return `(${tree.children.map(treeBusinessExpression).join(tree.logic === "AND" ? " 且 " : " 或 ")})`;
 }
 export type PendingItem = {
   id: string;

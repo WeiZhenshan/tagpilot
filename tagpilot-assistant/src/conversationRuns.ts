@@ -1,4 +1,10 @@
 import { busy, type AgentMessage, type RunEvent, type Thread } from "./agentTypes";
+import type { AnalysisPart } from "./insight/analysisTypes";
+
+type ConversationRun = {
+  run_id: string; profile?: string; current: boolean; label: string; events: RunEvent[];
+  id: string; continued: boolean; afterMessageId?: string; responseParts: AnalysisPart[]; responseMessageId?: string; requestText?: string;
+};
 
 function turnEvents(events: RunEvent[], inputs: AgentMessage[]) {
   let start = 0;
@@ -35,18 +41,25 @@ export function conversationRuns(thread: Thread | null) {
     // 兼容早期未保存 run_id 的消息；不影响有明确归属的新消息。
     return response >= 0 ? users.filter((position) => position < response).at(-1) ?? response : users[index] ?? -1;
   });
-  return runs.flatMap((run, index) => {
+  return runs.flatMap<ConversationRun>((run, index) => {
     const anchor = anchors[index];
     const end = anchors.slice(index + 1).find((position) => position > anchor) ?? messages.length;
     const inputs = anchor < 0 ? [] : messages.slice(anchor, end).filter((message) =>
       message.role === "user" && (!message.run_id || message.run_id === run.run_id));
-    if (!inputs.length) return [{ ...run, id: run.run_id, continued: false, afterMessageId: messages[anchor]?.id }];
+    const responses = messages.slice(Math.max(0, anchor), end).filter((message) =>
+      message.role === "assistant" && (!message.run_id || message.run_id === run.run_id));
+    const responseMessageId = responses.at(-1)?.id;
+    const responseParts = responses.flatMap((message) => message.parts || []);
+    if (!inputs.length) return [{ ...run, id: run.run_id, continued: false, afterMessageId: messages[anchor]?.id, responseParts, responseMessageId }];
     const events = turnEvents(run.events, inputs);
     // 旧快照可能只有整段事件；不为无法还原步骤的历史输入生成空记录。
     return inputs.map((message, turn) => ({
       ...run, id: `${run.run_id}:${message.id}`, afterMessageId: message.id,
       events: events[turn], continued: turn < inputs.length - 1,
       current: run.current && turn === inputs.length - 1,
+      responseParts: turn === inputs.length - 1 ? responseParts : [],
+      responseMessageId: turn === inputs.length - 1 ? responseMessageId : undefined,
+      requestText: inputs[0]?.text,
     })).filter((turn) => !turn.continued || turn.events.length > 0);
   }).map((run, index) => ({ ...run, label: `第 ${index + 1} 轮处理记录` }));
 }

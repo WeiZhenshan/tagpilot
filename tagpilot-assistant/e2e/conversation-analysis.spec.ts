@@ -45,13 +45,13 @@ for (const width of [1440, 390]) test(`对话分析 ${width}：消息内图表�
   await page.getByRole("button", { name: "发送需求" }).click();
   await expect(page.getByText("苏州客户的资产均值高于南京，可继续比较机构结构。")).toBeVisible();
   const original = page.locator('[data-artifact-id="synthetic-chart"][data-artifact-version="1"]');
-  await expect(original.locator("svg")).toBeVisible();
+  await expect(original.locator(".insight-chart-canvas svg")).toBeVisible();
   expect(requests[0].intent).toBe("auto"); expect(requests[0].skill_name).toBeUndefined(); expect(requests[0].context_tag_ids).toEqual([]);
   await original.getByRole("button", { name: "查看来源" }).click();
   const detail = page.getByRole("dialog");
   await expect(detail.getByText("数据日期未知；查询时间不代表业务数据日期")).toBeVisible();
   await page.keyboard.press("Escape"); await expect(detail).not.toBeVisible();
-  await original.getByRole("button", { name: "放大查看" }).click(); await expect(page.getByRole("dialog").locator("svg")).toBeVisible();
+  await original.getByRole("button", { name: "放大查看" }).click(); await expect(page.getByRole("dialog").locator(".insight-chart-canvas svg")).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "关闭", exact: true }).click();
   await original.getByRole("button", { name: "继续分析此图" }).click();
   const cite = page.locator(".composer .analysis-cite");

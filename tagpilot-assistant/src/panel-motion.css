@@ -8,6 +8,15 @@
   --motion-panel-distance: clamp(12px, 6%, 32px);
 }
 
+/* 右栏宽度随 tab 切换平滑变化；拖拽时关闭过渡，避免与手柄逐帧冲突。 */
+.workbench .insight-right {
+  transition: width var(--motion-panel-enter) var(--motion-panel-ease-enter);
+}
+body.split-resizing .workbench .history-rail,
+body.split-resizing .workbench .insight-right {
+  transition: none;
+}
+
 /* 保留 display 的退出阶段；不支持离散过渡的浏览器直接切换。 */
 @supports (transition-behavior: allow-discrete) {
   .workbench .history-rail,
@@ -15,6 +24,7 @@
     opacity: 1;
     transform: translateX(0);
     transition:
+      width var(--motion-panel-enter) var(--motion-panel-ease-enter),
       transform var(--motion-panel-enter) var(--motion-panel-ease-enter),
       opacity var(--motion-panel-enter) var(--motion-panel-ease-enter),
       display var(--motion-panel-enter) allow-discrete;

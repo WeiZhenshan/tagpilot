@@ -1,21 +1,10 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { ActionIcon } from "./ActionIcon";
 
 export type ListboxOption = { value: string; label: string };
 
 export function ChevronIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={open ? "m7 14 5-5 5 5" : "m7 10 5 5 5-5"} />
-    </svg>
-  );
+  return <ActionIcon kind="chevron" className="chevron-icon" open={open} />;
 }
 
 function CheckIcon() {
@@ -75,7 +64,9 @@ export function ListboxSelect(props: SingleProps | MultiProps) {
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const openFrame = useRef(0);
   const listboxId = useId();
+  useEffect(() => () => window.cancelAnimationFrame(openFrame.current), []);
 
   const selectedValues = multiple
     ? props.value
@@ -100,12 +91,14 @@ export function ListboxSelect(props: SingleProps | MultiProps) {
 
   const close = (restoreFocus = false) => {
     setOpen(false);
+    window.cancelAnimationFrame(openFrame.current);
     if (restoreFocus) window.requestAnimationFrame(() => trigger.current?.focus());
   };
   const openAt = (index = Math.max(selectedIndex, 0)) => {
     if (disabled || !options.length) return;
     setOpen(true);
-    window.requestAnimationFrame(() => optionRefs.current[index]?.focus());
+    window.cancelAnimationFrame(openFrame.current);
+    openFrame.current = window.requestAnimationFrame(() => optionRefs.current[index]?.focus());
   };
 
   useEffect(() => {
@@ -121,6 +114,8 @@ export function ListboxSelect(props: SingleProps | MultiProps) {
   }, [open]);
 
   const moveFocus = (offset: number) => {
+    // 键盘导航优先于打开菜单时排队的首项聚焦，避免焦点被回调抢回。
+    window.cancelAnimationFrame(openFrame.current);
     const currentIndex = optionRefs.current.findIndex(
       (option) => option === document.activeElement
     );

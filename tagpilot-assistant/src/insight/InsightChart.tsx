@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as echarts from "echarts/core";
 import { BarChart, HeatmapChart, FunnelChart } from "echarts/charts";
 import { AriaComponent, DatasetComponent, GridComponent, LegendComponent, TitleComponent, TooltipComponent, VisualMapComponent } from "echarts/components";
@@ -6,11 +6,12 @@ import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
 import type { ChartSpec, Fact } from "./types";
 import { formatFact } from "./types";
 import { validateChartSpec } from "./chartGuard";
+import { ListboxSelect } from "../ListboxSelect";
 import { chartExplanation, toEChartsOption } from "./echartsAdapter";
 
 echarts.use([BarChart, HeatmapChart, FunnelChart, AriaComponent, DatasetComponent, GridComponent, LegendComponent, TitleComponent, TooltipComponent, VisualMapComponent, SVGRenderer, CanvasRenderer]);
 
-type Props = { spec: ChartSpec; facts: Fact[]; context: string; stale?: boolean; onSelectCategory?: (category: string) => void };
+type Props = { spec: ChartSpec; facts: Fact[]; context: string; stale?: boolean; actions?: ReactNode; showExport?: boolean; onSelectCategory?: (category: string) => void };
 const escapeXml = (value: string) => value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c]!);
 
 function nativeSvg(spec: ChartSpec, facts: Fact[], context: string): string {
@@ -47,12 +48,12 @@ async function svgToPng(svg: string): Promise<string> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-export function InsightChart({ spec, facts, context, stale = false, onSelectCategory }: Props) {
+export function InsightChart({ spec, facts, context, stale = false, actions, showExport = true, onSelectCategory }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const instance = useRef<echarts.EChartsType | null>(null);
   const [renderError, setRenderError] = useState("");
   const [exportError, setExportError] = useState("");
-  const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState<"svg" | "png" | null>(null);
   const validationError = useMemo(() => {
     try { validateChartSpec(spec, facts); return ""; }
     catch (e) { return e instanceof Error ? e.message : "图表协议非法"; }
@@ -68,20 +69,35 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
       const media = window.matchMedia("(prefers-reduced-motion: reduce)");
       const chart = echarts.init(host.current, undefined, { renderer: "svg" });
       instance.current = chart;
-      const update = () => chart.setOption(toEChartsOption(spec, facts, media.matches, chart.getWidth()), { notMerge: true });
+      let resizeTimer = 0;
+      const update = (reducedOverride?: boolean) => chart.setOption(toEChartsOption(spec, facts, reducedOverride ?? media.matches, chart.getWidth()), { notMerge: true });
+      const onMediaChange = () => update();
       update();
-      if (onSelectCategory && !stale) chart.on("click", (event) => {
-        if (typeof event.name === "string" && spec.series.some((series) => series.points.some((point) => point.category === event.name))) onSelectCategory(event.name);
+      if (onSelectCategory && !stale) {
+        chart.getZr().setCursorStyle("pointer");
+        chart.on("click", (event) => {
+          if (typeof event.name === "string" && spec.series.some((series) => series.points.some((point) => point.category === event.name))) {
+            // 点选后先在图内高亮，确认条再出现，避免"点了柱子但柱子没反应"。
+            chart.dispatchAction({ type: "downplay" });
+            chart.dispatchAction({ type: "highlight", name: event.name });
+            onSelectCategory(event.name);
+          }
+        });
+      }
+      // 拖拽分栏时合并 resize，停止后再重设 option；重设时关闭动画，避免柱子逐帧重播。
+      const observer = new ResizeObserver(() => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => { chart.resize(); update(true); }, 120);
       });
-      const observer = new ResizeObserver(() => { chart.resize(); update(); }); observer.observe(host.current);
-      media.addEventListener("change", update);
-      return () => { observer.disconnect(); media.removeEventListener("change", update); chart.dispose(); instance.current = null; };
+      observer.observe(host.current);
+      media.addEventListener("change", onMediaChange);
+      return () => { window.clearTimeout(resizeTimer); observer.disconnect(); media.removeEventListener("change", onMediaChange); chart.dispose(); instance.current = null; };
     } catch (e) { setRenderError(e instanceof Error ? e.message : "图表校验失败"); }
   }, [spec, facts, native, validationError, onSelectCategory, stale]);
 
   async function exportChart(type: "svg" | "png") {
     if (stale || exporting) return;
-    setExportError(""); setExporting(true);
+    setExportError(""); setExporting(type);
     let detached: HTMLDivElement | null = null;
     let chart: echarts.EChartsType | null = null;
     try {
@@ -111,7 +127,7 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
       }
       download(dataUrl, `${spec.id}${context.includes("合成") ? "-synthetic" : ""}.${type}`);
     } catch (e) { setExportError(e instanceof Error ? e.message : "导出失败，请重试"); }
-    finally { chart?.dispose(); detached?.remove(); setExporting(false); }
+    finally { chart?.dispose(); detached?.remove(); setExporting(null); }
   }
 
   const rows = spec.series.flatMap((series) => series.points.map((point) => ({ series: series.name, ...point })));
@@ -124,10 +140,17 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
     {chartExplanation(spec) && <p className="insight-chart-explanation">{chartExplanation(spec)}</p>}
     {validationError || renderError ? <p role="alert" className="insight-error">图表已阻断：{validationError || renderError}</p> : <>
       {spec.kind === "kpi" ? <p className="insight-kpi">{formatFact(index.get(rows[0].fact_id)!)}</p> : native ? table : <>
-        <div ref={host} className="insight-chart-canvas" style={spec.orientation === "horizontal" ? { minHeight: new Set(rows.map((r) => r.category)).size * 42 + 100 } : undefined} role="img" aria-label={`${spec.title}，详见下方数据表`} />
+        <div ref={host} className={`insight-chart-canvas${onSelectCategory && !stale ? " is-selectable" : ""}`} style={spec.orientation === "horizontal" ? { minHeight: new Set(rows.map((r) => r.category)).size * 42 + 100 } : undefined} role="img" aria-label={`${spec.title}，详见下方数据表`} />
         <details><summary>查看图表数据与抑制状态</summary>{table}</details>
       </>}
-      <div className="insight-chart-actions"><button type="button" disabled={stale || exporting} onClick={() => void exportChart("svg")}>导出 SVG</button><button type="button" disabled={stale || exporting} onClick={() => void exportChart("png")}>导出 PNG</button></div>
+      {actions || showExport ? <div className="insight-chart-actions">
+        {actions}
+        {showExport ? <ListboxSelect ariaLabel="导出图表" listboxLabel="导出格式" value=""
+          placeholder={exporting ? "导出中…" : "导出"} placement="top"
+          disabled={stale || !!exporting}
+          options={[{ value: "svg", label: "导出 SVG" }, { value: "png", label: "导出 PNG" }]}
+          onChange={(value) => { if (value === "svg" || value === "png") void exportChart(value); }} /> : null}
+      </div> : null}
     </>}
     {exportError && <p role="alert" className="insight-error">{exportError}</p>}
   </section>;
