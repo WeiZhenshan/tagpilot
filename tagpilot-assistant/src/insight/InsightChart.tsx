@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as echarts from "echarts/core";
 import { BarChart, HeatmapChart, FunnelChart } from "echarts/charts";
 import { AriaComponent, DatasetComponent, GridComponent, LegendComponent, TitleComponent, TooltipComponent, VisualMapComponent } from "echarts/components";
@@ -6,11 +6,12 @@ import { CanvasRenderer, SVGRenderer } from "echarts/renderers";
 import type { ChartSpec, Fact } from "./types";
 import { formatFact } from "./types";
 import { validateChartSpec } from "./chartGuard";
+import { ListboxSelect } from "../ListboxSelect";
 import { chartExplanation, toEChartsOption } from "./echartsAdapter";
 
 echarts.use([BarChart, HeatmapChart, FunnelChart, AriaComponent, DatasetComponent, GridComponent, LegendComponent, TitleComponent, TooltipComponent, VisualMapComponent, SVGRenderer, CanvasRenderer]);
 
-type Props = { spec: ChartSpec; facts: Fact[]; context: string; stale?: boolean; onSelectCategory?: (category: string) => void };
+type Props = { spec: ChartSpec; facts: Fact[]; context: string; stale?: boolean; actions?: ReactNode; showExport?: boolean; onSelectCategory?: (category: string) => void };
 const escapeXml = (value: string) => value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c]!);
 
 function nativeSvg(spec: ChartSpec, facts: Fact[], context: string): string {
@@ -47,7 +48,7 @@ async function svgToPng(svg: string): Promise<string> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-export function InsightChart({ spec, facts, context, stale = false, onSelectCategory }: Props) {
+export function InsightChart({ spec, facts, context, stale = false, actions, showExport = true, onSelectCategory }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const instance = useRef<echarts.EChartsType | null>(null);
   const [renderError, setRenderError] = useState("");
@@ -142,7 +143,14 @@ export function InsightChart({ spec, facts, context, stale = false, onSelectCate
         <div ref={host} className={`insight-chart-canvas${onSelectCategory && !stale ? " is-selectable" : ""}`} style={spec.orientation === "horizontal" ? { minHeight: new Set(rows.map((r) => r.category)).size * 42 + 100 } : undefined} role="img" aria-label={`${spec.title}，详见下方数据表`} />
         <details><summary>查看图表数据与抑制状态</summary>{table}</details>
       </>}
-      <div className="insight-chart-actions"><button type="button" disabled={stale || !!exporting} data-busy={exporting === "svg" ? "true" : undefined} aria-busy={exporting === "svg" || undefined} onClick={() => void exportChart("svg")}>{exporting === "svg" ? "导出中…" : "导出 SVG"}</button><button type="button" disabled={stale || !!exporting} data-busy={exporting === "png" ? "true" : undefined} aria-busy={exporting === "png" || undefined} onClick={() => void exportChart("png")}>{exporting === "png" ? "导出中…" : "导出 PNG"}</button></div>
+      {actions || showExport ? <div className="insight-chart-actions">
+        {actions}
+        {showExport ? <ListboxSelect ariaLabel="导出图表" listboxLabel="导出格式" value=""
+          placeholder={exporting ? "导出中…" : "导出"} placement="top"
+          disabled={stale || !!exporting}
+          options={[{ value: "svg", label: "导出 SVG" }, { value: "png", label: "导出 PNG" }]}
+          onChange={(value) => { if (value === "svg" || value === "png") void exportChart(value); }} /> : null}
+      </div> : null}
     </>}
     {exportError && <p role="alert" className="insight-error">{exportError}</p>}
   </section>;

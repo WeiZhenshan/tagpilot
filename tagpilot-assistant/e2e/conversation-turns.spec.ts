@@ -53,6 +53,12 @@ for (const { width, profile } of [1440, 390].flatMap((width) =>
     await expect(second.getByRole("region", { name: "第 2 轮处理记录", exact: true })).toBeVisible();
     await expect(third.getByRole("region", { name: "第 3 轮处理记录", exact: true })).toBeVisible();
     await expect(third.locator(".ask-card")).toBeVisible();
+    for (const turn of [first, second, third]) {
+      await expect(turn.locator('.bot-run [aria-label="TagPilot"]')).toHaveCount(1);
+    }
+    for (const id of ["a1", "a2", "a3"]) {
+      await expect(page.locator(`.conversation-turn[data-message-id="${id}"] [aria-label="TagPilot"]`)).toHaveCount(0);
+    }
     await expect(second.locator(".ask-card")).toHaveCount(0);
     await expect(first.locator(".ask-card")).toHaveCount(0);
     await expect(second.locator(".run-heading")).toContainText("已继续处理");

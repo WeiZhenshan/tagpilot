@@ -56,7 +56,7 @@ export type Tree = Clause | Group;
 export type Plan = {
   schema_version?: number;
   plan_status?: string;
-  intent_plan?: { requirements: { requirement_id: string; business_meaning: string }[]; assumptions?: { requirement_id?: string; status: string; question?: string }[] };
+  intent_plan?: { original_request?: string; requirements: { requirement_id: string; business_meaning: string }[]; assumptions?: { requirement_id?: string; status: string; question?: string }[] };
   diagnostics?: Diagnostic[];
   tree: Tree;
   valid?: boolean;
@@ -123,6 +123,8 @@ export type Thread = {
   analysis_artifacts?: Record<string, import("./insight/analysisTypes").AnalysisArtifact>;
   run_id?: string;
   questions?: { clause_id?: string; requirement_id?: string; prompt: string; options?: string[]; reason?: string }[];
+  stopped_questions?: Thread["questions"];
+  clarification_state?: { pending_questions?: Thread["questions"] };
   interrupt_id?: string;
   error?: string;
   outcome?: { outcome: string; gaps: { requirement_id: string; reason: string; nearest_tag_ids: number[] }[]; stats?: Record<string, unknown> };
@@ -305,6 +307,11 @@ export function treeSentence(tree: Tree): string {
   if (!("children" in tree)) return clauseSentence(tree);
   return `满足以下${tree.logic === "AND" ? "全部" : "任一"}条件：\n${tree.children.map((child) =>
     "children" in child ? `（${treeSentence(child)}）` : `• ${clauseSentence(child)}`).join("\n")}`;
+}
+/** 面向阅读的条件表达式；可执行客群规则仍由服务端编译。 */
+export function treeBusinessExpression(tree: Tree): string {
+  if (!("children" in tree)) return clauseSentence(tree);
+  return `(${tree.children.map(treeBusinessExpression).join(tree.logic === "AND" ? " 且 " : " 或 ")})`;
 }
 export type PendingItem = {
   id: string;

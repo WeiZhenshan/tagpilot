@@ -587,7 +587,7 @@ public class TsAgentWorkbenchService {
         if("新的圈选".equals(row.getTitle()) && history.stream().noneMatch(m->"user".equals(m.get("role"))))
             row.setTitle(suggestTitle(text));
         state.putAll(map("run_id",client,"run_profile",req.getOrDefault("profile","audience"),"run_request",req,"status","RUNNING","cursor",0,"events",new ArrayList<>(),"messages",messages,"questions",new ArrayList<>()));
-        state.remove("error");state.remove("authority_repairs");state.remove("live_plan");
+        state.remove("error");state.remove("authority_repairs");state.remove("live_plan");state.remove("stopped_questions");
         if(skillName==null && !"conversation".equals(req.get("profile"))){state.remove("count");state.remove("execution");}else{state.remove("outcome");state.remove("interrupt_id");}
         save(row,state);refreshRunSync(thread,state);return view(row,state);
     }
@@ -650,6 +650,8 @@ public class TsAgentWorkbenchService {
             Map<String,Object> partial=obj(state.get("live_plan"));partial.put("valid",false);applyPlan(state,partial);
         }
         List<Map<String,Object>> events=list(state.get("events"));events.add(map("seq",-1,"type","run.cancelled","message","已停止；已完成条件保留"));state.put("events",events);
+        List<Map<String,Object>> stoppedQuestions=list(state.get("questions"));
+        if(!stoppedQuestions.isEmpty())state.put("stopped_questions",new ArrayList<>(stoppedQuestions));
         state.put("status","CANCELLED");state.put("questions",new ArrayList<>());runSync.untrack(row.getThreadId());
     }
     /** 方案中已作为条件使用的标签：这些列被条件截断，统计口径要在报告里声明。 */

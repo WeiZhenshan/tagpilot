@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { Plan, Thread } from "./agentTypes";
-import { clauses, clauseSentence, expressionText, planDiff, treeSentence } from "./agentTypes";
+import { clauses, clauseSentence, expressionText, planDiff, treeBusinessExpression, treeSentence } from "./agentTypes";
 import { PlanIcon } from "./ClauseSummary";
 
 type Detail = "versions" | "requirement" | "technical";
 const titles: Record<Detail, string> = { versions: "版本历史", requirement: "原始需求", technical: "技术详情" };
 
-export function PlanMenu({ thread, plan, historical, dirty, onVersion }: {
-  thread: Thread | null; plan?: Plan; historical: boolean; dirty: boolean; onVersion: (revision?: number) => void;
+export function PlanMenu({ thread, plan, historical, dirty, onVersion, onRegenerate }: {
+  thread: Thread | null; plan?: Plan; historical: boolean; dirty: boolean; onVersion: (revision?: number) => void; onRegenerate?: () => void;
 }) {
   const [menu, setMenu] = useState(false);
   const [detail, setDetail] = useState<Detail>();
@@ -30,16 +30,28 @@ export function PlanMenu({ thread, plan, historical, dirty, onVersion }: {
   useEffect(() => { setMenu(false); setDetail(undefined); setCopyNotice(""); }, [thread?.thread_id]);
   const versions = [...new Map([...(thread?.versions || []), ...(thread?.plan ? [thread.plan] : [])].map((p) => [p.revision, p])).values()]
     .sort((a, b) => (b.revision || 0) - (a.revision || 0));
-  async function copy() {
+  async function copy(format: "text" | "json" | "expression") {
     setMenu(false);
-    try { if (plan) await navigator.clipboard.writeText(`圈选方案 v${plan.revision || "草稿"}\n${treeSentence(plan.tree)}`); setCopyNotice("已复制方案文字"); }
-    catch { setCopyNotice("未能复制，请重试或从详情中选取文字。"); }
+    trigger.current?.focus();
+    if (!plan) return;
+    try {
+      const content = format === "json" ? JSON.stringify(plan.tree, null, 2)
+        : format === "expression" ? treeBusinessExpression(plan.tree)
+        : `圈选方案 v${plan.revision || "草稿"}\n${treeSentence(plan.tree)}`;
+      await navigator.clipboard.writeText(content);
+      setCopyNotice(format === "json" ? "已复制筛选条件 JSON" : format === "expression" ? "已复制对象群业务表达式（非可执行规则）" : "已复制方案文字");
+    } catch {
+      setCopyNotice("未能复制，请重试或从详情中选取文字。");
+    }
   }
   return <div className="plan-menu" ref={root}>
     <button ref={trigger} className="plan-icon-button" aria-label="方案更多操作" aria-expanded={menu} aria-controls="plan-more-actions" onClick={() => { setMenu(!menu); setCopyNotice(""); }}><PlanIcon kind="more" /></button>
     {menu ? <div id="plan-more-actions" className="plan-menu-options" aria-label="方案更多操作">
       {(["versions", "requirement", "technical"] as Detail[]).map((key) => <button key={key} disabled={!plan && key !== "requirement"} onClick={() => { setMenu(false); setDetail(key); }}>{titles[key]}</button>)}
-      <button disabled={!plan} onClick={() => void copy()}>复制方案文字</button>
+      <button disabled={!plan} onClick={() => void copy("text")}>复制方案文字</button>
+      <button disabled={!plan} onClick={() => void copy("json")}>复制筛选条件 JSON</button>
+      <button disabled={!plan} onClick={() => void copy("expression")}>复制对象群业务表达式</button>
+      {onRegenerate ? <button onClick={() => { setMenu(false); onRegenerate(); setCopyNotice("原需求已填入对话。重新生成后，可在版本历史中对比或恢复之前的方案。"); }}>重新生成方案…</button> : null}
     </div> : null}
     {copyNotice ? <span className="plan-copy-notice" role="status">{copyNotice}</span> : null}
     {detail ? <dialog className="plan-detail-dialog" ref={dialog} aria-label={titles[detail]} onCancel={() => setDetail(undefined)}>

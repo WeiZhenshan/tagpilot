@@ -27,3 +27,12 @@ export function artifactFor(artifacts: Record<string, AnalysisArtifact> | undefi
   const artifact = artifacts?.[`${id}@${version}`];
   return artifact?.id === id && artifact.version === version ? artifact : undefined;
 }
+
+export function analysisLimitation(parts: AnalysisPart[] = []) {
+  return parts.find((part) => {
+    if (part.type === "clarification") return false;
+    if (part.status === "BLOCKED" || part.status === "PARTIAL") return true;
+    // 早期会话将取数受限写在已完成的文本块中。
+    return "text" in part && /被.{0,12}整组抑制|整组统计已抑制|无法给出可核验的分布图/.test(part.text);
+  });
+}

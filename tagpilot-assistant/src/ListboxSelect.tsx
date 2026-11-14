@@ -1,23 +1,10 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { ActionIcon } from "./ActionIcon";
 
 export type ListboxOption = { value: string; label: string };
 
 export function ChevronIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      className="chevron-icon"
-      data-open={open || undefined}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m7 10 5 5 5-5" />
-    </svg>
-  );
+  return <ActionIcon kind="chevron" className="chevron-icon" open={open} />;
 }
 
 function CheckIcon() {

@@ -320,9 +320,9 @@ test("clarification and responsive layout remain usable", async ({ page }) => {
       path: process.env.CAPTURE_DIR + "/desktop-plan.png",
     });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("tab", { name: "圈选方案", exact: true }).click();
+  await page.getByRole("tab", { name: "圈选结果", exact: true }).click();
   await expect(
-    page.getByRole("tab", { name: "圈选方案", exact: true })
+    page.getByRole("tab", { name: "圈选结果", exact: true })
   ).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("complementary", { name: "圈选方案" }).getByText("近30天异名跨行转入金额 大于 500000元", { exact: true })).toBeVisible();
   await expect(page.getByLabel("近30天异名跨行转入金额条件值")).toHaveCount(0);
@@ -359,7 +359,7 @@ test("mobile errors remain visible and history is accessible", async ({
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/agent-ui/?threadId=test-thread");
-  await page.getByRole("tab", { name: "圈选方案", exact: true }).click();
+  await page.getByRole("tab", { name: "圈选结果", exact: true }).click();
   await page.route("**/test-thread/count", (r) =>
     r.fulfill({ json: { code: 409, msg: "方案已更新，请重新核验" } })
   );
@@ -370,7 +370,7 @@ test("mobile errors remain visible and history is accessible", async ({
       animations: "disabled",
       path: process.env.CAPTURE_DIR + "/mobile-error.png",
     });
-  await page.getByRole("tab", { name: "侧栏", exact: true }).click();
+  await page.getByRole("tab", { name: "历史任务", exact: true }).click();
   await expect(
     page.getByRole("navigation", { name: "圈选会话" })
   ).toBeVisible();
@@ -378,8 +378,8 @@ test("mobile errors remain visible and history is accessible", async ({
 
 test("new draft keeps its identity while changing libraries", async ({ page }) => {
   await page.goto("/agent-ui/?threadId=test-thread");
-  await page.getByRole("button", { name: "新建圈选" }).click();
-  await expect(page.locator(".conversation-heading")).toHaveText("新的圈选");
+  await page.getByRole("button", { name: "新建会话" }).click();
+  await expect(page.locator(".conversation-heading")).toHaveText("新会话");
 
   const composer = page.getByRole("textbox", { name: "圈选需求或技能调用" });
   await composer.fill("圈选公司客户中的高价值客户");
@@ -718,7 +718,7 @@ test('待处理逐项确认，跳过不解除阻断，改写预填且不自动�
   t.outcome={outcome:'PARTIAL',gaps:[{requirement_id:'r',reason:'CALIBER_UNAVAILABLE',nearest_tag_ids:[]}]};
   await page.setViewportSize({width:390,height:844});
   await page.goto('/agent-ui/?threadId=test-thread');
-  await page.getByRole('tab',{name:'圈选方案',exact:true}).click();
+  await page.getByRole('tab',{name:'圈选结果',exact:true}).click();
   const card=page.getByRole('region',{name:'待处理事项'});
   await expect(card).toContainText('第 1/2 项');
   await expect(card.getByText('采用当前客户状态口径？')).toHaveCount(0);
@@ -788,7 +788,7 @@ test('空态与处理中的方案只呈现当前动作',async({page})=>{
   t.plan=undefined;t.versions=[];t.messages=[];t.revision=0;t.status='IDLE';
   await page.goto('/agent-ui/?threadId=test-thread');
   const panel=page.getByRole('complementary',{name:'圈选方案'});
-  await expect(panel).toContainText('先描述你想寻找的客户');
+  await expect(panel).toContainText('生成方案后，可在这里核对条件和统计人数。');
   await expect(panel.locator('.plan-actions')).toHaveCount(0);
   t.plan=structuredClone(plan);t.live_plan=structuredClone(plan);t.revision=1;t.status='RUNNING';
   await page.reload();
@@ -808,6 +808,23 @@ test('复制方案文字保留中文码值及嵌套关系',async({page,context})
   await expect(page.getByText('已复制方案文字',{exact:true})).toBeVisible();
   const text=await page.evaluate(()=>navigator.clipboard.readText());
   expect(text).toContain('满足以下全部条件');expect(text).toContain('客户状态 不属于 已销户');expect(text).not.toContain('CLOSED');
+  await page.getByRole("button", { name: "方案更多操作" }).click();
+  await page.getByRole("button", { name: "复制筛选条件 JSON", exact: true }).click();
+  await expect(page.getByText("已复制筛选条件 JSON", { exact: true })).toBeVisible();
+  const copiedTree = JSON.parse(await page.evaluate(() => navigator.clipboard.readText()));
+  expect(copiedTree).toEqual(t.plan.tree);
+  await page.getByRole("button", { name: "方案更多操作" }).click();
+  await page.getByRole("button", { name: "复制对象群业务表达式", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "已复制对象群业务表达式（非可执行规则）" })).toBeVisible();
+  const expression = await page.evaluate(() => navigator.clipboard.readText());
+  expect(expression).toContain("且");
+  expect(expression).toContain("客户状态 不属于 已销户");
+  await page.getByRole("button", { name: "方案更多操作" }).click();
+  await page.getByRole("button", { name: "重新生成方案…" }).click();
+  await expect(page.getByRole("textbox", { name: "圈选需求或技能调用" })).toHaveValue(t.messages[0].text);
+  await expect(page.getByRole("status").filter({ hasText: "可在版本历史中对比或恢复" })).toBeVisible();
+  expect(t.revision).toBe(1);
+
 });
 
 test('定义确认提交失败后保留当前待办并可重试',async({page})=>{
@@ -866,6 +883,7 @@ test("streaming timeline paces updates, replays history, and highlights changed 
   t.plan = livePlan; t.status = "COMPLETED";
   await expect(current.locator(".run-content")).toHaveCount(0);
   await current.locator(".run-heading").click();
+  await current.getByText("执行明细", { exact: true }).click();
   await current.getByRole("button", { name: "方案变更 · 2 项" }).click();
   await expect(page.locator('.workbench-toast')).toContainText('已定位到方案');
   await expect(page.locator('.clause-row[data-highlighted="true"]')).toHaveCount(2);
@@ -981,10 +999,190 @@ test("切换右栏 tab 保留未保存的条件草稿", async ({ page }) => {
   await page.getByRole("button", { name: "编辑条件：近30天异名跨行转入金额", exact: true }).click();
   const value = page.getByLabel("近30天异名跨行转入金额条件值");
   await value.fill("600000");
-  await expect(page.locator(".plan-status")).toContainText("未保存");
+  await expect(page.locator(".result-conditions .plan-status")).toContainText("未保存");
   const heading = page.locator(".insight-sidebar-heading");
   await heading.getByRole("button", { name: "洞察", exact: true }).click();
   await heading.getByRole("button", { name: "圈选方案", exact: true }).click();
-  await expect(page.locator(".plan-status")).toContainText("未保存");
+  await expect(page.locator(".result-conditions .plan-status")).toContainText("未保存");
   await expect(page.getByLabel("近30天异名跨行转入金额条件值")).toHaveValue("600000");
+});
+
+test("新会话示例仅预填，切回原会话后恢复草稿和引用", async ({ page }) => {
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const composer = page.getByRole("textbox", { name: "圈选需求或技能调用" });
+  await composer.fill("本会话的待发送问题");
+  await page.locator(".user-message").getByRole("button", { name: "引用", exact: true }).click();
+  await expect(composer).toHaveValue("本会话的待发送问题");
+  await page.getByRole("button", { name: "新建会话" }).click();
+  await expect(composer).toHaveValue("");
+  await expect(page.locator(".composer-quote")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "洞察", exact: true })).not.toHaveAttribute("data-unread", "true");
+  await page.getByRole("button", { name: "高消费客户" }).click();
+  await expect(composer).toHaveValue("高消费客户");
+  expect(createdThreads).toBe(0);
+  await page.getByRole("button", { name: "跨行资金转入客户", exact: true }).click();
+  await expect(composer).toHaveValue("本会话的待发送问题");
+  await expect(page.locator(".composer-quote")).toContainText("近30天异名跨行转入超过50万元");
+  await expect(page.locator(".composer-scope")).toHaveCount(0);
+});
+
+test("欢迎区推荐项适配宽屏和窄屏", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("/agent-ui/");
+  const heading = page.getByRole("heading", { name: "圈选客户", exact: true });
+  const first = page.getByRole("button", { name: "近期资金流入客户", exact: true });
+  const second = page.getByRole("button", { name: "分析客户资产结构", exact: true });
+  await expect(heading).toHaveCSS("font-size", "18px");
+  const wideFirst = await first.boundingBox();
+  const wideSecond = await second.boundingBox();
+  expect(wideFirst!.width).toBeGreaterThan(220);
+  expect(wideSecond!.x).toBeGreaterThan(wideFirst!.x + wideFirst!.width);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(heading).toHaveCSS("font-size", "15px");
+  const narrowFirst = await first.boundingBox();
+  const narrowSecond = await second.boundingBox();
+  expect(narrowSecond!.y).toBeGreaterThan(narrowFirst!.y);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("停止后保留待确认问题，重新发起仅填入原需求", async ({ page }) => {
+  t.status = "CANCELLED";
+  t.run_id = "cancelled-run";
+  t.messages[0].run_id = t.run_id;
+  t.events = [{ seq: 1, type: "run.waiting" }, { seq: -1, type: "run.cancelled" }];
+  t.stopped_questions = [{ prompt: "采用哪个客户价值指标？" }];
+  await page.goto("/agent-ui/?threadId=test-thread");
+  await expect(page.getByText("采用哪个客户价值指标？", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "重新发起本轮" }).click();
+  await expect(page.getByRole("textbox", { name: "圈选需求或技能调用" })).toHaveValue(t.messages[0].text);
+  expect(t.status).toBe("CANCELLED");
+});
+
+test("分区支持方向键，窄屏保留一套导航且不覆盖桌面栏宽", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const sessionTab = page.getByRole("tab", { name: "会话", exact: true });
+  await sessionTab.press("ArrowRight");
+  await expect(page.getByRole("tab", { name: "标签", exact: true })).toBeFocused();
+  await expect(page.getByRole("tab", { name: "标签", exact: true })).toHaveAttribute("aria-selected", "true");
+  const handle = page.getByRole("separator", { name: "调整左侧栏宽度", exact: true });
+  await handle.press("ArrowRight");
+  const width = await handle.getAttribute("aria-valuenow");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("tab", { name: "圈选结果", exact: true }).click();
+  const mobileTabs = page.getByRole("tablist", { name: "工作台分区" });
+  await expect(mobileTabs.getByRole("tab")).toHaveCount(3);
+  await page.getByRole("group", { name: "结果视图" }).getByRole("button", { name: "洞察" }).click();
+  await expect(page.getByRole("complementary", { name: "洞察报告面板" })).toBeVisible();
+  await page.getByRole("button", { name: "收起结果", exact: true }).click();
+  await expect(mobileTabs.getByRole("tab", { name: "对话" })).toBeFocused();
+  await mobileTabs.getByRole("tab", { name: "对话" }).press("ArrowRight");
+  await expect(mobileTabs.getByRole("tab", { name: "圈选结果" })).toBeFocused();
+  await expect(mobileTabs.getByRole("tab", { name: "圈选结果" })).toHaveAttribute("aria-selected", "true");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(handle).toHaveAttribute("aria-valuenow", width!);
+});
+
+test("分布受限时只展示可核验的人数和来源", async ({ page }) => {
+  t.run_id = "analysis-run";
+  t.run_profile = "conversation";
+  t.messages.forEach((message: { run_id?: string }) => { message.run_id = t.run_id; });
+  t.messages[1].text = "";
+  t.messages[1].parts = [
+    { id: "limit", version: 1, status: "COMPLETE", type: "text", text: "部分档位已被服务端整组抑制，因此无法给出可核验的分布图。" },
+    { id: "part", version: 1, status: "COMPLETE", type: "chart", artifact_id: "count", artifact_version: 1 },
+  ];
+  t.events = [{ seq: 1, type: "run.completed" }];
+  t.analysis_artifacts = {
+    "count@1": {
+      id: "count", version: 1, base_revision: 1, context: "合成客群",
+      spec: { id: "count", schema_version: 1, kind: "kpi", intent: "single_value", unit: "人", title: "当前客群规模", metric_label: "客户数", zero_baseline: true, orientation: "vertical", annotations: [], reconcile: [],
+        series: [{ name: "当前客群", fact_ids: ["total"], points: [{ category: "客户数", column: null, fact_id: "total", value: 240 }] }] },
+      facts: [{ id: "total", metric: "count", label: "客户数", value: 240, unit: "人", sample_size: 240, status: "AVAILABLE", query_id: "count", evidence: ["合成聚合"], denominator_id: null, derived_from: [], role: "OBSERVED", exclusions_applied: [] }],
+    },
+  };
+  await page.goto("/agent-ui/?threadId=test-thread");
+  await expect(page.getByRole("button", { name: "第 1 轮处理记录 · 分析受限" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "分析受限" })).toContainText("部分分组样本不足");
+  const metric = page.getByRole("region", { name: "当前客群规模" });
+  await expect(metric).toContainText("240人");
+  await expect(metric.getByRole("button", { name: /继续分析|放大|导出/ })).toHaveCount(0);
+  await metric.getByRole("button", { name: "查看来源" }).click();
+  await expect(page.getByRole("dialog", { name: "指标来源" })).toContainText("合成聚合");
+});
+
+test("桌面三栏呈现方案摘要和结构化结果，业务步骤随统计更新", async ({ page }) => {
+  t.messages[1].revision = 1;
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  await expect(page.getByRole("heading", { name: "历史任务" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "客群圈选助手" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "圈选结果" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "已生成筛选方案" })).toContainText("近30天异名跨行转入金额");
+  const steps = page.locator(".run-todos");
+  await page.locator(".run-heading").click();
+  await expect(steps.locator(":scope > li")).toHaveCount(5);
+  await expect(steps.getByText("统计命中人数")).toBeVisible();
+  await page.getByRole("region", { name: "下一步操作" }).getByRole("button", { name: "统计人数" }).click();
+  await expect(steps.getByText("1,268 人")).toBeVisible();
+  await expect(page.getByRole("region", { name: "圈选客户数" })).toContainText("1,268");
+  if (process.env.CAPTURE_DIR) {
+    await page.locator(".run-heading").click();
+    await page.screenshot({ path: `${process.env.CAPTURE_DIR}/tagpilot-three-panel.png`, animations: "disabled" });
+  }
+});
+
+test("对话方案卡修改阈值，右栏共享草稿并核验为新版本", async ({ page }) => {
+  t.messages[1].revision = 1;
+  t.count = { value: 1268, revision: 1, plan_hash: plan.hash, executed_at: "2026-09-21T01:05:00Z" };
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const card = page.getByRole("region", { name: "已生成筛选方案" });
+  const value = card.getByLabel("方案卡：近30天异名跨行转入金额条件值");
+  const result = page.getByRole("complementary", { name: "圈选方案" });
+  await expect(value).toHaveValue("500000");
+  await value.fill("");
+  await expect(card.getByRole("button", { name: "保存并核验条件" })).toBeDisabled();
+  await value.fill("600000");
+  await expect(result.getByText(/原人数失效/)).toBeVisible();
+  await expect(result.getByText("近30天异名跨行转入金额 大于 600000元", { exact: true })).toBeVisible();
+  await expect(result.getByText("1,268", { exact: true })).toHaveCount(0);
+
+  await result.getByRole("button", { name: "编辑条件：近30天异名跨行转入金额" }).click();
+  await result.getByLabel("近30天异名跨行转入金额条件值").fill("700000");
+  await expect(value).toHaveValue("700000");
+  if (process.env.CAPTURE_DIR) await page.screenshot({ path: process.env.CAPTURE_DIR + "/inline-plan-desktop.png" });
+
+  await page.route("**/test-thread/runs", (route) =>
+    route.fulfill({ json: { code: 503, msg: "核验服务暂不可用" } }), { times: 1 });
+  await card.getByRole("button", { name: "保存并核验条件" }).click();
+  await expect(card.getByRole("alert")).toHaveText("核验服务暂不可用");
+  await expect(value).toHaveValue("700000");
+  const request = page.waitForRequest((req) => req.url().endsWith("/test-thread/runs"));
+  await card.getByRole("button", { name: "保存并核验条件" }).click();
+  const payload = (await request).postDataJSON();
+  expect(payload.base_revision).toBe(1);
+  expect(payload.plan.tree.children[0].values).toEqual(["700000"]);
+  expect(payload.plan.tree.children[1]).toEqual(plan.tree.children[1]);
+  await expect(result.getByRole("button", { name: "统计人数", exact: true })).toBeEnabled();
+  await expect(card.getByText("v1 · 历史方案")).toBeVisible();
+});
+
+test("窄屏方案卡可选发布码值、移除排除条件并撤销", async ({ page }) => {
+  t.messages[1].revision = 1;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/agent-ui/?threadId=test-thread");
+  const card = page.getByRole("region", { name: "已生成筛选方案" });
+  const values = card.getByRole("button", { name: "方案卡：客户状态条件值", exact: true });
+  await values.click();
+  await card.getByRole("option", { name: "正常", exact: true }).click();
+  await values.press("Escape");
+  await expect(values).toContainText("正常");
+  await card.getByRole("checkbox", { name: "保留排除条件：客户状态" }).click();
+  await expect(values).toHaveCount(0);
+  await card.getByRole("button", { name: "撤销移除条件" }).click();
+  await expect(values).toContainText("正常");
+  await card.getByRole("button", { name: "放弃修改" }).click();
+  await expect(values).toContainText("已销户");
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  if (process.env.CAPTURE_DIR) await page.screenshot({ path: process.env.CAPTURE_DIR + "/inline-plan-mobile.png" });
 });

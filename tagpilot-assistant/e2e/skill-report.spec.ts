@@ -110,7 +110,7 @@ for (const width of [1019, 1440, 390]) test(`左右工作栏动效 ${width}：�
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     if (selector === '.insight-right' && width === 390) {
       await toggle.click();
-      await page.locator('.insight-sidebar-heading').getByRole('button', {name: '圈选方案', exact: true}).click();
+      await page.getByRole('group', {name: '结果视图'}).getByRole('button', {name: '圈选方案', exact: true}).click();
       await toggle.click();
       // 收起方案时保留面板内容，不能先隐藏子面板再让空壳退出。
       expect(await page.locator('.insight-right .plan-panel').evaluate((element) => getComputedStyle(element).display)).toBe('flex');
@@ -141,7 +141,7 @@ for (const width of [1019, 390]) test(`减少动态效果 ${width}：左右工�
 for (const width of [1019, 390]) test(`报告入口 ${width}：收起、重新打开与重复定位`, async ({ page }) => {
   await page.setViewportSize({ width, height: 763 });
   await page.goto('/agent-ui/?libraryId=107&threadId=skill-report-fixture');
-  if (width === 390) await page.getByRole('tab', {name: '洞察', exact: true}).click();
+  if (width === 390) await page.getByRole('tab', {name: '圈选结果', exact: true}).click();
   await expect(page.locator('.insight-report')).toBeVisible();
   await expect(page.getByRole('button', {name: '宽模式', exact: true})).toHaveCount(0);
   const toggle = page.locator('.report-panel-toggle');
@@ -176,7 +176,7 @@ for (const width of [1019, 390]) test(`报告入口 ${width}：收起、重新�
     // 从摘要入口打开时，关闭后焦点回到来源按钮。
     await expect(page.getByRole('button', {name: '展开洞察报告', exact: true})).toBeFocused();
   } else {
-    await expect(page.getByRole('button', {name: '展开右侧面板', exact: true})).toBeFocused();
+    await expect(page.getByRole('tab', {name: '对话', exact: true})).toBeFocused();
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -186,9 +186,9 @@ test('两轮处理记录与技能报告分别归属对应需求和答复', async
   const first = page.locator('.conversation-turn[data-message-id="u0"]');
   const second = page.locator('.conversation-turn[data-message-id="u"]');
   await expect(first.getByRole('region', {name: '第 1 轮处理记录'})).toBeVisible();
-  await expect(second.getByRole('region', {name: '第 2 轮处理记录'})).toContainText('技能分析已完成');
+  await expect(second.getByRole('region', {name: '第 2 轮处理记录'})).toContainText('分析受限');
   await second.locator('.run-heading').click();
-  await expect(second).toContainText('正在读取技能参考资料');
+  await expect(second).toContainText('读取技能参考资料');
   await expect(page.locator('.conversation-turn[data-message-id="a"] .insight-summary')).toContainText('洞察已保存');
   await page.reload();
   await expect(first.locator('.run-timeline')).toHaveCount(1);
@@ -198,7 +198,7 @@ test('两轮处理记录与技能报告分别归属对应需求和答复', async
 for (const width of [1440, 390]) test(`技能报告展示 ${width}：面板自动切换、卡片、KPI 与边界`, async ({ page }) => {
   await page.setViewportSize({ width, height: width === 390 ? 844 : 960 });
   await page.goto('/agent-ui/?libraryId=107&threadId=skill-report-fixture');
-  if (width === 390) await page.getByRole('tab', { name: '洞察' }).click();
+  if (width === 390) await page.getByRole('tab', { name: '圈选结果' }).click();
   const panel = page.locator('.insight-report');
   await expect(panel).toBeVisible();
   // 洞察 tab 激活时，方案面板保持挂载但不可见（切回时不丢草稿）。

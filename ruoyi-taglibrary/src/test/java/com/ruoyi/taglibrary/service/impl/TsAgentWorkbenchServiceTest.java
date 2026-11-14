@@ -517,6 +517,14 @@ class TsAgentWorkbenchServiceTest extends BaseServiceTest {
         assertEquals("CANCELLED",result.get("status"));assertEquals(3L,result.get("revision"));
         assertFalse(result.containsKey("count"));assertFalse((Boolean)((Map)result.get("plan")).get("valid"));
     }
+    @Test void cancelKeepsStoppedQuestionsForReview() throws Exception {
+        List<Map<String,Object>> questions=Arrays.asList(map("prompt","采用哪个指标","options",Arrays.asList("客户等级","潜力等级")));
+        state(map("revision",2,"status","WAITING","run_id","r","questions",questions));
+        Map<String,Object> result=service.cancel("owned");
+        assertEquals("CANCELLED",result.get("status"));
+        assertEquals(Collections.emptyList(),result.get("questions"));
+        assertEquals(questions,result.get("stopped_questions"));
+    }
     @Test void replayedStartCannotChangeRequestContent() throws Exception {
         state(map("revision",2,"status","RUNNING","run_id","same-request-00001","run_request",map("requirement","原需求","edited_plan",null)));
         assertThrows(ServiceException.class,()->service.start("owned",map("client_request_id","same-request-00001","message","篡改需求")));
